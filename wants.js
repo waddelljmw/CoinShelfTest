@@ -5,7 +5,8 @@
 const wants = () => [...store.docs.values()].filter((d) => d.kind === "want");
 const getWant = (id) => store.docs.get("w_" + id);
 const saveWant = (w) => put("w_" + w.id, w);
-const findWant = (typeId, year, mint) => wants().find((w) => w.typeId === typeId && String(w.year) === String(year) && normMint(w.mint) === normMint(mint));
+const findWant = (typeId, year, mint, variety) => wants().find((w) => w.typeId === typeId && String(w.year) === String(year) && normMint(w.mint) === normMint(mint)
+  && String(w.variety || "").toLowerCase() === String(variety || "").toLowerCase());
 const wantLabel = (w) => [w.year ? String(w.year) + (w.mint ? "-" + w.mint : "") : "", w.typeName, w.denom].filter(Boolean).join(" ") + (w.variety ? " · " + w.variety : "");
 // A pretend coin, so Red Book, eBay and mintage lookups work for a want.
 const wantAsCoin = (w) => ({ typeId: w.typeId, typeName: w.typeName, denom: w.denom, year: w.year, mint: w.mint, variety: w.variety || "", gradeMode: "raw", grade: w.grade || "", label: "" });
@@ -96,7 +97,8 @@ function gotWant(id) {
   const t = TYPE_BY_ID[w.typeId];
   if (t) { draft.typeId = t.id; draft.typeName = shortName(t); draft.family = t.family; draft.denom = t.denom; draft.metal = t.metal; draft.oz = t.oz || ""; }
   else draft.typeName = w.typeName;
-  draft.year = w.year; draft.mint = w.mint; draft.variety = w.variety; draft.grade = w.grade;
+  draft.year = w.year; draft.mint = w.mint; draft.grade = w.grade;
+  if (w.variety) { const known = bookVarieties(draft).find((x) => x && varietyFits(x, w.variety)); draft.variety = known || ""; draft.spotVariety = w.variety; }
   if (w.albumId && getAlbum(w.albumId)) draft.albumId = w.albumId;
   draft._fromWant = w.id;
   renderCoinForm();
@@ -104,17 +106,17 @@ function gotWant(id) {
 
 /* ---------- from an album's missing list ---------- */
 function wantFromSlot(el) {
-  const y = +el.dataset.y, m = el.dataset.m || "", typeId = el.dataset.type;
-  if (findWant(typeId, y, m)) return;
-  saveWant(newWant({ typeId, year: y, mint: m, albumId: el.dataset.album }));
+  const y = +el.dataset.y, m = el.dataset.m || "", v = el.dataset.v || "", typeId = el.dataset.type;
+  if (findWant(typeId, y, m, v)) return;
+  saveWant(newWant({ typeId, year: y, mint: m, variety: v, albumId: el.dataset.album }));
   el.outerHTML = `<span class="small muted" style="margin-left:10px">On want list</span>`;
 }
 function wantAllMissing(el) {
   const a = getAlbum(el.dataset.id);
   if (!a) return;
   const st = albumStats(a);
-  const missing = st.slots.filter((s) => !st.filled.has(s.y + "|" + s.m) && !findWant(a.typeId, s.y, s.m));
-  missing.forEach((s) => saveWant(newWant({ typeId: a.typeId, year: s.y, mint: s.m, albumId: a.id })));
+  const missing = st.slots.filter((s) => !st.filled.has(slotKey(s)) && !findWant(a.typeId, s.y, s.m, s.v));
+  missing.forEach((s) => saveWant(newWant({ typeId: a.typeId, year: s.y, mint: s.m, variety: s.v || "", albumId: a.id })));
   closeSheet();
   toast(missing.length ? "Added " + missing.length + " coin" + (missing.length === 1 ? "" : "s") + " to your want list." : "They're already on your want list.");
 }
@@ -123,30 +125,31 @@ function wantAllMissing(el) {
 function openSlotMenu(el) {
   const a = getAlbum(el.dataset.album);
   if (!a) return;
-  const y = +el.dataset.y, m = el.dataset.m || "";
+  const y = +el.dataset.y, m = el.dataset.m || "", v = el.dataset.v || "";
   const t = TYPE_BY_ID[a.typeId];
   const coin = el.dataset.coin ? getCoin(el.dataset.coin) : null;
-  const fake = { typeId: a.typeId, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", year: y, mint: m, gradeMode: "raw", grade: "" };
-  const label = [y + (m ? "-" + m : ""), fake.typeName, fake.denom].filter(Boolean).join(" ");
-  const w = findWant(a.typeId, y, m);
+  const fake = { typeId: a.typeId, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", year: y, mint: m, variety: v, gradeMode: "raw", grade: "" };
+  const label = [y + (m ? "-" + m : ""), fake.typeName, fake.denom].filter(Boolean).join(" ") + (v ? " · " + v : "");
+  if (v) fake.label = autoLabel(fake) + " " + v;
+  const w = findWant(a.typeId, y, m, v);
   const mt = mintageInfo({ ...fake, grade: "VF-20" });
   openSheet(`<div class="sheet-head"><h2>${esc(label)}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <div class="small muted" style="margin:-4px 0 12px">${coin ? "In this album · " + esc(gradeText(coin)) : "Not in this album yet"}${mt ? " · Mintage " + esc(mt.text) : ""}</div>
     ${w
       ? `<div class="card small">★ On your want list${w.grade ? " · target " + esc(w.grade) : ""}${num(w.maxPrice) != null ? " · up to " + money(num(w.maxPrice)) : ""}</div>
          <div class="btn-row"><button class="btn" data-go="wants">View want list</button><button class="btn danger" data-act="slotUnwant" data-id="${esc(w.id)}">Remove from want list</button></div>`
-      : `<button class="btn primary block" data-act="slotWant" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}">★ Add to want list${coin ? " (upgrade)" : ""}</button>
+      : `<button class="btn primary block" data-act="slotWant" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}">★ Add to want list${coin ? " (upgrade)" : ""}</button>
          <div class="hint">Adds ${esc(label)} with no typing. You can set a target grade and price on the Want List later.</div>`}
     <div class="btn-row">
-      ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button>` : `<button class="btn" data-act="slotHave" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}">I have it: add coin</button>`}
+      ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button>` : `<button class="btn" data-act="slotHave" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}">I have it: add coin</button>`}
       <a class="btn" style="text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>
     </div>`);
 }
 function slotWant(el) {
   const a = getAlbum(el.dataset.album);
   if (!a) return;
-  const y = +el.dataset.y, m = el.dataset.m || "";
-  if (!findWant(a.typeId, y, m)) saveWant(newWant({ typeId: a.typeId, year: y, mint: m, albumId: a.id }));
+  const y = +el.dataset.y, m = el.dataset.m || "", v = el.dataset.v || "";
+  if (!findWant(a.typeId, y, m, v)) saveWant(newWant({ typeId: a.typeId, year: y, mint: m, variety: v, albumId: a.id }));
   closeSheet();
   toast("Added to your want list.");
 }
@@ -158,7 +161,14 @@ function slotHave(el) {
   openCoinForm(null);
   if (t) { draft.typeId = t.id; draft.typeName = shortName(t); draft.family = t.family; draft.denom = t.denom; draft.metal = t.metal; draft.oz = t.oz || ""; }
   draft.year = +el.dataset.y; draft.mint = el.dataset.m || ""; draft.albumId = a.id;
-  const w = findWant(a.typeId, draft.year, draft.mint);
+  const v = el.dataset.v || "";
+  if (v) {
+    // Use the matching Red Book variety name when there is one; otherwise note it.
+    const known = bookVarieties(draft).find((x) => x && varietyFits(x, v));
+    if (known) draft.variety = known;
+    draft.spotVariety = v; // remembers which album spot this coin fills
+  }
+  const w = findWant(a.typeId, draft.year, draft.mint, v);
   if (w) draft._fromWant = w.id;
   renderCoinForm();
 }
