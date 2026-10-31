@@ -861,6 +861,7 @@ function renderCoinForm() {
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
+      <div class="hint"><a href="https://www.pcgs.com/photograde" target="_blank" rel="noopener">Compare grades on PCGS Photograde ↗</a></div>
       ${PRICE_BOOK.series[d.typeId] && PRICE_BOOK.series[d.typeId].fbl && !isProofGrade(d.grade) ? `<label class="switch"><span>Full Bell Lines (FBL)<div class="small muted">All the lines on the Liberty Bell are complete.</div></span><input type="checkbox" data-fcheck="fbl" ${d.fbl ? "checked" : ""}></label>` : ""}
       <div id="smsBox">${smsField(d)}</div>
       <div id="varietyBox">${varietyField(d)}</div>
@@ -1199,22 +1200,8 @@ function doNewAlbum(form) {
   closeSheet();
   go("album-" + a.id);
 }
-function openMissing(id) {
-  const a = getAlbum(id);
-  const st = albumStats(a);
-  const missing = st.slots.filter((s) => !st.filled.has(slotKey(s)));
-  const t = TYPE_BY_ID[a.typeId];
-  openSheet(`<div class="sheet-head"><h2>Missing (${missing.length})</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
-    ${missing.length ? `<div class="card">${missing.map((s) => {
-      const fake = { year: s.y, mint: s.m, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", gradeMode: "raw" };
-      if (s.v) fake.label = autoLabel(fake) + " " + s.v;
-      const wanted = findWant(a.typeId, s.y, s.m, s.v);
-      return `<div class="rowline"><span>${esc(slotLabel(s))}${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}</span><span style="white-space:nowrap"><a class="small" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>${wanted
-        ? `<span class="small muted" style="margin-left:10px">On want list</span>`
-        : `<button class="link-btn small" style="margin-left:10px" data-act="wantSlot" data-type="${esc(a.typeId)}" data-y="${s.y}" data-m="${esc(s.m)}" data-v="${esc(s.v || "")}" data-album="${esc(a.id)}">+ Want</button>`}</span></div>`;
-    }).join("")}</div>
-    ${missing.some((s) => !findWant(a.typeId, s.y, s.m, s.v)) ? `<button class="btn block" data-act="wantAllMissing" data-id="${esc(a.id)}">Add all missing to want list</button>` : ""}` : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
-}
+// Delegates to wants.js, which knows about want lists.
+function openMissing(id) { openMissingPicker(id); }
 
 /* CSV import and export live in sheets.js */
 

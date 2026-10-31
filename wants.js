@@ -1,12 +1,15 @@
-// Want list: coins you're looking for, with a target grade and the most you'd pay.
-// Saved as "w_<id>" records next to your coins. Loaded after app.js.
+// Want lists: named lists of coins you're looking for. Each coin has a target grade and
+// the most you'd pay. Saved as "w_<id>" records (kind "want") and "wl_<id>" records
+// (kind "wantlist") next to your coins. Loaded after app.js.
 "use strict";
 
+const DEFAULT_LIST_ID = "general";
 const wants = () => [...store.docs.values()].filter((d) => d.kind === "want");
 const getWant = (id) => store.docs.get("w_" + id);
 const saveWant = (w) => put("w_" + w.id, w);
-const findWant = (typeId, year, mint, variety) => wants().find((w) => w.typeId === typeId && String(w.year) === String(year) && normMint(w.mint) === normMint(mint)
-  && String(w.variety || "").toLowerCase() === String(variety || "").toLowerCase());
+const wantsIn = (listId) => wants().filter((w) => (w.listId || DEFAULT_LIST_ID) === listId);
+const findWant = (typeId, year, mint, variety, listId) => wants().find((w) => w.typeId === typeId && String(w.year) === String(year) && normMint(w.mint) === normMint(mint)
+  && String(w.variety || "").toLowerCase() === String(variety || "").toLowerCase() && (!listId || (w.listId || DEFAULT_LIST_ID) === listId));
 const wantLabel = (w) => [w.year ? String(w.year) + (w.mint ? "-" + w.mint : "") : "", w.typeName, w.denom].filter(Boolean).join(" ") + (w.variety ? " · " + w.variety : "");
 // A pretend coin, so Red Book, eBay and mintage lookups work for a want.
 const wantAsCoin = (w) => ({ typeId: w.typeId, typeName: w.typeName, denom: w.denom, year: w.year, mint: w.mint, variety: w.variety || "", gradeMode: "raw", grade: w.grade || "", label: "" });
@@ -16,18 +19,45 @@ function newWant(fields) {
   return {
     kind: "want", id: uid(), createdAt: Date.now(), typeId: fields.typeId || "", typeName: t ? shortName(t) : fields.typeName || "",
     family: t ? t.family : fields.typeName || "Other", denom: t ? t.denom : "", year: fields.year || "", mint: fields.mint || "",
-    variety: fields.variety || "", grade: fields.grade || "", maxPrice: fields.maxPrice ?? "", notes: fields.notes || "", albumId: fields.albumId || "",
+    variety: fields.variety || "", grade: fields.grade || "", maxPrice: fields.maxPrice ?? "", notes: fields.notes || "",
+    albumId: fields.albumId || "", listId: fields.listId || DEFAULT_LIST_ID,
   };
 }
 
+/* ---------- want lists (collections) ---------- */
+const wantLists = () => [...store.docs.values()].filter((d) => d.kind === "wantlist").sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+const getWantList = (id) => store.docs.get("wl_" + id);
+const saveWantList = (wl) => put("wl_" + wl.id, wl);
+// The General list always exists, even before it's been saved.
+function ensureDefaultList() {
+  if (!getWantList(DEFAULT_LIST_ID)) saveWantList({ kind: "wantlist", id: DEFAULT_LIST_ID, name: "General", scope: "any", createdAt: 0 });
+}
+function listSubtitle(wl) {
+  if (wl.scope === "type") return TYPE_BY_ID[wl.typeId] ? TYPE_BY_ID[wl.typeId].name + " only" : "";
+  if (wl.scope === "type-grade") return (TYPE_BY_ID[wl.typeId] ? TYPE_BY_ID[wl.typeId].name : "") + " · " + (wl.grade || "any grade") + " only";
+  return "";
+}
+const wantsView = { listId: DEFAULT_LIST_ID };
+
 /* ---------- page ---------- */
 function viewWants() {
-  const list = wants().sort((a, b) => (a.family || "").localeCompare(b.family || "") || (+a.year || 0) - (+b.year || 0) || normMint(a.mint).localeCompare(normMint(b.mint)));
+  ensureDefaultList();
+  const lists = wantLists();
+  if (!lists.find((l) => l.id === wantsView.listId)) wantsView.listId = DEFAULT_LIST_ID;
+  const active = getWantList(wantsView.listId);
+  const list = wantsIn(wantsView.listId).sort((a, b) => (a.family || "").localeCompare(b.family || "") || (+a.year || 0) - (+b.year || 0) || normMint(a.mint).localeCompare(normMint(b.mint)));
   const totalMax = sum(list, (w) => num(w.maxPrice));
+  const counts = Object.fromEntries(lists.map((l) => [l.id, wantsIn(l.id).length]));
   return `<h1>Want List</h1>
+    <div class="chips" style="margin-bottom:10px">
+      ${lists.map((l) => `<button class="chip ${wantsView.listId === l.id ? "on" : ""}" data-act="wantsPickList" data-id="${esc(l.id)}">${esc(l.name)}${counts[l.id] ? " · " + counts[l.id] : ""}</button>`).join("")}
+      <button class="chip" data-act="wlNew">+ New list</button>
+    </div>
+    ${listSubtitle(active) ? `<div class="small muted" style="margin:-4px 0 10px">${esc(listSubtitle(active))}</div>` : ""}
     <button class="btn primary block" data-act="wantNew">+ Add a coin you're looking for</button>
     ${list.length ? `<div class="small muted" style="margin:10px 2px">${list.length} coin${list.length === 1 ? "" : "s"}${totalMax ? " · up to " + money(totalMax) + " budgeted" : ""}</div>` : ""}
-    ${list.length ? `<div class="list">${list.map(wantRow).join("")}</div>` : `<div class="card empty" style="margin-top:12px">Nothing on your want list yet. Add coins here, or tap <b>+ Want</b> on an album's missing list.</div>`}`;
+    ${list.length ? `<div class="list">${list.map(wantRow).join("")}</div>` : `<div class="card empty" style="margin-top:12px">Nothing on this list yet. Add a coin here, or select missing coins from an album's "Show missing" list.</div>`}
+    ${active && active.id !== DEFAULT_LIST_ID ? `<button class="btn danger block" style="margin-top:16px" data-act="wlDelete" data-id="${esc(active.id)}">Delete this list</button>` : ""}`;
 }
 function wantRow(w) {
   const fake = wantAsCoin(w);
@@ -49,10 +79,57 @@ function wantRow(w) {
   </div>`;
 }
 
-/* ---------- add / edit ---------- */
+/* ---------- creating a list ---------- */
+function openNewListForm() {
+  ensureDefaultList();
+  const typeOpts = (() => {
+    const { recent, rest } = typesRecentFirst(COIN_TYPES);
+    const opt = (t) => `<option value="${t.id}">${esc(t.name)} (${t.start}–${t.end})</option>`;
+    return `<option value="">Choose…</option>` + (recent.length ? `<optgroup label="Recent">${recent.map(opt).join("")}</optgroup><optgroup label="All types">${rest.map(opt).join("")}</optgroup>` : rest.map(opt).join(""));
+  })();
+  openSheet(`<div class="sheet-head"><h2>New want list</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  <form id="wlForm">
+    <label class="f"><span>List name</span><input type="text" name="name" required placeholder="e.g. Morgan dollars, Birthday ideas"></label>
+    <label class="f"><span>What goes on this list</span>
+      <select name="scope" id="wlScope"><option value="any">Any coins</option><option value="type">One coin type only</option><option value="type-grade">One coin type and grade only</option></select></label>
+    <div id="wlScopeFields"></div>
+    <div class="hint">A scoped list pre-fills the type (and grade) when you add a coin, so you don't retype it each time.</div>
+    <div class="btn-row"><button class="btn primary" type="submit">Create list</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
+  </form>
+  <template id="wlTypeOpts">${typeOpts}</template>`);
+}
+function renderWlScopeFields() {
+  const sel = $("#wlScope"), box = $("#wlScopeFields");
+  if (!sel || !box) return;
+  const tpl = $("#wlTypeOpts");
+  const typeOpts = tpl ? tpl.innerHTML : "";
+  if (sel.value === "any") { box.innerHTML = ""; return; }
+  box.innerHTML = `<label class="f"><span>Coin type</span><select name="typeId" required>${typeOpts}</select></label>`
+    + (sel.value === "type-grade" ? `<label class="f"><span>Grade</span><select name="grade" required><option value="">Choose…</option>${GRADES.filter((g) => g !== "Junk").map((g) => `<option>${g}</option>`).join("")}</select></label>` : "");
+}
+function saveNewList(form) {
+  const fd = new FormData(form);
+  const name = String(fd.get("name") || "").trim();
+  if (!name) { toast("Give the list a name."); return; }
+  const scope = fd.get("scope") || "any";
+  if (scope !== "any" && !fd.get("typeId")) { toast("Pick a coin type for this list."); return; }
+  if (scope === "type-grade" && !fd.get("grade")) { toast("Pick a grade for this list."); return; }
+  const wl = { kind: "wantlist", id: uid(), name, scope, typeId: fd.get("typeId") || "", grade: fd.get("grade") || "", createdAt: Date.now() };
+  saveWantList(wl);
+  wantsView.listId = wl.id;
+  closeSheet();
+  toast("List created.");
+  go("wants");
+}
+
+/* ---------- add / edit a want ---------- */
 function openWantForm(id) {
   const w = id ? getWant(id) : null;
-  const d = w || {};
+  ensureDefaultList();
+  const lists = wantLists();
+  const curList = getWantList(w ? (w.listId || DEFAULT_LIST_ID) : wantsView.listId) || getWantList(DEFAULT_LIST_ID);
+  const d = w ? { ...w } : {};
+  if (!w && curList.scope !== "any") { d.typeId = curList.typeId; if (curList.scope === "type-grade") d.grade = curList.grade; }
   const opts = (() => {
     const { recent, rest } = typesRecentFirst(COIN_TYPES);
     const opt = (t) => `<option value="${t.id}" ${d.typeId === t.id ? "selected" : ""}>${esc(t.name)} (${t.start}–${t.end})</option>`;
@@ -60,6 +137,7 @@ function openWantForm(id) {
   })();
   openSheet(`<div class="sheet-head"><h2>${w ? "Edit want" : "Add to want list"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <form id="wantForm" data-id="${esc(id || "")}">
+    ${lists.length > 1 ? `<label class="f"><span>List</span><select name="listId">${lists.map((l) => `<option value="${esc(l.id)}" ${(d.listId || curList.id) === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}</select></label>` : `<input type="hidden" name="listId" value="${esc(curList.id)}">`}
     <label class="f"><span>Coin type</span><select name="typeId" required>${opts}</select></label>
     <div class="grid2">
       <label class="f"><span>Year</span><input type="number" inputmode="numeric" name="year" value="${esc(d.year || "")}" placeholder="Any"></label>
@@ -79,11 +157,12 @@ function saveWantForm(form) {
   const typeId = fd.get("typeId");
   if (!typeId) { toast("Pick a coin type."); return; }
   const fields = { typeId, year: num(fd.get("year")) ?? "", mint: fd.get("mint") || "", variety: String(fd.get("variety") || "").trim(),
-    grade: fd.get("grade") || "", maxPrice: num(fd.get("maxPrice")) ?? "", notes: String(fd.get("notes") || "").trim() };
+    grade: fd.get("grade") || "", maxPrice: num(fd.get("maxPrice")) ?? "", notes: String(fd.get("notes") || "").trim(), listId: fd.get("listId") || DEFAULT_LIST_ID };
   const old = form.dataset.id ? getWant(form.dataset.id) : null;
   const w = old ? { ...newWant({ ...old, ...fields }), id: old.id, createdAt: old.createdAt, albumId: old.albumId } : newWant(fields);
   saveWant(w);
   touchType(typeId);
+  wantsView.listId = w.listId;
   closeSheet();
   toast(old ? "Saved." : "Added to your want list.");
   if (currentRoute().view !== "wants") go("wants");
@@ -105,22 +184,50 @@ function gotWant(id) {
 }
 
 /* ---------- from an album's missing list ---------- */
+// Checkbox picker over missing slots, with a list to add them all to at once.
+const missingPick = { albumId: null, chosen: new Set() };
+function openMissingPicker(albumId) {
+  ensureDefaultList();
+  const a = getAlbum(albumId);
+  if (!a) return;
+  const st = albumStats(a);
+  const missing = st.slots.filter((s) => !st.filled.has(slotKey(s)));
+  missingPick.albumId = albumId;
+  missingPick.chosen = new Set();
+  renderMissingPicker();
+}
+function renderMissingPicker() {
+  const a = getAlbum(missingPick.albumId);
+  if (!a) return;
+  const t = TYPE_BY_ID[a.typeId];
+  const st = albumStats(a);
+  const missing = st.slots.filter((s) => !st.filled.has(slotKey(s)));
+  const lists = wantLists();
+  openSheet(`<div class="sheet-head"><h2>Missing (${missing.length})</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    ${missing.length ? `<div class="card">${missing.map((s, i) => {
+      const fake = { year: s.y, mint: s.m, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", gradeMode: "raw" };
+      if (s.v) fake.label = autoLabel(fake) + " " + s.v;
+      const onAny = findWant(a.typeId, s.y, s.m, s.v);
+      const k = slotKey(s);
+      return `<div class="rowline"><label style="display:flex;align-items:center;gap:10px;flex:1;cursor:${onAny ? "default" : "pointer"}">
+          ${onAny ? "" : `<input type="checkbox" data-missck="${esc(k)}" ${missingPick.chosen.has(k) ? "checked" : ""} style="width:19px;height:19px;accent-color:var(--accent)">`}
+          <span>${esc(slotLabel(s))}${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}</span></label>
+        <span style="white-space:nowrap"><a class="small" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>
+          ${onAny ? `<span class="small muted" style="margin-left:10px">On want list</span>` : ""}</span></div>`;
+    }).join("")}</div>
+    ${missing.some((s) => !findWant(a.typeId, s.y, s.m, s.v)) ? `
+    <div class="small muted" style="display:flex;justify-content:space-between;margin:10px 2px"><span id="missCount">${missingPick.chosen.size} selected</span>
+      <span><button type="button" class="link-btn" data-act="missAll">Select all</button> · <button type="button" class="link-btn" data-act="missNone">Clear</button></span></div>
+    <label class="f"><span>Add selected to</span><select id="missListPick">${lists.map((l) => `<option value="${esc(l.id)}">${esc(l.name)}</option>`).join("")}</select></label>
+    <button class="btn primary block" data-act="missAdd" ${missingPick.chosen.size ? "" : "disabled"}>Add to want list</button>` : ""}`
+    : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
+}
 function wantFromSlot(el) {
   const y = +el.dataset.y, m = el.dataset.m || "", v = el.dataset.v || "", typeId = el.dataset.type;
   if (findWant(typeId, y, m, v)) return;
   saveWant(newWant({ typeId, year: y, mint: m, variety: v, albumId: el.dataset.album }));
   el.outerHTML = `<span class="small muted" style="margin-left:10px">On want list</span>`;
 }
-function wantAllMissing(el) {
-  const a = getAlbum(el.dataset.id);
-  if (!a) return;
-  const st = albumStats(a);
-  const missing = st.slots.filter((s) => !st.filled.has(slotKey(s)) && !findWant(a.typeId, s.y, s.m, s.v));
-  missing.forEach((s) => saveWant(newWant({ typeId: a.typeId, year: s.y, mint: s.m, variety: s.v || "", albumId: a.id })));
-  closeSheet();
-  toast(missing.length ? "Added " + missing.length + " coin" + (missing.length === 1 ? "" : "s") + " to your want list." : "They're already on your want list.");
-}
-
 /* ---------- tapping a coin card in an album ---------- */
 function openSlotMenu(el) {
   const a = getAlbum(el.dataset.album);
@@ -188,10 +295,44 @@ Object.assign(actions, {
   },
   wantGot: (el) => gotWant(el.dataset.id),
   wantSlot: wantFromSlot,
-  wantAllMissing,
   slotMenu: openSlotMenu,
   slotWant,
   slotHave,
   slotUnwant: (el) => { const w = getWant(el.dataset.id); if (w) { remove("w_" + w.id); closeSheet(); toast("Removed from your want list.", { label: "Undo", fn: () => saveWant(w) }); } },
+  wantsPickList: (el) => { wantsView.listId = el.dataset.id; render(); },
+  wlNew: () => openNewListForm(),
+  wlDelete: (el) => {
+    const wl = getWantList(el.dataset.id);
+    if (!wl) return;
+    if (wantsIn(wl.id).length) { toast("Remove or move its coins first."); return; }
+    remove("wl_" + wl.id);
+    wantsView.listId = DEFAULT_LIST_ID;
+    toast("List deleted.");
+    go("wants");
+  },
+  missAll: () => { const a = getAlbum(missingPick.albumId); const st = albumStats(a); st.slots.filter((s) => !st.filled.has(slotKey(s)) && !findWant(a.typeId, s.y, s.m, s.v)).forEach((s) => missingPick.chosen.add(slotKey(s))); renderMissingPicker(); },
+  missNone: () => { missingPick.chosen.clear(); renderMissingPicker(); },
+  missAdd: () => {
+    const a = getAlbum(missingPick.albumId);
+    if (!a) return;
+    const listId = ($("#missListPick") || {}).value || DEFAULT_LIST_ID;
+    const st = albumStats(a);
+    const slots = st.slots.filter((s) => missingPick.chosen.has(slotKey(s)));
+    slots.forEach((s) => { if (!findWant(a.typeId, s.y, s.m, s.v)) saveWant(newWant({ typeId: a.typeId, year: s.y, mint: s.m, variety: s.v || "", albumId: a.id, listId })); });
+    wantsView.listId = listId;
+    closeSheet();
+    toast("Added " + slots.length + " coin" + (slots.length === 1 ? "" : "s") + " to " + (getWantList(listId) || {}).name + ".");
+  },
 });
-document.addEventListener("submit", (e) => { if (e.target.id === "wantForm") { e.preventDefault(); saveWantForm(e.target); } });
+document.addEventListener("submit", (e) => {
+  if (e.target.id === "wantForm") { e.preventDefault(); saveWantForm(e.target); }
+  else if (e.target.id === "wlForm") { e.preventDefault(); saveNewList(e.target); }
+});
+document.addEventListener("change", (e) => {
+  if (e.target.id === "wlScope") renderWlScopeFields();
+  if (e.target.dataset && e.target.dataset.missck != null) {
+    e.target.checked ? missingPick.chosen.add(e.target.dataset.missck) : missingPick.chosen.delete(e.target.dataset.missck);
+    const c = $("#missCount"); if (c) c.textContent = missingPick.chosen.size + " selected";
+    const b = $("[data-act=missAdd]"); if (b) b.disabled = !missingPick.chosen.size;
+  }
+});
