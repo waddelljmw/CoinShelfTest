@@ -288,7 +288,7 @@ function thumbHtml(c) {
 const photoSrc = (p) => (p.id ? "/_blob/" + p.id : p.url || "");
 
 /* ---------- navigation ---------- */
-const VIEWS = ["home", "value", "albums", "coins", "guide", "options"];
+const VIEWS = ["home", "value", "albums", "wants", "coins", "guide", "options"];
 function currentRoute() {
   const h = location.hash.replace(/^#/, "");
   if (VIEWS.includes(h)) return { view: h };
@@ -311,7 +311,7 @@ function render() {
   if (store.mode === "loading") { main.innerHTML = `<div class="empty">Opening your cabinet…</div>`; return; }
   const menuKey = r.view === "coin" ? "coins" : r.view === "album" ? "albums" : r.view;
   $$("#menu button").forEach((b) => b.classList.toggle("on", b.dataset.go === menuKey));
-  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, coins: viewCoins, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
+  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
   const keepSearch = active && active.id === "coinSearch" ? active.selectionStart : null;
@@ -847,7 +847,7 @@ function showTypeList(q) {
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; // photo-fill working copies aren't saved
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; // working copies aren't saved
   c.year = num(c.year) ?? "";
   c.qty = Math.max(1, num(c.qty) || 1);
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
@@ -867,6 +867,7 @@ async function saveDraft() {
     }
   }
   const isNew = d._isNew;
+  if (d._fromWant) remove("w_" + d._fromWant); // bought a coin off the want list
   if (c.typeId) touchType(c.typeId);
   closeSheet();
   await saveCoin(c);
@@ -1054,8 +1055,12 @@ function openMissing(id) {
   openSheet(`<div class="sheet-head"><h2>Missing (${missing.length})</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     ${missing.length ? `<div class="card">${missing.map((s) => {
       const fake = { year: s.y, mint: s.m, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", gradeMode: "raw" };
-      return `<div class="rowline"><span>${esc(s.y + (s.m ? "-" + s.m : ""))}</span><a class="small" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a></div>`;
-    }).join("")}</div>` : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
+      const wanted = findWant(a.typeId, s.y, s.m);
+      return `<div class="rowline"><span>${esc(s.y + (s.m ? "-" + s.m : ""))}</span><span style="white-space:nowrap"><a class="small" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>${wanted
+        ? `<span class="small muted" style="margin-left:10px">On want list</span>`
+        : `<button class="link-btn small" style="margin-left:10px" data-act="wantSlot" data-type="${esc(a.typeId)}" data-y="${s.y}" data-m="${esc(s.m)}" data-album="${esc(a.id)}">+ Want</button>`}</span></div>`;
+    }).join("")}</div>
+    ${missing.some((s) => !findWant(a.typeId, s.y, s.m)) ? `<button class="btn block" data-act="wantAllMissing" data-id="${esc(a.id)}">Add all missing to want list</button>` : ""}` : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
 }
 
 /* CSV import and export live in sheets.js */
