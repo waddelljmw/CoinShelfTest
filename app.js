@@ -326,6 +326,16 @@ function viewHome() {
     <div class="stat"><div class="k">Gain</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Add prices paid" : pct(paid ? gain / paid : null) + " · inherited not counted"}</div></div>
   </div>`;
 
+  // Melt Value by Metal, only for metals in the collection
+  const metalRows = SPOT_METALS.map((m) => {
+    const cs = owned.filter((c) => meltKey(c) === m.key && num(c.oz));
+    if (!cs.length) return "";
+    const oz = sum(cs, (c) => num(c.oz) * qtyOf(c));
+    const mv = sum(cs, (c) => (meltEach(c) || 0) * qtyOf(c));
+    return `<div class="rowline"><span>${m.label}<div class="small muted">${sum(cs, qtyOf)} coins · ${oz.toFixed(m.key === "copper" ? 2 : 3)} oz</div></span><span class="num">${spotPerOz(m.key) == null ? `<span class="muted small">no spot price</span>` : money(mv)}</span></div>`;
+  }).join("");
+  if (metalRows) html += `<h2>Melt Value by Metal</h2><div class="card">${metalRows}</div>`;
+
   if (s.showSold) html += soldCard();
 
   // Spot prices
@@ -335,15 +345,6 @@ function viewHome() {
       <div class="small muted" style="margin-top:6px">${s.spotUpdated ? "Updated " + esc(s.spotUpdated) + " · " : ""}<button class="link-btn" data-go="options">Change</button></div></div>`;
   }
 
-  // Melt by metal, only for metals in the collection
-  const metalRows = SPOT_METALS.map((m) => {
-    const cs = owned.filter((c) => meltKey(c) === m.key && num(c.oz));
-    if (!cs.length) return "";
-    const oz = sum(cs, (c) => num(c.oz) * qtyOf(c));
-    const mv = sum(cs, (c) => (meltEach(c) || 0) * qtyOf(c));
-    return `<div class="rowline"><span>${m.label}<div class="small muted">${sum(cs, qtyOf)} coins · ${oz.toFixed(m.key === "copper" ? 2 : 3)} oz</div></span><span class="num">${spotPerOz(m.key) == null ? `<span class="muted small">no spot price</span>` : money(mv)}</span></div>`;
-  }).join("");
-  if (metalRows) html += `<h2>Melt by metal</h2><div class="card">${metalRows}</div>`;
 
   const recent = owned.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
   html += `<h2>Recently added</h2>`;
