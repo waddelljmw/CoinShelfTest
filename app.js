@@ -302,7 +302,22 @@ function go(hash) {
   if (location.hash === "#" + hash) render(); else location.hash = hash;
   window.scrollTo(0, 0);
 }
-window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
+// Remember the page you were on before opening a coin, so its back button returns there.
+let coinBackTo = null;
+window.addEventListener("hashchange", (e) => {
+  const oldHash = (String(e.oldURL || "").split("#")[1] || "home");
+  const nowCoin = location.hash.startsWith("#coin-");
+  if (nowCoin && !oldHash.startsWith("coin-")) coinBackTo = oldHash;
+  if (!nowCoin) coinBackTo = null;
+  render();
+  window.scrollTo(0, 0);
+});
+function coinBackLink() {
+  const h = coinBackTo || "coins";
+  let name = { home: "Home", value: "Coin Value", albums: "Albums", wants: "Want List", coins: "Your Coins", guide: "PCGS Photo Guide", options: "Options" }[h];
+  if (!name && h.startsWith("album-")) { const a = getAlbum(h.slice(6)); name = a ? albumTitle(a) : "Albums"; }
+  return `<button class="link-btn" data-go="${esc(name ? h : "coins")}">← ${esc(name || "Your Coins")}</button>`;
+}
 function closeMenu() { $("#menu").hidden = true; $("#menuBtn").setAttribute("aria-expanded", "false"); }
 
 /* ---------- rendering ---------- */
@@ -496,7 +511,7 @@ function viewCoin(r) {
   const album = c.albumId ? getAlbum(c.albumId) : null;
   const row = (k, val) => (val == null || val === "" ? "" : `<div class="rowline"><span class="muted">${k}</span><span class="num" style="text-align:right">${val}</span></div>`);
   const sold = c.sold || {};
-  return `<button class="link-btn" data-go="coins">← Your Coins</button>
+  return `${coinBackLink()}
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}</h1>
     ${mintageLine(c)}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
