@@ -148,4 +148,4 @@ body.readonly [data-spot], body.readonly [data-setting], body.readonly [data-act
 .btn-addcoin { background: var(--good); border-color: var(--good); color: #fff; font-size: 17px; padding: 14px; }
 .btn-want { background: var(--card); border: 2px solid var(--accent); color: var(--accent); margin-top: 14px; }
 /* Three-quarter-height pop-up window */
-.sheet.sheet-75 { height: 75vh; max-height: 75vh; }
+.sheet.sheet-75 { height: 90vh; max-height: 90vh; }
