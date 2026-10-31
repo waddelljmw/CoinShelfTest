@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS = {
   hideSpot: {},
   showSold: false,
   soldAutoDone: false,
+  bookEdition: "",
 };
 
 function showBanner(text) {
@@ -138,9 +139,55 @@ function meltEach(c) {
   return p == null ? null : oz * p;
 }
 const isJunk = (c) => c.gradeMode === "raw" && c.grade === "Junk";
+/* ---------- Red Book values ---------- */
+const gradeRank = (g) => GRADES.indexOf(g);
+const isProofGrade = (g) => /^PR-/.test(g || "");
+function bookTable(c) {
+  const s = PRICE_BOOK.series[c.typeId];
+  if (!s) return null;
+  if (isProofGrade(c.grade)) return s.proof ? { t: s.proof, kind: "proof" } : null;
+  if (c.fbl && s.fbl) return { t: s.fbl, kind: "fbl" };
+  return s.circ ? { t: s.circ, kind: "circ" } : null;
+}
+function bookKey(c, kind) {
+  if (kind === "proof") return String(c.year) + (c.variety ? "|" + c.variety : "");
+  return String(c.year) + (normMint(c.mint) ? "-" + normMint(c.mint) : "");
+}
+function proofVarieties(c) {
+  const s = PRICE_BOOK.series[c.typeId];
+  if (!s || !s.proof || !c.year) return [];
+  return Object.keys(s.proof.rows).filter((k) => k === String(c.year) || k.startsWith(c.year + "|")).map((k) => k.split("|")[1] || "");
+}
+// Returns {price, grade, kind} for the highest listed grade at or below the coin's grade.
+function bookLookup(c) {
+  if (!c.year || !c.grade || c.grade === "Other" || c.grade === "Junk") return null;
+  const bt = bookTable(c);
+  if (!bt) return null;
+  const row = bt.t.rows[bookKey(c, bt.kind)];
+  if (!row) return { none: true, kind: bt.kind };
+  const r = gradeRank(c.grade);
+  let best = null;
+  bt.t.grades.forEach((g, i) => { if (gradeRank(g) <= r && row[i] != null) best = { price: row[i], grade: g, kind: bt.kind }; });
+  return best ? { ...best, asked: c.grade } : { below: true, lowest: bt.t.grades[0], kind: bt.kind };
+}
+const bookPrice = (c) => { const b = bookLookup(c); return b && b.price != null ? b.price : null; };
+function bookText(b) {
+  if (!b) return "";
+  const ed = settings().bookEdition ? " " + settings().bookEdition : "";
+  if (b.none) return "Red Book" + ed + " has no listing for this date" + (b.kind === "proof" ? " and variety." : ".");
+  if (b.below) return "Red Book" + ed + " prices start at " + b.lowest + ". Below that it's worth about melt.";
+  return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " FBL" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "");
+}
+
 function valueEach(c) {
   if (isJunk(c)) return meltEach(c);
-  return num(c.value);
+  return num(c.value) ?? bookPrice(c);
+}
+function valueSource(c) {
+  if (isJunk(c)) return "melt";
+  if (num(c.value) != null) return "entered";
+  if (bookPrice(c) != null) return "book";
+  return meltEach(c) != null ? "melt" : null;
 }
 // Best available value: entered value, else melt.
 const bestEach = (c) => valueEach(c) ?? meltEach(c);
@@ -150,8 +197,9 @@ const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
 function gradeText(c) {
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade;
-  if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ");
-  return g ? "Raw " + g : "Raw";
+  const extra = (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "") + (c.variety && isProofGrade(c.grade) ? " · " + c.variety : "");
+  if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;
+  return (g ? "Raw " + g : "Raw") + extra;
 }
 function autoLabel(c) {
   const date = c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : "";
@@ -166,7 +214,7 @@ function ebayUrl(c) {
     const date = c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : "";
     q = [date, c.typeName, gradeText(c)].filter(Boolean).join(" ");
   } else {
-    q = labelOf(c);
+    q = labelOf(c) + (c.fbl && !isProofGrade(c.grade) ? " FBL" : "") + (isProofGrade(c.grade) ? " proof" : "");
   }
   return "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(q) + "&LH_Sold=1&LH_Complete=1";
 }
@@ -234,12 +282,14 @@ function viewHome() {
   const paid = sum(gainCoins, (c) => num(c.paid) * qtyOf(c));
   const gainVal = sum(gainCoins, (c) => (bestEach(c) || 0) * qtyOf(c));
   const gain = gainCoins.length ? gainVal - paid : null;
-  const noValue = owned.filter((c) => valueEach(c) == null).length;
+  const noValue = owned.filter((c) => valueSource(c) === "melt" && !isJunk(c)).length;
+  const fromBook = owned.filter((c) => valueSource(c) === "book").length;
 
   let html = `<h1>Your cabinet</h1>
   <div class="stats">
     <div class="stat wide"><div class="k">Collection value</div><div class="v">${money(total, "$0.00")}</div>
-      ${noValue ? `<div class="small muted">${noValue} coin${noValue > 1 ? "s" : ""} without a value entered ${noValue > 1 ? "are" : "is"} counted at melt.</div>` : ""}</div>
+      ${fromBook ? `<div class="small muted">${fromBook} coin${fromBook > 1 ? "s" : ""} valued from the Red Book.</div>` : ""}
+      ${noValue ? `<div class="small muted">${noValue} coin${noValue > 1 ? "s" : ""} without a value ${noValue > 1 ? "are" : "is"} counted at melt.</div>` : ""}</div>
     <div class="stat"><div class="k">Coins</div><div class="v">${count}</div></div>
     <div class="stat"><div class="k">Melt value</div><div class="v">${money(melt, "$0.00")}</div></div>
     <div class="stat"><div class="k">Paid</div><div class="v">${money(paid, "$0.00")}</div></div>
@@ -304,7 +354,7 @@ function viewValue() {
     <h2>Most valuable</h2>
     <div class="list">${top.map((c) => coinRow(c)).join("")}</div>
     ${premium.length ? `<h2>Highest premium over melt</h2><div class="card">${premium.map(({ c, p }) => `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="num ${signCls(p)}">${pct(p)}</span></div>`).join("")}</div>` : ""}
-    <p class="small muted">Values are the ones you enter. Coins without a value are counted at melt. Use <b>Check eBay sold</b> on any coin to see recent real sale prices.</p>`;
+    <p class="small muted">Values are the ones you enter, then Red Book values, then melt. Use <b>Check eBay sold</b> on any coin to see recent real sale prices.</p>`;
 }
 
 /* --- Your Coins --- */
@@ -368,7 +418,8 @@ function viewCoin(r) {
       ${row("Grade", esc(gradeText(c)))}
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
-      ${row(isJunk(c) ? "Value (junk = melt)" : "Value each", money(v))}
+      ${row(isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? "Value each (Red Book)" : "Value each", money(v))}
+      ${valueSource(c) === "entered" && bookPrice(c) != null ? row("Red Book", money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
       ${row("Melt each", m == null ? (meltKey(c) ? "Enter spot price" : null) : money(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
       ${row("Paid each", num(c.paid) == null ? null : money(num(c.paid)))}
@@ -493,6 +544,10 @@ function viewOptions() {
       ${SPOT_METALS.map((m) => `<label class="switch"><span>${m.label} spot price</span><input type="checkbox" data-act="hideSpot" data-v="${m.key}" ${s.hideSpot[m.key] ? "" : "checked"}></label>`).join("")}
       <label class="switch"><span>Sold results<div class="small muted">Turns on by itself at your first sale.</div></span><input type="checkbox" data-act="showSold" ${s.showSold ? "checked" : ""}></label>
     </div>
+    <h2>Red Book values</h2>
+    <div class="card">${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof" }[k])).join(" · ")}</span></div>`).join("")}
+      <label class="f"><span>Red Book edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || "")}" placeholder="e.g. 2026"></label>
+      <div class="hint">A coin with no value typed in uses its Red Book value. Coins below the lowest listed grade use melt.</div></div>
     <h2>Export</h2>
     <div class="card">Save all your coins as a spreadsheet file (CSV).
       <div class="btn-row"><button class="btn" data-act="export">Export CSV</button></div></div>
@@ -522,7 +577,7 @@ $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") clos
 let draft = null;
 function blankCoin() {
   return { kind: "coin", id: uid(), status: "owned", typeId: "", typeName: "", family: "", denom: "", year: "", mint: "", gradeMode: "raw", grade: "", customGrade: "",
-    service: "PCGS", customService: "", cert: "", metal: "", oz: "", qty: 1, paid: "", value: "", source: "", acquired: "", albumId: "", notes: "", photos: [], label: "", labelEdited: false, createdAt: Date.now() };
+    service: "PCGS", customService: "", cert: "", metal: "", oz: "", qty: 1, paid: "", value: "", source: "", acquired: "", albumId: "", notes: "", photos: [], fbl: false, variety: "", label: "", labelEdited: false, createdAt: Date.now() };
 }
 function openCoinForm(id) {
   const existing = id ? getCoin(id) : null;
@@ -566,6 +621,8 @@ function renderCoinForm() {
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
+      ${PRICE_BOOK.series[d.typeId] && PRICE_BOOK.series[d.typeId].fbl && !isProofGrade(d.grade) ? `<label class="switch"><span>Full Bell Lines (FBL)<div class="small muted">All the lines on the Liberty Bell are complete.</div></span><input type="checkbox" data-fcheck="fbl" ${d.fbl ? "checked" : ""}></label>` : ""}
+      <div id="varietyBox">${varietyField(d)}</div>
     </fieldset>
 
     <div class="grid2">
@@ -579,6 +636,7 @@ function renderCoinForm() {
       <label class="f"><span>Paid each</span><input type="number" inputmode="decimal" step="0.01" data-f="paid" value="${esc(d.paid)}" placeholder="$"></label>
       <label class="f"><span>Value each</span><input type="number" inputmode="decimal" step="0.01" data-f="value" value="${esc(isJunk(d) ? "" : d.value)}" placeholder="${isJunk(d) ? "melt" : "$"}" ${isJunk(d) ? "disabled" : ""}></label>
     </div>
+    <div class="hint" id="bookHint">${esc(bookHintText(d))}</div>
     <div class="grid2">
       <label class="f"><span>Source</span><input type="text" list="sourceList" data-f="source" value="${esc(d.source)}" placeholder="Coin shop, Inherited…"></label>
       <label class="f"><span>Date acquired</span><input type="date" data-f="acquired" value="${esc(d.acquired)}"></label>
@@ -608,10 +666,39 @@ function renderCoinForm() {
       <button type="button" class="btn" data-act="closeSheet">Cancel</button>
     </div>
   </form>`);
+  refreshFormHints();
+}
+
+function varietyField(d) {
+  if (!isProofGrade(d.grade)) return "";
+  const vs = proofVarieties(d);
+  if (vs.length < 2 && !(vs.length === 1 && vs[0])) return "";
+  return `<label class="f"><span>Variety</span><select data-f="variety">${vs.map((v) => `<option value="${esc(v)}" ${d.variety === v ? "selected" : ""}>${esc(v || "Regular")}</option>`).join("")}</select></label>`;
+}
+function bookHintText(d) {
+  if (isJunk(d)) return "";
+  const b = bookLookup(d);
+  if (!b) return "";
+  const t = bookText(b);
+  return b.price != null ? t + (num(d.value) == null ? ". Used as the value while Value each is empty." : "") : t;
+}
+function refreshFormHints() {
+  const vb = $("#varietyBox");
+  if (vb) {
+    const vs = proofVarieties(draft);
+    if (isProofGrade(draft.grade) && vs.length && !vs.includes(draft.variety || "")) draft.variety = vs[0];
+    const html = varietyField(draft);
+    if (vb.innerHTML !== html) vb.innerHTML = html;
+  }
+  const h = $("#bookHint");
+  if (h) h.textContent = bookHintText(draft);
+  const vi = $("[data-f=value]");
+  if (vi && !isJunk(draft)) { const bp = bookPrice(draft); vi.placeholder = bp != null ? bp.toFixed(2) : "$"; }
 }
 
 function pickType(id) {
   const t = TYPE_BY_ID[id];
+  draft.fbl = false;
   if (!t) return;
   draft.typeId = t.id;
   draft.typeName = shortName(t);
@@ -779,12 +866,12 @@ function openMissing(id) {
 
 /* --- CSV export --- */
 function toCsv() {
-  const cols = ["label", "status", "year", "mint", "typeName", "denom", "family", "gradeMode", "grade", "customGrade", "service", "cert", "metal", "oz", "qty", "paid", "value", "source", "acquired", "album", "notes", "soldDate", "soldAmount", "shipping", "insurance"];
+  const cols = ["label", "status", "year", "mint", "typeName", "denom", "family", "gradeMode", "grade", "customGrade", "service", "cert", "metal", "oz", "qty", "paid", "value", "fbl", "variety", "redBook", "source", "acquired", "album", "notes", "soldDate", "soldAmount", "shipping", "insurance"];
   const q = (v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const rows = allCoins().filter((c) => c.status !== "deleted").map((c) => {
     const a = c.albumId ? getAlbum(c.albumId) : null;
     const s = c.sold || {};
-    return { ...c, label: labelOf(c), album: a ? albumTitle(a) : "", soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance };
+    return { ...c, fbl: c.fbl ? "yes" : "", redBook: bookPrice(c) ?? "", label: labelOf(c), album: a ? albumTitle(a) : "", soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance };
   });
   return [cols.join(","), ...rows.map((r) => cols.map((k) => q(r[k])).join(","))].join("\n");
 }
@@ -882,6 +969,11 @@ document.addEventListener("input", (e) => {
   const el = e.target;
   if (el.id === "typeSearch") { showTypeList(el.value); return; }
   if (el.dataset.list === "q") { listState.q = el.value; render(); return; }
+  if (el.dataset.setting) {
+    clearTimeout(spotTimer);
+    spotTimer = setTimeout(() => saveSettings({ [el.dataset.setting]: el.value.trim() }), 700);
+    return;
+  }
   if (el.dataset.spot) {
     clearTimeout(spotTimer);
     spotTimer = setTimeout(() => {
@@ -901,6 +993,7 @@ document.addEventListener("input", (e) => {
   if (f === "typeName") { draft.family = ""; if (TYPE_BY_ID[draft.typeId] && shortName(TYPE_BY_ID[draft.typeId]) !== el.value) draft.typeId = ""; }
   if (!draft.labelEdited) { const li = $("#labelInput"); if (li) li.value = autoLabel(draft); }
   if (f === "oz") { const h = $("#meltHint"); const m = meltEach(draft); if (h) h.textContent = m != null ? "Melt today: " + money(m) + " each" : ""; }
+  refreshFormHints();
 });
 document.addEventListener("focusin", (e) => { if (e.target.id === "typeSearch") showTypeList(e.target.value); });
 document.addEventListener("change", (e) => {
@@ -914,6 +1007,7 @@ document.addEventListener("change", (e) => {
   }
   if (!draft) return;
   if (el.dataset.na) { draft._newAlbum[el.dataset.na] = el.value; if (el.dataset.na === "brand") renderCoinForm(); return; }
+  if (el.dataset.fcheck) { draft[el.dataset.fcheck] = el.checked; refreshFormHints(); return; }
   if (el.dataset.f) {
     draft[el.dataset.f] = el.value;
     if (el.dataset.f === "metal" && !MELT_OF_METAL[el.value]) draft.oz = "";

@@ -126,7 +126,7 @@ const GRADES = [
   "Junk", "PO-1", "FR-2", "AG-3", "G-4", "G-6", "VG-8", "VG-10", "F-12", "F-15",
   "VF-20", "VF-25", "VF-30", "VF-35", "XF-40", "XF-45", "AU-50", "AU-53", "AU-55", "AU-58",
   "MS-60", "MS-61", "MS-62", "MS-63", "MS-64", "MS-65", "MS-66", "MS-67", "MS-68", "MS-69", "MS-70",
-  "PR-60", "PR-63", "PR-65", "PR-67", "PR-69", "PR-70",
+  "PR-60", "PR-62", "PR-63", "PR-64", "PR-65", "PR-66", "PR-67", "PR-68", "PR-69", "PR-70",
 ];
 const CERT_GRADES = GRADES.filter((g) => g !== "Junk");
 const SERVICES = ["PCGS", "NGC", "ANACS", "ICG", "CACG", "Other"];
