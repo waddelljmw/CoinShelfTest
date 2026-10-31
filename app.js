@@ -667,8 +667,7 @@ function renderCoinForm() {
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? "Add coin" : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" autocomplete="off">
-    ${sampleApi && d._isNew ? `<label class="btn block file-btn" id="photoFillBtn" style="display:block;text-align:center;margin-bottom:4px">📷 Fill in from a photo<input type="file" accept="image/*" id="photoFill"></label>
-      <div class="hint" id="photoFillMsg" style="margin-bottom:6px">Snap the holder label or the coin. Claude reads it and fills in what it can. You check everything before saving.</div>` : ""}
+    ${sampleApi && d._isNew ? photoFillButton(d) : ""}
     <div class="f typeahead"><span>Start from a known coin</span>
       <input type="search" id="typeSearch" placeholder="Search Red Book types, e.g. Morgan" value="${esc(t ? t.name : "")}">
       <div class="ta-list" id="typeList" hidden></div>
@@ -830,7 +829,7 @@ function showTypeList(q) {
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum;
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; // photo-fill working copies aren't saved
   c.year = num(c.year) ?? "";
   c.qty = Math.max(1, num(c.qty) || 1);
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }

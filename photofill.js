@@ -2,11 +2,21 @@
 // Loaded after app.js; uses its draft, helpers and data.
 "use strict";
 
+const MAX_FILL_PHOTOS = 4;
+
+// The button changes once a photo has been read, to ask for the other side.
+function photoFillButton(d) {
+  const n = (d._fillBlobs || []).length;
+  const full = n >= MAX_FILL_PHOTOS;
+  return `${full ? "" : `<label class="btn block file-btn" id="photoFillBtn" style="display:block;text-align:center;margin-bottom:4px">📷 ${n ? "Add the other side" : "Fill in from photos"}<input type="file" accept="image/*" ${n ? "" : "multiple"} id="photoFill"></label>`}
+    <div class="hint" id="photoFillMsg" style="margin-bottom:6px">${n ? n + " photo" + (n > 1 ? "s" : "") + " read." : "Take or pick the front and back (and the holder label if it has one). You can pick both at once, or add one side, then the other."}</div>`;
+}
+
 function photoPrompt() {
   const types = COIN_TYPES.map((t) => `${t.id} | ${t.name} | ${t.start}-${t.end} | mints ${t.mints.join(",")}`).join("\n");
-  return `You are reading a photo of a United States coin, either loose or in a grading holder (slab), to fill in a coin inventory form.
+  return `You are reading one or more photos of the SAME United States coin, loose or in a grading holder (slab), to fill in a coin inventory form. The photos may show the front (obverse), the back (reverse) and/or the holder label. Combine what all of them show.
 
-Read only what you can actually see. If the photo shows a holder label, copy the year, mint mark, variety, grade, grading service and certification number exactly from the label. If it is a loose coin, read the date and mint mark from the coin, and do not guess a grade.
+Read only what you can actually see. Many coins have the mint mark on the reverse (for example Morgan and Peace dollars, Mercury dimes, Walking Liberty halves after 1917, Franklin halves, Buffalo nickels, Indian Head gold). If the mint mark would be on a side that isn't shown, set "mint" to null and say in "note" which side to add. If the photo shows a holder label, copy the year, mint mark, variety, grade, grading service and certification number exactly from the label. If it is a loose coin, read the date and mint mark from the coin, and do not guess a grade.
 
 Pick the coin type from this list (id | name | years | mint marks). Use null if none fits:
 ${types}
@@ -81,31 +91,41 @@ function applyPhotoResult(r) {
   return filled;
 }
 
-async function fillFromPhoto(file) {
+async function fillFromPhoto(files) {
   if (!sampleApi || !draft) return;
   const forDraft = draft;
   const btn = $("#photoFillBtn");
   if (btn) btn.style.opacity = ".5";
-  setFillMsg("Reading the photo… this can take up to a minute.");
-  let blob;
-  try { blob = await shrinkImage(file); } catch (e) { blob = file; }
-  if (!/^image\/(jpeg|png|webp|gif)$/.test(blob.type || "")) {
-    setFillMsg("That photo's format can't be read here. On iPhone, try Settings → Camera → Formats → Most Compatible, or take a screenshot of the photo and use that.", true);
-    const b0 = $("#photoFillBtn"); if (b0) b0.style.opacity = "";
-    return;
+  const fresh = [];
+  for (const f of files) {
+    let blob;
+    try { blob = await shrinkImage(f); } catch (e) { blob = f; }
+    if (!/^image\/(jpeg|png|webp|gif)$/.test(blob.type || "")) {
+      setFillMsg("That photo's format can't be read here. Take a screenshot of the photo and use that instead.", true);
+      const b0 = $("#photoFillBtn"); if (b0) b0.style.opacity = "";
+      return;
+    }
+    fresh.push(blob);
   }
+  // Read every photo of this coin together: front, back, label.
+  const all = [...(draft._fillBlobs || []), ...fresh].slice(-MAX_FILL_PHOTOS);
+  setFillMsg("Reading " + (all.length > 1 ? "the " + all.length + " photos" : "the photo") + "… this can take up to a minute.");
   try {
-    const r = await sampleApi.json(photoPrompt(), { images: [blob], cache: false });
+    const r = await sampleApi.json(photoPrompt(), { images: all, cache: false });
     if (draft !== forDraft) return; // form was closed or replaced while waiting
+    draft._fillBlobs = all;
     const filled = applyPhotoResult(r);
     renderCoinForm();
-    // Keep the photo with the coin.
-    await addPhotos([blob]);
+    // Keep the new photos with the coin.
+    await addPhotos(fresh);
     if (!filled.length) {
       setFillMsg("Couldn't read the coin details from that photo. Try a closer, sharper picture of the label or date.", true);
     } else {
       const unsure = r.confidence && r.confidence !== "high";
-      setFillMsg("Filled in: " + filled.join(", ") + ". " + (unsure ? "Claude wasn't fully sure, so check it carefully. " : "Check it before saving. ") + (r.note ? String(r.note).slice(0, 160) : ""), unsure);
+      const needSide = r.mint === null && all.length < MAX_FILL_PHOTOS;
+      setFillMsg(all.length + " photo" + (all.length > 1 ? "s" : "") + " read. Filled in: " + filled.join(", ") + ". " +
+        (needSide ? "Couldn't see a mint mark. Add the other side to check. " : "") +
+        (unsure ? "Claude wasn't fully sure, so check it carefully. " : "Check it before saving. ") + (r.note ? String(r.note).slice(0, 160) : ""), unsure || needSide);
     }
   } catch (e) {
     if (draft !== forDraft) return;
@@ -124,5 +144,5 @@ async function fillFromPhoto(file) {
 }
 
 document.addEventListener("change", (e) => {
-  if (e.target.id === "photoFill" && e.target.files && e.target.files[0]) fillFromPhoto(e.target.files[0]);
+  if (e.target.id === "photoFill" && e.target.files && e.target.files.length) fillFromPhoto([...e.target.files].slice(0, MAX_FILL_PHOTOS));
 });
