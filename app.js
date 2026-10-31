@@ -431,6 +431,7 @@ function viewCoins() {
     <div class="toolbar">
       <input type="search" id="coinSearch" placeholder="Search" value="${esc(listState.q)}" data-list="q">
     </div>
+    ${listState.q.trim() ? searchLine(list) : ""}
     <div class="toolbar">
       <select data-list="metal" aria-label="Metal"><option value="">All metals</option>${metalsPresent.map((m) => `<option ${listState.metal === m ? "selected" : ""}>${esc(m)}</option>`).join("")}</select>
       <select data-list="cert" aria-label="Raw or certified"><option value="">Raw + certified</option><option value="raw" ${listState.cert === "raw" ? "selected" : ""}>Raw</option><option value="cert" ${listState.cert === "cert" ? "selected" : ""}>Certified</option></select>
@@ -439,20 +440,16 @@ function viewCoins() {
       <select data-list="sort" aria-label="Sort by">${[["year", "Year"], ["value", "Value"], ["melt", "Melt value"], ["acquired", "Date acquired"], ["type", "Coin type"]].map(([k, l]) => `<option value="${k}" ${listState.sort === k ? "selected" : ""}>Sort: ${l}</option>`).join("")}</select>
       <button class="btn" data-act="dir" style="flex:0 0 auto">${listState.dir === "asc" ? "↑ Low to high" : "↓ High to low"}</button>
     </div>
-    ${listState.q.trim() && list.length ? searchTotals(list) : ""}
     ${list.length ? `<div class="list">${list.map((c) => coinRow(c)).join("")}</div>` : `<div class="card empty">${base.length ? "No coins match these filters." : listState.status === "sold" ? "No sold coins yet." : "No coins yet. Tap <b>+</b> to add one."}</div>`}`;
 }
 
-// Totals for the coins a search is showing.
-function searchTotals(list) {
+// One small line under the search box: count, value and melt of the coins found.
+function searchLine(list) {
   const n = sum(list, qtyOf);
   const melt = sum(list, (c) => (meltEach(c) || 0) * qtyOf(c));
   const sold = listState.status === "sold";
   const value = sold ? sum(list, (c) => num(c.sold && c.sold.amount)) : sum(list, (c) => (bestEach(c) || 0) * qtyOf(c));
-  return `<div class="stats" style="margin-bottom:10px">
-    <div class="stat"><div class="k">${sold ? "Sold for" : "Total value"}</div><div class="v">${money(value, "$0.00")}</div><div class="small muted">${n} coin${n === 1 ? "" : "s"} found</div></div>
-    <div class="stat"><div class="k">Melt value</div><div class="v">${money(melt, "$0.00")}</div>${melt === 0 && list.some((c) => meltKey(c)) ? `<div class="small muted">Enter spot prices in Options</div>` : ""}</div>
-  </div>`;
+  return `<div class="small muted" style="margin:-4px 2px 10px">${n} coin${n === 1 ? "" : "s"} · ${sold ? "Sold for" : "Value"} ${money(value, "$0.00")} · Melt ${money(melt, "$0.00")}</div>`;
 }
 
 /* --- Coin detail --- */
