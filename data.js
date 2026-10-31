@@ -139,7 +139,7 @@ const SPOT_METALS = [
   { key: "platinum", label: "Platinum", unit: "oz" },
   { key: "copper", label: "Copper", unit: "lb" },
 ];
-const SOURCE_DEFAULTS = ["Inherited", "Coin shop", "Coin show", "eBay", "Gift", "Pocket change", "Bank roll"];
+const SOURCE_DEFAULTS = ["Inherited", "Coin shop", "Coin show", "Pawn shop", "eBay", "Gift", "Pocket change", "Bank roll"];
 const ALBUM_BRANDS = ["Whitman", "Dansco", "Other"];
 
 // Short, plain-language grade guide (our own summary, not copied from any book).
