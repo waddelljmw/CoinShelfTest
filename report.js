@@ -2,17 +2,56 @@
 // (open it in a browser, then print or save as PDF). Loaded after app.js.
 "use strict";
 
+// Which coins go in the report: all, or the ones you tick.
+const repSel = { mode: "all", ids: new Set(), q: "" };
+
 function openReportForm() {
   const owned = ownedCoins();
+  repSel.mode = "all"; repSel.ids = new Set(); repSel.q = "";
   openSheet(`<div class="sheet-head"><h2>Insurance report</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
-    <p>A dated, itemized list of the ${sum(owned, qtyOf)} coins you own, with values and totals, to keep for your records or send to your insurance agent. Sold coins aren't included.</p>
-    <div class="card">
+    <p>A dated, itemized list of your coins with values and totals, to keep for your records or send to your insurance agent. Sold coins aren't included.</p>
+    <div class="f"><span>Which coins</span>
+      <div class="seg"><button type="button" data-act="repMode" data-v="all" class="on">All coins (${sum(owned, qtyOf)})</button><button type="button" data-act="repMode" data-v="pick">Choose coins</button></div>
+    </div>
+    <div id="repPick" hidden>
+      <input type="search" id="repSearch" placeholder="Search, e.g. Morgan, inherited, PCGS" style="margin-top:10px">
+      <div class="small muted" style="display:flex;justify-content:space-between;margin:8px 2px">
+        <span id="repCount">None chosen</span>
+        <span><button type="button" class="link-btn" data-act="repAll">Tick all shown</button> · <button type="button" class="link-btn" data-act="repNone">Clear</button></span>
+      </div>
+      <div class="list" id="repList" style="max-height:46vh;overflow-y:auto"></div>
+    </div>
+    <div class="card" style="margin-top:12px">
       <label class="switch"><span>Include what I paid<div class="small muted">Adds a Paid column and total.</div></span><input type="checkbox" id="repPaid"></label>
       <label class="switch"><span>Include photos<div class="small muted">Adds a small picture of each coin. Makes the file larger.</div></span><input type="checkbox" id="repPhotos"></label>
     </div>
     <label class="f"><span>Name on the report (optional)</span><input type="text" id="repName" placeholder="Your name" maxlength="80"></label>
     <div class="btn-row"><button class="btn primary" data-act="makeReport" ${owned.length ? "" : "disabled"}>Create report</button><button class="btn" data-act="closeSheet">Cancel</button></div>
     <div class="hint" id="repMsg">It saves as a file that opens in your browser. From there, print it or save it as a PDF.</div>`);
+}
+function repShown() {
+  const q = repSel.q.trim().toLowerCase();
+  return ownedCoins().slice().sort((a, b) => familyOf(a).localeCompare(familyOf(b)) || (+a.year || 0) - (+b.year || 0))
+    .filter((c) => !q || (labelOf(c) + " " + gradeText(c) + " " + (c.source || "") + " " + (c.notes || "") + " " + familyOf(c)).toLowerCase().includes(q));
+}
+function repRenderList() {
+  const box = $("#repList");
+  if (!box) return;
+  const shown = repShown();
+  box.innerHTML = shown.length ? shown.map((c) => {
+    const v = bestEach(c);
+    return `<label class="coin-row" style="cursor:pointer"><input type="checkbox" data-repid="${esc(c.id)}" ${repSel.ids.has(c.id) ? "checked" : ""} style="width:20px;height:20px;accent-color:var(--accent);flex:0 0 auto">
+      <span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${qtyOf(c) > 1 ? `<span class="qty">×${qtyOf(c)}</span> ` : ""}${esc(gradeText(c))}${isInherited(c) ? " · Inherited" : ""}</span></span>
+      <span class="coin-val">${money(v == null ? null : v * qtyOf(c))}</span></label>`;
+  }).join("") : `<div class="empty">No coins match.</div>`;
+  repUpdateCount();
+}
+function repUpdateCount() {
+  const el = $("#repCount");
+  if (!el) return;
+  const chosen = ownedCoins().filter((c) => repSel.ids.has(c.id));
+  const n = sum(chosen, qtyOf);
+  el.textContent = chosen.length ? `${n} coin${n === 1 ? "" : "s"} chosen · ${money(sum(chosen, (c) => (bestEach(c) || 0) * qtyOf(c)))}` : "None chosen";
 }
 
 // Small JPEG thumbnail as a data: URL, so the report file works on its own.
@@ -34,7 +73,7 @@ const SOURCE_TEXT = { entered: "Owner's value", book: "Red Book", melt: "Melt" }
 
 async function buildReport(opts) {
   const s = settings();
-  const coins = ownedCoins().slice().sort((a, b) => familyOf(a).localeCompare(familyOf(b)) || (+a.year || 0) - (+b.year || 0) || normMint(a.mint).localeCompare(normMint(b.mint)));
+  const coins = ownedCoins().filter((c) => !opts.ids || opts.ids.has(c.id)).slice().sort((a, b) => familyOf(a).localeCompare(familyOf(b)) || (+a.year || 0) - (+b.year || 0) || normMint(a.mint).localeCompare(normMint(b.mint)));
   const totQty = sum(coins, qtyOf);
   const totVal = sum(coins, (c) => (bestEach(c) || 0) * qtyOf(c));
   const totMelt = sum(coins, (c) => (meltEach(c) || 0) * qtyOf(c));
@@ -99,7 +138,7 @@ async function buildReport(opts) {
 </style></head><body>
 <button class="print" onclick="window.print()">Print or save as PDF</button>
 <h1>Coin collection inventory</h1>
-<div class="meta">${name ? "Owner: " + esc(name) + " · " : ""}Prepared ${esc(dateLong)} with Coin Cabinet</div>
+<div class="meta">${name ? "Owner: " + esc(name) + " · " : ""}Prepared ${esc(dateLong)} with Coin Cabinet${opts.ids ? " · Selected coins (" + coins.length + " of " + ownedCoins().length + " entries in the collection)" : ""}</div>
 <div class="sum">
   <div><span>Total value</span><b>${money(totVal)}</b></div>
   <div><span>Coins</span><b>${totQty}</b></div>
@@ -125,9 +164,14 @@ ${metalRows ? `<h2>Precious metal content</h2><table><thead><tr><th>Metal</th><t
 async function makeReport() {
   const opts = { paid: !!($("#repPaid") || {}).checked, photos: !!($("#repPhotos") || {}).checked, name: ($("#repName") || {}).value || "" };
   const msg = $("#repMsg");
+  if (repSel.mode === "pick") {
+    const ids = new Set(ownedCoins().filter((c) => repSel.ids.has(c.id)).map((c) => c.id));
+    if (!ids.size) { if (msg) { msg.textContent = "Tick at least one coin for the report."; msg.style.color = "var(--bad)"; } return; }
+    opts.ids = ids;
+  }
   if (msg) msg.textContent = opts.photos ? "Building the report and adding photos…" : "Building the report…";
   const html = await buildReport(opts);
-  const name = "coin-collection-inventory-" + today() + ".html";
+  const name = "coin-collection-inventory-" + (opts.ids ? "selected-" : "") + today() + ".html";
   if (downloadsApi) {
     try {
       await downloadsApi.save({ filename: name, data: html });
@@ -141,4 +185,22 @@ async function makeReport() {
   if (msg) msg.textContent = "Saving files isn't available here. Open Coin Cabinet from Claude to save the report.";
 }
 
-Object.assign(actions, { openReport: () => { closeMenu(); openReportForm(); }, makeReport: () => makeReport() });
+Object.assign(actions, {
+  openReport: () => { closeMenu(); openReportForm(); },
+  makeReport: () => makeReport(),
+  repMode: (el) => {
+    repSel.mode = el.dataset.v;
+    $$("[data-act=repMode]").forEach((b) => b.classList.toggle("on", b === el));
+    $("#repPick").hidden = repSel.mode !== "pick";
+    if (repSel.mode === "pick") repRenderList();
+  },
+  repAll: () => { repShown().forEach((c) => repSel.ids.add(c.id)); repRenderList(); },
+  repNone: () => { repSel.ids.clear(); repRenderList(); },
+});
+document.addEventListener("input", (e) => { if (e.target.id === "repSearch") { repSel.q = e.target.value; repRenderList(); } });
+document.addEventListener("change", (e) => {
+  const id = e.target.dataset && e.target.dataset.repid;
+  if (!id) return;
+  e.target.checked ? repSel.ids.add(id) : repSel.ids.delete(id);
+  repUpdateCount();
+});
