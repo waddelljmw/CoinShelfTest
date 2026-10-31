@@ -88,14 +88,14 @@ function openNewListForm() {
     const opt = (t) => `<option value="${t.id}">${esc(t.name)} (${t.start}–${t.end})</option>`;
     return `<option value="">Choose…</option>` + (recent.length ? `<optgroup label="Recent">${recent.map(opt).join("")}</optgroup><optgroup label="All types">${rest.map(opt).join("")}</optgroup>` : rest.map(opt).join(""));
   })();
-  openSheet(`<div class="sheet-head"><h2>New want list</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  openSheet(`<div class="sheet-head"><h2>New want list</h2><button class="x" data-act="wlCancel" aria-label="Close">✕</button></div>
   <form id="wlForm">
     <label class="f"><span>List name</span><input type="text" name="name" required placeholder="e.g. Morgan dollars, Birthday ideas"></label>
     <label class="f"><span>What goes on this list</span>
       <select name="scope" id="wlScope"><option value="any">Any coins</option><option value="type">One coin type only</option><option value="type-grade">One coin type and grade only</option></select></label>
     <div id="wlScopeFields"></div>
     <div class="hint">A scoped list pre-fills the type (and grade) when you add a coin, so you don't retype it each time.</div>
-    <div class="btn-row"><button class="btn primary" type="submit">Create list</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
+    <div class="btn-row"><button class="btn primary" type="submit">Create list</button><button class="btn" type="button" data-act="wlCancel">Cancel</button></div>
   </form>
   <template id="wlTypeOpts">${typeOpts}</template>`);
 }
@@ -121,10 +121,27 @@ function saveNewList(form) {
   toast("List created.");
   const ret = wlReturn;
   wlReturn = null;
-  if (ret && ret.kind === "want") { openWantForm(ret.editId || null, { ...ret.prefill, listId: wl.id }); return; }
+  if (ret && ret.kind === "want") { openWantForm(ret.editId || null, scopedPrefill({ ...ret.prefill, listId: wl.id })); return; }
   if (ret && ret.kind === "missing") { renderMissingPicker(wl.id); return; }
+  if (ret && ret.kind === "slot") { openSlotWantPicker(ret.el, wl.id); return; }
   closeSheet();
   go("wants");
+}
+
+/* ---------- list scope ---------- */
+// Does this list accept a coin of this type (and grade)?
+function listAccepts(wl, typeId) { return !wl || wl.scope === "any" || !wl.scope || wl.typeId === typeId; }
+// Apply a scoped list's fixed type (and grade) to form values.
+function scopedPrefill(f) {
+  const wl = getWantList(f.listId);
+  if (wl && wl.scope !== "any") { f.typeId = wl.typeId; if (wl.scope === "type-grade") f.grade = wl.grade; }
+  return f;
+}
+function readWantForm(form) {
+  const fd = new FormData(form);
+  const out = {};
+  ["listId", "typeId", "year", "mint", "variety", "grade", "maxPrice", "notes"].forEach((k) => { if (fd.has(k)) out[k] = fd.get(k) || ""; });
+  return out;
 }
 
 /* ---------- add / edit a want ---------- */
@@ -132,9 +149,12 @@ function openWantForm(id, prefill) {
   const w = id ? getWant(id) : null;
   ensureDefaultList();
   const lists = wantLists();
-  const curList = getWantList((w && w.listId) || (prefill && prefill.listId) || wantsView.listId) || getWantList(DEFAULT_LIST_ID);
-  const d = w ? { ...w } : { ...(prefill || {}) };
-  if (!w && !prefill && curList.scope !== "any") { d.typeId = curList.typeId; if (curList.scope === "type-grade") d.grade = curList.grade; }
+  const curList = getWantList((prefill && prefill.listId) || (w && w.listId) || wantsView.listId) || getWantList(DEFAULT_LIST_ID);
+  // Typed-but-unsaved values (prefill) always win over the saved want.
+  const d = { ...(w || {}), ...(prefill || {}), listId: curList.id };
+  scopedPrefill(d);
+  const lockType = curList.scope === "type" || curList.scope === "type-grade";
+  const lockGrade = curList.scope === "type-grade";
   const opts = (() => {
     const { recent, rest } = typesRecentFirst(COIN_TYPES);
     const opt = (t) => `<option value="${t.id}" ${d.typeId === t.id ? "selected" : ""}>${esc(t.name)} (${t.start}–${t.end})</option>`;
@@ -142,15 +162,16 @@ function openWantForm(id, prefill) {
   })();
   openSheet(`<div class="sheet-head"><h2>${w ? "Edit want" : "Add to want list"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <form id="wantForm" data-id="${esc(id || "")}">
-    <label class="f"><span>List</span><select name="listId" id="wantListPick">${lists.map((l) => `<option value="${esc(l.id)}" ${(d.listId || curList.id) === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
-    <label class="f"><span>Coin type</span><select name="typeId" required>${opts}</select></label>
+    <label class="f"><span>List</span><select name="listId" id="wantListPick" data-prev="${esc(curList.id)}">${lists.map((l) => `<option value="${esc(l.id)}" ${(d.listId || curList.id) === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
+    <label class="f"><span>Coin type</span><select name="typeId" required ${lockType ? "disabled" : ""}>${opts}</select></label>
+    ${lockType ? `<input type="hidden" name="typeId" value="${esc(d.typeId)}"><div class="hint">This list is for ${esc(TYPE_BY_ID[d.typeId] ? TYPE_BY_ID[d.typeId].name : "one coin type")}${lockGrade ? " in " + esc(d.grade) : ""} only.</div>` : ""}
     <div class="grid2">
       <label class="f"><span>Year</span><input type="number" inputmode="numeric" name="year" value="${esc(d.year || "")}" placeholder="Any"></label>
       <label class="f"><span>Mint mark</span><select name="mint">${MINTS.map((m) => `<option value="${m}" ${(d.mint || "") === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
     </div>
     <label class="f"><span>Variety (optional)</span><input type="text" name="variety" value="${esc(d.variety || "")}" placeholder="e.g. Doubled Die Obverse"></label>
     <div class="grid2">
-      <label class="f"><span>Target grade (optional)</span><select name="grade"><option value="">Any grade</option>${GRADES.filter((g) => g !== "Junk").map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>
+      <label class="f"><span>Target grade (optional)</span>${lockGrade ? `<input type="hidden" name="grade" value="${esc(d.grade)}">` : ""}<select name="grade" ${lockGrade ? "disabled" : ""}><option value="">Any grade</option>${GRADES.filter((g) => g !== "Junk").map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>
       <label class="f"><span>Most I'd pay (optional)</span><input type="number" inputmode="decimal" step="0.01" name="maxPrice" value="${esc(d.maxPrice ?? "")}" placeholder="$"></label>
     </div>
     <label class="f"><span>Notes (optional)</span><textarea name="notes" placeholder="e.g. needs to be original toning">${esc(d.notes || "")}</textarea></label>
@@ -164,6 +185,7 @@ function saveWantForm(form) {
   if (!typeId) { toast("Pick a coin type."); return; }
   const fields = { typeId, year: num(fd.get("year")) ?? "", mint: fd.get("mint") || "", variety: String(fd.get("variety") || "").trim(),
     grade: fd.get("grade") || "", maxPrice: num(fd.get("maxPrice")) ?? "", notes: String(fd.get("notes") || "").trim(), listId: fd.get("listId") || DEFAULT_LIST_ID };
+  scopedPrefill(fields); // a scoped list always gets its own type (and grade)
   const old = form.dataset.id ? getWant(form.dataset.id) : null;
   const w = old ? { ...newWant({ ...old, ...fields }), id: old.id, createdAt: old.createdAt, albumId: old.albumId } : newWant(fields);
   saveWant(w);
@@ -224,15 +246,9 @@ function renderMissingPicker(preselect) {
     ${missing.some((s) => !findWant(a.typeId, s.y, s.m, s.v)) ? `
     <div class="small muted" style="display:flex;justify-content:space-between;margin:10px 2px"><span id="missCount">${missingPick.chosen.size} selected</span>
       <span><button type="button" class="link-btn" data-act="missAll">Select all</button> · <button type="button" class="link-btn" data-act="missNone">Clear</button></span></div>
-    <label class="f"><span>Add selected to</span><select id="missListPick">${lists.map((l) => `<option value="${esc(l.id)}" ${preselect === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
+    <label class="f"><span>Add selected to</span><select id="missListPick">${lists.filter((l) => listAccepts(l, a.typeId)).map((l) => `<option value="${esc(l.id)}" ${preselect === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
     <button class="btn primary block" data-act="missAdd" ${missingPick.chosen.size ? "" : "disabled"}>Add to want list</button>` : ""}`
     : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
-}
-function wantFromSlot(el) {
-  const y = +el.dataset.y, m = el.dataset.m || "", v = el.dataset.v || "", typeId = el.dataset.type;
-  if (findWant(typeId, y, m, v)) return;
-  saveWant(newWant({ typeId, year: y, mint: m, variety: v, albumId: el.dataset.album }));
-  el.outerHTML = `<span class="small muted" style="margin-left:10px">On want list</span>`;
 }
 /* ---------- tapping a coin card in an album ---------- */
 function openSlotMenu(el) {
@@ -259,13 +275,32 @@ function openSlotMenu(el) {
       <a class="btn" style="text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>
     </div>`);
 }
-function slotWant(el) {
-  const a = getAlbum(el.dataset.album);
+// "Add to want list" from an album spot: pick which list (only lists that fit this coin type).
+function slotWant(el) { openSlotWantPicker({ album: el.dataset.album, y: el.dataset.y, m: el.dataset.m || "", v: el.dataset.v || "" }); }
+function openSlotWantPicker(d, preselect) {
+  const a = getAlbum(d.album);
   if (!a) return;
-  const y = +el.dataset.y, m = el.dataset.m || "", v = el.dataset.v || "";
-  if (!findWant(a.typeId, y, m, v)) saveWant(newWant({ typeId: a.typeId, year: y, mint: m, variety: v, albumId: a.id }));
+  ensureDefaultList();
+  const t = TYPE_BY_ID[a.typeId];
+  const lists = wantLists().filter((l) => listAccepts(l, a.typeId));
+  const pre = preselect || (lists.some((l) => l.id === wantsView.listId) ? wantsView.listId : DEFAULT_LIST_ID);
+  slotWantCtx = d;
+  openSheet(`<div class="sheet-head"><h2>Add to want list</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <p><b>${esc(d.y + (d.m ? "-" + d.m : "") + " " + (t ? shortName(t) : "") + (d.v ? " · " + d.v : ""))}</b></p>
+    <label class="f"><span>Which list</span><select id="slotListPick">${lists.map((l) => `<option value="${esc(l.id)}" ${pre === l.id ? "selected" : ""}>${esc(l.name)}${l.scope === "type-grade" ? " (" + esc(l.grade) + ")" : ""}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
+    <div class="btn-row"><button class="btn primary" data-act="slotWantAdd">Add</button><button class="btn" data-act="closeSheet">Cancel</button></div>`);
+}
+let slotWantCtx = null;
+function slotWantAdd() {
+  const d = slotWantCtx;
+  const a = d && getAlbum(d.album);
+  if (!a) return;
+  const listId = ($("#slotListPick") || {}).value || DEFAULT_LIST_ID;
+  const wl = getWantList(listId);
+  const y = +d.y;
+  if (!findWant(a.typeId, y, d.m, d.v, listId)) saveWant(newWant({ typeId: a.typeId, year: y, mint: d.m, variety: d.v, albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" }));
   closeSheet();
-  toast("Added to your want list.");
+  toast("Added to " + ((wl && wl.name) || "your want list") + ".");
 }
 // Open slot: add the coin you already have, filled in and placed in this album.
 function slotHave(el) {
@@ -276,11 +311,14 @@ function slotHave(el) {
   if (t) { draft.typeId = t.id; draft.typeName = shortName(t); draft.family = t.family; draft.denom = t.denom; draft.metal = t.metal; draft.oz = t.oz || ""; }
   draft.year = +el.dataset.y; draft.mint = el.dataset.m || ""; draft.albumId = a.id;
   const v = el.dataset.v || "";
+  // Remember the exact spot, so renaming or moving the spot never moves the coin.
+  const aa = withSlotIds(a);
+  const spot = (aa.slots || []).find((x) => x.y === draft.year && x.m === draft.mint && (x.v || "") === v);
+  if (spot) draft.slotId = spot.id;
   if (v) {
-    // Use the matching Red Book variety name when there is one; otherwise note it.
-    const known = bookVarieties(draft).find((x) => x && varietyFits(x, v));
-    if (known) draft.variety = known;
-    draft.spotVariety = v; // remembers which album spot this coin fills
+    // Use the Red Book variety only when exactly one matches the spot's label; otherwise leave it blank.
+    const known = bookVarieties(draft).filter((x) => x && varietyFits(x, v));
+    if (known.length === 1) draft.variety = known[0];
   }
   const w = findWant(a.typeId, draft.year, draft.mint, v);
   if (w) draft._fromWant = w.id;
@@ -300,13 +338,22 @@ Object.assign(actions, {
     toast("Removed from your want list.", { label: "Undo", fn: () => saveWant(w) });
   },
   wantGot: (el) => gotWant(el.dataset.id),
-  wantSlot: wantFromSlot,
   slotMenu: openSlotMenu,
   slotWant,
   slotHave,
   slotUnwant: (el) => { const w = getWant(el.dataset.id); if (w) { remove("w_" + w.id); closeSheet(); toast("Removed from your want list.", { label: "Undo", fn: () => saveWant(w) }); } },
   wantsPickList: (el) => { wantsView.listId = el.dataset.id; render(); },
   wlNew: () => { wlReturn = null; openNewListForm(); },
+  slotWantAdd: () => slotWantAdd(),
+  // Cancelling a new list goes back to the form you came from, with nothing lost.
+  wlCancel: () => {
+    const ret = wlReturn;
+    wlReturn = null;
+    if (ret && ret.kind === "want") return openWantForm(ret.editId || null, ret.prefill);
+    if (ret && ret.kind === "missing") return renderMissingPicker();
+    if (ret && ret.kind === "slot") return openSlotWantPicker(ret.el);
+    closeSheet();
+  },
   wlDelete: (el) => {
     const wl = getWantList(el.dataset.id);
     if (!wl) return;
@@ -324,7 +371,9 @@ Object.assign(actions, {
     const listId = ($("#missListPick") || {}).value || DEFAULT_LIST_ID;
     const st = albumStats(a);
     const slots = st.slots.filter((s) => missingPick.chosen.has(slotKey(s)));
-    slots.forEach((s) => { if (!findWant(a.typeId, s.y, s.m, s.v)) saveWant(newWant({ typeId: a.typeId, year: s.y, mint: s.m, variety: s.v || "", albumId: a.id, listId })); });
+    const wl = getWantList(listId);
+    if (!listAccepts(wl, a.typeId)) { toast("That list is for a different coin type."); return; }
+    slots.forEach((s) => { if (!findWant(a.typeId, s.y, s.m, s.v)) saveWant(newWant({ typeId: a.typeId, year: s.y, mint: s.m, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" })); });
     wantsView.listId = listId;
     closeSheet();
     toast("Added " + slots.length + " coin" + (slots.length === 1 ? "" : "s") + " to " + (getWantList(listId) || {}).name + ".");
@@ -336,12 +385,21 @@ document.addEventListener("submit", (e) => {
 });
 document.addEventListener("change", (e) => {
   if (e.target.id === "wlScope") renderWlScopeFields();
-  if (e.target.id === "wantListPick" && e.target.value === "__new") {
-    const fd = new FormData(e.target.form);
-    wlReturn = { kind: "want", editId: e.target.form.dataset.id || null, prefill: {
-      typeId: fd.get("typeId") || "", year: fd.get("year") || "", mint: fd.get("mint") || "", variety: fd.get("variety") || "",
-      grade: fd.get("grade") || "", maxPrice: fd.get("maxPrice") || "", notes: fd.get("notes") || "",
-    } };
+  if (e.target.id === "wantListPick") {
+    const form = e.target.form;
+    const typed = readWantForm(form);
+    const editId = form.dataset.id || null;
+    if (e.target.value === "__new") {
+      typed.listId = e.target.dataset.prev || wantsView.listId; // the list chosen before "+ New list"
+      wlReturn = { kind: "want", editId, prefill: typed };
+      openNewListForm();
+    } else {
+      openWantForm(editId, scopedPrefill(typed)); // switching lists applies that list's type/grade
+    }
+    return;
+  }
+  if (e.target.id === "slotListPick" && e.target.value === "__new") {
+    wlReturn = { kind: "slot", el: slotWantCtx };
     openNewListForm();
     return;
   }

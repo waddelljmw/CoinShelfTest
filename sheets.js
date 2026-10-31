@@ -301,14 +301,24 @@ async function doImport() {
   const anySold = chosen.some((c) => c.status === "sold");
   if (anySold && !settings().soldAutoDone) saveSettings({ showSold: true, soldAutoDone: true });
   go("coins");
-  toast("Imported " + ids.length + " rows.", { label: "Undo", fn: undoImport });
+  toast("Imported " + ids.length + " rows.", { label: "Undo", fn: () => undoImport(true) });
 }
-async function undoImport() {
+// Imported rows you haven't changed since. Edited coins leave the batch (see saveCoin).
+const importLeft = (li) => li.ids.map(getCoin).filter((c) => c && c.importBatch === li.batch && c.status !== "deleted");
+async function undoImport(skipConfirm) {
   const li = settings().lastImport;
   if (!li) return;
-  for (const id of li.ids) { if (getCoin(id) && getCoin(id).importBatch === li.batch) await remove("c_" + id); }
-  saveSettings({ lastImport: null });
-  toast("Removed the " + li.count + " imported rows.");
+  const left = importLeft(li);
+  const doIt = async () => {
+    // Moved to Recently deleted (restorable), not erased.
+    for (const c of left) await put("c_" + c.id, { ...c, status: "deleted", prevStatus: c.status, deletedAt: Date.now() });
+    saveSettings({ lastImport: null });
+    const kept = li.count - left.length;
+    toast("Moved " + left.length + " imported row" + (left.length === 1 ? "" : "s") + " to Recently deleted." + (kept ? " " + kept + " you'd changed were kept." : ""));
+  };
+  if (skipConfirm === true) return doIt();
+  if (!left.length) { saveSettings({ lastImport: null }); toast("Nothing left to remove. You've changed or removed all of those rows."); return; }
+  confirmSheet("Remove last import?", left.length + " imported row" + (left.length === 1 ? "" : "s") + " you haven't changed will move to Recently deleted, where you can restore them." + (li.count > left.length ? " " + (li.count - left.length) + " you've changed since will be kept." : ""), "Remove", doIt);
 }
 
 /* ---------- wiring ---------- */
