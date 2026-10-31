@@ -542,9 +542,27 @@ function viewCoin(r) {
 
 /* --- Albums --- */
 const albumTitle = (a) => a.name || [a.brand, a.number].filter(Boolean).join(" ") || "Album";
+// A slot is one spot in an album: year, mint mark, and optionally a variety (e.g. "8 Tail Feathers").
+const slotKey = (s) => s.y + "|" + s.m + (s.v ? "|" + s.v : "");
+const slotLabel = (s) => s.y + (s.m ? "-" + s.m : "");
 function albumSlots(a) {
   const removed = new Set(a.removed || []);
-  return (a.slots || []).filter((s) => !removed.has(s.y + "|" + s.m));
+  return (a.slots || []).filter((s) => !removed.has(slotKey(s)));
+}
+// Does this coin's variety fit a variety spot? "7 Over 8 Tail Feathers, Strong" fits "7 over 8 tail feathers".
+function varietyFits(coinVar, slotVar) {
+  const c = String(coinVar || "").toLowerCase().trim(), v = String(slotVar || "").toLowerCase().trim();
+  return !!c && !!v && (c === v || c.startsWith(v) || v.startsWith(c));
+}
+const MINT_ORDER = ["", "P", "CC", "O", "S", "D", "W", "C"];
+// Short grade for an album card: "VF-20", "PCGS MS-63", or "owned" when no grade was entered.
+function slotGrade(c) {
+  const g = c.grade === "Other" ? c.customGrade : c.grade;
+  if (!g) return "owned";
+  return c.gradeMode === "cert" ? [c.service === "Other" ? c.customService : c.service, g].filter(Boolean).join(" ") : g;
+}
+function sortSlots(slots) {
+  return slots.slice().sort((a, b) => a.y - b.y || MINT_ORDER.indexOf(a.m) - MINT_ORDER.indexOf(b.m) || String(a.v || "").localeCompare(String(b.v || "")));
 }
 function buildSlots(typeId, start, end) {
   const t = TYPE_BY_ID[typeId];
@@ -561,10 +579,16 @@ function albumStats(a) {
   const coins = ownedCoins().filter((c) => c.albumId === a.id);
   const slots = albumSlots(a);
   const filled = new Map();
-  slots.forEach((s) => {
-    const k = s.y + "|" + s.m;
-    const hit = coins.find((c) => num(c.year) === s.y && normMint(c.mint) === s.m);
-    if (hit) filled.set(k, hit);
+  const used = new Set();
+  const sameDate = (c, s) => num(c.year) === s.y && normMint(c.mint) === s.m;
+  // Variety spots first, so an 8 Tail Feathers coin lands in its own spot, then plain spots.
+  slots.filter((s) => s.v).forEach((s) => {
+    const hit = coins.find((c) => !used.has(c.id) && sameDate(c, s) && (varietyFits(c.variety, s.v) || varietyFits(c.spotVariety, s.v)));
+    if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
+  });
+  slots.filter((s) => !s.v).forEach((s) => {
+    const hit = coins.find((c) => !used.has(c.id) && sameDate(c, s)) || null;
+    if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
   });
   return {
     coins, slots, filled,
@@ -604,25 +628,86 @@ function viewAlbum(r) {
       <div class="stat"><div class="k">Album melt</div><div class="v">${money(st.melt, "$0.00")}</div></div>
     </div>
     <div class="bar" style="margin:12px 0 16px"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div>
-    ${editing ? `<div class="banner" style="margin:0 0 10px">Tap a slot to remove it (for dates that were never struck). Tap again to bring it back.</div>` : ""}
+    <div class="btn-row" style="margin:0 0 12px">
+      <button class="btn" data-act="addSpot" data-id="${esc(a.id)}">+ Add a spot</button>
+      <button class="btn ${editing ? "primary" : ""}" data-act="editSlots" data-id="${esc(a.id)}">${editing ? "Done editing" : "Edit spots"}</button>
+    </div>
+    ${editing ? `<div class="banner" style="margin:0 0 10px">Tap a spot to hide it (for dates your album doesn't have); tap again to bring it back. Spots you added are removed when tapped.</div>` : ""}
     <div class="album-grid">${(editing ? a.slots || [] : st.slots).map((s) => {
-      const k = s.y + "|" + s.m;
+      const k = slotKey(s);
       const hit = st.filled.get(k);
       const gone = (a.removed || []).includes(k);
-      const lab = s.y + (s.m ? "-" + s.m : "");
-      if (editing) return `<button class="slot" style="${gone ? "opacity:.35;text-decoration:line-through" : ""}" data-act="toggleSlot" data-id="${esc(a.id)}" data-k="${esc(k)}">${esc(lab)}</button>`;
-      const onList = findWant(a.typeId, s.y, s.m);
+      const lab = slotLabel(s);
+      const vLine = s.v ? `<span class="g" style="font-weight:600;color:var(--ink)">${esc(s.v)}</span>` : "";
+      const data = `data-album="${esc(a.id)}" data-y="${s.y}" data-m="${esc(s.m)}" data-v="${esc(s.v || "")}"`;
+      if (editing) return s.custom
+        ? `<button class="slot" style="border-color:var(--accent)" data-act="deleteSpot" data-id="${esc(a.id)}" data-k="${esc(k)}">${esc(lab)}${vLine}<span class="g" style="color:var(--bad)">remove</span></button>`
+        : `<button class="slot" style="${gone ? "opacity:.35;text-decoration:line-through" : ""}" data-act="toggleSlot" data-id="${esc(a.id)}" data-k="${esc(k)}">${esc(lab)}${vLine}</button>`;
+      const onList = findWant(a.typeId, s.y, s.m, s.v);
       const tag = onList ? `<span class="g" style="color:var(--accent)">★ wanted</span>` : "";
       return hit
-        ? `<button class="slot have" data-act="slotMenu" data-album="${esc(a.id)}" data-y="${s.y}" data-m="${esc(s.m)}" data-coin="${esc(hit.id)}">${esc(lab)}<span class="g">${esc(gradeText(hit).replace(/^Raw /, ""))}</span>${tag}</button>`
-        : `<button class="slot" data-act="slotMenu" data-album="${esc(a.id)}" data-y="${s.y}" data-m="${esc(s.m)}">${esc(lab)}${tag || `<span class="g">open</span>`}</button>`;
+        ? `<button class="slot have" data-act="slotMenu" ${data} data-coin="${esc(hit.id)}">${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${tag}</button>`
+        : `<button class="slot" data-act="slotMenu" ${data}>${esc(lab)}${vLine}${tag || `<span class="g">open</span>`}</button>`;
     }).join("")}</div>
     ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => coinRow(c)).join("")}</div>` : ""}
     <div class="btn-row">
-      <button class="btn" data-act="editSlots" data-id="${esc(a.id)}">${editing ? "Done editing slots" : "Edit slots"}</button>
       <button class="btn danger" data-act="deleteAlbum" data-id="${esc(a.id)}">Delete album</button>
     </div>
-    <p class="small muted">${EXACT_SLOTS[a.typeId] ? "Slots follow the dates and mint marks this series was struck." : "Slots include every year and mint mark for this series. Use Edit slots to remove any your album doesn't have."}</p>`;
+    <p class="small muted">${EXACT_SLOTS[a.typeId] ? "Spots follow the dates and mint marks this series was struck." : "Spots include every year and mint mark for this series. Use Edit spots to hide any your album doesn't have."} If your album has a spot that's missing here, like a variety, use <b>+ Add a spot</b>.</p>`;
+}
+
+/* --- Adding your own spot to an album (e.g. 1878 8 Tail Feathers) --- */
+function spotVarietyOptions(a, y, m) {
+  const s = a && PRICE_BOOK.series[a.typeId];
+  if (!s || !y) return [];
+  const base = String(y) + (normMint(m) ? "-" + normMint(m) : "");
+  const out = new Set();
+  Object.values(s).forEach((tab) => Object.keys(tab.rows).forEach((k) => { const [b, v] = k.split("|"); if (v && b === base) out.add(v); }));
+  return [...out];
+}
+function openAddSpot(id) {
+  const a = getAlbum(id);
+  if (!a) return;
+  openSheet(`<div class="sheet-head"><h2>Add a spot</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <p class="small muted" style="margin-top:0">For a spot your album has that isn't shown, like a variety. A coin with a matching variety fills it.</p>
+    <form id="spotForm" data-id="${esc(a.id)}">
+      <div class="grid2">
+        <label class="f"><span>Year</span><input type="number" inputmode="numeric" name="y" id="spotY" required placeholder="${a.start}"></label>
+        <label class="f"><span>Mint mark</span><select name="m" id="spotM">${MINTS.map((m) => `<option value="${m}">${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
+      </div>
+      <label class="f"><span>Variety or label (optional)</span><input type="text" name="v" id="spotV" list="spotVList" placeholder="e.g. 8 Tail Feathers" maxlength="60"></label>
+      <datalist id="spotVList"></datalist>
+      <div class="hint" id="spotHint"></div>
+      <div class="btn-row"><button class="btn primary" type="submit">Add spot</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
+    </form>`);
+}
+function refreshSpotHints() {
+  const f = $("#spotForm");
+  if (!f) return;
+  const a = getAlbum(f.dataset.id);
+  const opts = spotVarietyOptions(a, num($("#spotY").value), $("#spotM").value);
+  $("#spotVList").innerHTML = opts.map((o) => `<option value="${esc(o)}">`).join("");
+  $("#spotHint").innerHTML = opts.length ? "Red Book varieties for this date: " + opts.map((o) => `<button type="button" class="link-btn" data-act="pickSpotV" data-v="${esc(o)}">${esc(o)}</button>`).join(", ") : "";
+}
+function saveSpot(form) {
+  const a = getAlbum(form.dataset.id);
+  if (!a) return;
+  const fd = new FormData(form);
+  const y = num(fd.get("y"));
+  if (!y || y < 1700 || y > 2100) { toast("Enter a year."); return; }
+  const spot = { y, m: normMint(fd.get("m") || ""), v: String(fd.get("v") || "").trim(), custom: true };
+  if (!spot.v) delete spot.v;
+  const k = slotKey(spot);
+  if ((a.slots || []).some((x) => slotKey(x) === k)) {
+    const wasHidden = (a.removed || []).includes(k);
+    if (wasHidden) put("a_" + a.id, { ...a, removed: (a.removed || []).filter((x) => x !== k) });
+    closeSheet();
+    toast(wasHidden ? "That spot was hidden. It's back now." : "That spot is already in the album.");
+    return;
+  }
+  put("a_" + a.id, { ...a, slots: sortSlots([...(a.slots || []), spot]) });
+  closeSheet();
+  toast("Spot added: " + slotLabel(spot) + (spot.v ? " " + spot.v : "") + ".");
 }
 
 /* --- Photo guide --- */
@@ -1073,17 +1158,18 @@ function doNewAlbum(form) {
 function openMissing(id) {
   const a = getAlbum(id);
   const st = albumStats(a);
-  const missing = st.slots.filter((s) => !st.filled.has(s.y + "|" + s.m));
+  const missing = st.slots.filter((s) => !st.filled.has(slotKey(s)));
   const t = TYPE_BY_ID[a.typeId];
   openSheet(`<div class="sheet-head"><h2>Missing (${missing.length})</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     ${missing.length ? `<div class="card">${missing.map((s) => {
       const fake = { year: s.y, mint: s.m, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", gradeMode: "raw" };
-      const wanted = findWant(a.typeId, s.y, s.m);
-      return `<div class="rowline"><span>${esc(s.y + (s.m ? "-" + s.m : ""))}</span><span style="white-space:nowrap"><a class="small" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>${wanted
+      if (s.v) fake.label = autoLabel(fake) + " " + s.v;
+      const wanted = findWant(a.typeId, s.y, s.m, s.v);
+      return `<div class="rowline"><span>${esc(slotLabel(s))}${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}</span><span style="white-space:nowrap"><a class="small" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>${wanted
         ? `<span class="small muted" style="margin-left:10px">On want list</span>`
-        : `<button class="link-btn small" style="margin-left:10px" data-act="wantSlot" data-type="${esc(a.typeId)}" data-y="${s.y}" data-m="${esc(s.m)}" data-album="${esc(a.id)}">+ Want</button>`}</span></div>`;
+        : `<button class="link-btn small" style="margin-left:10px" data-act="wantSlot" data-type="${esc(a.typeId)}" data-y="${s.y}" data-m="${esc(s.m)}" data-v="${esc(s.v || "")}" data-album="${esc(a.id)}">+ Want</button>`}</span></div>`;
     }).join("")}</div>
-    ${missing.some((s) => !findWant(a.typeId, s.y, s.m)) ? `<button class="btn block" data-act="wantAllMissing" data-id="${esc(a.id)}">Add all missing to want list</button>` : ""}` : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
+    ${missing.some((s) => !findWant(a.typeId, s.y, s.m, s.v)) ? `<button class="btn block" data-act="wantAllMissing" data-id="${esc(a.id)}">Add all missing to want list</button>` : ""}` : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
 }
 
 /* CSV import and export live in sheets.js */
@@ -1143,6 +1229,15 @@ const actions = {
   newAlbum: openNewAlbum,
   missing: (el) => openMissing(el.dataset.id),
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
+  addSpot: (el) => openAddSpot(el.dataset.id),
+  pickSpotV: (el) => { const i = $("#spotV"); if (i) i.value = el.dataset.v; },
+  deleteSpot: (el) => {
+    const a = getAlbum(el.dataset.id);
+    if (!a) return;
+    const k = el.dataset.k;
+    put("a_" + a.id, { ...a, slots: (a.slots || []).filter((x) => slotKey(x) !== k) });
+    toast("Spot removed.", { label: "Undo", fn: () => put("a_" + a.id, a) });
+  },
   toggleSlot: (el) => {
     const a = getAlbum(el.dataset.id);
     const k = el.dataset.k;
@@ -1189,6 +1284,7 @@ let spotTimer = null;
 document.addEventListener("input", (e) => {
   const el = e.target;
   if (el.id === "typeSearch") { showTypeList(el.value); return; }
+  if (el.id === "spotY") { refreshSpotHints(); return; }
   if (el.dataset.list === "q") { listState.q = el.value; render(); return; }
   if (el.dataset.setting) {
     clearTimeout(spotTimer);
@@ -1221,6 +1317,7 @@ document.addEventListener("change", (e) => {
   const el = e.target;
   if (el.dataset.list) { listState[el.dataset.list] = el.value; render(); return; }
   if (el.id === "photoInput") { addPhotos([...el.files]); return; }
+  if (el.id === "spotM") { refreshSpotHints(); return; }
   if (el.id === "albumType") {
     const t = TYPE_BY_ID[el.value];
     $("#albumStart").value = t.start; $("#albumEnd").value = t.end;
@@ -1244,6 +1341,7 @@ document.addEventListener("submit", (e) => {
   if (e.target.id === "coinForm") saveDraft();
   else if (e.target.id === "sellForm") doSell(e.target);
   else if (e.target.id === "albumForm") doNewAlbum(e.target);
+  else if (e.target.id === "spotForm") saveSpot(e.target);
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeSheet(); closeMenu(); } });
 
