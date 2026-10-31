@@ -907,7 +907,8 @@ function doSell(form) {
   const sold = { at: Date.now(), date: fd.get("date") || today(), amount: num(fd.get("amount")), shipping: num(fd.get("shipping")), insurance: num(fd.get("insurance")), where: (fd.get("where") || "").trim() };
   if (n < q) {
     saveCoin({ ...c, qty: q - n });
-    saveCoin({ ...c, id: uid(), qty: n, status: "sold", sold, createdAt: Date.now() });
+    // Remember which coin it was split from, so moving it back puts it back exactly.
+    saveCoin({ ...c, id: uid(), qty: n, status: "sold", sold, splitFrom: c.id });
   } else {
     saveCoin({ ...c, status: "sold", sold });
   }
@@ -1007,7 +1008,24 @@ const actions = {
   dir: () => { listState.dir = listState.dir === "asc" ? "desc" : "asc"; render(); },
   edit: (el) => openCoinForm(el.dataset.id),
   sell: (el) => openSell(el.dataset.id),
-  unsell: (el) => { const c = getCoin(el.dataset.id); if (c) { const n = { ...c, status: "owned" }; delete n.sold; saveCoin(n); toast("Back in your collection."); } },
+  unsell: (el) => {
+    const c = getCoin(el.dataset.id);
+    if (!c) return;
+    const orig = c.splitFrom ? getCoin(c.splitFrom) : null;
+    if (orig && orig.status === "owned") {
+      // Part of a lot was sold: add the coins back to the original entry.
+      saveCoin({ ...orig, qty: qtyOf(orig) + qtyOf(c) });
+      remove("c_" + c.id);
+      toast("Back in your collection.");
+      go("coin-" + orig.id);
+      return;
+    }
+    const n = { ...c, status: "owned" };
+    delete n.sold;
+    delete n.splitFrom;
+    saveCoin(n);
+    toast("Back in your collection.");
+  },
   delete: (el) => {
     const c = getCoin(el.dataset.id);
     if (!c) return;
