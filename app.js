@@ -23,6 +23,7 @@ const store = { mode: "loading", docs: new Map(), coll: null };
 const writeChains = new Map();
 let assetsApi = null;
 let downloadsApi = null;
+let sampleApi = null; // Claude, for reading coin photos (null when not available)
 
 const DEFAULT_SETTINGS = {
   kind: "settings",
@@ -98,6 +99,11 @@ async function initStore() {
 async function claudeExtras() {
   try { assetsApi = await window.claude.use("assets"); } catch (e) { assetsApi = null; }
   try { downloadsApi = await window.claude.use("downloads"); } catch (e) { downloadsApi = null; }
+  try {
+    const sm = await window.claude.use("sample");
+    const lim = sm ? await sm.limits().catch(() => null) : null;
+    sampleApi = sm && lim && lim.images ? sm : null;
+  } catch (e) { sampleApi = null; }
 }
 
 function put(key, obj) {
@@ -661,6 +667,8 @@ function renderCoinForm() {
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? "Add coin" : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" autocomplete="off">
+    ${sampleApi && d._isNew ? `<label class="btn block" id="photoFillBtn" style="display:block;text-align:center;margin-bottom:4px">📷 Fill in from a photo<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" id="photoFill" hidden></label>
+      <div class="hint" id="photoFillMsg" style="margin-bottom:6px">Snap the holder label or the coin. Claude reads it and fills in what it can. You check everything before saving.</div>` : ""}
     <div class="f typeahead"><span>Start from a known coin</span>
       <input type="search" id="typeSearch" placeholder="Search Red Book types, e.g. Morgan" value="${esc(t ? t.name : "")}">
       <div class="ta-list" id="typeList" hidden></div>
@@ -1128,5 +1136,5 @@ document.addEventListener("submit", (e) => {
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeSheet(); closeMenu(); } });
 
-render();
-initStore();
+// Start once every script (sheets.js, photofill.js) has loaded.
+document.addEventListener("DOMContentLoaded", () => { render(); initStore(); });
