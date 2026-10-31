@@ -501,7 +501,7 @@ function viewCoin(r) {
     <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>
     <div class="btn-row">
       <button class="btn primary" data-act="edit" data-id="${esc(c.id)}">Edit</button>
-      ${c.status === "owned" ? `<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>` : `<button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}
+      ${c.status === "owned" ? `<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>` : `<button class="btn" data-act="editSale" data-id="${esc(c.id)}">Edit sale</button><button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}
       <button class="btn danger" data-act="delete" data-id="${esc(c.id)}">Delete</button>
     </div>`;
 }
@@ -899,23 +899,25 @@ async function addPhotos(files) {
 }
 
 /* --- Sell --- */
-function openSell(id) {
+function openSell(id, edit) {
   const c = getCoin(id);
   if (!c) return;
-  const q = qtyOf(c);
-  openSheet(`<div class="sheet-head"><h2>Mark as sold</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  const q = edit ? 1 : qtyOf(c); // editing a sale never splits the coin
+  const sv = (edit && c.sold) || {};
+  const val = (v) => (v == null ? "" : esc(v));
+  openSheet(`<div class="sheet-head"><h2>${edit ? "Edit sale" : "Mark as sold"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <p><b>${esc(labelOf(c))}</b></p>
   ${isInherited(c) ? `<div class="banner" style="margin:0 0 8px"><span class="dns">Do not sell</span> This coin is inherited. It won't be counted in sold results.</div>` : ""}
-  <form id="sellForm" data-id="${esc(c.id)}">
+  <form id="sellForm" data-id="${esc(c.id)}" ${edit ? 'data-edit="1"' : ""}>
     ${q > 1 ? `<label class="f"><span>How many sold (of ${q})</span><input type="number" name="n" min="1" max="${q}" value="${q}"></label>` : ""}
-    <label class="f"><span>Date sold</span><input type="date" name="date" value="${today()}"></label>
-    <label class="f"><span>Sold for (total, optional)</span><input type="number" inputmode="decimal" step="0.01" name="amount" placeholder="$"></label>
+    <label class="f"><span>Date sold</span><input type="date" name="date" value="${edit ? val(sv.date) : today()}"></label>
+    <label class="f"><span>Sold for (total, optional)</span><input type="number" inputmode="decimal" step="0.01" name="amount" placeholder="$" value="${val(sv.amount)}"></label>
     <div class="grid2">
-      <label class="f"><span>Shipping (optional)</span><input type="number" inputmode="decimal" step="0.01" name="shipping" placeholder="$"></label>
-      <label class="f"><span>Insurance (optional)</span><input type="number" inputmode="decimal" step="0.01" name="insurance" placeholder="$"></label>
+      <label class="f"><span>Shipping (optional)</span><input type="number" inputmode="decimal" step="0.01" name="shipping" placeholder="$" value="${val(sv.shipping)}"></label>
+      <label class="f"><span>Insurance (optional)</span><input type="number" inputmode="decimal" step="0.01" name="insurance" placeholder="$" value="${val(sv.insurance)}"></label>
     </div>
-    <label class="f"><span>Where (optional)</span><input type="text" name="where" placeholder="eBay, coin shop…"></label>
-    <div class="btn-row"><button class="btn primary" type="submit">Mark sold</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
+    <label class="f"><span>Where (optional)</span><input type="text" name="where" placeholder="eBay, coin shop…" value="${val(sv.where)}"></label>
+    <div class="btn-row"><button class="btn primary" type="submit">${edit ? "Save sale" : "Mark sold"}</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
 function doSell(form) {
@@ -925,6 +927,13 @@ function doSell(form) {
   const q = qtyOf(c);
   const n = Math.min(q, Math.max(1, num(fd.get("n")) || q));
   const sold = { at: Date.now(), date: fd.get("date") || today(), amount: num(fd.get("amount")), shipping: num(fd.get("shipping")), insurance: num(fd.get("insurance")), where: (fd.get("where") || "").trim() };
+  if (form.dataset.edit) {
+    // Only the sale details change; keep when it was first recorded so ordering stays the same.
+    saveCoin({ ...c, sold: { ...sold, at: (c.sold && c.sold.at) || sold.at } });
+    closeSheet();
+    toast("Sale updated.");
+    return;
+  }
   if (n < q) {
     saveCoin({ ...c, qty: q - n });
     // Remember which coin it was split from, so moving it back puts it back exactly.
@@ -1009,6 +1018,7 @@ const actions = {
   dir: () => { listState.dir = listState.dir === "asc" ? "desc" : "asc"; render(); },
   edit: (el) => openCoinForm(el.dataset.id),
   sell: (el) => openSell(el.dataset.id),
+  editSale: (el) => openSell(el.dataset.id, true),
   unsell: (el) => {
     const c = getCoin(el.dataset.id);
     if (!c) return;
