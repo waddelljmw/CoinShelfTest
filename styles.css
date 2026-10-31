@@ -132,5 +132,5 @@ summary { font-weight: 600; cursor: pointer; }
 /* View-only snapshot: hide anything that changes data */
 body.readonly [data-act=edit], body.readonly [data-act=sell], body.readonly [data-act=unsell],
 body.readonly [data-act=delete], body.readonly [data-act=newAlbum], body.readonly [data-act=deleteAlbum], body.readonly [data-act=editSlots],
-body.readonly [data-act=restore], body.readonly [data-act=purge], body.readonly [data-act=export] { display: none !important; }
+body.readonly [data-act=restore], body.readonly [data-act=purge], body.readonly [data-act=export], body.readonly [data-act=openImport], body.readonly [data-act=undoImport] { display: none !important; }
 body.readonly [data-spot], body.readonly [data-setting], body.readonly [data-act=hideSpot], body.readonly [data-act=showSold] { pointer-events: none; opacity: .6; }

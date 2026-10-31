@@ -610,9 +610,10 @@ function viewOptions() {
     <div class="card">${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof" }[k])).join(" · ")}</span></div>`).join("")}
       <label class="f"><span>Red Book edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
       <div class="hint">A coin with no value typed in uses its Red Book value. Coins below the lowest listed grade use melt.</div></div>
-    <h2>Export</h2>
-    <div class="card">Save all your coins as a spreadsheet file (CSV).
-      <div class="btn-row"><button class="btn" data-act="export">Export CSV</button></div></div>
+    <h2>Spreadsheet</h2>
+    <div class="card">Save all your coins as a spreadsheet file (CSV), or add coins from one.
+      <div class="btn-row"><button class="btn" data-act="export">Export CSV</button><button class="btn" data-act="openImport">Import CSV</button></div>
+      ${s.lastImport && s.lastImport.ids ? `<div class="hint" style="margin-top:8px">Last import: ${s.lastImport.count} row${s.lastImport.count === 1 ? "" : "s"} on ${esc(s.lastImport.at)}. <button class="link-btn" data-act="undoImport">Remove them</button></div>` : ""}</div>
     <h2>Recently deleted</h2>
     ${del.length ? `<div class="list">${del.map((c) => `<div class="coin-row">${thumbHtml(c)}<span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(gradeText(c))}</span></span>
       <button class="btn" data-act="restore" data-id="${esc(c.id)}">Restore</button><button class="btn danger" data-act="purge" data-id="${esc(c.id)}" aria-label="Delete forever">✕</button></div>`).join("")}</div>` : `<div class="card empty">Nothing deleted.</div>`}
@@ -967,26 +968,7 @@ function openMissing(id) {
     }).join("")}</div>` : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
 }
 
-/* --- CSV export --- */
-function toCsv() {
-  const cols = ["label", "status", "year", "mint", "typeName", "denom", "family", "gradeMode", "grade", "customGrade", "service", "cert", "metal", "oz", "qty", "paid", "value", "fbl", "sms", "variety", "redBook", "source", "acquired", "album", "notes", "soldDate", "soldAmount", "shipping", "insurance"];
-  const q = (v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
-  const rows = allCoins().filter((c) => c.status !== "deleted").map((c) => {
-    const a = c.albumId ? getAlbum(c.albumId) : null;
-    const s = c.sold || {};
-    return { ...c, fbl: c.fbl ? "yes" : "", sms: c.sms ? "yes" : "", redBook: bookPrice(c) ?? "", label: labelOf(c), album: a ? albumTitle(a) : "", soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance };
-  });
-  return [cols.join(","), ...rows.map((r) => cols.map((k) => q(r[k])).join(","))].join("\n");
-}
-async function doExport() {
-  const csv = toCsv();
-  const name = "coin-cabinet-" + today() + ".csv";
-  if (downloadsApi) {
-    try { await downloadsApi.save({ filename: name, data: csv }); return; } catch (e) { if (e && e.code === "declined") return; }
-  }
-  try { await navigator.clipboard.writeText(csv); toast("Copied the CSV. Paste it into a spreadsheet."); }
-  catch (e) { toast("Couldn't export from this view."); }
-}
+/* CSV import and export live in sheets.js */
 
 /* ---------- toast ---------- */
 let toastTimer = null;
@@ -1039,7 +1021,6 @@ const actions = {
   toastAction: () => { const t = $("#toast"); t.hidden = true; if (t._action) t._action(); },
   hideSpot: (el) => { const s = settings(); saveSettings({ hideSpot: { ...s.hideSpot, [el.dataset.v]: !el.checked } }); },
   showSold: (el) => saveSettings({ showSold: el.checked, soldAutoDone: true }),
-  export: doExport,
   newAlbum: openNewAlbum,
   missing: (el) => openMissing(el.dataset.id),
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
