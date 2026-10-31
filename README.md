@@ -1,0 +1,3 @@
+# coinshelftest
+
+Coin Cabinet rebuild.
