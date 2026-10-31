@@ -142,7 +142,19 @@ const deletedCoins = () => allCoins().filter((c) => c.status === "deleted");
 const albums = () => [...store.docs.values()].filter((d) => d.kind === "album").sort((a, b) => albumTitle(a).localeCompare(albumTitle(b)));
 const getCoin = (id) => store.docs.get("c_" + id);
 const getAlbum = (id) => store.docs.get("a_" + id);
-const saveCoin = (c) => put("c_" + c.id, c);
+// Saving changes to an imported coin takes it out of its import batch,
+// so "remove last import" can never delete a coin you've since edited.
+function saveCoin(c) {
+  if (c.importBatch && getCoin(c.id)) { c = { ...c }; delete c.importBatch; }
+  return put("c_" + c.id, c);
+}
+// In-app confirm step (the page can't use the browser's confirm()).
+function confirmSheet(title, message, okLabel, onOk) {
+  confirmSheet.fn = onOk;
+  openSheet(`<div class="sheet-head"><h2>${esc(title)}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <p>${esc(message)}</p>
+    <div class="btn-row"><button class="btn danger" data-act="confirmOk">${esc(okLabel)}</button><button class="btn" data-act="closeSheet">Cancel</button></div>`);
+}
 
 /* ---------- coin math ---------- */
 function spotPerOz(metalKey) {
@@ -189,11 +201,20 @@ function bookLookup(c) {
   if (!c.year || !c.grade || c.grade === "Other" || c.grade === "Junk") return null;
   const bt = bookTable(c);
   if (!bt) return null;
-  const row = bt.t.rows[bookKey(c, bt.kind)];
-  if (!row) return { none: true, kind: bt.kind };
   const r = gradeRank(c.grade);
-  let best = null;
-  bt.t.grades.forEach((g, i) => { if (gradeRank(g) <= r && row[i] != null) best = { price: row[i], grade: g, kind: bt.kind }; });
+  const priceIn = (row) => { let best = null; bt.t.grades.forEach((g, i) => { if (gradeRank(g) <= r && row[i] != null) best = { price: row[i], grade: g, kind: bt.kind }; }); return best; };
+  const row = bt.t.rows[bookKey(c, bt.kind)];
+  if (!row) {
+    // No variety chosen, but the book only lists this date by variety (e.g. 1878 Morgan):
+    // use the cheapest variety as a conservative estimate and say so.
+    if (!c.variety) {
+      const base = bookBase(c, bt.kind);
+      const opts = Object.keys(bt.t.rows).filter((k) => k.startsWith(base + "|")).map((k) => priceIn(bt.t.rows[k])).filter(Boolean);
+      if (opts.length) { const low = opts.reduce((x, y) => (y.price < x.price ? y : x)); return { ...low, asked: c.grade, guess: true }; }
+    }
+    return { none: true, kind: bt.kind };
+  }
+  const best = priceIn(row);
   return best ? { ...best, asked: c.grade } : { below: true, lowest: bt.t.grades[0], kind: bt.kind };
 }
 // Mintage from the same Red Book rows. "*" means the variety is counted in the date's total.
@@ -226,7 +247,8 @@ function bookText(b) {
   const edName = settings().bookEdition || PRICE_BOOK.edition; const ed = edName ? " " + edName : "";
   if (b.none) return "Red Book" + ed + " has no listing for this date" + (b.kind === "proof" ? " and variety." : ".");
   if (b.below) return "Red Book" + ed + " prices start at " + b.lowest + ". Below that it's worth about melt.";
-  return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " FBL" : b.kind === "sms" ? " SMS" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "");
+  return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " FBL" : b.kind === "sms" ? " SMS" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "")
+    + (b.guess ? ". No variety picked, so this is the lowest-priced variety for this date. Pick the variety for an exact value" : "");
 }
 
 function valueEach(c) {
@@ -554,7 +576,6 @@ function varietyFits(coinVar, slotVar) {
   const c = String(coinVar || "").toLowerCase().trim(), v = String(slotVar || "").toLowerCase().trim();
   return !!c && !!v && (c === v || c.startsWith(v) || v.startsWith(c));
 }
-const MINT_ORDER = ["", "P", "CC", "O", "S", "D", "W", "C"];
 // Short grade for an album card: "VF-20", "PCGS MS-63", or "owned" when no grade was entered.
 function slotGrade(c) {
   const g = c.grade === "Other" ? c.customGrade : c.grade;
@@ -565,14 +586,21 @@ function slotGrade(c) {
 function sortSlots(slots) {
   return slots.map((x, i) => [x, i]).sort((a, b) => a[0].y - b[0].y || a[1] - b[1]).map((p) => p[0]);
 }
+// Give every spot a stable id (older albums were saved without them). Returns the album, with ids.
+function withSlotIds(a) {
+  if (!a || (a.slots || []).every((s) => s.id)) return a;
+  const b = { ...a, slots: (a.slots || []).map((s) => (s.id ? s : { ...s, id: uid() })) };
+  put("a_" + b.id, b);
+  return b;
+}
 function buildSlots(typeId, start, end) {
   const t = TYPE_BY_ID[typeId];
   if (!t) return [];
   const out = [];
   if (EXACT_SLOTS[typeId]) {
-    EXACT_SLOTS[typeId].forEach(([y, ms]) => { if (y >= start && y <= end) ms.split(" ").forEach((m) => out.push({ y, m: normMint(m) })); });
+    EXACT_SLOTS[typeId].forEach(([y, ms]) => { if (y >= start && y <= end) ms.split(" ").forEach((m) => out.push({ id: uid(), y, m: normMint(m) })); });
   } else {
-    for (let y = start; y <= end; y++) t.mints.forEach((m) => out.push({ y, m: normMint(m) }));
+    for (let y = start; y <= end; y++) t.mints.forEach((m) => out.push({ id: uid(), y, m: normMint(m) }));
   }
   return out;
 }
@@ -582,13 +610,19 @@ function albumStats(a) {
   const filled = new Map();
   const used = new Set();
   const sameDate = (c, s) => num(c.year) === s.y && normMint(c.mint) === s.m;
-  // Variety spots first, so an 8 Tail Feathers coin lands in its own spot, then plain spots.
-  slots.filter((s) => s.v).forEach((s) => {
+  // 1) Coins added to a specific spot stay in that spot, whatever it's renamed or moved to.
+  slots.forEach((s) => {
+    if (!s.id) return;
+    const hit = coins.find((c) => !used.has(c.id) && c.slotId === s.id && sameDate(c, s));
+    if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
+  });
+  // 2) Other coins: variety spots by matching variety, then plain spots by date.
+  slots.filter((s) => s.v && !filled.has(slotKey(s))).forEach((s) => {
     const hit = coins.find((c) => !used.has(c.id) && sameDate(c, s) && (varietyFits(c.variety, s.v) || varietyFits(c.spotVariety, s.v)));
     if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
   });
-  slots.filter((s) => !s.v).forEach((s) => {
-    const hit = coins.find((c) => !used.has(c.id) && sameDate(c, s)) || null;
+  slots.filter((s) => !s.v && !filled.has(slotKey(s))).forEach((s) => {
+    const hit = coins.find((c) => !used.has(c.id) && sameDate(c, s) && !(c.slotId && slots.some((x) => x.id === c.slotId))) || null;
     if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
   });
   return {
@@ -656,6 +690,7 @@ function viewAlbum(r) {
     }).join("")}</div>
     ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => coinRow(c)).join("")}</div>` : ""}
     <div class="btn-row">
+      <button class="btn" data-act="editAlbum" data-id="${esc(a.id)}">Edit album</button>
       <button class="btn danger" data-act="deleteAlbum" data-id="${esc(a.id)}">Delete album</button>
     </div>
     <p class="small muted">${EXACT_SLOTS[a.typeId] ? "Spots follow the dates and mint marks this series was struck." : "Spots include every year and mint mark for this series. Use Edit spots to hide any your album doesn't have."} If your album has a spot that's missing here, like a variety, use <b>+ Add a spot</b>.</p>`;
@@ -682,7 +717,7 @@ function openSpotEdit(id, i) {
     </form>`);
 }
 function saveSpotEdit(form) {
-  const a = getAlbum(form.dataset.id);
+  const a = withSlotIds(getAlbum(form.dataset.id));
   const i = +form.dataset.i;
   const s = a && (a.slots || [])[i];
   if (!s) return;
@@ -738,7 +773,7 @@ function saveSpot(form) {
   const fd = new FormData(form);
   const y = num(fd.get("y"));
   if (!y || y < 1700 || y > 2100) { toast("Enter a year."); return; }
-  const spot = { y, m: normMint(fd.get("m") || ""), v: String(fd.get("v") || "").trim(), custom: true };
+  const spot = { id: uid(), y, m: normMint(fd.get("m") || ""), v: String(fd.get("v") || "").trim(), custom: true };
   if (!spot.v) delete spot.v;
   const k = slotKey(spot);
   if ((a.slots || []).some((x) => slotKey(x) === k)) {
@@ -748,7 +783,7 @@ function saveSpot(form) {
     toast(wasHidden ? "That spot was hidden. It's back now." : "That spot is already in the album.");
     return;
   }
-  put("a_" + a.id, { ...a, slots: sortSlots([...(a.slots || []), spot]) });
+  put("a_" + a.id, { ...a, slots: sortSlots([...(withSlotIds(a).slots || []), spot]) });
   closeSheet();
   toast("Spot added: " + slotLabel(spot) + (spot.v ? " " + spot.v : "") + ".");
 }
@@ -786,6 +821,9 @@ function viewOptions() {
     <div class="card">Save all your coins as a spreadsheet file (CSV), or add coins from one.
       <div class="btn-row"><button class="btn" data-act="export">Export CSV</button><button class="btn" data-act="openImport">Import CSV</button></div>
       ${s.lastImport && s.lastImport.ids ? `<div class="hint" style="margin-top:8px">Last import: ${s.lastImport.count} row${s.lastImport.count === 1 ? "" : "s"} on ${esc(s.lastImport.at)}. <button class="link-btn" data-act="undoImport">Remove them</button></div>` : ""}</div>
+    <h2>Share a snapshot</h2>
+    <div class="card">Save a view-only copy of your collection as one file to send to friends. What you paid, sources, notes and buyers are left out unless you choose to include them.
+      <div class="btn-row"><button class="btn" data-act="openSnapshot">Share a snapshot</button></div></div>
     <h2>Insurance report</h2>
     <div class="card">A dated, itemized list of every coin you own with values and totals, ready to print or save as a PDF for your insurance agent.
       <div class="btn-row"><button class="btn" data-act="openReport">Create insurance report</button></div></div>
@@ -896,7 +934,7 @@ function renderCoinForm() {
     ${d.albumId === "__new" ? `<div class="grid2">
       <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
       <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
-      <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change the date range later on the Albums page.</div>` : ""}
+      <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}
 
     <label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>
 
@@ -924,7 +962,10 @@ function smsField(d) {
 function varietyField(d) {
   const vs = bookVarieties(d);
   if (!vs.some((v) => v)) return "";
-  return `<label class="f"><span>Variety</span><select data-f="variety">${vs.map((v) => `<option value="${esc(v)}" ${d.variety === v ? "selected" : ""}>${esc(v || "Regular")}</option>`).join("")}</select></label>`;
+  // Always offer a neutral first choice, so nothing gets tagged with a variety by accident.
+  const choices = vs.includes("") ? vs : ["", ...vs];
+  const blank = vs.includes("") ? "Regular (no variety)" : "Not sure / not listed";
+  return `<label class="f"><span>Variety</span><select data-f="variety" data-rerender>${choices.map((v) => `<option value="${esc(v)}" ${(d.variety || "") === v ? "selected" : ""}>${esc(v || blank)}</option>`).join("")}</select></label>`;
 }
 function bookHintText(d) {
   if (isJunk(d)) return "";
@@ -944,8 +985,7 @@ function refreshFormHints() {
   const vb = $("#varietyBox");
   if (vb) {
     const vs = bookVarieties(draft);
-    if (vs.length && !vs.includes(draft.variety || "")) draft.variety = vs[0];
-    if (!vs.some((v) => v)) draft.variety = "";
+    if (!vs.includes(draft.variety || "")) draft.variety = ""; // never auto-pick a variety
     const html = varietyField(draft);
     if (vb.innerHTML !== html) vb.innerHTML = html;
   }
@@ -1011,6 +1051,7 @@ async function saveDraft() {
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
   if (!c.family) c.family = c.typeName || "Other";
   if (!c.labelEdited) c.label = autoLabel(c);
+  if (c.slotId && !(getAlbum(c.albumId) && (getAlbum(c.albumId).slots || []).some((x) => x.id === c.slotId))) delete c.slotId;
   if (c.albumId === "__new") {
     const na = d._newAlbum;
     const t = TYPE_BY_ID[c.typeId];
@@ -1157,9 +1198,10 @@ function doSell(form) {
     return;
   }
   if (n < q) {
-    saveCoin({ ...c, qty: q - n });
-    // Remember which coin it was split from, so moving it back puts it back exactly.
-    saveCoin({ ...c, id: uid(), qty: n, status: "sold", sold, splitFrom: c.id });
+    // Both pieces share a lot id, so moving them back always rejoins them, whichever piece survives.
+    const lotId = c.lotId || c.id;
+    saveCoin({ ...c, qty: q - n, lotId });
+    saveCoin({ ...c, id: uid(), qty: n, status: "sold", sold, splitFrom: c.id, lotId });
   } else {
     saveCoin({ ...c, status: "sold", sold });
   }
@@ -1184,7 +1226,7 @@ function openNewAlbum() {
       <label class="f"><span>From year</span><input type="number" name="start" id="albumStart" value="${firstAlbumType().start}"></label>
       <label class="f"><span>To year</span><input type="number" name="end" id="albumEnd" value="${firstAlbumType().end}"></label>
     </div>
-    <div class="hint">Every year and mint mark in the range gets a slot.</div>
+    <div class="hint">Every date and mint mark struck in the range gets a spot. You can add, hide or reorder spots later.</div>
     <div class="btn-row"><button class="btn primary" type="submit">Create album</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
@@ -1206,6 +1248,50 @@ function doNewAlbum(form) {
   closeSheet();
   go("album-" + a.id);
 }
+// Edit an album's details. Changing the date range keeps your own spots, hidden spots,
+// order and spot names inside the range; it only adds or drops the standard dates.
+function openEditAlbum(id) {
+  const a = getAlbum(id);
+  if (!a) return;
+  const t = TYPE_BY_ID[a.typeId];
+  openSheet(`<div class="sheet-head"><h2>Edit album</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  <form id="editAlbumForm" data-id="${esc(a.id)}">
+    <div class="grid2">
+      <label class="f"><span>Brand</span><select name="brand">${ALBUM_BRANDS.map((b) => `<option ${a.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
+      <label class="f"><span>Album number</span><input type="text" name="number" value="${esc(a.number || "")}"></label>
+    </div>
+    <label class="f"><span>Name (optional)</span><input type="text" name="name" value="${esc(a.name || "")}"></label>
+    <div class="small muted" style="margin-top:10px">Coin type: ${esc(t ? t.name : a.typeId)}</div>
+    <div class="grid2">
+      <label class="f"><span>From year</span><input type="number" name="start" value="${a.start}"></label>
+      <label class="f"><span>To year</span><input type="number" name="end" value="${a.end}"></label>
+    </div>
+    <div class="hint">Changing the years keeps the spots you added, hid, renamed or reordered.</div>
+    <div class="btn-row"><button class="btn primary" type="submit">Save</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
+  </form>`);
+}
+function saveEditAlbum(form) {
+  const a = withSlotIds(getAlbum(form.dataset.id));
+  if (!a) return;
+  const fd = new FormData(form);
+  let start = num(fd.get("start")) ?? a.start, end = num(fd.get("end")) ?? a.end;
+  if (start > end) [start, end] = [end, start];
+  let slots = a.slots || [];
+  if (start !== a.start || end !== a.end) {
+    const inRange = (x) => x.y >= start && x.y <= end;
+    // Keep every existing spot that's still in range (with its id, name and order).
+    const kept = slots.filter(inRange);
+    const have = new Set(kept.filter((x) => !x.custom).map((x) => x.y + "|" + x.m));
+    // Add standard spots for newly covered years only.
+    const added = buildSlots(a.typeId, start, end).filter((x) => !have.has(x.y + "|" + x.m) && !(x.y >= a.start && x.y <= a.end));
+    slots = sortSlots([...kept, ...added]);
+  }
+  const removed = (a.removed || []).filter((k) => +k.split("|")[0] >= start && +k.split("|")[0] <= end);
+  put("a_" + a.id, { ...a, brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, slots, removed });
+  closeSheet();
+  toast("Album saved.");
+}
+
 // Delegates to wants.js, which knows about want lists.
 function openMissing(id) { openMissingPicker(id); }
 
@@ -1235,20 +1321,23 @@ const actions = {
   unsell: (el) => {
     const c = getCoin(el.dataset.id);
     if (!c) return;
-    const orig = c.splitFrom ? getCoin(c.splitFrom) : null;
-    if (orig && orig.status === "owned") {
-      // Part of a lot was sold: add the coins back to the original entry.
-      saveCoin({ ...orig, qty: qtyOf(orig) + qtyOf(c) });
+    const lot = c.lotId || c.splitFrom;
+    const same = (x) => ["typeId", "year", "mint", "grade", "gradeMode", "variety", "cert"].every((k) => String(x[k] || "") === String(c[k] || ""));
+    // Another piece of the same lot still in the collection (and not changed since): rejoin it.
+    const home = lot ? allCoins().find((x) => x.id !== c.id && x.status === "owned" && (x.lotId || x.id) === lot && same(x)) : null;
+    const undo = (docs) => toast("Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
+    if (home) {
+      saveCoin({ ...home, qty: qtyOf(home) + qtyOf(c) });
       remove("c_" + c.id);
-      toast("Back in your collection.");
-      go("coin-" + orig.id);
+      undo([home, c]);
+      go("coin-" + home.id);
       return;
     }
     const n = { ...c, status: "owned" };
     delete n.sold;
     delete n.splitFrom;
     saveCoin(n);
-    toast("Back in your collection.");
+    undo([c]);
   },
   delete: (el) => {
     const c = getCoin(el.dataset.id);
@@ -1259,7 +1348,12 @@ const actions = {
     toast("Coin deleted.", { label: "Undo", fn: () => { const x = getCoin(c.id); if (x) { saveCoin({ ...x, status: prevStatus }); toast("Restored."); } } });
   },
   restore: (el) => { const c = getCoin(el.dataset.id); if (c) { saveCoin({ ...c, status: c.prevStatus || "owned" }); toast("Restored."); } },
-  purge: (el) => { remove("c_" + el.dataset.id); toast("Deleted forever."); },
+  purge: (el) => {
+    const c = getCoin(el.dataset.id);
+    if (!c) return;
+    confirmSheet("Delete forever?", labelOf(c) + " will be gone for good. This can't be undone.", "Delete forever", () => { remove("c_" + c.id); toast("Deleted forever."); });
+  },
+  confirmOk: () => { const fn = confirmSheet.fn; confirmSheet.fn = null; closeSheet(); if (fn) fn(); },
   toastAction: () => { const t = $("#toast"); t.hidden = true; if (t._action) t._action(); },
   hideSpot: (el) => { const s = settings(); saveSettings({ hideSpot: { ...s.hideSpot, [el.dataset.v]: !el.checked } }); },
   showSold: (el) => saveSettings({ showSold: el.checked, soldAutoDone: true }),
@@ -1267,9 +1361,10 @@ const actions = {
   missing: (el) => openMissing(el.dataset.id),
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
   addSpot: (el) => openAddSpot(el.dataset.id),
+  editAlbum: (el) => openEditAlbum(el.dataset.id),
   spotEdit: (el) => openSpotEdit(el.dataset.id, +el.dataset.i),
   moveSpot: (el) => {
-    const a = getAlbum(el.dataset.id);
+    const a = withSlotIds(getAlbum(el.dataset.id));
     if (!a) return;
     const i = +el.dataset.i, j = i + (+el.dataset.d);
     const slots = (a.slots || []).slice();
@@ -1282,9 +1377,12 @@ const actions = {
     const a = getAlbum(el.dataset.id);
     if (!a) return;
     const k = el.dataset.k;
+    const gone = (a.slots || []).find((x) => slotKey(x) === k);
+    const freed = gone && gone.id ? allCoins().filter((c) => c.slotId === gone.id) : [];
     put("a_" + a.id, { ...a, slots: (a.slots || []).filter((x) => slotKey(x) !== k) });
+    freed.forEach((c) => { const x = { ...c }; delete x.slotId; saveCoin(x); }); // they fall back to their plain date spot
     if (!$("#sheet").hidden) closeSheet();
-    toast("Spot removed.", { label: "Undo", fn: () => put("a_" + a.id, a) });
+    toast("Spot removed.", { label: "Undo", fn: () => { put("a_" + a.id, a); freed.forEach((c) => saveCoin(c)); } });
   },
   toggleSlot: (el) => {
     const a = getAlbum(el.dataset.id);
@@ -1310,11 +1408,16 @@ const actions = {
   resetLabel: () => { draft.labelEdited = false; draft.label = ""; renderCoinForm(); },
 };
 
+// Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
+const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
+  "hideSpot showSold slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
+  "export openImport undoImport openReport openSnapshot").split(" "));
 document.addEventListener("click", (e) => {
   const goEl = e.target.closest("[data-go]");
   if (goEl) { e.preventDefault(); go(goEl.dataset.go); return; }
   const actEl = e.target.closest("[data-act]");
   if (actEl && actions[actEl.dataset.act]) {
+    if (store.mode === "snapshot" && SNAPSHOT_BLOCK.has(actEl.dataset.act)) { e.preventDefault(); toast("This is a view-only copy."); return; }
     if (actEl.tagName !== "INPUT") e.preventDefault();
     actions[actEl.dataset.act](actEl, e);
     return;
@@ -1392,6 +1495,7 @@ document.addEventListener("submit", (e) => {
   else if (e.target.id === "sellForm") doSell(e.target);
   else if (e.target.id === "albumForm") doNewAlbum(e.target);
   else if (e.target.id === "spotForm") saveSpot(e.target);
+  else if (e.target.id === "editAlbumForm") saveEditAlbum(e.target);
   else if (e.target.id === "spotEditForm") saveSpotEdit(e.target);
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeSheet(); closeMenu(); } });
