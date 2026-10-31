@@ -129,3 +129,8 @@ summary { font-weight: 600; cursor: pointer; }
 .ta-list button { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 10px 12px; }
 .ta-list button small { color: var(--muted); display: block; }
 .ta-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding: 8px 12px 4px; background: var(--chip); }
+/* View-only snapshot: hide anything that changes data */
+body.readonly #fab, body.readonly [data-act=edit], body.readonly [data-act=sell], body.readonly [data-act=unsell],
+body.readonly [data-act=delete], body.readonly [data-act=newAlbum], body.readonly [data-act=deleteAlbum], body.readonly [data-act=editSlots],
+body.readonly [data-act=restore], body.readonly [data-act=purge], body.readonly [data-act=export] { display: none !important; }
+body.readonly [data-spot], body.readonly [data-setting], body.readonly [data-act=hideSpot], body.readonly [data-act=showSold] { pointer-events: none; opacity: .6; }

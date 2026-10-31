@@ -42,6 +42,15 @@ function showBanner(text) {
 }
 
 async function initStore() {
+  // View-only snapshot: a copy of someone's coins baked into the page (for showing friends).
+  if (window.COIN_SNAPSHOT) {
+    store.mode = "snapshot";
+    window.COIN_SNAPSHOT.docs.forEach((d) => store.docs.set(d.id, d.data));
+    document.body.classList.add("readonly");
+    showBanner("View-only snapshot of a coin collection, taken " + window.COIN_SNAPSHOT.taken + ". Values use the spot prices from that day.");
+    render();
+    return;
+  }
   if (!window.claude || typeof window.claude.use !== "function") {
     store.mode = "memory";
     showBanner("Practice mode: open this page from Claude to save your coins. Nothing typed here is kept.");
@@ -92,6 +101,7 @@ async function claudeExtras() {
 }
 
 function put(key, obj) {
+  if (store.mode === "snapshot") return Promise.resolve();
   const body = JSON.parse(JSON.stringify(obj));
   store.docs.set(key, body);
   render();
@@ -104,6 +114,7 @@ function put(key, obj) {
   return next;
 }
 function remove(key) {
+  if (store.mode === "snapshot") return Promise.resolve();
   store.docs.delete(key);
   render();
   if (store.mode !== "db" || !store.coll) return Promise.resolve();
