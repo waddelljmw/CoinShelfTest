@@ -79,7 +79,10 @@ async function initStore() {
         snap.docs.forEach((d) => { if (d.exists) next.set(d.id, d.data()); });
         // Keep this page's own pending writes visible.
         store.docs = next;
-        if (!snap.metadata.fromCache) { clearTimeout(loadTimer); showBanner(""); }
+        if (!snap.metadata.fromCache) {
+          clearTimeout(loadTimer); showBanner("");
+          if (!store.historyChecked && typeof scheduleHistory === "function") { store.historyChecked = true; scheduleHistory(); }
+        }
         store.mode = "db";
         render();
       },
@@ -109,6 +112,7 @@ async function claudeExtras() {
 function put(key, obj) {
   const body = JSON.parse(JSON.stringify(obj));
   store.docs.set(key, body);
+  if (key !== "history" && typeof scheduleHistory === "function") scheduleHistory(); // value over time
   render();
   if (store.mode !== "db" || !store.coll) return Promise.resolve();
   const prev = writeChains.get(key) || Promise.resolve();
@@ -341,6 +345,8 @@ function viewHome() {
     <div class="stat"><div class="k">Paid</div><div class="v">${money(paid, "$0.00")}</div></div>
     <div class="stat"><div class="k">Gain</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Add prices paid" : pct(paid ? gain / paid : null) + " · inherited not counted"}</div></div>
   </div>`;
+
+  if (typeof historyCard === "function") html += historyCard();
 
   // Melt Value by Metal, only for metals in the collection
   const metalRows = SPOT_METALS.map((m) => {
