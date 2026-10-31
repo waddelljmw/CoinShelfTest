@@ -753,17 +753,36 @@ function pickType(id) {
   renderCoinForm();
 }
 
+/* --- recently used coin types (kept in settings, newest first, max 5) --- */
+const recentTypeIds = () => (settings().recentTypes || []).filter((id) => TYPE_BY_ID[id]).slice(0, 5);
+function touchType(id) {
+  if (!TYPE_BY_ID[id]) return;
+  const cur = recentTypeIds();
+  const next = [id, ...cur.filter((x) => x !== id)].slice(0, 5);
+  if (next.join() !== cur.join()) saveSettings({ recentTypes: next });
+}
+// Recent types first, then everything else, in the same order as before.
+function typesRecentFirst(list) {
+  const rec = recentTypeIds();
+  const recSet = new Set(rec);
+  return { recent: rec.map((id) => TYPE_BY_ID[id]).filter((t) => list.includes(t)), rest: list.filter((t) => !recSet.has(t.id)) };
+}
 function typeMatches(q) {
   q = q.trim().toLowerCase();
-  if (!q) return COIN_TYPES.slice(0, 12);
-  const words = q.split(/\s+/);
-  return COIN_TYPES.filter((t) => words.every((w) => (t.name + " " + t.family + " " + t.denom).toLowerCase().includes(w))).slice(0, 20);
+  const words = q ? q.split(/\s+/) : [];
+  const all = COIN_TYPES.filter((t) => words.every((w) => (t.name + " " + t.family + " " + t.denom).toLowerCase().includes(w)));
+  const { recent, rest } = typesRecentFirst(all);
+  return { recent, rest: rest.slice(0, q ? 20 : 12) };
 }
 function showTypeList(q) {
   const box = $("#typeList");
   if (!box) return;
-  const m = typeMatches(q);
-  box.innerHTML = m.length ? m.map((t) => `<button type="button" data-act="pickType" data-id="${t.id}">${esc(t.name)}<small>${esc(t.denom)} · ${t.start}–${t.end} · ${esc(t.metal)}</small></button>`).join("") : `<div class="hint" style="padding:10px">No match. Type the coin type below instead.</div>`;
+  const { recent, rest } = typeMatches(q);
+  const btn = (t) => `<button type="button" data-act="pickType" data-id="${t.id}">${esc(t.name)}<small>${esc(t.denom)} · ${t.start}–${t.end} · ${esc(t.metal)}</small></button>`;
+  const head = (txt) => `<div class="ta-head">${txt}</div>`;
+  box.innerHTML = recent.length || rest.length
+    ? (recent.length ? head("Recent") + recent.map(btn).join("") + (rest.length ? head("All types") : "") : "") + rest.map(btn).join("")
+    : `<div class="hint" style="padding:10px">No match. Type the coin type below instead.</div>`;
   box.hidden = false;
 }
 
@@ -790,6 +809,7 @@ async function saveDraft() {
     }
   }
   const isNew = d._isNew;
+  if (c.typeId) touchType(c.typeId);
   closeSheet();
   await saveCoin(c);
   toast(isNew ? "Coin added." : "Saved.");
@@ -875,15 +895,21 @@ function openNewAlbum() {
       <label class="f"><span>Album number</span><input type="text" name="number" placeholder="9128"></label>
     </div>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" placeholder="Grandpa's Morgans"></label>
-    <label class="f"><span>Coin type</span><select name="typeId" id="albumType">${COIN_TYPES.map((t) => `<option value="${t.id}">${esc(t.name)} (${t.start}–${t.end})</option>`).join("")}</select></label>
+    <label class="f"><span>Coin type</span><select name="typeId" id="albumType">${typeOptions()}</select></label>
     <div class="grid2">
-      <label class="f"><span>From year</span><input type="number" name="start" id="albumStart" value="${COIN_TYPES[0].start}"></label>
-      <label class="f"><span>To year</span><input type="number" name="end" id="albumEnd" value="${COIN_TYPES[0].end}"></label>
+      <label class="f"><span>From year</span><input type="number" name="start" id="albumStart" value="${firstAlbumType().start}"></label>
+      <label class="f"><span>To year</span><input type="number" name="end" id="albumEnd" value="${firstAlbumType().end}"></label>
     </div>
     <div class="hint">Every year and mint mark in the range gets a slot.</div>
     <div class="btn-row"><button class="btn primary" type="submit">Create album</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
+function typeOptions() {
+  const { recent, rest } = typesRecentFirst(COIN_TYPES);
+  const opt = (t) => `<option value="${t.id}">${esc(t.name)} (${t.start}–${t.end})</option>`;
+  return recent.length ? `<optgroup label="Recent">${recent.map(opt).join("")}</optgroup><optgroup label="All types">${rest.map(opt).join("")}</optgroup>` : rest.map(opt).join("");
+}
+const firstAlbumType = () => TYPE_BY_ID[recentTypeIds()[0]] || COIN_TYPES[0];
 function doNewAlbum(form) {
   const fd = new FormData(form);
   const t = TYPE_BY_ID[fd.get("typeId")];
@@ -892,6 +918,7 @@ function doNewAlbum(form) {
   const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: t.id, start, end, removed: [], createdAt: Date.now() };
   a.slots = buildSlots(t.id, start, end);
   put("a_" + a.id, a);
+  touchType(t.id);
   closeSheet();
   go("album-" + a.id);
 }
