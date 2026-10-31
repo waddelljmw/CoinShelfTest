@@ -47,7 +47,7 @@ async function initStore() {
     store.mode = "snapshot";
     window.COIN_SNAPSHOT.docs.forEach((d) => store.docs.set(d.id, d.data));
     document.body.classList.add("readonly");
-    showBanner("View-only snapshot of a coin collection, taken " + window.COIN_SNAPSHOT.taken + ". Values use the spot prices from that day.");
+    showBanner("View-only snapshot of a coin collection, taken " + window.COIN_SNAPSHOT.taken + ". You can try adding a coin with +, but nothing is saved.");
     render();
     return;
   }
@@ -101,7 +101,6 @@ async function claudeExtras() {
 }
 
 function put(key, obj) {
-  if (store.mode === "snapshot") return Promise.resolve();
   const body = JSON.parse(JSON.stringify(obj));
   store.docs.set(key, body);
   render();
@@ -659,6 +658,7 @@ function renderCoinForm() {
   const grades = d.gradeMode === "cert" ? CERT_GRADES : GRADES;
   const melt = meltEach(d);
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? "Add coin" : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" autocomplete="off">
     <div class="f typeahead"><span>Start from a known coin</span>
       <input type="search" id="typeSearch" placeholder="Search Red Book types, e.g. Morgan" value="${esc(t ? t.name : "")}">
