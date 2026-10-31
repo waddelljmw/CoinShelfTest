@@ -135,13 +135,14 @@ function openSlotMenu(el) {
   const mt = mintageInfo({ ...fake, grade: "VF-20" });
   openSheet(`<div class="sheet-head"><h2>${esc(label)}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <div class="small muted" style="margin:-4px 0 12px">${coin ? "In this album · " + esc(gradeText(coin)) : "Not in this album yet"}${mt ? " · Mintage " + esc(mt.text) : ""}</div>
+    ${coin ? "" : `<button class="btn block btn-addcoin" data-act="slotHave" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}">＋ Add coin to this spot</button>`}
     ${w
       ? `<div class="card small">★ On your want list${w.grade ? " · target " + esc(w.grade) : ""}${num(w.maxPrice) != null ? " · up to " + money(num(w.maxPrice)) : ""}</div>
          <div class="btn-row"><button class="btn" data-go="wants">View want list</button><button class="btn danger" data-act="slotUnwant" data-id="${esc(w.id)}">Remove from want list</button></div>`
-      : `<button class="btn primary block" data-act="slotWant" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}">★ Add to want list${coin ? " (upgrade)" : ""}</button>
+      : `<button class="btn block btn-want" data-act="slotWant" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}">★ Add to want list${coin ? " (upgrade)" : ""}</button>
          <div class="hint">Adds ${esc(label)} with no typing. You can set a target grade and price on the Want List later.</div>`}
     <div class="btn-row">
-      ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button>` : `<button class="btn" data-act="slotHave" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}">I have it: add coin</button>`}
+      ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button>` : ""}
       <a class="btn" style="text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>
     </div>`);
 }
@@ -170,6 +171,8 @@ function slotHave(el) {
   }
   const w = findWant(a.typeId, draft.year, draft.mint, v);
   if (w) draft._fromWant = w.id;
+  draft._stay = true;   // after saving, stay on this album
+  draft._short = true;  // three-quarter-height window over the album
   renderCoinForm();
 }
 
