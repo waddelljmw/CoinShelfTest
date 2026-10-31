@@ -173,7 +173,7 @@ function bookLookup(c) {
 const bookPrice = (c) => { const b = bookLookup(c); return b && b.price != null ? b.price : null; };
 function bookText(b) {
   if (!b) return "";
-  const ed = settings().bookEdition ? " " + settings().bookEdition : "";
+  const edName = settings().bookEdition || PRICE_BOOK.edition; const ed = edName ? " " + edName : "";
   if (b.none) return "Red Book" + ed + " has no listing for this date" + (b.kind === "proof" ? " and variety." : ".");
   if (b.below) return "Red Book" + ed + " prices start at " + b.lowest + ". Below that it's worth about melt.";
   return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " FBL" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "");
@@ -546,7 +546,7 @@ function viewOptions() {
     </div>
     <h2>Red Book values</h2>
     <div class="card">${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof" }[k])).join(" · ")}</span></div>`).join("")}
-      <label class="f"><span>Red Book edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || "")}" placeholder="e.g. 2026"></label>
+      <label class="f"><span>Red Book edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
       <div class="hint">A coin with no value typed in uses its Red Book value. Coins below the lowest listed grade use melt.</div></div>
     <h2>Export</h2>
     <div class="card">Save all your coins as a spreadsheet file (CSV).
