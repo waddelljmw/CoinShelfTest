@@ -140,17 +140,19 @@ function meltEach(c) {
 }
 const isJunk = (c) => c.gradeMode === "raw" && c.grade === "Junk";
 /* ---------- Red Book values ---------- */
+const hasSms = (c) => { const s = PRICE_BOOK.series[c.typeId]; return !!(s && s.sms && c.year && s.sms.rows[String(c.year)]); };
 const gradeRank = (g) => GRADES.indexOf(g);
 const isProofGrade = (g) => /^PR-/.test(g || "");
 function bookTable(c) {
   const s = PRICE_BOOK.series[c.typeId];
   if (!s) return null;
   if (isProofGrade(c.grade)) return s.proof ? { t: s.proof, kind: "proof" } : null;
+  if (c.sms && s.sms) return { t: s.sms, kind: "sms" };
   if (c.fbl && s.fbl) return { t: s.fbl, kind: "fbl" };
   return s.circ ? { t: s.circ, kind: "circ" } : null;
 }
 function bookBase(c, kind) {
-  return String(c.year) + (kind === "proof" || !normMint(c.mint) ? "" : "-" + normMint(c.mint));
+  return String(c.year) + (kind === "proof" || kind === "sms" || !normMint(c.mint) ? "" : "-" + normMint(c.mint));
 }
 function bookKey(c, kind) {
   return bookBase(c, kind) + (c.variety ? "|" + c.variety : "");
@@ -180,7 +182,7 @@ function bookText(b) {
   const edName = settings().bookEdition || PRICE_BOOK.edition; const ed = edName ? " " + edName : "";
   if (b.none) return "Red Book" + ed + " has no listing for this date" + (b.kind === "proof" ? " and variety." : ".");
   if (b.below) return "Red Book" + ed + " prices start at " + b.lowest + ". Below that it's worth about melt.";
-  return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " FBL" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "");
+  return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " FBL" : b.kind === "sms" ? " SMS" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "");
 }
 
 function valueEach(c) {
@@ -201,7 +203,7 @@ const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
 function gradeText(c) {
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade;
-  const extra = (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "") + (c.variety ? " · " + c.variety : "");
+  const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "") + (c.variety ? " · " + c.variety : "");
   if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;
   return (g ? "Raw " + g : "Raw") + extra;
 }
@@ -581,7 +583,7 @@ $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") clos
 let draft = null;
 function blankCoin() {
   return { kind: "coin", id: uid(), status: "owned", typeId: "", typeName: "", family: "", denom: "", year: "", mint: "", gradeMode: "raw", grade: "", customGrade: "",
-    service: "PCGS", customService: "", cert: "", metal: "", oz: "", qty: 1, paid: "", value: "", source: "", acquired: "", albumId: "", notes: "", photos: [], fbl: false, variety: "", label: "", labelEdited: false, createdAt: Date.now() };
+    service: "PCGS", customService: "", cert: "", metal: "", oz: "", qty: 1, paid: "", value: "", source: "", acquired: "", albumId: "", notes: "", photos: [], fbl: false, sms: false, variety: "", label: "", labelEdited: false, createdAt: Date.now() };
 }
 function openCoinForm(id) {
   const existing = id ? getCoin(id) : null;
@@ -626,6 +628,7 @@ function renderCoinForm() {
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
       ${PRICE_BOOK.series[d.typeId] && PRICE_BOOK.series[d.typeId].fbl && !isProofGrade(d.grade) ? `<label class="switch"><span>Full Bell Lines (FBL)<div class="small muted">All the lines on the Liberty Bell are complete.</div></span><input type="checkbox" data-fcheck="fbl" ${d.fbl ? "checked" : ""}></label>` : ""}
+      <div id="smsBox">${smsField(d)}</div>
       <div id="varietyBox">${varietyField(d)}</div>
     </fieldset>
 
@@ -673,6 +676,10 @@ function renderCoinForm() {
   refreshFormHints();
 }
 
+function smsField(d) {
+  if (!hasSms(d) || isProofGrade(d.grade)) return "";
+  return `<label class="switch"><span>Special Mint Set (SMS)<div class="small muted">From a 1964–1967 Special Mint Set, not a regular strike.</div></span><input type="checkbox" data-fcheck="sms" ${d.sms ? "checked" : ""}></label>`;
+}
 function varietyField(d) {
   const vs = bookVarieties(d);
   if (!vs.some((v) => v)) return "";
@@ -686,6 +693,13 @@ function bookHintText(d) {
   return b.price != null ? t + (num(d.value) == null ? ". Used as the value while Value each is empty." : "") : t;
 }
 function refreshFormHints() {
+  const sb = $("#smsBox");
+  if (sb) {
+    if (!hasSms(draft) || isProofGrade(draft.grade)) draft.sms = false;
+    const html = smsField(draft);
+    if (sb.innerHTML.trim() !== html.trim() && !(html && sb.querySelector("input"))) sb.innerHTML = html;
+    if (!html) sb.innerHTML = "";
+  }
   const vb = $("#varietyBox");
   if (vb) {
     const vs = bookVarieties(draft);
@@ -870,12 +884,12 @@ function openMissing(id) {
 
 /* --- CSV export --- */
 function toCsv() {
-  const cols = ["label", "status", "year", "mint", "typeName", "denom", "family", "gradeMode", "grade", "customGrade", "service", "cert", "metal", "oz", "qty", "paid", "value", "fbl", "variety", "redBook", "source", "acquired", "album", "notes", "soldDate", "soldAmount", "shipping", "insurance"];
+  const cols = ["label", "status", "year", "mint", "typeName", "denom", "family", "gradeMode", "grade", "customGrade", "service", "cert", "metal", "oz", "qty", "paid", "value", "fbl", "sms", "variety", "redBook", "source", "acquired", "album", "notes", "soldDate", "soldAmount", "shipping", "insurance"];
   const q = (v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const rows = allCoins().filter((c) => c.status !== "deleted").map((c) => {
     const a = c.albumId ? getAlbum(c.albumId) : null;
     const s = c.sold || {};
-    return { ...c, fbl: c.fbl ? "yes" : "", redBook: bookPrice(c) ?? "", label: labelOf(c), album: a ? albumTitle(a) : "", soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance };
+    return { ...c, fbl: c.fbl ? "yes" : "", sms: c.sms ? "yes" : "", redBook: bookPrice(c) ?? "", label: labelOf(c), album: a ? albumTitle(a) : "", soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance };
   });
   return [cols.join(","), ...rows.map((r) => cols.map((k) => q(r[k])).join(","))].join("\n");
 }
