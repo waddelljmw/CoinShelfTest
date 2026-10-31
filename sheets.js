@@ -34,6 +34,8 @@ const SHEET_COLS = [
   { key: "soldAmount", head: "Sold for", names: ["soldfor", "soldprice", "saleprice", "soldamount"] },
   { key: "shipping", head: "Shipping", names: ["shipping", "shippingcost"] },
   { key: "insurance", head: "Insurance", names: ["insurance", "insurancecost"] },
+  { key: "soldWhere", head: "Sold where", names: ["soldwhere", "wheresold", "soldon", "soldvia", "platform", "venue"] },
+  { key: "soldTo", head: "Sold to", names: ["soldto", "buyer", "buyername", "customer", "purchaser"] },
 ];
 const COL_BY_KEY = Object.fromEntries(SHEET_COLS.map((c) => [c.key, c]));
 const squash = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -54,7 +56,7 @@ function coinToRow(c) {
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
     cert: c.cert, fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
     redBook: rb ?? "", meltEach: m == null ? "" : m.toFixed(2), source: (c.source || "").trim(), acquired: c.acquired,
-    album: a ? albumTitle(a) : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance,
+    album: a ? albumTitle(a) : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance, soldWhere: c.sold ? whereText(c.sold) : "", soldTo: s.to || "",
   };
 }
 function toCsv(coins) {
@@ -181,10 +183,26 @@ function rowToCoin(get) {
   if (statusSold) {
     c.status = "sold";
     c.sold = { at: Date.now(), date: normDate(get("soldDate")) || "", amount: money2(get("soldAmount")) === "" ? null : money2(get("soldAmount")),
-      shipping: money2(get("shipping")) === "" ? null : money2(get("shipping")), insurance: money2(get("insurance")) === "" ? null : money2(get("insurance")), where: "" };
+      shipping: money2(get("shipping")) === "" ? null : money2(get("shipping")), insurance: money2(get("insurance")) === "" ? null : money2(get("insurance")) };
+    Object.assign(c.sold, whereFromText(get("soldWhere")));
+    c.sold.to = String(get("soldTo") || "").trim();
   }
   c._albumName = String(get("album") || "").trim();
   return { coin: c, typeMatched: !!t, typeText };
+}
+// "Coin show: FUN Show" → Coin show + detail; "ebay live" → eBay Live; anything else → Other.
+function whereFromText(v) {
+  const w = String(v || "").trim();
+  if (!w) return { whereType: "", whereDetail: "", where: "" };
+  const m = w.match(/^coin\s*show\s*[:\-–]?\s*(.*)$/i);
+  let out;
+  if (m) out = { whereType: "Coin show", whereDetail: m[1].trim() };
+  else {
+    const hit = SOLD_WHERE.find((o) => o !== "Other" && squash(o) === squash(w));
+    out = hit ? { whereType: hit, whereDetail: "" } : { whereType: "Other", whereDetail: w };
+  }
+  out.where = whereText(out);
+  return out;
 }
 // Accepts 2026-10-31, 10/31/2026, 10/31/26.
 function normDate(v) {

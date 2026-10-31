@@ -496,7 +496,7 @@ function viewCoin(r) {
       ${row("Acquired", esc(c.acquired))}
       ${row("Album", album ? `<button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>` : null)}
     </div>
-    ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Where", esc(sold.where))}</div>` : ""}
+    ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}</div>` : ""}
     ${c.notes ? `<div class="card"><div class="muted small">Notes</div><div style="white-space:pre-wrap">${esc(c.notes)}</div></div>` : ""}
     <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>
     <div class="btn-row">
@@ -898,6 +898,49 @@ async function addPhotos(files) {
   if (draft) renderCoinForm();
 }
 
+/* --- Where a coin was sold --- */
+const SOLD_WHERE = ["Whatnot", "eBay", "eBay Live", "Coin show", "Other"];
+// Older sales saved "where" as free text; read it back as one of the choices when it matches.
+function whereParts(sold) {
+  if (!sold) return { type: "", detail: "" };
+  if (sold.whereType) return { type: sold.whereType, detail: sold.whereDetail || "" };
+  const w = String(sold.where || "").trim();
+  if (!w) return { type: "", detail: "" };
+  const hit = SOLD_WHERE.find((o) => o !== "Other" && o.toLowerCase() === w.toLowerCase());
+  return hit ? { type: hit, detail: "" } : { type: "Other", detail: w };
+}
+function whereText(sold) {
+  const { type, detail } = whereParts(sold);
+  if (type === "Coin show") return detail ? "Coin show: " + detail : "Coin show";
+  if (type === "Other") return detail || "Other";
+  return type;
+}
+function whereDetailField(type, detail) {
+  if (type === "Coin show") return `<label class="f"><span>Which coin show?</span><input type="text" name="whereDetail" placeholder="e.g. FUN Show, Baltimore Expo" value="${esc(detail)}"></label>`;
+  if (type === "Other") return `<label class="f"><span>Where was it sold?</span><input type="text" name="whereDetail" placeholder="e.g. local coin shop, Facebook" value="${esc(detail)}"></label>`;
+  return "";
+}
+function whereFields(sv) {
+  const { type, detail } = whereParts(sv);
+  return `<label class="f"><span>Where (optional)</span><select name="whereType" id="whereType"><option value="">Choose…</option>${SOLD_WHERE.map((o) => `<option ${type === o ? "selected" : ""}>${o}</option>`).join("")}</select></label>
+    <div id="whereDetailBox">${whereDetailField(type, detail)}</div>`;
+}
+function readWhere(fd) {
+  const type = String(fd.get("whereType") || "");
+  const detail = type === "Coin show" || type === "Other" ? String(fd.get("whereDetail") || "").trim() : "";
+  const sold = { whereType: type, whereDetail: detail };
+  sold.where = whereText(sold); // plain text too, for exports and older screens
+  return sold;
+}
+document.addEventListener("change", (e) => {
+  if (e.target.id !== "whereType") return;
+  const box = $("#whereDetailBox");
+  const keep = box && box.querySelector("input") ? box.querySelector("input").value : "";
+  if (box) box.innerHTML = whereDetailField(e.target.value, keep);
+  const inp = box && box.querySelector("input");
+  if (inp) inp.focus();
+});
+
 /* --- Sell --- */
 function openSell(id, edit) {
   const c = getCoin(id);
@@ -916,7 +959,8 @@ function openSell(id, edit) {
       <label class="f"><span>Shipping (optional)</span><input type="number" inputmode="decimal" step="0.01" name="shipping" placeholder="$" value="${val(sv.shipping)}"></label>
       <label class="f"><span>Insurance (optional)</span><input type="number" inputmode="decimal" step="0.01" name="insurance" placeholder="$" value="${val(sv.insurance)}"></label>
     </div>
-    <label class="f"><span>Where (optional)</span><input type="text" name="where" placeholder="eBay, coin shop…" value="${val(sv.where)}"></label>
+    ${whereFields(sv)}
+    <label class="f"><span>Sold to (optional)</span><input type="text" name="soldTo" placeholder="Buyer's name or username" value="${val(sv.to)}"></label>
     <div class="btn-row"><button class="btn primary" type="submit">${edit ? "Save sale" : "Mark sold"}</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
@@ -926,7 +970,7 @@ function doSell(form) {
   const fd = new FormData(form);
   const q = qtyOf(c);
   const n = Math.min(q, Math.max(1, num(fd.get("n")) || q));
-  const sold = { at: Date.now(), date: fd.get("date") || today(), amount: num(fd.get("amount")), shipping: num(fd.get("shipping")), insurance: num(fd.get("insurance")), where: (fd.get("where") || "").trim() };
+  const sold = { at: Date.now(), date: fd.get("date") || today(), amount: num(fd.get("amount")), shipping: num(fd.get("shipping")), insurance: num(fd.get("insurance")), ...readWhere(fd), to: String(fd.get("soldTo") || "").trim() };
   if (form.dataset.edit) {
     // Only the sale details change; keep when it was first recorded so ordering stays the same.
     saveCoin({ ...c, sold: { ...sold, at: (c.sold && c.sold.at) || sold.at } });
