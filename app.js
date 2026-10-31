@@ -269,6 +269,17 @@ function ebayUrl(c) {
   return "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(q) + "&LH_Sold=1&LH_Complete=1";
 }
 
+// Link to the grading service's own cert lookup (PCGS and NGC). NGC also needs the number part of the grade.
+function certUrl(c) {
+  const cert = String(c.cert || "").replace(/\s/g, "");
+  if (c.gradeMode !== "cert" || !cert) return "";
+  if (c.service === "PCGS") return "https://www.pcgs.com/cert/" + encodeURIComponent(cert);
+  if (c.service === "NGC") {
+    const g = (String(c.grade === "Other" ? c.customGrade : c.grade).match(/\d+/) || [""])[0];
+    return "https://www.ngccoin.com/certlookup/" + encodeURIComponent(cert) + "/" + (g ? g + "/" : "");
+  }
+  return "";
+}
 function thumbHtml(c) {
   const p = (c.photos || [])[0];
   if (p) return `<img class="thumb" src="${esc(photoSrc(p))}" alt="" loading="lazy">`;
@@ -504,6 +515,7 @@ function viewCoin(r) {
     </div>
     ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}</div>` : ""}
     ${c.notes ? `<div class="card"><div class="muted small">Notes</div><div style="white-space:pre-wrap">${esc(c.notes)}</div></div>` : ""}
+    ${certUrl(c) ? `<a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-bottom:8px" href="${esc(certUrl(c))}" target="_blank" rel="noopener">Verify cert on ${esc(c.service)} ↗</a>` : ""}
     <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>
     <div class="btn-row">
       <button class="btn primary" data-act="edit" data-id="${esc(c.id)}">Edit</button>
