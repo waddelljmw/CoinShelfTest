@@ -80,6 +80,7 @@ function wantRow(w) {
 }
 
 /* ---------- creating a list ---------- */
+let wlReturn = null; // null | { kind: "want", prefill } | { kind: "missing" }
 function openNewListForm() {
   ensureDefaultList();
   const typeOpts = (() => {
@@ -117,19 +118,23 @@ function saveNewList(form) {
   const wl = { kind: "wantlist", id: uid(), name, scope, typeId: fd.get("typeId") || "", grade: fd.get("grade") || "", createdAt: Date.now() };
   saveWantList(wl);
   wantsView.listId = wl.id;
-  closeSheet();
   toast("List created.");
+  const ret = wlReturn;
+  wlReturn = null;
+  if (ret && ret.kind === "want") { openWantForm(ret.editId || null, { ...ret.prefill, listId: wl.id }); return; }
+  if (ret && ret.kind === "missing") { renderMissingPicker(wl.id); return; }
+  closeSheet();
   go("wants");
 }
 
 /* ---------- add / edit a want ---------- */
-function openWantForm(id) {
+function openWantForm(id, prefill) {
   const w = id ? getWant(id) : null;
   ensureDefaultList();
   const lists = wantLists();
-  const curList = getWantList(w ? (w.listId || DEFAULT_LIST_ID) : wantsView.listId) || getWantList(DEFAULT_LIST_ID);
-  const d = w ? { ...w } : {};
-  if (!w && curList.scope !== "any") { d.typeId = curList.typeId; if (curList.scope === "type-grade") d.grade = curList.grade; }
+  const curList = getWantList((w && w.listId) || (prefill && prefill.listId) || wantsView.listId) || getWantList(DEFAULT_LIST_ID);
+  const d = w ? { ...w } : { ...(prefill || {}) };
+  if (!w && !prefill && curList.scope !== "any") { d.typeId = curList.typeId; if (curList.scope === "type-grade") d.grade = curList.grade; }
   const opts = (() => {
     const { recent, rest } = typesRecentFirst(COIN_TYPES);
     const opt = (t) => `<option value="${t.id}" ${d.typeId === t.id ? "selected" : ""}>${esc(t.name)} (${t.start}–${t.end})</option>`;
@@ -137,7 +142,7 @@ function openWantForm(id) {
   })();
   openSheet(`<div class="sheet-head"><h2>${w ? "Edit want" : "Add to want list"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <form id="wantForm" data-id="${esc(id || "")}">
-    ${lists.length > 1 ? `<label class="f"><span>List</span><select name="listId">${lists.map((l) => `<option value="${esc(l.id)}" ${(d.listId || curList.id) === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}</select></label>` : `<input type="hidden" name="listId" value="${esc(curList.id)}">`}
+    <label class="f"><span>List</span><select name="listId" id="wantListPick">${lists.map((l) => `<option value="${esc(l.id)}" ${(d.listId || curList.id) === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
     <label class="f"><span>Coin type</span><select name="typeId" required>${opts}</select></label>
     <div class="grid2">
       <label class="f"><span>Year</span><input type="number" inputmode="numeric" name="year" value="${esc(d.year || "")}" placeholder="Any"></label>
@@ -154,6 +159,7 @@ function openWantForm(id) {
 }
 function saveWantForm(form) {
   const fd = new FormData(form);
+  if (fd.get("listId") === "__new") { toast("Pick or create a list first."); return; }
   const typeId = fd.get("typeId");
   if (!typeId) { toast("Pick a coin type."); return; }
   const fields = { typeId, year: num(fd.get("year")) ?? "", mint: fd.get("mint") || "", variety: String(fd.get("variety") || "").trim(),
@@ -196,7 +202,7 @@ function openMissingPicker(albumId) {
   missingPick.chosen = new Set();
   renderMissingPicker();
 }
-function renderMissingPicker() {
+function renderMissingPicker(preselect) {
   const a = getAlbum(missingPick.albumId);
   if (!a) return;
   const t = TYPE_BY_ID[a.typeId];
@@ -218,7 +224,7 @@ function renderMissingPicker() {
     ${missing.some((s) => !findWant(a.typeId, s.y, s.m, s.v)) ? `
     <div class="small muted" style="display:flex;justify-content:space-between;margin:10px 2px"><span id="missCount">${missingPick.chosen.size} selected</span>
       <span><button type="button" class="link-btn" data-act="missAll">Select all</button> · <button type="button" class="link-btn" data-act="missNone">Clear</button></span></div>
-    <label class="f"><span>Add selected to</span><select id="missListPick">${lists.map((l) => `<option value="${esc(l.id)}">${esc(l.name)}</option>`).join("")}</select></label>
+    <label class="f"><span>Add selected to</span><select id="missListPick">${lists.map((l) => `<option value="${esc(l.id)}" ${preselect === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
     <button class="btn primary block" data-act="missAdd" ${missingPick.chosen.size ? "" : "disabled"}>Add to want list</button>` : ""}`
     : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
 }
@@ -300,7 +306,7 @@ Object.assign(actions, {
   slotHave,
   slotUnwant: (el) => { const w = getWant(el.dataset.id); if (w) { remove("w_" + w.id); closeSheet(); toast("Removed from your want list.", { label: "Undo", fn: () => saveWant(w) }); } },
   wantsPickList: (el) => { wantsView.listId = el.dataset.id; render(); },
-  wlNew: () => openNewListForm(),
+  wlNew: () => { wlReturn = null; openNewListForm(); },
   wlDelete: (el) => {
     const wl = getWantList(el.dataset.id);
     if (!wl) return;
@@ -330,6 +336,20 @@ document.addEventListener("submit", (e) => {
 });
 document.addEventListener("change", (e) => {
   if (e.target.id === "wlScope") renderWlScopeFields();
+  if (e.target.id === "wantListPick" && e.target.value === "__new") {
+    const fd = new FormData(e.target.form);
+    wlReturn = { kind: "want", editId: e.target.form.dataset.id || null, prefill: {
+      typeId: fd.get("typeId") || "", year: fd.get("year") || "", mint: fd.get("mint") || "", variety: fd.get("variety") || "",
+      grade: fd.get("grade") || "", maxPrice: fd.get("maxPrice") || "", notes: fd.get("notes") || "",
+    } };
+    openNewListForm();
+    return;
+  }
+  if (e.target.id === "missListPick" && e.target.value === "__new") {
+    wlReturn = { kind: "missing" };
+    openNewListForm();
+    return;
+  }
   if (e.target.dataset && e.target.dataset.missck != null) {
     e.target.checked ? missingPick.chosen.add(e.target.dataset.missck) : missingPick.chosen.delete(e.target.dataset.missck);
     const c = $("#missCount"); if (c) c.textContent = missingPick.chosen.size + " selected";
