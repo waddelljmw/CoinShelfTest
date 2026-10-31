@@ -827,12 +827,18 @@ function openCoinForm(id) {
 function sourceOptions() {
   return [...new Set([...SOURCE_DEFAULTS, ...allCoins().map((c) => (c.source || "").trim()).filter(Boolean)])];
 }
+// First render of a coin: figure out whether its saved source is a known choice or custom text.
+function initSourceKind(d) {
+  if (d._sourceKind !== undefined) return;
+  d._sourceKind = !d.source ? "" : sourceOptions().includes(d.source) ? d.source : "Other";
+}
 function renderCoinForm() {
   const d = draft;
   const t = TYPE_BY_ID[d.typeId];
   const mints = t ? ["", ...t.mints.filter((m) => m !== "P"), "P"] : MINTS;
   const grades = d.gradeMode === "cert" ? CERT_GRADES : GRADES;
   const melt = meltEach(d);
+  initSourceKind(d);
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add coin") : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" autocomplete="off">
@@ -880,10 +886,10 @@ function renderCoinForm() {
     </div>
     <div class="hint" id="bookHint">${esc(bookHintText(d))}</div>
     <div class="grid2">
-      <label class="f"><span>Source</span><input type="text" list="sourceList" data-f="source" value="${esc(d.source)}" placeholder="Coin shop, Inherited…"></label>
+      <label class="f"><span>Source</span><select data-f="_sourceKind" data-rerender><option value="">Choose…</option>${sourceOptions().map((s) => `<option value="${esc(s)}" ${d._sourceKind === s ? "selected" : ""}>${esc(s)}</option>`).join("")}<option value="Other" ${d._sourceKind === "Other" ? "selected" : ""}>Other…</option></select></label>
       <label class="f"><span>Date acquired</span><input type="date" data-f="acquired" value="${esc(d.acquired)}"></label>
     </div>
-    <datalist id="sourceList">${sourceOptions().map((s) => `<option value="${esc(s)}">`).join("")}</datalist>
+    ${d._sourceKind === "Other" ? `<label class="f"><span>Where did you get it?</span><input type="text" data-f="source" value="${esc(d.source)}" placeholder="e.g. Grandpa's collection, flea market"></label>` : ""}
     <div class="hint" id="inhHint" ${isInherited(d) ? "" : "hidden"}><span class="dns">Do not sell</span> Inherited coins are marked do-not-sell and aren't counted in gains.</div>
 
     <label class="f"><span>Album</span><select data-f="albumId" data-rerender><option value="">Not in an album</option>${albums().map((a) => `<option value="${esc(a.id)}" ${d.albumId === a.id ? "selected" : ""}>${esc(albumTitle(a))}</option>`).join("")}<option value="__new" ${d.albumId === "__new" ? "selected" : ""}>+ New album…</option></select></label>
@@ -999,7 +1005,7 @@ function showTypeList(q) {
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; // working copies aren't saved
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; // working copies aren't saved
   c.year = num(c.year) ?? "";
   c.qty = Math.max(1, num(c.qty) || 1);
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
@@ -1372,6 +1378,7 @@ document.addEventListener("change", (e) => {
   if (el.dataset.f) {
     draft[el.dataset.f] = el.value;
     if (el.dataset.f === "metal" && !MELT_OF_METAL[el.value]) draft.oz = "";
+    if (el.dataset.f === "_sourceKind") draft.source = el.value === "Other" ? "" : el.value;
     if (el.hasAttribute("data-rerender")) {
       const y = $(".sheet").scrollTop;
       renderCoinForm();
