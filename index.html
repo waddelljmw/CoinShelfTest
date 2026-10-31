@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin Cabinet</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="brand" data-go="home" aria-label="Home">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span>Coin Cabinet</span>
+  </button>
+  <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+<nav class="menu" id="menu" hidden>
+  <button data-go="home">Home</button>
+  <button data-go="value">Coin Value</button>
+  <button data-go="albums">Albums</button>
+  <button data-go="coins">Your Coins</button>
+  <button data-go="guide">PCGS Photo Guide</button>
+  <button data-go="options">Options</button>
+</nav>
+<div id="banner" class="banner" hidden></div>
+<main id="view" aria-live="polite"></main>
+<button class="fab" id="fab" aria-label="Add coin">+</button>
+<div id="sheet" class="sheet-wrap" hidden></div>
+<div id="toast" class="toast" hidden></div>
+<script src="data.js"></script>
+<script src="pricebook.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
