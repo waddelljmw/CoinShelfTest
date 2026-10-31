@@ -561,8 +561,9 @@ function slotGrade(c) {
   if (!g) return "owned";
   return c.gradeMode === "cert" ? [c.service === "Other" ? c.customService : c.service, g].filter(Boolean).join(" ") : g;
 }
+// Years always stay in order; within a year, spots keep the order you gave them.
 function sortSlots(slots) {
-  return slots.slice().sort((a, b) => a.y - b.y || MINT_ORDER.indexOf(a.m) - MINT_ORDER.indexOf(b.m) || String(a.v || "").localeCompare(String(b.v || "")));
+  return slots.map((x, i) => [x, i]).sort((a, b) => a[0].y - b[0].y || a[1] - b[1]).map((p) => p[0]);
 }
 function buildSlots(typeId, start, end) {
   const t = TYPE_BY_ID[typeId];
@@ -632,17 +633,21 @@ function viewAlbum(r) {
       <button class="btn" data-act="addSpot" data-id="${esc(a.id)}">+ Add a spot</button>
       <button class="btn ${editing ? "primary" : ""}" data-act="editSlots" data-id="${esc(a.id)}">${editing ? "Done editing" : "Edit spots"}</button>
     </div>
-    ${editing ? `<div class="banner" style="margin:0 0 10px">Tap a spot to hide it (for dates your album doesn't have); tap again to bring it back. Spots you added are removed when tapped.</div>` : ""}
-    <div class="album-grid">${(editing ? a.slots || [] : st.slots).map((s) => {
+    ${editing ? `<div class="banner" style="margin:0 0 10px">Use ◀ ▶ to put spots in the same order as your album (within each year). Tap a spot to rename its label, or hide or remove it.</div>` : ""}
+    <div class="album-grid">${(editing ? a.slots || [] : st.slots).map((s, i, arr) => {
       const k = slotKey(s);
       const hit = st.filled.get(k);
       const gone = (a.removed || []).includes(k);
       const lab = slotLabel(s);
       const vLine = s.v ? `<span class="g" style="font-weight:600;color:var(--ink)">${esc(s.v)}</span>` : "";
       const data = `data-album="${esc(a.id)}" data-y="${s.y}" data-m="${esc(s.m)}" data-v="${esc(s.v || "")}"`;
-      if (editing) return s.custom
-        ? `<button class="slot" style="border-color:var(--accent)" data-act="deleteSpot" data-id="${esc(a.id)}" data-k="${esc(k)}">${esc(lab)}${vLine}<span class="g" style="color:var(--bad)">remove</span></button>`
-        : `<button class="slot" style="${gone ? "opacity:.35;text-decoration:line-through" : ""}" data-act="toggleSlot" data-id="${esc(a.id)}" data-k="${esc(k)}">${esc(lab)}${vLine}</button>`;
+      if (editing) {
+        const canL = i > 0 && arr[i - 1].y === s.y, canR = i < arr.length - 1 && arr[i + 1].y === s.y;
+        return `<div class="slot slot-edit" style="${s.custom ? "border-color:var(--accent);" : ""}${gone ? "opacity:.4;" : ""}">
+          <button class="slot-name" data-act="spotEdit" data-id="${esc(a.id)}" data-i="${i}" style="${gone ? "text-decoration:line-through" : ""}">${esc(lab)}${vLine}<span class="g">${gone ? "hidden" : s.custom ? "added" : "edit"}</span></button>
+          ${canL || canR ? `<span class="slot-mv"><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="-1" ${canL ? "" : "disabled"} aria-label="Move earlier">◀</button><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="1" ${canR ? "" : "disabled"} aria-label="Move later">▶</button></span>` : ""}
+        </div>`;
+      }
       const onList = findWant(a.typeId, s.y, s.m, s.v);
       const tag = onList ? `<span class="g" style="color:var(--accent)">★ wanted</span>` : "";
       return hit
@@ -654,6 +659,44 @@ function viewAlbum(r) {
       <button class="btn danger" data-act="deleteAlbum" data-id="${esc(a.id)}">Delete album</button>
     </div>
     <p class="small muted">${EXACT_SLOTS[a.typeId] ? "Spots follow the dates and mint marks this series was struck." : "Spots include every year and mint mark for this series. Use Edit spots to hide any your album doesn't have."} If your album has a spot that's missing here, like a variety, use <b>+ Add a spot</b>.</p>`;
+}
+
+/* --- Editing one spot: rename its label, hide/show, or remove --- */
+function openSpotEdit(id, i) {
+  const a = getAlbum(id);
+  const s = a && (a.slots || [])[i];
+  if (!s) return;
+  const k = slotKey(s);
+  const gone = (a.removed || []).includes(k);
+  const opts = spotVarietyOptions(a, s.y, s.m);
+  openSheet(`<div class="sheet-head"><h2>${esc(slotLabel(s))}${s.v ? " · " + esc(s.v) : ""}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <form id="spotEditForm" data-id="${esc(a.id)}" data-i="${i}">
+      <label class="f"><span>Variety or label (optional)</span><input type="text" name="v" id="spotV" list="spotVList" value="${esc(s.v || "")}" placeholder="e.g. 7 Tail Feathers" maxlength="60"></label>
+      <datalist id="spotVList">${opts.map((o) => `<option value="${esc(o)}">`).join("")}</datalist>
+      ${opts.length ? `<div class="hint">Red Book varieties for this date: ${opts.map((o) => `<button type="button" class="link-btn" data-act="pickSpotV" data-v="${esc(o)}">${esc(o)}</button>`).join(", ")}</div>` : ""}
+      <div class="btn-row"><button class="btn primary" type="submit">Save</button>
+        ${s.custom
+          ? `<button class="btn danger" type="button" data-act="deleteSpot" data-id="${esc(a.id)}" data-k="${esc(k)}">Remove spot</button>`
+          : `<button class="btn" type="button" data-act="toggleSlot" data-id="${esc(a.id)}" data-k="${esc(k)}">${gone ? "Show spot" : "Hide spot"}</button>`}
+      </div>
+    </form>`);
+}
+function saveSpotEdit(form) {
+  const a = getAlbum(form.dataset.id);
+  const i = +form.dataset.i;
+  const s = a && (a.slots || [])[i];
+  if (!s) return;
+  const v = String(new FormData(form).get("v") || "").trim();
+  const next = { ...s, v };
+  if (!v) delete next.v;
+  const oldK = slotKey(s), newK = slotKey(next);
+  if (newK !== oldK && (a.slots || []).some((x, j) => j !== i && slotKey(x) === newK)) { toast("There's already a spot with that label for this date."); return; }
+  const slots = (a.slots || []).slice();
+  slots[i] = next;
+  const removed = (a.removed || []).map((x) => (x === oldK ? newK : x));
+  put("a_" + a.id, { ...a, slots, removed });
+  closeSheet();
+  toast("Spot saved.");
 }
 
 /* --- Adding your own spot to an album (e.g. 1878 8 Tail Feathers) --- */
@@ -1230,12 +1273,23 @@ const actions = {
   missing: (el) => openMissing(el.dataset.id),
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
   addSpot: (el) => openAddSpot(el.dataset.id),
+  spotEdit: (el) => openSpotEdit(el.dataset.id, +el.dataset.i),
+  moveSpot: (el) => {
+    const a = getAlbum(el.dataset.id);
+    if (!a) return;
+    const i = +el.dataset.i, j = i + (+el.dataset.d);
+    const slots = (a.slots || []).slice();
+    if (j < 0 || j >= slots.length || slots[i].y !== slots[j].y) return; // years stay in order
+    [slots[i], slots[j]] = [slots[j], slots[i]];
+    put("a_" + a.id, { ...a, slots });
+  },
   pickSpotV: (el) => { const i = $("#spotV"); if (i) i.value = el.dataset.v; },
   deleteSpot: (el) => {
     const a = getAlbum(el.dataset.id);
     if (!a) return;
     const k = el.dataset.k;
     put("a_" + a.id, { ...a, slots: (a.slots || []).filter((x) => slotKey(x) !== k) });
+    if (!$("#sheet").hidden) closeSheet();
     toast("Spot removed.", { label: "Undo", fn: () => put("a_" + a.id, a) });
   },
   toggleSlot: (el) => {
@@ -1244,6 +1298,7 @@ const actions = {
     const removed = new Set(a.removed || []);
     removed.has(k) ? removed.delete(k) : removed.add(k);
     put("a_" + a.id, { ...a, removed: [...removed] });
+    if (!$("#sheet").hidden) closeSheet();
   },
   deleteAlbum: (el) => {
     const a = getAlbum(el.dataset.id);
@@ -1342,6 +1397,7 @@ document.addEventListener("submit", (e) => {
   else if (e.target.id === "sellForm") doSell(e.target);
   else if (e.target.id === "albumForm") doNewAlbum(e.target);
   else if (e.target.id === "spotForm") saveSpot(e.target);
+  else if (e.target.id === "spotEditForm") saveSpotEdit(e.target);
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeSheet(); closeMenu(); } });
 
