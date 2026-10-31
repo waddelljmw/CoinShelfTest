@@ -89,6 +89,11 @@ async function fillFromPhoto(file) {
   setFillMsg("Reading the photo… this can take up to a minute.");
   let blob;
   try { blob = await shrinkImage(file); } catch (e) { blob = file; }
+  if (!/^image\/(jpeg|png|webp|gif)$/.test(blob.type || "")) {
+    setFillMsg("That photo's format can't be read here. On iPhone, try Settings → Camera → Formats → Most Compatible, or take a screenshot of the photo and use that.", true);
+    const b0 = $("#photoFillBtn"); if (b0) b0.style.opacity = "";
+    return;
+  }
   try {
     const r = await sampleApi.json(photoPrompt(), { images: [blob], cache: false });
     if (draft !== forDraft) return; // form was closed or replaced while waiting

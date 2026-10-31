@@ -667,7 +667,7 @@ function renderCoinForm() {
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? "Add coin" : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" autocomplete="off">
-    ${sampleApi && d._isNew ? `<label class="btn block" id="photoFillBtn" style="display:block;text-align:center;margin-bottom:4px">📷 Fill in from a photo<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" id="photoFill" hidden></label>
+    ${sampleApi && d._isNew ? `<label class="btn block file-btn" id="photoFillBtn" style="display:block;text-align:center;margin-bottom:4px">📷 Fill in from a photo<input type="file" accept="image/*" id="photoFill"></label>
       <div class="hint" id="photoFillMsg" style="margin-bottom:6px">Snap the holder label or the coin. Claude reads it and fills in what it can. You check everything before saving.</div>` : ""}
     <div class="f typeahead"><span>Start from a known coin</span>
       <input type="search" id="typeSearch" placeholder="Search Red Book types, e.g. Morgan" value="${esc(t ? t.name : "")}">
@@ -727,7 +727,7 @@ function renderCoinForm() {
 
     <details ${(d.photos || []).length ? "open" : ""}><summary>Photos (${(d.photos || []).length})</summary>
       <div class="photos">${(d.photos || []).map((p, i) => `<div class="ph"><img src="${esc(photoSrc(p))}" alt=""><button type="button" class="rm" data-act="rmPhoto" data-i="${i}" aria-label="Remove photo">✕</button></div>`).join("")}</div>
-      <label class="btn" style="display:inline-block;margin-top:10px">Add photos<input type="file" accept="image/*" multiple id="photoInput" hidden></label>
+      <label class="btn file-btn" style="display:inline-block;margin-top:10px">Add photos<input type="file" accept="image/*" multiple id="photoInput"></label>
       <div class="hint" id="photoHint">${store.mode === "db" && !assetsApi ? "Photos can't be saved from this view." : ""}</div>
     </details>
 
@@ -857,14 +857,26 @@ async function saveDraft() {
   if (isNew) go("coin-" + c.id);
 }
 
+// Resize to at most 1600px and save as JPEG (also converts iPhone HEIC photos the browser can show).
+async function decodeImage(file) {
+  try { return await createImageBitmap(file); } catch (e) { /* fall back to an <img> below */ }
+  return await new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { res(img); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("decode")); };
+    img.src = url;
+  });
+}
 async function shrinkImage(file) {
   try {
-    const bmp = await createImageBitmap(file);
+    const bmp = await decodeImage(file);
+    const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight;
     const max = 1600;
-    const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const scale = Math.min(1, max / Math.max(w, h));
     const cv = document.createElement("canvas");
-    cv.width = Math.round(bmp.width * scale);
-    cv.height = Math.round(bmp.height * scale);
+    cv.width = Math.round(w * scale);
+    cv.height = Math.round(h * scale);
     cv.getContext("2d").drawImage(bmp, 0, 0, cv.width, cv.height);
     return await new Promise((res) => cv.toBlob((b) => res(b || file), "image/jpeg", 0.85));
   } catch (e) { return file; }
