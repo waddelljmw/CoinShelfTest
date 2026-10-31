@@ -176,6 +176,30 @@ function bookLookup(c) {
   bt.t.grades.forEach((g, i) => { if (gradeRank(g) <= r && row[i] != null) best = { price: row[i], grade: g, kind: bt.kind }; });
   return best ? { ...best, asked: c.grade } : { below: true, lowest: bt.t.grades[0], kind: bt.kind };
 }
+// Mintage from the same Red Book rows. "*" means the variety is counted in the date's total.
+function mintageInfo(c) {
+  const bt = bookTable(c);
+  const all = PRICE_BOOK.mintage && PRICE_BOOK.mintage[c.typeId];
+  if (!bt || !all || !c.year) return null;
+  const tab = all[bt.kind] || (bt.kind === "fbl" ? all.circ : null);
+  if (!tab) return null;
+  let v = tab[bookKey(c, bt.kind)];
+  let shared = false;
+  if (v === "*" || v == null) {
+    const base = bookBase(c, bt.kind);
+    const sib = Object.keys(tab).find((k) => (k === base || k.startsWith(base + "|")) && tab[k] !== "*");
+    if (!sib) return null;
+    shared = true;
+    v = tab[sib];
+  }
+  const txt = typeof v === "number" ? v.toLocaleString("en-US") : String(v);
+  return { text: txt, shared, proof: bt.kind === "proof", sms: bt.kind === "sms" };
+}
+function mintageLine(c) {
+  const m = mintageInfo(c);
+  if (!m) return "";
+  return `<div class="small muted" style="margin:-10px 0 12px">Mintage ${esc(m.text)}${m.proof ? " proofs" : m.sms ? " SMS sets" : ""}${m.shared ? " (all varieties of this date)" : ""}</div>`;
+}
 const bookPrice = (c) => { const b = bookLookup(c); return b && b.price != null ? b.price : null; };
 function bookText(b) {
   if (!b) return "";
@@ -419,6 +443,7 @@ function viewCoin(r) {
   const sold = c.sold || {};
   return `<button class="link-btn" data-go="coins">← Your Coins</button>
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}</h1>
+    ${mintageLine(c)}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
       ${row("Grade", esc(gradeText(c)))}
