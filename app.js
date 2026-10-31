@@ -149,14 +149,18 @@ function bookTable(c) {
   if (c.fbl && s.fbl) return { t: s.fbl, kind: "fbl" };
   return s.circ ? { t: s.circ, kind: "circ" } : null;
 }
-function bookKey(c, kind) {
-  if (kind === "proof") return String(c.year) + (c.variety ? "|" + c.variety : "");
-  return String(c.year) + (normMint(c.mint) ? "-" + normMint(c.mint) : "");
+function bookBase(c, kind) {
+  return String(c.year) + (kind === "proof" || !normMint(c.mint) ? "" : "-" + normMint(c.mint));
 }
-function proofVarieties(c) {
-  const s = PRICE_BOOK.series[c.typeId];
-  if (!s || !s.proof || !c.year) return [];
-  return Object.keys(s.proof.rows).filter((k) => k === String(c.year) || k.startsWith(c.year + "|")).map((k) => k.split("|")[1] || "");
+function bookKey(c, kind) {
+  return bookBase(c, kind) + (c.variety ? "|" + c.variety : "");
+}
+// Varieties the book lists for this date and strike ("" = the regular coin).
+function bookVarieties(c) {
+  const bt = bookTable(c);
+  if (!bt || !c.year) return [];
+  const base = bookBase(c, bt.kind);
+  return Object.keys(bt.t.rows).filter((k) => k === base || k.startsWith(base + "|")).map((k) => k.split("|")[1] || "");
 }
 // Returns {price, grade, kind} for the highest listed grade at or below the coin's grade.
 function bookLookup(c) {
@@ -197,7 +201,7 @@ const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
 function gradeText(c) {
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade;
-  const extra = (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "") + (c.variety && isProofGrade(c.grade) ? " · " + c.variety : "");
+  const extra = (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "") + (c.variety ? " · " + c.variety : "");
   if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;
   return (g ? "Raw " + g : "Raw") + extra;
 }
@@ -670,9 +674,8 @@ function renderCoinForm() {
 }
 
 function varietyField(d) {
-  if (!isProofGrade(d.grade)) return "";
-  const vs = proofVarieties(d);
-  if (vs.length < 2 && !(vs.length === 1 && vs[0])) return "";
+  const vs = bookVarieties(d);
+  if (!vs.some((v) => v)) return "";
   return `<label class="f"><span>Variety</span><select data-f="variety">${vs.map((v) => `<option value="${esc(v)}" ${d.variety === v ? "selected" : ""}>${esc(v || "Regular")}</option>`).join("")}</select></label>`;
 }
 function bookHintText(d) {
@@ -685,8 +688,9 @@ function bookHintText(d) {
 function refreshFormHints() {
   const vb = $("#varietyBox");
   if (vb) {
-    const vs = proofVarieties(draft);
-    if (isProofGrade(draft.grade) && vs.length && !vs.includes(draft.variety || "")) draft.variety = vs[0];
+    const vs = bookVarieties(draft);
+    if (vs.length && !vs.includes(draft.variety || "")) draft.variety = vs[0];
+    if (!vs.some((v) => v)) draft.variety = "";
     const html = varietyField(draft);
     if (vb.innerHTML !== html) vb.innerHTML = html;
   }
