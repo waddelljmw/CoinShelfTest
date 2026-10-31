@@ -296,7 +296,7 @@ function coinRow(c, opts = {}) {
     ${thumbHtml(c)}
     <span class="coin-main">
       <span class="coin-label">${esc(labelOf(c))}</span>
-      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${esc(gradeText(c))}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}</span>
+      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}</span>
     </span>
     <span class="coin-val">${c.status === "sold" ? money(num(c.sold && c.sold.amount)) : money(v == null ? null : v * q)}${m != null && c.status !== "sold" ? `<div class="melt">melt ${money(m * q)}</div>` : ""}</span>
   </button>`;
@@ -348,6 +348,16 @@ function viewHome() {
   const recent = owned.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
   html += `<h2>Recently added</h2>`;
   html += recent.length ? `<div class="list">${recent.map((c) => coinRow(c)).join("")}</div>` : `<div class="card empty">No coins yet. Tap <b>+</b> to add your first coin.</div>`;
+
+  const sold = soldCoins().slice().sort((a, b) => {
+    const da = (a.sold && a.sold.date) || "", db = (b.sold && b.sold.date) || "";
+    return da !== db ? (da < db ? 1 : -1) : ((b.sold && b.sold.at) || 0) - ((a.sold && a.sold.at) || 0);
+  }).slice(0, 5);
+  // Only shown once at least one coin has been sold.
+  if (sold.length) {
+    html += `<h2>Recently sold</h2><div class="list">${sold.map((c) => coinRow(c)).join("")}</div>`;
+    if (soldCoins().length > 5) html += `<div style="margin-top:8px"><button class="link-btn" data-act="seeSold">See all sold coins</button></div>`;
+  }
   return html;
 }
 
@@ -872,7 +882,7 @@ function doSell(form) {
   const fd = new FormData(form);
   const q = qtyOf(c);
   const n = Math.min(q, Math.max(1, num(fd.get("n")) || q));
-  const sold = { date: fd.get("date") || today(), amount: num(fd.get("amount")), shipping: num(fd.get("shipping")), insurance: num(fd.get("insurance")), where: (fd.get("where") || "").trim() };
+  const sold = { at: Date.now(), date: fd.get("date") || today(), amount: num(fd.get("amount")), shipping: num(fd.get("shipping")), insurance: num(fd.get("insurance")), where: (fd.get("where") || "").trim() };
   if (n < q) {
     saveCoin({ ...c, qty: q - n });
     saveCoin({ ...c, id: uid(), qty: n, status: "sold", sold, createdAt: Date.now() });
@@ -970,6 +980,7 @@ function toast(msg, action) {
 const actions = {
   closeSheet,
   status: (el) => { listState.status = el.dataset.v; render(); },
+  seeSold: () => { listState.status = "sold"; listState.family = null; go("coins"); },
   fam: (el) => { listState.family = el.dataset.v || null; render(); },
   dir: () => { listState.dir = listState.dir === "asc" ? "desc" : "asc"; render(); },
   edit: (el) => openCoinForm(el.dataset.id),
