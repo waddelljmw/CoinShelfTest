@@ -796,9 +796,9 @@ function viewOptions() {
 }
 
 /* ---------- sheets (pop-ups) ---------- */
-function openSheet(html) {
+function openSheet(html, cls) {
   const w = $("#sheet");
-  w.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  w.innerHTML = `<div class="sheet ${cls || ""}" role="dialog" aria-modal="true">${html}</div>`;
   w.hidden = false;
   document.body.style.overflow = "hidden";
 }
@@ -833,7 +833,7 @@ function renderCoinForm() {
   const mints = t ? ["", ...t.mints.filter((m) => m !== "P"), "P"] : MINTS;
   const grades = d.gradeMode === "cert" ? CERT_GRADES : GRADES;
   const melt = meltEach(d);
-  openSheet(`<div class="sheet-head"><h2>${d._isNew ? "Add coin" : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add coin") : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" autocomplete="off">
     ${sampleApi && d._isNew ? photoFillButton(d) : ""}
@@ -906,7 +906,7 @@ function renderCoinForm() {
       <button type="submit" class="btn primary">${d._isNew ? "Add coin" : "Save changes"}</button>
       <button type="button" class="btn" data-act="closeSheet">Cancel</button>
     </div>
-  </form>`);
+  </form>`, d._short ? "sheet-75" : "");
   refreshFormHints();
 }
 
@@ -998,7 +998,7 @@ function showTypeList(q) {
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; // working copies aren't saved
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; // working copies aren't saved
   c.year = num(c.year) ?? "";
   c.qty = Math.max(1, num(c.qty) || 1);
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
@@ -1022,6 +1022,7 @@ async function saveDraft() {
   if (c.typeId) touchType(c.typeId);
   closeSheet();
   await saveCoin(c);
+  if (isNew && d._stay) { toast("Added to " + (getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "the album") + "."); return; } // stay on the album
   toast(isNew ? "Coin added." : "Saved.");
   if (isNew) go("coin-" + c.id);
 }
