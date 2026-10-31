@@ -141,4 +141,4 @@ async function makeReport() {
   if (msg) msg.textContent = "Saving files isn't available here. Open Coin Cabinet from Claude to save the report.";
 }
 
-Object.assign(actions, { openReport: openReportForm, makeReport: () => makeReport() });
+Object.assign(actions, { openReport: () => { closeMenu(); openReportForm(); }, makeReport: () => makeReport() });
