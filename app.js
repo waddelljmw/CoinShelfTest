@@ -298,6 +298,7 @@ function currentRoute() {
 }
 function go(hash) {
   closeMenu();
+  if (!$("#sheet").hidden) closeSheet(); // leaving the page closes any open pop-up
   if (location.hash === "#" + hash) render(); else location.hash = hash;
   window.scrollTo(0, 0);
 }
@@ -595,7 +596,11 @@ function viewAlbum(r) {
       const gone = (a.removed || []).includes(k);
       const lab = s.y + (s.m ? "-" + s.m : "");
       if (editing) return `<button class="slot" style="${gone ? "opacity:.35;text-decoration:line-through" : ""}" data-act="toggleSlot" data-id="${esc(a.id)}" data-k="${esc(k)}">${esc(lab)}</button>`;
-      return hit ? `<button class="slot have" data-go="coin-${esc(hit.id)}">${esc(lab)}<span class="g">${esc(gradeText(hit).replace(/^Raw /, ""))}</span></button>` : `<div class="slot">${esc(lab)}<span class="g">open</span></div>`;
+      const onList = findWant(a.typeId, s.y, s.m);
+      const tag = onList ? `<span class="g" style="color:var(--accent)">★ wanted</span>` : "";
+      return hit
+        ? `<button class="slot have" data-act="slotMenu" data-album="${esc(a.id)}" data-y="${s.y}" data-m="${esc(s.m)}" data-coin="${esc(hit.id)}">${esc(lab)}<span class="g">${esc(gradeText(hit).replace(/^Raw /, ""))}</span>${tag}</button>`
+        : `<button class="slot" data-act="slotMenu" data-album="${esc(a.id)}" data-y="${s.y}" data-m="${esc(s.m)}">${esc(lab)}${tag || `<span class="g">open</span>`}</button>`;
     }).join("")}</div>
     ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => coinRow(c)).join("")}</div>` : ""}
     <div class="btn-row">
