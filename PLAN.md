@@ -102,7 +102,8 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - **COA:** a "COA included" checkbox, plus a note about the box and packaging.
 - **Speed:** quick-add remembers your last holder and source.
 
-**Step 2.2. Coin record upgrade. Model: Opus** (new data fields), then **Sonnet** for screens.
+**Step 2.2. Coin record upgrade. Model: Opus** (new data fields), then **Sonnet** for screens. — DONE ✅
+- [x] Merged (v0.16.0), plus tracking number with a Track package link and Mark as received for coins on the way
 *Why it comes first:* the steps after it (rolls, sets, the new form) are built on these fields. Deciding how data is stored before building screens means nothing has to be redone.
 - **Status:** In collection, On the way (bought or won, not here yet), For sale, Sold, Gone (traded, gifted or lost; left out of totals). Plus an **Upgrade wanted** checkbox. Inherited coins can't be set to For sale. Coins you already have become "In collection" automatically.
 - **Purchase details:** date, seller (fills in from past entries), where (show, eBay, Whatnot, shop, inherited), price, tax, shipping and fees, then a **total cost** worked out for you. Plus payment method, receipt number and a receipt photo.
