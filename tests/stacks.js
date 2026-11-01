@@ -43,12 +43,17 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   const txt = await p.textContent("main");
   ok("stacks page lists the stack with oz and melt", /My Silver Stack/.test(txt) && /10\.7\d\d oz pure/.test(txt));
   await p.evaluate(() => go("coins")); await p.waitForTimeout(200);
-  ok("stacked items are kept out of Your Coins", await p.evaluate(() => !/Engelhard/.test($("#view").textContent) && /in\s+Stacks/.test($("#view").textContent)));
+  ok("bars are kept out of Your Coins, junk coins stay", await p.evaluate(() => !/Engelhard/.test($("#view").textContent) && /in\s+Stacks/.test($("#view").textContent) && ownedCoins().some((c) => c.id === "junk")));
   // saving a normal coin never keeps a stack
   await p.evaluate(() => { openCoinForm("plain"); draft.stack = "Sneaky"; });
   await p.evaluate(() => saveDraft()); await p.waitForTimeout(150);
   ok("normal coin drops stack", await p.evaluate(() => getCoin("plain").stack === undefined));
   ok("old coins unchanged", await p.evaluate(() => itemOf({}) === "coin" && stackOf({}) === ""));
+  // CSV: bars are labeled Bar with a weight, and come back as bars
+  const csv = await p.evaluate(() => toCsv());
+  ok("CSV has Bar and weight columns", /Weight \(oz\)/.test(csv) && /,Bar,,,,10,0\.999,Engelhard,A123,My Silver Stack,/.test(csv));
+  ok("CSV bar round trip", await p.evaluate(() => { const row = coinToRow(ownedCoins().find((c) => itemOf(c) === "bullion")); const c = (rowToCoin((k) => row[k]) || {}).coin; return c && c.item === "bullion" && c.oz === "9.99" && c.bWeight === "10" && c.stack === "My Silver Stack"; }));
+  ok("Other silver item label and CSV", await p.evaluate(() => { const o = { ...blankCoin(), item: "bullion", bShape: "Other", bWeight: "2", bPurity: "0.999", bMaker: "Acme", metal: "Silver", oz: "1.998" }; const row = coinToRow(o); const c = (rowToCoin((k) => row[k]) || {}).coin; return autoLabel(o) === "2 oz Acme Silver item" && row.item === "Other silver item" && c && c.bShape === "Other"; }));
   ok("no page errors", errors.length === 0); if (errors.length) console.log(errors);
   await b.close();
 })();

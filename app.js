@@ -388,8 +388,9 @@ function groupsPresent() {
   return g.sort((a, b) => (a === "My collection" ? -1 : b === "My collection" ? 1 : a === "Inherited" ? -1 : b === "Inherited" ? 1 : a.localeCompare(b)));
 }
 const hiddenGroups = () => settings().hiddenGroups || [];
-// Stacks (Step 2.7): bars, rounds and shapes, plus junk silver coins you put in one. Pure ounces = weight × purity.
-const BULLION_SHAPES = ["Bar", "Round", "Shape"];
+// Stacks (Step 2.7): bars, rounds and other silver items, plus junk silver coins you put in one. Pure ounces = weight × purity.
+const BULLION_SHAPES = ["Bar", "Round", "Other"];
+const shapeName = (s) => (s === "Other" || s === "Shape" ? "Other silver item" : s || "Bar");
 const BULLION_HOLDERS = ["Loose", "Capsule", "Tube", "Mint box", "Bag", "Other"];
 const bullionOz = (c) => { const w = num(c.bWeight), p = num(c.bPurity); return w && p ? Math.round(w * p * 100000) / 100000 : 0; };
 const stackOf = (c) => { const s = String(c.stack || "").trim(); return itemOf(c) === "bullion" ? s || "My " + (c.metal || "Silver") + " Stack" : s; };
@@ -457,7 +458,7 @@ function trackUrl(c) {
 const pastSellers = () => [...new Set(allCoins().map((c) => (c.seller || "").trim()).filter(Boolean))].sort();
 
 function gradeText(c) {
-  if (itemOf(c) === "bullion") return [c.bShape || "Bar", num(c.bWeight) ? num(c.bWeight) + " oz" : "", num(c.bPurity) ? String(num(c.bPurity)).replace(/^0/, "") : ""].filter(Boolean).join(" · ");
+  if (itemOf(c) === "bullion") return [shapeName(c.bShape), num(c.bWeight) ? num(c.bWeight) + " oz" : "", num(c.bPurity) ? String(num(c.bPurity)).replace(/^0/, "") : ""].filter(Boolean).join(" · ");
   if (itemOf(c) === "set") return holderText(c) || "Set";
   if (itemOf(c) === "roll") return ["Roll of " + rollCountOf(c), c.rollCond, c.bankWrap ? "bank wrap" : ""].filter(Boolean).join(" · ");
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade;
@@ -468,7 +469,7 @@ function gradeText(c) {
 }
 function autoLabel(c) {
   const date = c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : "";
-  if (itemOf(c) === "bullion") return [num(c.bWeight) ? num(c.bWeight) + " oz" : "", (c.bMaker || "").trim(), c.metal || "Silver", c.bShape || "Bar"].filter(Boolean).join(" ");
+  if (itemOf(c) === "bullion") return [num(c.bWeight) ? num(c.bWeight) + " oz" : "", (c.bMaker || "").trim(), ...(c.bShape === "Other" || c.bShape === "Shape" ? ["Silver item"] : [c.metal || "Silver", c.bShape || "Bar"])].filter(Boolean).join(" ");
   if (itemOf(c) === "set") return [c.year, c.typeName].filter(Boolean).join(" ");
   if (itemOf(c) === "roll") return [date, (TYPE_BY_ID[c.typeId] || {}).name || c.typeName, "roll (" + rollCountOf(c) + ")"].filter(Boolean).join(" ");
   return [date, c.typeName, c.denom].filter(Boolean).join(" ");
@@ -643,7 +644,7 @@ function viewHome() {
 function viewStacks() {
   const names = stacksPresent();
   const head = `<h1>Stacks</h1><div class="small muted" style="margin-bottom:10px">Bars, rounds and junk silver, kept apart from your coins. Each stack counts in your Home totals (switch one off with its chip on Home).</div>`;
-  const add = `<button class="btn block primary" data-act="addBullion" style="margin-top:10px">+ Add a bar, round or shape</button>`;
+  const add = `<button class="btn block primary" data-act="addBullion" style="margin-top:10px">+ Add a bar, round or other silver item</button>`;
   if (!names.length) return head + `<div class="card empty">No stacks yet. Add a bar or round, or put a junk silver coin in a stack from its Holder section.</div>` + add;
   return head + names.map((n) => {
     const cs = ownedCoins().filter((c) => stackOf(c) === n);
@@ -701,8 +702,8 @@ function stageChoices() {
 }
 function viewCoins() {
   if (listState.status === "gone" && !goneCoins().length) listState.status = "owned";
-  const base = listState.status === "sold" ? soldCoins() : listState.status === "gone" ? goneCoins() : ownedCoins().filter((c) => !stackOf(c)); // stacked items live on the Stacks page
-  const stackedN = ownedCoins().filter((c) => stackOf(c)).length;
+  const base = listState.status === "sold" ? soldCoins() : listState.status === "gone" ? goneCoins() : ownedCoins().filter((c) => itemOf(c) !== "bullion"); // bars live on the Stacks page; coins stay here even when stacked
+  const stackedN = ownedCoins().filter((c) => itemOf(c) === "bullion").length;
   const stages = listState.status === "owned" ? stageChoices() : [];
   if (listState.stage && !stages.some(([k]) => k === listState.stage)) listState.stage = "";
   const famCounts = {};
@@ -725,11 +726,11 @@ function viewCoins() {
   const metalsPresent = [...new Set(base.map((c) => c.metal).filter(Boolean))];
   return `<h1>Your Coins</h1>
     <div class="seg" style="margin-bottom:10px">
-      <button data-act="status" data-v="owned" class="${listState.status === "owned" ? "on" : ""}">In collection (${sum(ownedCoins().filter((c) => !stackOf(c)), qtyOf)})</button>
+      <button data-act="status" data-v="owned" class="${listState.status === "owned" ? "on" : ""}">In collection (${sum(ownedCoins().filter((c) => itemOf(c) !== "bullion"), qtyOf)})</button>
       <button data-act="status" data-v="sold" class="${listState.status === "sold" ? "on" : ""}">Sold (${sum(soldCoins(), qtyOf)})</button>
       ${goneCoins().length ? `<button data-act="status" data-v="gone" class="${listState.status === "gone" ? "on" : ""}">Gone (${sum(goneCoins(), qtyOf)})</button>` : ""}
     </div>
-    ${stackedN && listState.status === "owned" ? `<div class="small muted" style="margin:-4px 0 8px">${stackedN} item${stackedN > 1 ? "s are" : " is"} in <button class="link-btn" data-go="stacks">Stacks</button>.</div>` : ""}
+    ${stackedN && listState.status === "owned" ? `<div class="small muted" style="margin:-4px 0 8px">${stackedN} bar${stackedN > 1 ? "s, rounds or other silver items are" : ", round or other silver item is"} in <button class="link-btn" data-go="stacks">Stacks</button>.</div>` : ""}
     ${stages.length ? `<label class="f" style="margin:-4px 0 8px"><span>Show</span><select data-list="stage"><option value="">All in collection</option>${stages.map(([k, l]) => `<option value="${k}" ${listState.stage === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>` : ""}
     <div class="chips">
       <button class="chip ${!listState.family ? "on" : ""}" data-act="fam" data-v="">All</button>
@@ -831,7 +832,7 @@ function viewCoin(r) {
       ${row("Status", esc(STATUS_TEXT[statusKey(c)] || "") + (c.upgrade && c.status === "owned" ? " · Upgrade wanted" : ""))}
       ${itemOf(c) === "coin" ? row("Grade", esc(gradeText(c)) + cacBadge(c)) : ""}
       ${itemOf(c) === "set" ? row("Set", esc(c.typeName)) : ""}
-      ${itemOf(c) === "bullion" ? row("Shape", esc(c.bShape || "Bar")) + row("Maker", esc(c.bMaker)) + row("Serial number", esc(c.bSerial)) + row("Weight", num(c.bWeight) ? esc(num(c.bWeight)) + " oz" : null) + row("Purity", esc(c.bPurity)) : ""}
+      ${itemOf(c) === "bullion" ? row("Type", esc(shapeName(c.bShape))) + row("Maker", esc(c.bMaker)) + row("Serial number", esc(c.bSerial)) + row("Weight", num(c.bWeight) ? esc(num(c.bWeight)) + " oz" : null) + row("Purity", esc(c.bPurity)) : ""}
       ${stackOf(c) ? row("Stack", esc(stackOf(c))) : ""}
       ${itemOf(c) === "roll" ? row("Coins in roll", rollCountOf(c)) + row("Face value", rollFace(c) == null ? null : money(rollFace(c))) + row("Condition", esc([c.rollCond, c.bankWrap ? "Original bank wrap" : ""].filter(Boolean).join(" · "))) : ""}
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
@@ -1331,7 +1332,7 @@ function whatPicker() {
   <button type="button" class="btn block what-btn" data-act="what" data-v="us"><b>US coin</b><small>Cent to dollar, loose or in a holder</small></button>
   <button type="button" class="btn block what-btn" data-act="what" data-v="set"><b>Proof or mint set</b><small>One entry for the whole set</small></button>
   <button type="button" class="btn block what-btn" data-act="what" data-v="roll"><b>Roll of coins</b><small>Bank roll, tube or mint-sealed roll</small></button>
-  <button type="button" class="btn block what-btn" data-act="what" data-v="bullion"><b>Bar, round or shape</b><small>Silver bullion that goes in a stack</small></button>
+  <button type="button" class="btn block what-btn" data-act="what" data-v="bullion"><b>Silver bar, round or other item</b><small>Bullion that goes in a stack</small></button>
   <button type="button" class="btn block what-btn" data-act="what" data-v="other"><b>Medal, token or foreign coin</b><small>Anything that isn't a US coin from the Red Book</small></button>`, "sheet-75");
 }
 function renderCoinForm() {
@@ -1536,7 +1537,7 @@ function bullionHint(d) { return bullionOz(d) ? "Pure silver: " + bullionOz(d) +
 function bullionTopHtml(d) {
   const makers = [...new Set(allCoins().filter((c) => itemOf(c) === "bullion").map((c) => (c.bMaker || "").trim()).filter(Boolean))];
   return `<div class="grid2">
-      <label class="f"><span>What shape?</span><select data-f="bShape">${BULLION_SHAPES.map((x) => `<option ${(d.bShape || "Bar") === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+      <label class="f"><span>What is it?</span><select data-f="bShape">${BULLION_SHAPES.map((x) => `<option value="${x}" ${(d.bShape === "Shape" ? "Other" : d.bShape || "Bar") === x ? "selected" : ""}>${esc(shapeName(x))}</option>`).join("")}</select></label>
       <label class="f"><span>Maker</span><input type="text" data-f="bMaker" list="makerList" value="${esc(d.bMaker || "")}" placeholder="e.g. Engelhard" maxlength="40"><datalist id="makerList">${makers.map((x) => `<option value="${esc(x)}">`).join("")}</datalist></label></div>
     <div class="grid2">
       <label class="f"><span>Weight (oz)</span><input type="number" inputmode="decimal" step="0.001" min="0" data-f="bWeight" value="${esc(d.bWeight || "")}" placeholder="10"></label>
@@ -1759,6 +1760,7 @@ async function saveDraft() {
     const w = num(c.bWeight), p = num(c.bPurity);
     if (!w || w <= 0) { toast("Enter the weight in ounces."); return; }
     if (!p || p <= 0 || p > 1) { toast("Purity is a number up to 1, like 0.999."); return; }
+    if (c.bShape === "Shape") c.bShape = "Other";
     if (!BULLION_SHAPES.includes(c.bShape)) c.bShape = "Bar";
     c.bWeight = String(w); c.bPurity = String(p); c.bMaker = String(c.bMaker || "").trim(); c.bSerial = String(c.bSerial || "").trim();
     Object.assign(c, { typeId: "", denom: "", mint: "", year: "", gradeMode: "raw", grade: "", cac: "", albumId: "", metal: "Silver", family: "Bullion", typeName: "Bullion" });
