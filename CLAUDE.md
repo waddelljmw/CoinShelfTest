@@ -12,7 +12,7 @@ Read this first, then `PLAN.md` for what's next.
 2. Make the change. Keep the app as plain files: no build step, no frameworks.
 3. Add or update a test in `tests/`, then run **`node tests/run-all.js`**. Everything must pass. Tests use Playwright on a phone-sized screen; a test fails if it prints `FAIL`, crashes or reports page errors.
 4. Raise the version in **three places**: `APP_VERSION` in `app.js`, `version` in `package.json`, and `CACHE` in `sw.js` (small fix: last number; new feature: middle number). Phones only notice an update when `sw.js` changes. A new file the page loads must also be added to `FILES` in `sw.js` (the `pwa` test checks this).
-5. Publish the changed files to the Claude artifact (until Step 1.2 moves hosting to GitHub Pages): slug `11b5b1eb-a5c1-4157-8b05-2c9cda610e1f`. Get the current version with get_artifact first.
+5. The real app is at **https://waddelljmw.github.io/CoinShelfTest/** (GitHub Pages, from `main`); merging publishes it. The Claude artifact (slug `11b5b1eb-a5c1-4157-8b05-2c9cda610e1f`) is now only a test copy; publish to it only if the user asks.
 6. Commit, push and open a pull request (use `gh api`, since GraphQL is blocked).
 7. When the user says **"merge it"**: merge with `gh api -X PUT repos/waddelljmw/CoinShelfTest/pulls/<n>/merge -f merge_method=merge -f sha=<latest commit>`, so it only merges what was tested. Then check `main` has that commit.
 8. After merging, give the link **https://github.com/waddelljmw/CoinShelfTest/branches** so the user can delete the branch (deleting branches from here is blocked).
