@@ -64,6 +64,10 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.evaluate((id) => saveCoin({ ...getCoin(id), value: "12" }), c.id);
   ok("own value wins", (await p.evaluate((id) => bestEach(getCoin(id)), c.id)) === 12);
 
+  // Single clad coin with no grade or value counts at face value
+  await p.click("#fab"); await p.click(".what-btn[data-v=us]"); await p.fill("#typeSearch", "roosevelt dime clad"); await p.click("#typeList button[data-act=pickType] >> nth=0"); await p.fill('[data-f="year"]', "1990"); await save();
+  ok("ungraded clad coin counts at face", await p.evaluate(() => { const c = ownedCoins().find((x) => x.typeId === "roosevelt-clad" && x.item !== "roll"); return bestEach(c) === 0.1 && valueSource(c) === "face"; }));
+
   // 5. Three steel cents in one case
   for (const [y, m] of [["1943", ""], ["1943", "D"], ["1943", "S"]]) {
     await p.click("#fab"); await p.click(".what-btn[data-v=us]"); await p.fill("#typeSearch", "lincoln wheat"); await p.click("#typeList button[data-act=pickType] >> nth=0");

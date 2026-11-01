@@ -365,10 +365,12 @@ function valueSource(c) {
   if (isJunk(c)) return "melt";
   if (num(c.value) != null) return "entered";
   if (!hasProblems(c) && bookPrice(c) != null) return "book";
-  return meltEach(c) != null ? "melt" : null;
+  return meltEach(c) != null ? "melt" : faceEach(c) != null ? "face" : null;
 }
 // Best available value: entered value, else melt.
-const bestEach = (c) => valueEach(c) ?? meltEach(c);
+// Last resort for a single coin with no value, no Red Book price and no melt: its face value (catalog coins only).
+const faceEach = (c) => { const t = itemOf(c) === "coin" && TYPE_BY_ID[c.typeId]; return t && t.face ? t.face : null; };
+const bestEach = (c) => valueEach(c) ?? meltEach(c) ?? faceEach(c);
 const qtyOf = (c) => Math.max(1, num(c.qty) || 1);
 // Holder: saved choice, or for older coins (saved before holders existed) worked out from the album / certified fields.
 const holderOf = (c) => c.holder || (c.albumId ? "Album" : c.gradeMode === "cert" ? "Slab" : "");
@@ -790,7 +792,7 @@ function viewCoin(r) {
       ${row("COA", c.coa ? "Included" : null)}
       ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
-      ${row(isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? "Value each (Red Book)" : "Value" + eachWord(c), money(v))}
+      ${row(isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? "Value each (Red Book)" : valueSource(c) === "face" ? "Value each (face value)" : "Value" + eachWord(c), money(v))}
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row("Red Book", money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
       ${row("Melt" + eachWord(c), m == null ? (meltKey(c) ? "Enter spot price" : null) : money(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
