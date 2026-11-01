@@ -139,8 +139,8 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - Commemoratives (like the 1993 James Madison), medals, casino tokens with a silver weight (like your .7 ozt tokens), and foreign coins.
 - Type the metal and weight once, and melt is worked out automatically.
 
-**Step 2.6. Groups you can include or leave out. Model: Sonnet.** — BUILT (v0.20.0), waiting for merge
-- [ ] Merged
+**Step 2.6. Groups you can include or leave out. Model: Sonnet.** — DONE ✅ (merged, v0.20.0)
+- [x] Merged
 - Done: optional **Group** on each coin (Inherited and My collection work themselves out); Home has on/off chips that update value, melt, cost and gain at once. Value history keeps the full total.
 - Tag coins with a group, like *Inherited* (never for sale) or *My collection*.
 - Turn each group on or off in your totals. Value and melt update right away.
