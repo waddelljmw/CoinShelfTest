@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.15.0";
+const APP_VERSION = "0.16.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -345,14 +345,15 @@ function bookText(b) {
     + (b.guess ? ". No variety picked, so this is the lowest-priced variety for this date. Pick the variety for an exact value" : "");
 }
 
+// Red Book prices are for coins without problems, so a "Details" coin uses your value, else melt.
 function valueEach(c) {
   if (isJunk(c)) return meltEach(c);
-  return num(c.value) ?? bookPrice(c);
+  return num(c.value) ?? (hasProblems(c) ? null : bookPrice(c));
 }
 function valueSource(c) {
   if (isJunk(c)) return "melt";
   if (num(c.value) != null) return "entered";
-  if (bookPrice(c) != null) return "book";
+  if (!hasProblems(c) && bookPrice(c) != null) return "book";
   return meltEach(c) != null ? "melt" : null;
 }
 // Best available value: entered value, else melt.
@@ -366,9 +367,47 @@ const cacBadge = (c) => (cacOf(c) ? `<span class="cac ${cacOf(c).toLowerCase()}"
 const isInherited = (c) => (c.source || "").trim().toLowerCase() === "inherited";
 const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
+/* --- Status, purchase, errors and problems (Step 2.2) --- */
+// Saved status: owned | sold | gone | deleted. An owned coin can also be on the way or for sale (its "stage"),
+// so everything that counts owned coins (totals, albums, reports) keeps working. Older coins have no stage: In collection.
+const STATUS_TEXT = { owned: "In collection", coming: "On the way", forsale: "For sale", sold: "Sold", gone: "Gone" };
+const stageOf = (c) => (c.status !== "owned" ? "" : c.stage === "coming" ? "coming" : c.stage === "forsale" && !isInherited(c) ? "forsale" : "");
+const statusKey = (c) => (c.status === "owned" ? stageOf(c) || "owned" : c.status);
+const goneCoins = () => allCoins().filter((c) => c.status === "gone");
+const listOf = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === "string" && x) : []);
+const hasProblems = (c) => listOf(c.problems).length > 0;
+// Tax, shipping and fees are for the whole entry (not each coin).
+const BUY_EXTRAS = ["buyTax", "buyShip", "buyFees"];
+// Total cost: paid each × quantity, plus tax, shipping and fees. Unknown until a price paid is entered.
+function costOf(c) {
+  const p = num(c.paid);
+  return p == null ? null : Math.round((p * qtyOf(c) + sum(BUY_EXTRAS, (k) => num(c[k]))) * 100) / 100;
+}
+// Splitting an entry (selling part of it): share tax, shipping and fees by quantity so nothing is counted twice.
+function splitExtras(c, n) {
+  const q = qtyOf(c), keep = {}, part = {};
+  BUY_EXTRAS.forEach((k) => {
+    const v = num(c[k]);
+    if (v == null) return;
+    const p = Math.round((v * n / q) * 100) / 100;
+    part[k] = String(p); keep[k] = String(Math.round((v - p) * 100) / 100);
+  });
+  return { keep, part };
+}
+const joinExtras = (a, b) => Object.fromEntries(BUY_EXTRAS.filter((k) => num(a[k]) != null || num(b[k]) != null).map((k) => [k, String(Math.round(((num(a[k]) || 0) + (num(b[k]) || 0)) * 100) / 100)]));
+// Known die varieties for this coin's type, date, mint (and design, e.g. the state on a 50 States quarter).
+function knownVarieties(c) {
+  const y = num(c.year);
+  return (KNOWN_VARIETIES[c.typeId] || []).filter(([yy, m, , des]) => yy === y && (m == null || normMint(m) === normMint(c.mint)) && (!des || des === c.variety)).map((e) => e[2]);
+}
+// Every photo a record points to: coin photos and receipt photos.
+const photoRefsOf = (d) => [...((d && d.photos) || []), ...((d && d.receiptPhotos) || [])];
+const pastSellers = () => [...new Set(allCoins().map((c) => (c.seller || "").trim()).filter(Boolean))].sort();
+
 function gradeText(c) {
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade;
-  const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "") + (c.variety ? " · " + c.variety : "");
+  const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "")
+    + (hasProblems(c) ? " Details" : "") + (c.variety ? " · " + c.variety : "") + (c.knownVar ? " · " + c.knownVar : "");
   if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;
   return (g ? "Raw " + g : "Raw") + extra;
 }
@@ -456,6 +495,12 @@ function render() {
   if (keepSearch != null) { const s = $("#coinSearch"); if (s) { s.focus(); s.setSelectionRange(keepSearch, keepSearch); } }
 }
 
+// Small tags for the new statuses and Upgrade wanted.
+function statusTags(c) {
+  const k = statusKey(c);
+  return (k === "coming" || k === "forsale" || k === "gone" ? `<span class="sold-tag st-${k}">${STATUS_TEXT[k]}</span>` : "")
+    + (c.upgrade && c.status === "owned" ? `<span class="sold-tag st-up" title="Upgrade wanted">Upgrade</span>` : "");
+}
 function coinRow(c, opts = {}) {
   const v = bestEach(c);
   const m = meltEach(c);
@@ -464,7 +509,7 @@ function coinRow(c, opts = {}) {
     ${thumbHtml(c)}
     <span class="coin-main">
       <span class="coin-label">${esc(labelOf(c))}</span>
-      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}</span>
+      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}</span>
     </span>
     <span class="coin-val">${c.status === "sold" ? money(num(c.sold && c.sold.amount)) : money(v == null ? null : v * q)}${m != null && c.status !== "sold" ? `<div class="melt">melt ${money(m * q)}</div>` : ""}</span>
   </button>`;
@@ -476,8 +521,8 @@ function viewHome() {
   const count = sum(owned, qtyOf);
   const total = sum(owned, (c) => (bestEach(c) || 0) * qtyOf(c));
   const melt = sum(owned, (c) => (meltEach(c) || 0) * qtyOf(c));
-  const gainCoins = owned.filter((c) => !isInherited(c) && num(c.paid) != null);
-  const paid = sum(gainCoins, (c) => num(c.paid) * qtyOf(c));
+  const gainCoins = owned.filter((c) => !isInherited(c) && costOf(c) != null);
+  const paid = sum(gainCoins, costOf); // price paid plus tax, shipping and fees
   const gainVal = sum(gainCoins, (c) => (bestEach(c) || 0) * qtyOf(c));
   const gain = gainCoins.length ? gainVal - paid : null;
   const noValue = owned.filter((c) => valueSource(c) === "melt" && !isJunk(c)).length;
@@ -490,7 +535,7 @@ function viewHome() {
       ${noValue ? `<div class="small muted">${noValue} coin${noValue > 1 ? "s" : ""} without a value ${noValue > 1 ? "are" : "is"} counted at melt.</div>` : ""}</div>
     <div class="stat"><div class="k">Coins</div><div class="v">${count}</div></div>
     <div class="stat"><div class="k">Melt value</div><div class="v">${money(melt, "$0.00")}</div></div>
-    <div class="stat"><div class="k">Paid</div><div class="v">${money(paid, "$0.00")}</div></div>
+    <div class="stat"><div class="k">Cost</div><div class="v">${money(paid, "$0.00")}</div><div class="small muted">Paid, with tax, shipping and fees</div></div>
     <div class="stat"><div class="k">Gain</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Add prices paid" : pct(paid ? gain / paid : null) + " · inherited not counted"}</div></div>
   </div>`;
 
@@ -536,7 +581,7 @@ function soldCard() {
   const sold = soldCoins().filter((c) => !isInherited(c));
   const revenue = sum(sold, (c) => num(c.sold && c.sold.amount));
   const costs = sum(sold, (c) => (num(c.sold && c.sold.shipping) || 0) + (num(c.sold && c.sold.insurance) || 0));
-  const basis = sum(sold, (c) => (num(c.paid) || 0) * qtyOf(c));
+  const basis = sum(sold, (c) => costOf(c) || 0);
   const profit = revenue - costs - basis;
   const margin = revenue ? profit / revenue : null;
   return `<h2>Sold results</h2><div class="stats">
@@ -569,9 +614,17 @@ function viewValue() {
 }
 
 /* --- Your Coins --- */
-const listState = { family: null, metal: "", cert: "", status: "owned", q: "", sort: "year", dir: "asc" };
+const listState = { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", sort: "year", dir: "asc" };
+// "Show" choices inside In collection: only the ones that have coins.
+function stageChoices() {
+  const o = ownedCoins();
+  return [["coming", "On the way"], ["forsale", "For sale"], ["upgrade", "Upgrade wanted"]].filter(([k]) => o.some((c) => (k === "upgrade" ? c.upgrade : stageOf(c) === k)));
+}
 function viewCoins() {
-  const base = listState.status === "sold" ? soldCoins() : ownedCoins();
+  if (listState.status === "gone" && !goneCoins().length) listState.status = "owned";
+  const base = listState.status === "sold" ? soldCoins() : listState.status === "gone" ? goneCoins() : ownedCoins();
+  const stages = listState.status === "owned" ? stageChoices() : [];
+  if (listState.stage && !stages.some(([k]) => k === listState.stage)) listState.stage = "";
   const famCounts = {};
   base.forEach((c) => { famCounts[familyOf(c)] = (famCounts[familyOf(c)] || 0) + qtyOf(c); });
   const fams = [...new Set([...COMMON_FAMILIES, ...Object.keys(famCounts)])];
@@ -579,7 +632,8 @@ function viewCoins() {
     (!listState.family || familyOf(c) === listState.family) &&
     (!listState.metal || c.metal === listState.metal) &&
     (!listState.cert || c.gradeMode === listState.cert) &&
-    (!listState.q || (labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "")).toLowerCase().includes(listState.q.toLowerCase())));
+    (!listState.stage || (listState.stage === "upgrade" ? c.upgrade : stageOf(c) === listState.stage)) &&
+    (!listState.q || (labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.seller || "")).toLowerCase().includes(listState.q.toLowerCase())));
   const key = {
     year: (c) => num(c.year) ?? 99999,
     value: (c) => (bestEach(c) || 0) * qtyOf(c),
@@ -593,7 +647,9 @@ function viewCoins() {
     <div class="seg" style="margin-bottom:10px">
       <button data-act="status" data-v="owned" class="${listState.status === "owned" ? "on" : ""}">In collection (${sum(ownedCoins(), qtyOf)})</button>
       <button data-act="status" data-v="sold" class="${listState.status === "sold" ? "on" : ""}">Sold (${sum(soldCoins(), qtyOf)})</button>
+      ${goneCoins().length ? `<button data-act="status" data-v="gone" class="${listState.status === "gone" ? "on" : ""}">Gone (${sum(goneCoins(), qtyOf)})</button>` : ""}
     </div>
+    ${stages.length ? `<label class="f" style="margin:-4px 0 8px"><span>Show</span><select data-list="stage"><option value="">All in collection</option>${stages.map(([k, l]) => `<option value="${k}" ${listState.stage === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>` : ""}
     <div class="chips">
       <button class="chip ${!listState.family ? "on" : ""}" data-act="fam" data-v="">All</button>
       ${fams.map((f) => `<button class="chip ${listState.family === f ? "on" : ""} ${famCounts[f] ? "" : "zero"}" data-act="fam" data-v="${esc(f)}">${esc(f)}${famCounts[f] ? " · " + famCounts[f] : ""}</button>`).join("")}
@@ -650,6 +706,23 @@ function yearProblem(typeId, year, kind) {
 const albumYearRange = (typeId) => { const t = TYPE_BY_ID[typeId]; return t ? [t.start, typeLastYear(t)] : [1, thisYear()]; };
 
 /* --- Coin detail --- */
+// Coin page cards. Rows with nothing in them are left out.
+function purchaseCard(c, row) {
+  const m = (k) => (num(c[k]) == null ? null : money(num(c[k])));
+  const cost = costOf(c);
+  const extras = BUY_EXTRAS.some((k) => num(c[k]) != null);
+  const body = [row("Where", esc(c.source)), row("Seller", esc(c.seller)), row("Date", esc(c.acquired)),
+    row(qtyOf(c) > 1 ? "Paid each" : "Paid", m("paid")), row("Tax", m("buyTax")), row("Shipping", m("buyShip")), row("Fees", m("buyFees")),
+    extras || qtyOf(c) > 1 ? row("Total cost", cost == null ? null : "<b>" + money(cost) + "</b>") : "",
+    row("Paid with", esc(c.payMethod)), row("Receipt number", esc(c.receiptNo))].join("");
+  const rec = (c.receiptPhotos || []).length ? `<div class="detail-photos">${(c.receiptPhotos || []).map((p) => `<img src="${esc(photoSrc(p))}" alt="Receipt photo">`).join("")}</div>` : "";
+  return body.replace(/\s/g, "") || rec ? `<div class="card"><b>Purchase</b>${body}${rec}</div>` : "";
+}
+function errorsCard(c, row) {
+  const errs = listOf(c.mintErrors), probs = listOf(c.problems);
+  if (!c.knownVar && !errs.length && !probs.length && !c.errorNote) return "";
+  return `<div class="card"><b>Errors and problems</b>${row("Known variety", esc(c.knownVar))}${row("Mint errors", esc(errs.join(", ")))}${row("Problems", probs.length ? esc(probs.join(", ")) + ` <span class="muted small">(Details coin)</span>` : null)}${c.errorNote ? `<div class="small" style="white-space:pre-wrap;margin-top:4px">${esc(c.errorNote)}</div>` : ""}</div>`;
+}
 function viewCoin(r) {
   const c = getCoin(r.id);
   if (!c || c.status === "deleted") return `<div class="card empty">That coin isn't here. <button class="link-btn" data-go="coins">Back to Your Coins</button></div>`;
@@ -665,8 +738,10 @@ function viewCoin(r) {
     ${mintageLine(c)}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
+      ${row("Status", esc(STATUS_TEXT[statusKey(c)] || "") + (c.upgrade && c.status === "owned" ? " · Upgrade wanted" : ""))}
       ${row("Grade", esc(gradeText(c)) + cacBadge(c))}
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
+      ${c.gradeMode === "cert" ? row("Catalog number", esc(c.catNo)) : ""}
       ${row("Holder", esc(holderText(c)))}
       ${row("COA", c.coa ? "Included" : null)}
       ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
@@ -675,18 +750,18 @@ function viewCoin(r) {
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row("Red Book", money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
       ${row("Melt each", m == null ? (meltKey(c) ? "Enter spot price" : null) : money(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
-      ${row("Paid each", num(c.paid) == null ? null : money(num(c.paid)))}
       ${row("Metal", esc([c.metal, num(c.oz) ? num(c.oz) + " oz" : ""].filter(Boolean).join(" · ")))}
-      ${row("Source", esc(c.source))}
-      ${row("Acquired", esc(c.acquired))}
     </div>
+    ${purchaseCard(c, row)}
+    ${errorsCard(c, row)}
+    ${c.status === "gone" ? `<div class="card"><b>Gone</b>${row("Why", esc((c.gone && c.gone.reason) || ""))}${row("Date", esc((c.gone && c.gone.date) || ""))}<div class="small muted">Not counted in your totals.</div></div>` : ""}
     ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}</div>` : ""}
     ${c.notes ? `<div class="card"><div class="muted small">Notes</div><div style="white-space:pre-wrap">${esc(c.notes)}</div></div>` : ""}
     ${certUrl(c) ? `<a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-bottom:8px" href="${esc(certUrl(c))}" target="_blank" rel="noopener">Verify cert on ${esc(c.service)} ↗</a>` : ""}
     <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>
     <div class="btn-row">
       <button class="btn primary" data-act="edit" data-id="${esc(c.id)}">Edit</button>
-      ${c.status === "owned" ? `<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>` : `<button class="btn" data-act="editSale" data-id="${esc(c.id)}">Edit sale</button><button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}
+      ${c.status === "owned" ? `<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>` : c.status === "gone" ? `<button class="btn" data-act="ungone" data-id="${esc(c.id)}">Move back to collection</button>` : `<button class="btn" data-act="editSale" data-id="${esc(c.id)}">Edit sale</button><button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}
       <button class="btn danger" data-act="delete" data-id="${esc(c.id)}">Delete</button>
     </div>`;
 }
@@ -1111,7 +1186,9 @@ $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") dism
 let draft = null;
 function blankCoin() {
   return { kind: "coin", id: uid(), status: "owned", typeId: "", typeName: "", family: "", denom: "", year: "", mint: "", gradeMode: "raw", grade: "", customGrade: "",
-    service: "PCGS", customService: "", cert: "", metal: "", oz: "", qty: 1, paid: "", value: "", source: "", acquired: "", albumId: "", notes: "", holder: "", cac: "", coa: false, packaging: "", photos: [], fbl: false, sms: false, variety: "", label: "", labelEdited: false, createdAt: Date.now() };
+    service: "PCGS", customService: "", cert: "", metal: "", oz: "", qty: 1, paid: "", value: "", source: "", acquired: "", albumId: "", notes: "", holder: "", cac: "", coa: false, packaging: "", photos: [], fbl: false, sms: false, variety: "", label: "", labelEdited: false,
+    stage: "", upgrade: false, seller: "", buyTax: "", buyShip: "", buyFees: "", payMethod: "", receiptNo: "", receiptPhotos: [],
+    knownVar: "", mintErrors: [], problems: [], errorNote: "", catNo: "", createdAt: Date.now() };
 }
 function openCoinForm(id) {
   const existing = id ? getCoin(id) : null;
@@ -1119,6 +1196,10 @@ function openCoinForm(id) {
   draft._isNew = !existing;
   if (!existing) { const s = settings(); draft.source = s.lastSource || ""; draft._lastHolder = s.lastHolder || ""; } // quick-add: remember last source and holder
   draft._newAlbum = { brand: "Whitman", number: "" };
+  draft._status = statusKey(draft);
+  draft._goneReason = (draft.gone && draft.gone.reason) || "";
+  draft._goneDate = (draft.gone && draft.gone.date) || "";
+  if (!Array.isArray(draft.receiptPhotos)) draft.receiptPhotos = [];
   renderCoinForm();
 }
 function sourceOptions() {
@@ -1174,7 +1255,9 @@ function renderCoinForm() {
         <label class="f"><span>Grading service</span><select data-f="service" data-rerender>${SERVICES.map((s) => `<option ${d.service === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
         <label class="f"><span>Cert number</span><input type="text" inputmode="numeric" data-f="cert" value="${esc(d.cert)}"></label></div>
         ${d.service === "Other" ? `<label class="f"><span>Service name</span><input type="text" data-f="customService" value="${esc(d.customService)}"></label>` : ""}
-        <label class="f"><span>CAC sticker</span><select data-f="cac"><option value="">None</option><option ${d.cac === "Green" ? "selected" : ""}>Green</option><option ${d.cac === "Gold" ? "selected" : ""}>Gold</option></select></label>` : ""}
+        <div class="grid2"><label class="f"><span>CAC sticker</span><select data-f="cac"><option value="">None</option><option ${d.cac === "Green" ? "selected" : ""}>Green</option><option ${d.cac === "Gold" ? "selected" : ""}>Gold</option></select></label>
+        <label class="f"><span>Catalog number (optional)</span><input type="text" data-f="catNo" value="${esc(d.catNo || "")}" placeholder="From the label, e.g. 7172" maxlength="20"></label></div>
+        <div class="hint">The ${d.service === "NGC" ? "NGC" : "PCGS"} coin number printed on the slab's label. Later it opens this exact coin in the PCGS Photo Guide.</div>` : ""}
       <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
@@ -1211,7 +1294,13 @@ function renderCoinForm() {
       <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
       <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}
 
+    ${statusFields(d)}
+
     ${holderFields(d)}
+
+    ${purchaseFields(d)}
+
+    ${errorFields(d)}
 
     <label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>
 
@@ -1232,6 +1321,61 @@ function renderCoinForm() {
   refreshFormHints();
 }
 
+// Status picker. Sold is set with Mark as sold on the coin's page.
+function statusFields(d) {
+  if (d.status === "sold") return `<div class="hint">Status: <b>Sold</b>. To change it, use Edit sale or Move back to collection on the coin's page.</div>`;
+  const inh = isInherited(d);
+  if (inh && d._status === "forsale") d._status = "owned";
+  const opts = ["owned", "coming", "forsale", "gone"].filter((k) => !(k === "forsale" && inh));
+  return `<div class="grid2">
+      <label class="f"><span>Status</span><select data-f="_status" data-rerender>${opts.map((k) => `<option value="${k}" ${d._status === k ? "selected" : ""}>${STATUS_TEXT[k]}</option>`).join("")}</select></label>
+      <label class="switch" style="align-self:end"><span>Upgrade wanted<div class="small muted">You'd like a nicer one</div></span><input type="checkbox" data-fcheck="upgrade" ${d.upgrade ? "checked" : ""}></label>
+    </div>
+    <div class="hint">${d._status === "coming" ? "Bought or won, not here yet. Counted in your totals." : d._status === "gone" ? "Traded, gifted or lost. Left out of your totals." : inh ? "Inherited coins can't be set to For sale." : ""}</div>
+    ${d._status === "gone" ? `<div class="grid2">
+      <label class="f"><span>What happened?</span><select data-f="_goneReason"><option value="">Choose…</option>${GONE_REASONS.map((x) => `<option ${d._goneReason === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+      <label class="f"><span>When</span><input type="date" data-f="_goneDate" value="${esc(d._goneDate || "")}" max="${today()}"></label></div>` : ""}`;
+}
+function purchaseFields(d) {
+  const open = d.seller || BUY_EXTRAS.some((k) => num(d[k]) != null) || d.payMethod || d.receiptNo || (d.receiptPhotos || []).length;
+  const money$ = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" data-f="${k}" value="${esc(d[k] || "")}" placeholder="$"></label>`;
+  return `<details ${open ? "open" : ""}><summary>Purchase details</summary>
+      <div class="grid2">
+        <label class="f"><span>Seller</span><input type="text" data-f="seller" list="sellerList" value="${esc(d.seller || "")}" placeholder="Person or shop" maxlength="60"></label>
+        <label class="f"><span>Paid with</span><select data-f="payMethod"><option value="">Choose…</option>${PAY_METHODS.concat(d.payMethod && !PAY_METHODS.includes(d.payMethod) ? [d.payMethod] : []).map((x) => `<option ${d.payMethod === x ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
+      </div>
+      <datalist id="sellerList">${pastSellers().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
+      <div class="grid3">${money$("buyTax", "Tax")}${money$("buyShip", "Shipping")}${money$("buyFees", "Fees")}</div>
+      <div class="hint" id="costHint">${costHintText(d)}</div>
+      <label class="f"><span>Receipt number</span><input type="text" data-f="receiptNo" value="${esc(d.receiptNo || "")}" placeholder="Order or invoice number" maxlength="60"></label>
+      <div class="photos">${(d.receiptPhotos || []).map((p, i) => `<div class="ph"><img src="${esc(photoSrc(p))}" alt=""><button type="button" class="rm" data-act="rmPhoto" data-k="receiptPhotos" data-i="${i}" aria-label="Remove receipt photo">✕</button></div>`).join("")}</div>
+      <label class="btn file-btn" style="display:inline-block;margin-top:6px">${(d.receiptPhotos || []).length ? "Add another receipt photo" : "Add receipt photo"}<input type="file" accept="image/*" id="receiptInput"></label>
+    </details>`;
+}
+function costHintText(d) {
+  const c = costOf(d);
+  if (c == null) return BUY_EXTRAS.some((k) => num(d[k]) != null) ? "Enter Paid each to see the total cost." : "Tax, shipping and fees are for this whole entry.";
+  return "Total cost: " + money(c) + (qtyOf(d) > 1 ? " for " + qtyOf(d) + " coins" : "") + ". Used for your gains.";
+}
+function knownVarHint(d) {
+  const kv = knownVarieties(d);
+  return kv.length ? "Known for this date: " + kv.join(", ") + "." : d.typeId && d.year ? "No known varieties listed for this date. You can type one." : "Pick the type and year to see known varieties.";
+}
+function errorFields(d) {
+  const errs = listOf(d.mintErrors), probs = listOf(d.problems);
+  const checks = (key, all, on) => `<div class="chk-list">${all.map((x) => `<label><input type="checkbox" data-flist="${key}" value="${esc(x)}" ${on.includes(x) ? "checked" : ""}>${esc(x)}</label>`).join("")}</div>`;
+  return `<details ${d.knownVar || errs.length || probs.length || d.errorNote ? "open" : ""}><summary>Errors and problems${probs.length ? " · Details" : ""}</summary>
+      <label class="f"><span>Known variety</span><input type="text" data-f="knownVar" list="kvList" value="${esc(d.knownVar || "")}" placeholder="e.g. Doubled Die Obverse" maxlength="60"></label>
+      <datalist id="kvList">${knownVarieties(d).map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
+      <div class="hint" id="kvHint">${esc(knownVarHint(d))}</div>
+      <div class="small" style="margin-top:8px"><b>Mint errors</b> <span class="muted">(mistakes made when it was struck)</span></div>
+      ${checks("mintErrors", MINT_ERRORS, errs)}
+      <div class="small"><b>Problems</b> <span class="muted">(damage after it left the Mint)</span></div>
+      ${checks("problems", COIN_PROBLEMS, probs)}
+      <div class="hint">Any problem makes it a "Details" coin. Red Book prices are for coins without problems, so they aren't used for it.</div>
+      <label class="f"><span>Describe (optional)</span><textarea data-f="errorNote" placeholder="e.g. 10% off-center at 3 o'clock">${esc(d.errorNote || "")}</textarea></label>
+    </details>`;
+}
 // The holder the form shows: what was picked, else Album / Slab when that fits, else (new coins) the last holder used.
 function formHolder(d) {
   return d.holder || (d.albumId ? "Album" : d.gradeMode === "cert" ? "Slab" : d._isNew ? d._lastHolder || "" : "");
@@ -1264,10 +1408,14 @@ function bookHintText(d) {
   const b = bookLookup(d);
   if (!b) return "";
   const t = bookText(b);
+  if (b.price != null && hasProblems(d)) return t + ". That price is for a coin without problems, so it isn't used for this one. Enter your own value (Check eBay sold helps)" + (meltEach(d) != null ? ", or melt is used." : ".");
   return b.price != null ? t + (num(d.value) == null ? ". Used as the value while Value each is empty." : "") : t;
 }
 function refreshFormHints() {
   const yh = $("#yearHint"); if (yh) yh.textContent = yearProblem(draft.typeId, draft.year, "coin");
+  const ch = $("#costHint"); if (ch) ch.textContent = costHintText(draft);
+  const kh = $("#kvHint"); if (kh) kh.textContent = knownVarHint(draft);
+  const kl = $("#kvList"); if (kl) { const h = knownVarieties(draft).map((x) => `<option value="${esc(x)}">`).join(""); if (kl.innerHTML !== h) kl.innerHTML = h; }
   const sb = $("#smsBox");
   if (sb) {
     if (!hasSms(draft) || isProofGrade(draft.grade)) draft.sms = false;
@@ -1285,7 +1433,7 @@ function refreshFormHints() {
   const h = $("#bookHint");
   if (h) h.textContent = bookHintText(draft);
   const vi = $("[data-f=value]");
-  if (vi && !isJunk(draft)) { const bp = bookPrice(draft); vi.placeholder = bp != null ? bp.toFixed(2) : "$"; }
+  if (vi && !isJunk(draft)) { const bp = hasProblems(draft) ? null : bookPrice(draft); vi.placeholder = bp != null ? bp.toFixed(2) : "$"; }
 }
 
 // Albums a coin can go in: only albums for its coin type (plus the one it's already in).
@@ -1362,9 +1510,20 @@ async function saveDraft() {
   const d = draft;
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
-  delete c._lastHolder;
+  delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = formHolder(d);
-  if (c.gradeMode !== "cert") c.cac = "";
+  if (c.gradeMode !== "cert") { c.cac = ""; c.catNo = ""; }
+  // Status: Sold (and deleted) are only changed from the coin's page.
+  if (c.status === "owned" || c.status === "gone") {
+    const k = d._status || "owned";
+    if (k === "forsale" && isInherited(c)) { toast("Inherited coins can't be set to For sale."); return; }
+    if (k === "gone") { c.status = "gone"; c.stage = ""; c.gone = { reason: d._goneReason || "", date: d._goneDate || "" }; }
+    else { c.status = "owned"; c.stage = k === "owned" ? "" : k; delete c.gone; }
+  }
+  c.upgrade = !!c.upgrade;
+  c.mintErrors = listOf(c.mintErrors); c.problems = listOf(c.problems);
+  ["seller", "knownVar", "receiptNo", "catNo"].forEach((k) => { c[k] = String(c[k] || "").trim(); });
+  BUY_EXTRAS.forEach((k) => { c[k] = num(c[k]) == null ? "" : String(Math.max(0, num(c[k]))); });
   const prev = !d._isNew && getCoin(c.id);
   if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
   const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);
@@ -1456,22 +1615,24 @@ async function shrinkImage(file) {
     return await new Promise((res) => cv.toBlob((b) => res(b || file), "image/jpeg", 0.85));
   } catch (e) { return file; }
 }
-async function addPhotos(files) {
-  const hint = $("#photoHint");
+// target: "photos" (the coin) or "receiptPhotos".
+async function addPhotos(files, target = "photos") {
+  const hint = $(target === "photos" ? "#photoHint" : "#costHint");
+  const into = (ref) => { if (!draft) return; if (!Array.isArray(draft[target])) draft[target] = []; draft[target].push(ref); };
   for (const f of files) {
     if (hint) hint.textContent = "Uploading photo…";
     const blob = await shrinkImage(f);
     if (store.mode === "local") {
-      try { const lid = await localAddPhoto(blob); draft && draft.photos.push({ lid }); }
+      try { const lid = await localAddPhoto(blob); into({ lid }); }
       catch (e) { toast(e && e.name === "QuotaExceededError" ? "This device is out of space for photos." : "Couldn't save that photo."); }
     } else if (store.mode === "db") {
       if (!assetsApi) { toast("Photos can't be saved from this view."); break; }
       try {
         const a = await assetsApi.upload(blob);
-        draft && draft.photos.push({ id: a.id });
+        into({ id: a.id });
       } catch (e) { toast("Couldn't upload that photo."); }
     } else if (draft) {
-      draft.photos.push({ url: URL.createObjectURL(blob) });
+      into({ url: URL.createObjectURL(blob) });
     }
   }
   if (draft) renderCoinForm();
@@ -1560,10 +1721,11 @@ function doSell(form) {
   if (n < q) {
     // Both pieces share a lot id, so moving them back always rejoins them, whichever piece survives.
     const lotId = c.lotId || c.id;
-    saveCoin({ ...c, qty: q - n, lotId });
-    saveCoin({ ...c, id: uid(), qty: n, status: "sold", sold, splitFrom: c.id, lotId });
+    const ex = splitExtras(c, n); // tax, shipping and fees shared by quantity
+    saveCoin({ ...c, ...ex.keep, qty: q - n, lotId });
+    saveCoin({ ...c, ...ex.part, id: uid(), qty: n, status: "sold", stage: "", sold, splitFrom: c.id, lotId });
   } else {
-    saveCoin({ ...c, status: "sold", sold });
+    saveCoin({ ...c, status: "sold", stage: "", sold });
   }
   const s = settings();
   if (!s.soldAutoDone) saveSettings({ showSold: true, soldAutoDone: true });
@@ -1775,7 +1937,7 @@ const actions = {
     const home = lot ? allCoins().find((x) => x.id !== c.id && x.status === "owned" && (x.lotId || x.id) === lot && same(x)) : null;
     const undo = (docs) => toast("Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
     if (home) {
-      saveCoin({ ...home, qty: qtyOf(home) + qtyOf(c) });
+      saveCoin({ ...home, ...joinExtras(home, c), qty: qtyOf(home) + qtyOf(c) });
       remove("c_" + c.id);
       undo([home, c]);
       go("coin-" + home.id);
@@ -1794,6 +1956,15 @@ const actions = {
     saveCoin({ ...c, status: "deleted", prevStatus, deletedAt: Date.now() });
     go("coins");
     toast("Coin deleted.", { label: "Undo", fn: () => { const x = getCoin(c.id); if (x) { saveCoin({ ...x, status: prevStatus }); toast("Restored."); } } });
+  },
+  ungone: (el) => {
+    const c = getCoin(el.dataset.id);
+    if (!c) return;
+    const before = JSON.parse(JSON.stringify(c));
+    const n = { ...c, status: "owned", stage: "" };
+    delete n.gone;
+    saveCoin(n);
+    toast("Back in your collection.", { label: "Undo", fn: () => { put("c_" + before.id, before); toast("Undone."); } });
   },
   restore: (el) => { const c = getCoin(el.dataset.id); if (c) { saveCoin({ ...c, status: c.prevStatus || "owned" }); toast("Restored."); } },
   purge: (el) => {
@@ -1878,7 +2049,7 @@ const actions = {
     renderCoinForm();
     $(".sheet").scrollTop = y;
   },
-  rmPhoto: (el) => { draft.photos.splice(+el.dataset.i, 1); renderCoinForm(); },
+  rmPhoto: (el) => { (draft[el.dataset.k || "photos"] || []).splice(+el.dataset.i, 1); const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; },
   resetLabel: () => { draft.labelEdited = false; draft.label = ""; renderCoinForm(); },
 };
 
@@ -1948,11 +2119,20 @@ document.addEventListener("change", (e) => {
   const el = e.target;
   if (el.dataset.list) { listState[el.dataset.list] = el.value; render(); return; }
   if (el.id === "photoInput") { addPhotos([...el.files]); return; }
+  if (el.id === "receiptInput") { addPhotos([...el.files], "receiptPhotos"); return; }
   if (el.id === "spotM") { refreshSpotHints(); return; }
   if (el.dataset.albumtype != null) { albumYearsFromTypes(); return; }
   if (el.id === "albumLayout") { const h = $("#albumHint"); if (h) h.textContent = el.value === "set" ? "Add each coin type your type set holds. Each gets one spot, and any date fills it. The years are just for your reference." : "Use the years printed on your album. Each coin type gets spots for the dates and mint marks struck in those years."; return; }
   if (!draft) return;
   if (el.dataset.na) { draft._newAlbum[el.dataset.na] = el.value; if (el.dataset.na === "brand") renderCoinForm(); return; }
+  if (el.dataset.flist) { // checkbox lists (mint errors, problems)
+    const k = el.dataset.flist, set = new Set(listOf(draft[k]));
+    if (el.checked) set.add(el.value); else set.delete(el.value);
+    draft[k] = [...set];
+    const sm = el.closest("details") && el.closest("details").querySelector("summary");
+    if (sm && k === "problems") sm.textContent = "Errors and problems" + (set.size ? " · Details" : "");
+    refreshFormHints(); return;
+  }
   if (el.dataset.fcheck) {
     draft[el.dataset.fcheck] = el.checked;
     if (el.hasAttribute("data-rerender")) { const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; return; }

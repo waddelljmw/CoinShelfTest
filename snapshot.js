@@ -2,7 +2,7 @@
 // Private details are left out unless you tick them. Loaded after app.js.
 "use strict";
 
-const SNAP_FILES = ["styles.css", "catalog/data.js", "catalog/pricebook.js", "catalog/albums.js", "app.js", "sheets.js", "photofill.js", "history.js", "wants.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js"];
+const SNAP_FILES = ["styles.css", "catalog/data.js", "catalog/pricebook.js", "catalog/albums.js", "catalog/varieties.js", "app.js", "sheets.js", "photofill.js", "history.js", "wants.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js"];
 const SNAP_PRIVATE = [
   ["paid", "What you paid"],
   ["source", "Where you got each coin"],
@@ -33,7 +33,8 @@ async function snapshotDocs(inc) {
     const d = JSON.parse(JSON.stringify(d0));
     if (id.startsWith("c_")) {
       if (d.status === "deleted") continue;
-      if (!inc.paid) delete d.paid;
+      if (!inc.paid) { delete d.paid; ["buyTax", "buyShip", "buyFees", "seller", "payMethod", "receiptNo"].forEach((k) => delete d[k]); }
+      delete d.receiptPhotos; // receipts are never shared
       if (!inc.source) delete d.source;
       if (!inc.notes) delete d.notes;
       if (!inc.cert) delete d.cert;

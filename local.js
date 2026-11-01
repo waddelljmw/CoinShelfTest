@@ -83,7 +83,7 @@ async function localAddPhoto(blob) {
 // Photos no saved record points to (e.g. removed from a coin). Recently deleted coins keep theirs.
 function photoIdsInUse() {
   const used = new Set();
-  store.docs.forEach((d) => (d && d.photos || []).forEach((p) => { if (p && p.lid) used.add(p.lid); }));
+  store.docs.forEach((d) => photoRefsOf(d).forEach((p) => { if (p && p.lid) used.add(p.lid); }));
   return used;
 }
 async function cleanUnusedPhotos() {

@@ -11,7 +11,7 @@ const dataUrlToBlob = async (u) => (await fetch(u)).blob();
 // Every photo a record points to, as a data: URL keyed the way the record points to it.
 async function collectPhotos(onProgress) {
   const refs = new Map();
-  store.docs.forEach((d) => (d && d.photos || []).forEach((p) => { if (p) { const k = p.lid ? "lid:" + p.lid : p.id ? "id:" + p.id : null; if (k) refs.set(k, p); } }));
+  store.docs.forEach((d) => photoRefsOf(d).forEach((p) => { if (p) { const k = p.lid ? "lid:" + p.lid : p.id ? "id:" + p.id : null; if (k) refs.set(k, p); } }));
   const out = {};
   let n = 0;
   for (const [k, p] of refs) {
@@ -119,7 +119,10 @@ async function doRestore() {
   // 2) Records, one at a time so large backups don't overwhelm saving.
   for (const { id, data: d } of data.docs) {
     if (!id || !d) continue;
-    const body = d.photos ? { ...d, photos: d.photos.map(fix).filter((p) => p && (p.lid || p.id || p.url)) } : d;
+    const fixAll = (list) => list.map(fix).filter((p) => p && (p.lid || p.id || p.url));
+    const body = { ...d };
+    if (Array.isArray(d.photos)) body.photos = fixAll(d.photos);
+    if (Array.isArray(d.receiptPhotos)) body.receiptPhotos = fixAll(d.receiptPhotos);
     await put(id, mergeRestored(id, body));
   }
   if (store.mode === "local") cleanUnusedPhotos();

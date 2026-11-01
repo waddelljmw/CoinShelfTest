@@ -26,11 +26,12 @@ Read this, then only the **next unchecked step** in `PLAN.md` (don't read the wh
 - littletoncoin.com can't be read; use retailer listings or ask for screenshots.
 
 ## Code map
-- Scripts load in this order (index.html): `catalog/data.js`, `catalog/pricebook.js`, `catalog/albums.js`, `app.js`, `sheets.js`, `photofill.js`, `history.js`, `wants.js`, `report.js`, `snapshot.js`, `albumdb.js`, `local.js`, `backup.js`, `pwa.js`.
-- `catalog/`: coin knowledge, swappable for another collection. `data.js` types, metals, grades, `EXACT_SLOTS` dates/mints, designs (`varieties`); `pricebook.js` Red Book values, mintages, proof dates; `albums.js` album lookup (`ALBUM_DB`).
+- Scripts load in this order (index.html): `catalog/data.js`, `catalog/pricebook.js`, `catalog/albums.js`, `catalog/varieties.js`, `app.js`, `sheets.js`, `photofill.js`, `history.js`, `wants.js`, `report.js`, `snapshot.js`, `albumdb.js`, `local.js`, `backup.js`, `pwa.js`.
+- `catalog/`: coin knowledge, swappable for another collection. `data.js` types, metals, grades, `EXACT_SLOTS` dates/mints, designs (`varieties`); `pricebook.js` Red Book values, mintages, proof dates; `albums.js` album lookup (`ALBUM_DB`); `varieties.js` known varieties, mint errors, problems, gone reasons, payment methods.
 - `app.js`: storage (`put`, `remove`, `store.mode`), coin form (`renderCoinForm`, `saveDraft`, `pickType`), values (`bookLookup`, `meltEach`), dates (`today`, `yearProblem`), albums (`buildAlbumSlots`, `albumStats`, `slotType`, series/reorder), Options (`viewOptions`), actions (`actions` object).
 - `wants.js` want lists and album-spot menus · `sheets.js` CSV · `photofill.js` read coin from photo · `history.js` value over time · `report.js` insurance report · `snapshot.js` view-only file · `albumdb.js` album lookup forms · `local.js` on-device storage (IndexedDB) · `backup.js` Backup/Restore · `pwa.js` + `sw.js` + `manifest.webmanifest` install, offline, update bar.
 - `store.mode`: `local` phone app · `db` Claude account · `snapshot` · `memory`. Photos: `{lid}` on device, `{id}` Claude, `{url}` temporary.
+- Coin status: `status` owned|sold|gone|deleted; owned coins may have `stage` coming|forsale (`stageOf`, `statusKey`). Cost = `costOf` (paid×qty + `buyTax`/`buyShip`/`buyFees`). `problems` make a Details coin (no Red Book value). Receipt photos in `receiptPhotos` (use `photoRefsOf`).
 - Record keys: `c_` coins, `a_` albums, `w_` wants, `wl_` want lists, `settings`, `history`.
 
 ## Rules that protect his coins

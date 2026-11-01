@@ -223,7 +223,7 @@ const SPOT_METALS = [
 ];
 // How a coin is kept. "Album" and "Slab" are filled in on their own when a coin is in an album or certified.
 const HOLDERS = ["Album", "Slab", "Hard case", "Capsule", "Mint box", "2x2", "Flip", "Envelope", "Roll", "Loose", "Other"];
-const SOURCE_DEFAULTS = ["Inherited", "Coin shop", "Coin show", "Pawn shop", "eBay", "Gift", "Pocket change", "Bank roll"];
+const SOURCE_DEFAULTS = ["Inherited", "Coin shop", "Coin show", "Pawn shop", "eBay", "Whatnot", "Gift", "Pocket change", "Bank roll"];
 const ALBUM_BRANDS = ["Whitman", "Dansco", "H.E. Harris", "Littleton", "Other"];
 
 // Short, plain-language grade guide (our own summary, not copied from any book).
