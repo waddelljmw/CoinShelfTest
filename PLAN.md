@@ -63,8 +63,14 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - [x] Merged
 - *The "Update ready" banner and the backup reminder before big updates come with Step 1.2.*
 
-**Step 1.2. Put it online and installable. Model: Sonnet.**
-*Say this:* "Do Step 1.2 of the plan."
+**Step 1.2. Put it online and installable. Model: Sonnet.** — *built, waiting on GitHub Pages*
+
+- [x] App icon, install files and offline copy (works with no internet).
+- [x] "A new version is ready" bar with Update now, suggesting a backup first.
+- [x] Files save as normal phone downloads.
+- [ ] Merged
+- [ ] GitHub Pages turned on (needs your decision: public repo, or GitHub Pro)
+- [ ] Installed on your phone and coins restored from a backup
 
 - **Hosting:** free hosting on GitHub Pages from your repo, at a web address like `waddelljmw.github.io/CoinShelfTest`.
 - **Install:** "Add to Home screen" on Android installs it like a normal app: icon, full screen, works offline.
