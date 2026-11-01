@@ -84,8 +84,12 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - [x] **Share a snapshot** opens the Share menu with the view-only file (Messages, email, Drive...).
 - A shared, live collection would need an online account service. That's its own project, to decide later.
 
-**Step 1.4. Review. Model: Opus.**
-*Say this:* "Run an adversarial review of Phase 1."
+**Step 1.4. Review. Model: Opus.** — DONE ✅ (merge pending)
+
+- [x] Fixed: a photo on a coin you hadn't saved yet could be deleted if the app was open in another window.
+- [x] Fixed: restoring a backup replaced your value history and settings; now they're combined.
+- [x] Fixed: "Update now" could throw away a coin you were halfway through typing.
+- Still open: snapshot photos show blank (your paused item, Phase 6). Very large backups (about 1,000+ photos) may get too big for one file; to handle when it matters.
 
 ---
 

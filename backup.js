@@ -64,6 +64,22 @@ async function doBackup() {
   say("Saved " + name + " (" + data.counts.coins + " coins, " + data.counts.photos + " photos).");
 }
 
+// Settings and value history are combined with what's on this device, not replaced.
+function mergeRestored(id, body) {
+  const here = store.docs.get(id);
+  if (!here) return body;
+  if (id === "history") return { ...body, ...here, days: { ...(body.days || {}), ...(here.days || {}) } };
+  if (id === "settings") {
+    const out = { ...body };
+    Object.entries(here).forEach(([k, v]) => { if (v != null && v !== "" && !(Array.isArray(v) && !v.length) && k !== "spot") out[k] = v; });
+    out.spot = { ...(body.spot || {}) };
+    Object.entries(here.spot || {}).forEach(([m, v]) => { if (v != null && v !== "") out.spot[m] = v; });
+    const order = [...(here.albumOrder || []), ...(body.albumOrder || [])];
+    if (order.length) out.albumOrder = [...new Set(order)];
+    return out;
+  }
+  return body;
+}
 // Restore: read the file, check it, then ask before adding.
 let restorePending = null;
 async function readRestoreFile(file) {
@@ -79,7 +95,8 @@ async function readRestoreFile(file) {
   const replaces = data.docs.filter((d) => d.data && d.data.kind === "coin" && store.docs.has(d.id)).length;
   confirmSheet("Restore this backup?",
     `Backup from ${String(data.made || "").slice(0, 10) || "an unknown date"}: ${coins} coins, ${data.docs.filter((d) => d.data && d.data.kind === "album").length} albums, ${Object.keys(data.photos || {}).length} photos.` +
-    (replaces ? ` ${replaces} coin${replaces === 1 ? " is" : "s are"} already here and will be replaced by the backup's copy.` : "") + " Nothing else here is deleted.",
+    (replaces ? ` ${replaces} coin${replaces === 1 ? " is" : "s are"} already here and will be replaced by the backup's copy.` : "") +
+    " Albums and want lists that are in both are replaced by the backup's copy too. Your settings and value history here are kept and combined with the backup's. Nothing here is deleted.",
     "Restore", () => doRestore());
 }
 async function doRestore() {
@@ -103,8 +120,7 @@ async function doRestore() {
   for (const { id, data: d } of data.docs) {
     if (!id || !d) continue;
     const body = d.photos ? { ...d, photos: d.photos.map(fix).filter((p) => p && (p.lid || p.id || p.url)) } : d;
-    if (id === "settings") body.lastBackup = settings().lastBackup || body.lastBackup || null;
-    await put(id, body);
+    await put(id, mergeRestored(id, body));
   }
   if (store.mode === "local") cleanUnusedPhotos();
   go("home");

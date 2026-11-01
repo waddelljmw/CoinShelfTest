@@ -11,7 +11,12 @@ function showUpdateBar(worker) {
   bar.innerHTML = `<span>A new version of Coin Cabinet is ready.${allCoins().length && days > 7 ? ` <button class="link-btn" data-act="openBackup">Save a backup first</button>` : ""}</span>
     <button class="btn primary" id="updateNow">Update now</button>`;
   document.body.appendChild(bar);
-  bar.querySelector("#updateNow").addEventListener("click", () => { bar.querySelector("#updateNow").disabled = true; worker.postMessage("update-now"); });
+  bar.querySelector("#updateNow").addEventListener("click", () => {
+    // Don't throw away a coin (or anything else) you're in the middle of typing.
+    if (draft || !$("#sheet").hidden) { toast("Finish or close what you're working on first, then tap Update now."); return; }
+    bar.querySelector("#updateNow").disabled = true;
+    worker.postMessage("update-now");
+  });
 }
 
 function initPwa() {
@@ -20,7 +25,14 @@ function initPwa() {
   let reloading = false;
   const hadController = !!navigator.serviceWorker.controller;
   // When the new version takes over, reload once so the page uses it.
-  navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadController && !reloading) { reloading = true; location.reload(); } });
+  // Another window that's in the middle of something waits until it's closed.
+  const reloadWhenFree = () => {
+    if (reloading) return;
+    if (draft || !$("#sheet").hidden) { setTimeout(reloadWhenFree, 2000); return; }
+    reloading = true;
+    location.reload();
+  };
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadController) reloadWhenFree(); });
   navigator.serviceWorker.register("sw.js").then((reg) => {
     const watch = (w) => w && w.addEventListener("statechange", () => { if (w.state === "installed" && navigator.serviceWorker.controller) showUpdateBar(w); });
     if (reg.waiting && navigator.serviceWorker.controller) showUpdateBar(reg.waiting);
