@@ -10,7 +10,7 @@ const ALBUM_DB = {
   "Whitman|9141": { name: "Lincoln Memorial Cents 1959–2007", types: ["lincoln-memorial-copper", "lincoln-memorial-zinc"], start: 1959, end: 2007 },
   "Whitman|9114": { name: "Liberty Head Nickels 1883–1912", types: ["liberty-nickel"], start: 1883, end: 1912 },
   "Whitman|9115": { name: "Buffalo Nickels 1913–1938", types: ["buffalo-nickel"], start: 1913, end: 1938 },
-  "Whitman|9116": { name: "Jefferson Nickels 1938–2003", types: ["jefferson-nickel"], start: 1938, end: 2003 },
+  "Whitman|9116": { name: "Jefferson Nickels 1938–2003", types: ["jefferson-nickel", "jefferson-war-nickel"], start: 1938, end: 2003 },
   "Whitman|9117": { name: "Barber Dimes 1892–1916", types: ["barber-dime"], start: 1892, end: 1916 },
   "Whitman|9118": { name: "Mercury Dimes 1916–1945", types: ["mercury-dime"], start: 1916, end: 1945 },
   "Whitman|9120": { name: "Barber Quarters 1892–1916", types: ["barber-quarter"], start: 1892, end: 1916 },
@@ -33,7 +33,7 @@ const ALBUM_DB = {
   "Dansco|7104": { name: "Lincoln Shield Cents 2010 to date", types: ["lincoln-shield"], start: 2010, end: 0 },
   "Dansco|7111": { name: "Liberty Nickels 1883–1912", types: ["liberty-nickel"], start: 1883, end: 1912 },
   "Dansco|7112": { name: "Buffalo Nickels 1913–1938", types: ["buffalo-nickel"], start: 1913, end: 1938 },
-  "Dansco|7113": { name: "Jefferson Nickels 1938–2005", types: ["jefferson-nickel"], start: 1938, end: 2005 },
+  "Dansco|7113": { name: "Jefferson Nickels 1938–2005", types: ["jefferson-nickel", "jefferson-war-nickel"], start: 1938, end: 2005 },
   "Dansco|7123": { name: "Mercury Dimes 1916–1945", types: ["mercury-dime"], start: 1916, end: 1945 },
   "Dansco|7125": { name: "Roosevelt Dimes 1946 to date", types: ["roosevelt-silver", "roosevelt-clad"], start: 1946, end: 0 },
   "Dansco|8125": { name: "Roosevelt Dimes 1946 to date, with proofs", types: ["roosevelt-silver", "roosevelt-clad"], start: 1946, end: 0, proofs: "all" },
@@ -79,7 +79,6 @@ const ALBUM_DB = {
   "Littleton|LCA11": { name: "Eisenhower Dollars 1971–1978", types: ["ike-clad", "ike-40"], start: 1971, end: 1978, proofs: "all" },
   "Littleton|LCA12": { name: "Susan B. Anthony Dollars", types: ["sba-dollar"], start: 1979, end: 1999 },
   "Littleton|LCA59": { name: "Sacagawea Dollars 2000 to date", types: ["sacagawea-dollar"], start: 2000, end: 0 },
-  "Littleton|LCA79": { name: "American Silver Eagles 2015–2022", types: ["silver-eagle"], start: 2015, end: 2022 },
   // H.E. Harris folders
   "H.E. Harris|2672": { name: "Lincoln Cents #1, 1909–1940", types: ["lincoln-wheat"], start: 1909, end: 1940 },
 };
@@ -126,7 +125,7 @@ function albumFormLookup(form) {
   const key = info.brand + "|" + info.number;
   if (form.dataset.shown === key) return;
   form.dataset.shown = key;
-  if (form.id === "albumForm") {
+  if (form.id === "albumForm" && !form.dataset.touched) {
     // New album: fill everything in right away.
     if (form.dataset.found !== info.brand + info.number) { applyAlbumInfo(form, info); form.dataset.found = info.brand + info.number; }
     hint.innerHTML = albumLookupMessage(info, true);
@@ -135,8 +134,14 @@ function albumFormLookup(form) {
     hint.innerHTML = albumLookupMessage(info, false) + ` <button type="button" class="link-btn" data-act="albumApplyDb">Use these coin types and years</button>`;
   }
 }
+// Once you change the types or years yourself, a new brand/number never overwrites them.
+document.addEventListener("change", (e) => {
+  const f = e.target.form;
+  if (f && f.id === "albumForm" && ["start", "end", "typeId", "proofs", "layout"].includes(e.target.name) && e.isTrusted) f.dataset.touched = "1";
+});
 document.addEventListener("input", (e) => {
   const f = e.target.form;
+  if (f && f.id === "albumForm" && ["start", "end"].includes(e.target.name) && e.isTrusted) f.dataset.touched = "1";
   if (f && (f.id === "albumForm" || f.id === "editAlbumForm") && e.target.name === "number") albumFormLookup(f);
 });
 document.addEventListener("change", (e) => {
