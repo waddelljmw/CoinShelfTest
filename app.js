@@ -525,6 +525,12 @@ function searchLine(list) {
 }
 
 /* --- Coin detail --- */
+// " · 1880-S spot" for a coin that fills a spot in its album (empty if it's only "also in" the album).
+function albumSpotText(c, album) {
+  const sl = c.slotId && (album.slots || []).find((x) => x.id === c.slotId);
+  if (!sl) return "";
+  return ` <span class="muted small">· ${esc(sl.y + (sl.m ? "-" + sl.m : "") + (sl.v ? " " + sl.v : ""))} spot</span>`;
+}
 function viewCoin(r) {
   const c = getCoin(r.id);
   if (!c || c.status === "deleted") return `<div class="card empty">That coin isn't here. <button class="link-btn" data-go="coins">Back to Your Coins</button></div>`;
@@ -536,6 +542,7 @@ function viewCoin(r) {
   const sold = c.sold || {};
   return `${coinBackLink()}
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}</h1>
+    ${album ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>${albumSpotText(c, album)}</div>` : ""}
     ${mintageLine(c)}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
@@ -550,7 +557,6 @@ function viewCoin(r) {
       ${row("Metal", esc([c.metal, num(c.oz) ? num(c.oz) + " oz" : ""].filter(Boolean).join(" · ")))}
       ${row("Source", esc(c.source))}
       ${row("Acquired", esc(c.acquired))}
-      ${row("Album", album ? `<button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>` : null)}
     </div>
     ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}</div>` : ""}
     ${c.notes ? `<div class="card"><div class="muted small">Notes</div><div style="white-space:pre-wrap">${esc(c.notes)}</div></div>` : ""}

@@ -149,3 +149,5 @@ body.readonly [data-spot], body.readonly [data-setting], body.readonly [data-act
 .btn-want { background: var(--card); border: 2px solid var(--accent); color: var(--accent); margin-top: 14px; }
 /* Three-quarter-height pop-up window */
 .sheet.sheet-75 { height: 90vh; max-height: 90vh; }
+
+.album-chip { margin: -2px 2px 10px; font-size: 15px; }
