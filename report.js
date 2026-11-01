@@ -111,7 +111,7 @@ async function buildReport(opts) {
   const metalRows = SPOT_METALS.map((mt) => {
     const cs = coins.filter((c) => meltKey(c) === mt.key && num(c.oz));
     if (!cs.length) return "";
-    return `<tr><td>${mt.label}</td><td class="r">${sum(cs, qtyOf)}</td><td class="r">${sum(cs, (c) => num(c.oz) * qtyOf(c)).toFixed(3)} oz</td><td class="r">${money(sum(cs, (c) => (meltEach(c) || 0) * qtyOf(c)))}</td></tr>`;
+    return `<tr><td>${mt.label}</td><td class="r">${sum(cs, qtyOf)}</td><td class="r">${sum(cs, (c) => ozEach(c) * qtyOf(c)).toFixed(3)} oz</td><td class="r">${money(sum(cs, (c) => (meltEach(c) || 0) * qtyOf(c)))}</td></tr>`;
   }).join("");
   const spots = SPOT_METALS.filter((mt) => num(s.spot[mt.key]) != null).map((mt) => `${mt.label} ${money(num(s.spot[mt.key]))}/${mt.unit}`).join(", ");
   const dateLong = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });

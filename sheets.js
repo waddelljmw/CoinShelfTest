@@ -7,6 +7,8 @@
 // (compared lowercase with spaces, dashes and punctuation removed).
 const SHEET_COLS = [
   { key: "label", head: "Label", names: ["label", "name", "title", "description"] },
+  { key: "item", head: "Item", names: ["item", "itemtype", "entrytype"] },
+  { key: "rollCount", head: "Coins per roll", names: ["coinsperroll", "rollcount", "coinsinroll"] },
   { key: "status", head: "Status", names: ["status", "state"] },
   { key: "year", head: "Year", names: ["year", "date", "yr"] },
   { key: "mint", head: "Mint", names: ["mint", "mintmark", "mm"] },
@@ -55,7 +57,7 @@ function coinToRow(c) {
   const m = meltEach(c);
   const rb = bookPrice(c);
   return {
-    label: labelOf(c), status: c.status === "sold" ? "Sold" : "Owned", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
+    label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : "Coin", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", status: c.status === "sold" ? "Sold" : "Owned", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
     cert: c.cert, cac: cacOf(c), holder: holderOf(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
@@ -191,6 +193,15 @@ function rowToCoin(get) {
   c.source = String(get("source") || "").trim();
   c.acquired = normDate(get("acquired"));
   c.notes = String(get("notes") || "").trim();
+  const itemT = String(get("item") || "").trim().toLowerCase();
+  if (itemT === "set") {
+    const k = SET_KINDS.find((x) => x.name.toLowerCase() === typeText.trim().toLowerCase()) || SET_BY_ID.other;
+    Object.assign(c, { item: "set", setKind: k.id, typeId: "", typeName: k.id === "other" ? typeText.trim() || k.name : k.name, family: "Sets", denom: "", mint: "", gradeMode: "raw", grade: "", cac: "" });
+    c.metal = num(c.oz) ? "Silver" : "";
+  } else if (itemT === "roll") {
+    c.item = "roll"; c.gradeMode = "raw"; c.grade = ""; c.cac = "";
+    c.rollCount = Math.max(1, Math.round(+money2(get("rollCount")) || (t && ROLL_COUNTS[t.denom]) || 1));
+  }
   const lab = String(get("label") || "").trim();
   if (lab && lab !== autoLabel(c)) { c.label = lab; c.labelEdited = true; }
   if (statusSold) {

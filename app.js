@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.15.0";
+const APP_VERSION = "0.16.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -245,9 +245,16 @@ function spotPerOz(metalKey) {
   return metalKey === "copper" ? s * LB_PER_TROY_OZ : s;
 }
 const meltKey = (c) => MELT_OF_METAL[c.metal] || null;
+// What an entry is: a single coin (also older entries), a proof/mint set, or a roll of coins.
+const itemOf = (c) => (c.item === "set" || c.item === "roll" ? c.item : "coin");
+const rollCountOf = (c) => Math.max(1, Math.round(num(c.rollCount) || 1));
+// Metal in one entry: a roll holds rollCount coins of c.oz each.
+const ozEach = (c) => (num(c.oz) || 0) * (itemOf(c) === "roll" ? rollCountOf(c) : 1);
+const eachWord = (c) => (itemOf(c) === "roll" ? " per roll" : itemOf(c) === "set" ? " per set" : " each");
+function rollFace(c) { const t = TYPE_BY_ID[c.typeId]; return t && t.face ? t.face * rollCountOf(c) : null; }
 function meltEach(c) {
   const m = meltKey(c);
-  const oz = num(c.oz);
+  const oz = ozEach(c);
   if (!m || !oz) return null;
   const p = spotPerOz(m);
   return p == null ? null : oz * p;
@@ -367,6 +374,8 @@ const isInherited = (c) => (c.source || "").trim().toLowerCase() === "inherited"
 const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
 function gradeText(c) {
+  if (itemOf(c) === "set") return holderText(c) || "Set";
+  if (itemOf(c) === "roll") return "Roll of " + rollCountOf(c);
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade;
   const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "") + (c.variety ? " · " + c.variety : "");
   if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;
@@ -374,6 +383,8 @@ function gradeText(c) {
 }
 function autoLabel(c) {
   const date = c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : "";
+  if (itemOf(c) === "set") return [c.year, c.typeName].filter(Boolean).join(" ");
+  if (itemOf(c) === "roll") return [date, c.typeName, "roll (" + rollCountOf(c) + ")"].filter(Boolean).join(" ");
   return [date, c.typeName, c.denom].filter(Boolean).join(" ");
 }
 const labelOf = (c) => c.label || autoLabel(c) || "Unnamed coin";
@@ -500,7 +511,7 @@ function viewHome() {
   const metalRows = SPOT_METALS.map((m) => {
     const cs = owned.filter((c) => meltKey(c) === m.key && num(c.oz));
     if (!cs.length) return "";
-    const oz = sum(cs, (c) => num(c.oz) * qtyOf(c));
+    const oz = sum(cs, (c) => ozEach(c) * qtyOf(c));
     const mv = sum(cs, (c) => (meltEach(c) || 0) * qtyOf(c));
     return `<div class="rowline"><span>${m.label}<div class="small muted">${sum(cs, qtyOf)} coins · ${oz.toFixed(m.key === "copper" ? 2 : 3)} oz</div></span><span class="num">${spotPerOz(m.key) == null ? `<span class="muted small">no spot price</span>` : money(mv)}</span></div>`;
   }).join("");
@@ -579,7 +590,7 @@ function viewCoins() {
     (!listState.family || familyOf(c) === listState.family) &&
     (!listState.metal || c.metal === listState.metal) &&
     (!listState.cert || c.gradeMode === listState.cert) &&
-    (!listState.q || (labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "")).toLowerCase().includes(listState.q.toLowerCase())));
+    (!listState.q || (labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.caseName || "")).toLowerCase().includes(listState.q.toLowerCase())));
   const key = {
     year: (c) => num(c.year) ?? 99999,
     value: (c) => (bestEach(c) || 0) * qtyOf(c),
@@ -650,6 +661,15 @@ function yearProblem(typeId, year, kind) {
 const albumYearRange = (typeId) => { const t = TYPE_BY_ID[typeId]; return t ? [t.start, typeLastYear(t)] : [1, thisYear()]; };
 
 /* --- Coin detail --- */
+// Several coins sharing one case (e.g. three 1943 steel cents): each is its own coin, linked by the case name.
+const caseMates = (c) => (c.caseName ? ownedCoins().filter((o) => o.id !== c.id && (o.caseName || "").trim().toLowerCase() === c.caseName.trim().toLowerCase()) : []);
+function caseCard(c) {
+  if (!c.caseName || c.status !== "owned") return "";
+  const mates = caseMates(c);
+  return `<div class="card"><div class="muted small">In case</div><b>${esc(c.caseName)}</b> <span class="muted small">· ${mates.length + 1} coins</span>
+    ${mates.length ? `<div class="list" style="margin-top:8px">${mates.map((o) => coinRow(o)).join("")}</div>` : ""}
+    <button class="btn block" style="margin-top:8px" data-act="addToCase" data-id="${esc(c.id)}">Add another coin to this case</button></div>`;
+}
 function viewCoin(r) {
   const c = getCoin(r.id);
   if (!c || c.status === "deleted") return `<div class="card empty">That coin isn't here. <button class="link-btn" data-go="coins">Back to Your Coins</button></div>`;
@@ -665,7 +685,9 @@ function viewCoin(r) {
     ${mintageLine(c)}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
-      ${row("Grade", esc(gradeText(c)) + cacBadge(c))}
+      ${itemOf(c) === "coin" ? row("Grade", esc(gradeText(c)) + cacBadge(c)) : ""}
+      ${itemOf(c) === "set" ? row("Set", esc(c.typeName)) : ""}
+      ${itemOf(c) === "roll" ? row("Coins in roll", rollCountOf(c)) + row("Face value", rollFace(c) == null ? null : money(rollFace(c))) : ""}
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
       ${row("Holder", esc(holderText(c)))}
       ${row("COA", c.coa ? "Included" : null)}
@@ -673,14 +695,15 @@ function viewCoin(r) {
       ${row("Quantity", q > 1 ? q : null)}
       ${row(isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? "Value each (Red Book)" : "Value each", money(v))}
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row("Red Book", money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
-      ${row("Melt each", m == null ? (meltKey(c) ? "Enter spot price" : null) : money(m))}
+      ${row("Melt" + eachWord(c), m == null ? (meltKey(c) ? "Enter spot price" : null) : money(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
       ${row("Paid each", num(c.paid) == null ? null : money(num(c.paid)))}
-      ${row("Metal", esc([c.metal, num(c.oz) ? num(c.oz) + " oz" : ""].filter(Boolean).join(" · ")))}
+      ${row("Metal", esc([c.metal, num(c.oz) ? num(c.oz) + " oz" + (itemOf(c) === "roll" ? " per coin" : itemOf(c) === "set" ? " in the set" : "") : ""].filter(Boolean).join(" · ")))}
       ${row("Source", esc(c.source))}
       ${row("Acquired", esc(c.acquired))}
     </div>
     ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}</div>` : ""}
+    ${caseCard(c)}
     ${c.notes ? `<div class="card"><div class="muted small">Notes</div><div style="white-space:pre-wrap">${esc(c.notes)}</div></div>` : ""}
     ${certUrl(c) ? `<a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-bottom:8px" href="${esc(certUrl(c))}" target="_blank" rel="noopener">Verify cert on ${esc(c.service)} ↗</a>` : ""}
     <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>
@@ -1148,49 +1171,17 @@ function renderCoinForm() {
   const grades = (d.gradeMode === "cert" ? CERT_GRADES : GRADES).filter((g) => isProofGrade(g) === !!d._proof);
   const melt = meltEach(d);
   initSourceKind(d);
-  openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add coin") : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  const it = itemOf(d);
+  const noun = it === "set" ? "set" : it === "roll" ? "roll" : "coin";
+  openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add " + noun) : "Edit " + noun}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" autocomplete="off">
     ${sampleApi && d._isNew ? photoFillButton(d) : ""}
-    ${d._isNew ? `<div class="f typeahead"><span>Start from a known coin</span>
-      <input type="search" id="typeSearch" placeholder="Search Red Book types, e.g. Morgan" value="${esc(t ? t.name : "")}">
-      <div class="ta-list" id="typeList" hidden></div>
-    </div>` : `<div class="f"><span>Coin type</span><div class="locked-type"><b>${esc(t ? t.name : d.typeName || "Custom coin")}</b>${d.denom ? ` <span class="muted small">${esc(d.denom)}</span>` : ""}</div>
-      <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button></div></div>`}
-    ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
-    <div class="grid2">
-      <label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + typeLastYear(t) : "1921"}"></label>
-      <label class="f"><span>Mint mark</span><select data-f="mint">${mints.map((m) => `<option value="${m}" ${d.mint === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
-    </div>
-    <div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>
-    <div class="grid2" ${d._isNew ? "" : "hidden"}>
-      <label class="f"><span>Coin type</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="Morgan Dollar"></label>
-      <label class="f"><span>Denomination</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label>
-    </div>
+    ${itemSeg(d)}
+    ${it === "set" ? setTopHtml(d) : coinTopHtml(d, t, mints)}
+    ${it === "coin" ? gradeHtml(d, t, grades) : ""}
 
-    <fieldset><legend>Grade</legend>
-      <div class="seg"><button type="button" data-act="gmode" data-v="raw" class="${d.gradeMode === "raw" ? "on" : ""}">Raw</button><button type="button" data-act="gmode" data-v="cert" class="${d.gradeMode === "cert" ? "on" : ""}">Certified</button></div>
-      ${d.gradeMode === "cert" ? `<div class="grid2">
-        <label class="f"><span>Grading service</span><select data-f="service" data-rerender>${SERVICES.map((s) => `<option ${d.service === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
-        <label class="f"><span>Cert number</span><input type="text" inputmode="numeric" data-f="cert" value="${esc(d.cert)}"></label></div>
-        ${d.service === "Other" ? `<label class="f"><span>Service name</span><input type="text" data-f="customService" value="${esc(d.customService)}"></label>` : ""}
-        <label class="f"><span>CAC sticker</span><select data-f="cac"><option value="">None</option><option ${d.cac === "Green" ? "selected" : ""}>Green</option><option ${d.cac === "Gold" ? "selected" : ""}>Gold</option></select></label>` : ""}
-      <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
-      <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
-        <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
-      ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
-      ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
-      <div class="hint"><a href="https://www.pcgs.com/photograde" target="_blank" rel="noopener">Compare grades on PCGS Photograde ↗</a></div>
-      ${PRICE_BOOK.series[d.typeId] && PRICE_BOOK.series[d.typeId].fbl && !isProofGrade(d.grade) ? `<label class="switch"><span>Full Bell Lines (FBL)<div class="small muted">All the lines on the Liberty Bell are complete.</div></span><input type="checkbox" data-fcheck="fbl" ${d.fbl ? "checked" : ""}></label>` : ""}
-      <div id="smsBox">${smsField(d)}</div>
-      <div id="varietyBox">${varietyField(d)}</div>
-    </fieldset>
-
-    <div class="grid2">
-      <label class="f"><span>Metal</span><select data-f="metal" data-rerender><option value="">Choose…</option>${METALS.map((m) => `<option ${d.metal === m ? "selected" : ""}>${m}</option>`).join("")}</select></label>
-      <label class="f"><span>Metal content (oz)</span><input type="number" inputmode="decimal" step="0.00001" data-f="oz" value="${esc(d.oz)}" placeholder="0.77344"></label>
-    </div>
-    <div class="hint" id="meltHint">${melt != null ? "Melt today: " + money(melt) + " each" : meltKey(d) ? "Enter the spot price in Options to see melt." : ""}</div>
+    ${it === "set" ? setOzHtml(d, melt) : metalHtml(d, melt)}
 
     <div class="grid3">
       <label class="f"><span>Quantity</span><input type="number" inputmode="numeric" min="1" data-f="qty" value="${esc(d.qty)}"></label>
@@ -1205,11 +1196,11 @@ function renderCoinForm() {
     ${d._sourceKind === "Other" ? `<label class="f"><span>Where did you get it?</span><input type="text" data-f="source" value="${esc(d.source)}" placeholder="e.g. Grandpa's collection, flea market"></label>` : ""}
     <div class="hint" id="inhHint" ${isInherited(d) ? "" : "hidden"}><span class="dns">Do not sell</span> Inherited coins are marked do-not-sell and aren't counted in gains.</div>
 
-    <label class="f"><span>Album</span><select data-f="albumId" data-rerender><option value="">Not in an album</option>${albumsForCoin(d).map((a) => `<option value="${esc(a.id)}" ${d.albumId === a.id ? "selected" : ""}>${esc(albumTitle(a))}</option>`).join("")}<option value="__new" ${d.albumId === "__new" ? "selected" : ""}>+ New album…</option></select></label>
+    ${it === "coin" ? `<label class="f"><span>Album</span><select data-f="albumId" data-rerender><option value="">Not in an album</option>${albumsForCoin(d).map((a) => `<option value="${esc(a.id)}" ${d.albumId === a.id ? "selected" : ""}>${esc(albumTitle(a))}</option>`).join("")}<option value="__new" ${d.albumId === "__new" ? "selected" : ""}>+ New album…</option></select></label>
     ${d.albumId === "__new" ? `<div class="grid2">
       <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
       <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
-      <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}
+      <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}` : ""}
 
     ${holderFields(d)}
 
@@ -1225,25 +1216,114 @@ function renderCoinForm() {
     <div class="hint">Fills in as date-mint mark, coin type, denomination. Type over it to use your own.${d.labelEdited ? ` <button type="button" class="link-btn" data-act="resetLabel">Use automatic label</button>` : ""}</div>
 
     <div class="btn-row">
-      <button type="submit" class="btn primary">${d._isNew ? "Add coin" : "Save changes"}</button>
+      <button type="submit" class="btn primary">${d._isNew ? "Add " + noun : "Save changes"}</button>
       <button type="button" class="btn" data-act="closeSheet">Cancel</button>
     </div>
   </form>`, d._short ? "sheet-75" : "");
   refreshFormHints();
 }
 
+// Coin / Set / Roll switch at the top of a new entry (not when adding into an album spot or from a want).
+function itemSeg(d) {
+  if (!d._isNew || d._stay || d._fromWant || d._replaces) return "";
+  const it = itemOf(d);
+  const b = (v, label) => `<button type="button" data-act="itemKind" data-v="${v}" class="${it === v ? "on" : ""}">${label}</button>`;
+  return `<div class="f"><span>What is it?</span><div class="seg">${b("coin", "Coin")}${b("set", "Set")}${b("roll", "Roll")}</div></div>`;
+}
+function rollHint(d) {
+  const f = rollFace(d);
+  return (f != null ? "Face value " + money(f) + ". " : "") + "Leave the year blank for mixed dates.";
+}
+function setTopHtml(d) {
+  const k = SET_BY_ID[d.setKind];
+  return (d._isNew ? `<label class="f"><span>Kind of set</span><select data-f="setKind" data-rerender><option value="">Choose…</option>${SET_KINDS.map((x) => `<option value="${x.id}" ${d.setKind === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></label>`
+    : `<div class="f"><span>Kind of set</span><div class="locked-type"><b>${esc(k ? k.name : d.typeName || "Set")}</b></div></div>`)
+    + `
+    <label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="1964"></label>
+    <div class="hint" id="yearHint" style="color:var(--bad)">${esc(setYearProblem(d.setKind, d.year))}</div>`;
+}
+function setOzText(d) {
+  if (!d.setKind || !d.year) return "";
+  const v = setSilverOz(d.setKind, num(d.year));
+  return v == null ? "Type the silver content from the box or a price guide, if it has silver." : v === 0 ? "This set has no silver coins." : "Filled in: " + v + " oz of silver in this set.";
+}
+function setOzHtml(d, melt) {
+  return `<label class="f"><span>Silver in the set (oz)</span><input type="number" inputmode="decimal" step="0.00001" data-f="oz" id="setOz" value="${esc(d.oz)}" placeholder="0"></label>
+    <div class="hint" id="setOzHint">${esc(setOzText(d))}</div>
+    <div class="hint" id="meltHint">${melt != null ? "Melt today: " + money(melt) + " per set" : num(d.oz) ? "Enter the spot price in Options to see melt." : ""}</div>`;
+}
+// Sets: fill in the silver for the kind and year, unless it was typed by hand.
+function autoSetOz(d) {
+  if (itemOf(d) !== "set" || d._ozEdited) return;
+  const v = setSilverOz(d.setKind, num(d.year));
+  d.oz = v ? String(v) : "";
+  d.metal = num(d.oz) ? "Silver" : "";
+}
+function coinTopHtml(d, t, mints) {
+  return `${d._isNew ? `<div class="f typeahead"><span>Start from a known coin</span>
+      <input type="search" id="typeSearch" placeholder="Search Red Book types, e.g. Morgan" value="${esc(t ? t.name : "")}">
+      <div class="ta-list" id="typeList" hidden></div>
+    </div>` : `<div class="f"><span>Coin type</span><div class="locked-type"><b>${esc((t ? t.name : d.typeName || "Custom coin") + (itemOf(d) === "roll" ? " roll" : ""))}</b>${d.denom ? ` <span class="muted small">${esc(d.denom)}</span>` : ""}</div>
+      <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button></div></div>`}
+    ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
+    <div class="grid2">
+      <label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + typeLastYear(t) : "1921"}"></label>
+      <label class="f"><span>Mint mark</span><select data-f="mint">${mints.map((m) => `<option value="${m}" ${d.mint === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
+    </div>
+    <div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>
+    ${itemOf(d) === "roll" ? `<label class="f"><span>Coins in the roll</span><input type="number" inputmode="numeric" min="1" data-f="rollCount" value="${esc(d.rollCount)}"></label>
+    <div class="hint" id="rollHint">${esc(rollHint(d))}</div>` : ""}
+    <div class="grid2" ${d._isNew ? "" : "hidden"}>
+      <label class="f"><span>Coin type</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="Morgan Dollar"></label>
+      <label class="f"><span>Denomination</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label>
+    </div>
+`;
+}
+function gradeHtml(d, t, grades) {
+  return `<fieldset><legend>Grade</legend>
+      <div class="seg"><button type="button" data-act="gmode" data-v="raw" class="${d.gradeMode === "raw" ? "on" : ""}">Raw</button><button type="button" data-act="gmode" data-v="cert" class="${d.gradeMode === "cert" ? "on" : ""}">Certified</button></div>
+      ${d.gradeMode === "cert" ? `<div class="grid2">
+        <label class="f"><span>Grading service</span><select data-f="service" data-rerender>${SERVICES.map((s) => `<option ${d.service === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+        <label class="f"><span>Cert number</span><input type="text" inputmode="numeric" data-f="cert" value="${esc(d.cert)}"></label></div>
+        ${d.service === "Other" ? `<label class="f"><span>Service name</span><input type="text" data-f="customService" value="${esc(d.customService)}"></label>` : ""}
+        <label class="f"><span>CAC sticker</span><select data-f="cac"><option value="">None</option><option ${d.cac === "Green" ? "selected" : ""}>Green</option><option ${d.cac === "Gold" ? "selected" : ""}>Gold</option></select></label>` : ""}
+      <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
+      <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
+        <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
+      ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
+      ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
+      <div class="hint"><a href="https://www.pcgs.com/photograde" target="_blank" rel="noopener">Compare grades on PCGS Photograde ↗</a></div>
+      ${PRICE_BOOK.series[d.typeId] && PRICE_BOOK.series[d.typeId].fbl && !isProofGrade(d.grade) ? `<label class="switch"><span>Full Bell Lines (FBL)<div class="small muted">All the lines on the Liberty Bell are complete.</div></span><input type="checkbox" data-fcheck="fbl" ${d.fbl ? "checked" : ""}></label>` : ""}
+      <div id="smsBox">${smsField(d)}</div>
+      <div id="varietyBox">${varietyField(d)}</div>
+    </fieldset>`;
+}
+function metalHtml(d, melt) {
+  return `<div class="grid2">
+      <label class="f"><span>Metal</span><select data-f="metal" data-rerender><option value="">Choose…</option>${METALS.map((m) => `<option ${d.metal === m ? "selected" : ""}>${m}</option>`).join("")}</select></label>
+      <label class="f"><span>Metal content${itemOf(d) === "roll" ? " per coin" : ""} (oz)</span><input type="number" inputmode="decimal" step="0.00001" data-f="oz" value="${esc(d.oz)}" placeholder="0.77344"></label>
+    </div>
+    <div class="hint" id="meltHint">${melt != null ? "Melt today: " + money(melt) + eachWord(d) : meltKey(d) ? "Enter the spot price in Options to see melt." : ""}</div>`;
+}
+
 // The holder the form shows: what was picked, else Album / Slab when that fits, else (new coins) the last holder used.
 function formHolder(d) {
+  if (itemOf(d) !== "coin") return d.holder || "";
   return d.holder || (d.albumId ? "Album" : d.gradeMode === "cert" ? "Slab" : d._isNew ? d._lastHolder || "" : "");
 }
 function holderFields(d) {
   const h = formHolder(d);
+  const it = itemOf(d);
+  const list = it === "set" ? SET_HOLDERS : it === "roll" ? ROLL_HOLDERS : HOLDERS;
   const showPack = d.coa || h === "Mint box" || h === "Other";
+  const showCase = it === "coin" && ["Hard case", "Capsule", "Mint box", "Other"].includes(h);
+  const caseNames = [...new Set(ownedCoins().map((c) => (c.caseName || "").trim()).filter(Boolean))];
   return `<div class="grid2">
-      <label class="f"><span>Holder</span><select data-f="holder" data-rerender><option value="">Choose…</option>${HOLDERS.map((x) => `<option ${h === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+      <label class="f"><span>${it === "set" ? "Packaging" : "Holder"}</span><select data-f="holder" data-rerender><option value="">Choose…</option>${list.concat(h && !list.includes(h) ? [h] : []).map((x) => `<option ${h === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
       <label class="switch" style="align-self:end"><span>COA included<div class="small muted">Certificate of authenticity</div></span><input type="checkbox" data-fcheck="coa" data-rerender ${d.coa ? "checked" : ""}></label>
     </div>
-    ${showPack ? `<label class="f"><span>${h === "Other" ? "Describe the holder / packaging" : "Box and packaging"}</span><input type="text" data-f="packaging" value="${esc(d.packaging || "")}" placeholder="${h === "Other" ? "e.g. velvet case" : "e.g. original blue box, outer sleeve"}"></label>` : ""}`;
+    ${showPack ? `<label class="f"><span>${h === "Other" ? "Describe the holder / packaging" : "Box and packaging"}</span><input type="text" data-f="packaging" value="${esc(d.packaging || "")}" placeholder="${h === "Other" ? "e.g. velvet case" : "e.g. original blue box, outer sleeve"}"></label>` : ""}
+    ${showCase ? `<label class="f"><span>Case name <span class="muted small">(several coins in one case)</span></span><input type="text" data-f="caseName" list="caseNames" value="${esc(d.caseName || "")}" placeholder="e.g. Steel cents case"><datalist id="caseNames">${caseNames.map((n) => `<option value="${esc(n)}">`).join("")}</datalist></label>` : ""}`;
 }
 function smsField(d) {
   if (!hasSms(d) || isProofGrade(d.grade)) return "";
@@ -1267,7 +1347,7 @@ function bookHintText(d) {
   return b.price != null ? t + (num(d.value) == null ? ". Used as the value while Value each is empty." : "") : t;
 }
 function refreshFormHints() {
-  const yh = $("#yearHint"); if (yh) yh.textContent = yearProblem(draft.typeId, draft.year, "coin");
+  const yh = $("#yearHint"); if (yh) yh.textContent = itemOf(draft) === "set" ? setYearProblem(draft.setKind, draft.year) : yearProblem(draft.typeId, draft.year, "coin");
   const sb = $("#smsBox");
   if (sb) {
     if (!hasSms(draft) || isProofGrade(draft.grade)) draft.sms = false;
@@ -1303,6 +1383,7 @@ function pickType(id) {
   draft.denom = t.denom;
   draft.metal = t.metal;
   draft.oz = t.oz || "";
+  if (itemOf(draft) === "roll" && !draft._countEdited) draft.rollCount = ROLL_COUNTS[t.denom] || "";
   if (draft.mint && !t.mints.includes(draft.mint) && draft.mint !== "") draft.mint = "";
   const al = draft.albumId && getAlbum(draft.albumId);
   if (al && !albumHasType(al, t.id)) { draft.albumId = ""; delete draft.slotId; } // that album is for other types
@@ -1311,7 +1392,7 @@ function pickType(id) {
 }
 
 // The fields that make up a coin's type. Locked once the coin is saved.
-const TYPE_FIELDS = ["typeId", "typeName", "family", "denom"];
+const TYPE_FIELDS = ["typeId", "typeName", "family", "denom", "item", "setKind"];
 // "Wrong type? Re-add it": a new coin with everything copied except the type, replacing the old one on save.
 function retypeDraft() {
   if (!draft || draft._isNew) return;
@@ -1362,8 +1443,26 @@ async function saveDraft() {
   const d = draft;
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
-  delete c._lastHolder;
+  delete c._lastHolder; delete c._ozEdited; delete c._countEdited;
   c.holder = formHolder(d);
+  const it = itemOf(c);
+  if (it === "coin") delete c.item;
+  if (it !== "coin" || !["Hard case", "Capsule", "Mint box", "Other"].includes(c.holder)) delete c.caseName;
+  else if (c.caseName) c.caseName = c.caseName.trim();
+  if (it === "set") {
+    if (!SET_BY_ID[c.setKind] && d._isNew) { toast("Pick the kind of set."); return; }
+    const k = SET_BY_ID[c.setKind];
+    if (k && d._isNew) { c.typeName = k.name; c.family = "Sets"; }
+    c.typeId = ""; c.denom = ""; c.mint = ""; c.gradeMode = "raw"; c.grade = ""; c.cac = ""; c.albumId = ""; delete c.slotId;
+    c.metal = num(c.oz) ? "Silver" : "";
+    const sp = setYearProblem(c.setKind, c.year);
+    const prevSet = !d._isNew && getCoin(c.id);
+    if (sp && !(prevSet && String(prevSet.year) === String(c.year))) { toast(sp); return; }
+  } else delete c.setKind;
+  if (it === "roll") {
+    c.rollCount = rollCountOf(c); c.gradeMode = "raw"; c.grade = ""; c.cac = ""; c.albumId = ""; delete c.slotId;
+    if (!c.typeId && !c.typeName) { toast("Pick the coin type for the roll."); return; }
+  } else delete c.rollCount;
   if (c.gradeMode !== "cert") c.cac = "";
   const prev = !d._isNew && getCoin(c.id);
   if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
@@ -1409,7 +1508,7 @@ async function saveDraft() {
   }
   const isNew = d._isNew;
   if (isNew) { // quick-add remembers these for the next coin (Album and Slab fill in on their own)
-    const keep = ["Album", "Slab"].includes(c.holder) ? settings().lastHolder || "" : c.holder;
+    const keep = ["Album", "Slab"].includes(c.holder) || itemOf(c) !== "coin" ? settings().lastHolder || "" : c.holder;
     const s0 = settings();
     if ((s0.lastSource || "") !== (c.source || "") || (s0.lastHolder || "") !== keep) saveSettings({ lastSource: c.source || "", lastHolder: keep });
   }
@@ -1764,6 +1863,26 @@ const actions = {
   fam: (el) => { listState.family = el.dataset.v || null; render(); },
   dir: () => { listState.dir = listState.dir === "asc" ? "desc" : "asc"; render(); },
   edit: (el) => openCoinForm(el.dataset.id),
+  itemKind: (el) => {
+    const v = el.dataset.v;
+    if (!draft || !draft._isNew || itemOf(draft) === v) return;
+    const keep = ["source", "acquired", "paid", "value", "qty", "notes", "photos", "coa", "packaging", "_sourceKind", "_isNew", "_newAlbum", "id", "createdAt"];
+    const b = blankCoin();
+    keep.forEach((k) => { if (draft[k] !== undefined) b[k] = draft[k]; });
+    b._lastHolder = draft._lastHolder;
+    if (v !== "coin") b.item = v;
+    if (v === "set") b.family = "Sets";
+    draft = b;
+    renderCoinForm();
+  },
+  addToCase: (el) => {
+    const c = getCoin(el.dataset.id);
+    if (!c) return;
+    openCoinForm(null);
+    Object.assign(draft, { holder: c.holder, caseName: c.caseName, source: c.source || "", acquired: c.acquired || "" });
+    delete draft._sourceKind;
+    renderCoinForm();
+  },
   sell: (el) => openSell(el.dataset.id),
   editSale: (el) => openSell(el.dataset.id, true),
   unsell: (el) => {
@@ -1933,6 +2052,15 @@ document.addEventListener("input", (e) => {
   draft[f] = el.value;
   if (f === "label") { draft.labelEdited = true; return; }
   if (f === "source") { const h = $("#inhHint"); if (h) h.hidden = !isInherited(draft); return; }
+  if (f === "oz" && itemOf(draft) === "set") draft._ozEdited = el.value !== "";
+  if (f === "year" && itemOf(draft) === "set") {
+    autoSetOz(draft);
+    const oi = $("#setOz"), oh = $("#setOzHint");
+    if (oi && !draft._ozEdited) oi.value = draft.oz;
+    if (oh) oh.textContent = setOzText(draft);
+  }
+  if (f === "rollCount") { draft._countEdited = true; const h = $("#rollHint"); if (h) h.textContent = rollHint(draft); }
+  if ((f === "year" && itemOf(draft) === "set") || f === "rollCount") { const h = $("#meltHint"); const m = meltEach(draft); if (h) h.textContent = m != null ? "Melt today: " + money(m) + eachWord(draft) : ""; }
   if (f === "year" && TYPE_BY_ID[draft.typeId] && TYPE_BY_ID[draft.typeId].metalByYear) {
     const before = draft.metal;
     applyYearMetal(draft);
@@ -1940,7 +2068,7 @@ document.addEventListener("input", (e) => {
   }
   if (f === "typeName") { draft.family = ""; if (TYPE_BY_ID[draft.typeId] && shortName(TYPE_BY_ID[draft.typeId]) !== el.value) draft.typeId = ""; }
   if (!draft.labelEdited) { const li = $("#labelInput"); if (li) li.value = autoLabel(draft); }
-  if (f === "oz") { const h = $("#meltHint"); const m = meltEach(draft); if (h) h.textContent = m != null ? "Melt today: " + money(m) + " each" : ""; }
+  if (f === "oz") { const h = $("#meltHint"); const m = meltEach(draft); if (h) h.textContent = m != null ? "Melt today: " + money(m) + eachWord(draft) : ""; }
   refreshFormHints();
 });
 document.addEventListener("focusin", (e) => { if (e.target.id === "typeSearch") showTypeList(e.target.value); });
@@ -1962,6 +2090,7 @@ document.addEventListener("change", (e) => {
     draft[el.dataset.f] = el.value;
     if (el.dataset.f === "metal" && !MELT_OF_METAL[el.value]) draft.oz = "";
     if (el.dataset.f === "_sourceKind") draft.source = el.value === "Other" ? "" : el.value;
+    if (el.dataset.f === "setKind") autoSetOz(draft);
     if (el.dataset.f === "albumId" && draft._isNew && !draft.typeId) { const al = getAlbum(el.value); if (al && albumTypes(al).length === 1) { pickType(albumTypes(al)[0]); return; } }
     if (el.hasAttribute("data-rerender")) {
       const y = $(".sheet").scrollTop;
