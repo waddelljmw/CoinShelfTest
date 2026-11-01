@@ -126,7 +126,7 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
   - **Dates:** mixed dates, or one date and mint.
   - **Roll condition:** Circulated, AU, UNC or BU, plus an "Original bank wrap" checkbox.
   - **Value:** clad rolls count at face value. Silver rolls are coins × melt per coin. **Nicer rolls** (UNC, BU, bank-wrapped, key dates) can have your own value instead; "Check eBay sold" helps you find one.
-  - *Open question:* do you have rolls with silver and clad coins mixed together?
+  - A roll is all one metal (no mixed silver and clad rolls).
 - **Cases with several coins** (e.g. 3 steel wheat cents): one case, with each coin still counted.
 
 **Step 2.5. Coins outside the catalog. Model: Sonnet.**
