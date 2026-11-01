@@ -108,6 +108,7 @@ const LINCOLN_SLOTS = (() => {
 const EXACT_SLOTS = {
   ...LINCOLN_SLOTS,
   "morgan-modern": [[2021, "P D S O CC"], [2023, "P S"], [2024, "P S"], [2025, "P S"], [2026, "P W"]],
+  "sba-dollar": [[1979, "P D S"], [1980, "P D S"], [1981, "P D S"], [1999, "P D"]],
   "peace-modern": [[2021, "P"], [2023, "P S"], [2024, "P S"], [2025, "P S"], [2026, "P W"]],
   "morgan-dollar": [
     [1878, "P CC S"], [1879, "P CC O S"], [1880, "P CC O S"], [1881, "P CC O S"], [1882, "P CC O S"],
@@ -161,7 +162,7 @@ const SPOT_METALS = [
   { key: "copper", label: "Copper", unit: "lb" },
 ];
 const SOURCE_DEFAULTS = ["Inherited", "Coin shop", "Coin show", "Pawn shop", "eBay", "Gift", "Pocket change", "Bank roll"];
-const ALBUM_BRANDS = ["Whitman", "Dansco", "Other"];
+const ALBUM_BRANDS = ["Whitman", "Dansco", "H.E. Harris", "Littleton", "Other"];
 
 // Short, plain-language grade guide (our own summary, not copied from any book).
 const GRADE_GUIDE = [

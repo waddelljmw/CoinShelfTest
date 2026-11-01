@@ -1227,8 +1227,15 @@ async function saveDraft() {
     const na = d._newAlbum;
     const t = TYPE_BY_ID[c.typeId];
     const match = albums().find((a) => a.brand === na.brand && (a.number || "") === na.number.trim() && albumHasType(a, c.typeId));
+    const info = typeof lookupAlbum === "function" ? lookupAlbum(na.brand, na.number) : null;
     if (match) c.albumId = match.id;
-    else {
+    else if (info && info.types.includes(c.typeId)) {
+      const pf = lookupProofs(info);
+      const a = { kind: "album", id: uid(), brand: na.brand, number: info.number, name: info.name, typeId: info.types[0], typeIds: info.types, layout: "dates", start: info.start, end: info.end, proofs: pf, removed: [], createdAt: Date.now() };
+      a.slots = buildAlbumSlots(info.types, "dates", info.start, info.end, pf);
+      put("a_" + a.id, a);
+      c.albumId = a.id;
+    } else {
       const a = { kind: "album", id: uid(), brand: na.brand, number: na.number.trim(), name: na.brand === "Other" ? na.number.trim() : "", typeId: c.typeId,
         start: t ? t.start : num(c.year) || 1900, end: t ? t.end : num(c.year) || 1900, removed: [], createdAt: Date.now() };
       a.slots = t ? buildSlots(t.id, a.start, a.end) : [{ y: num(c.year), m: normMint(c.mint) }];
@@ -1401,6 +1408,7 @@ function openNewAlbum() {
       <label class="f"><span>Brand</span><select name="brand">${ALBUM_BRANDS.map((b) => `<option>${b}</option>`).join("")}</select></label>
       <label class="f"><span>Album number</span><input type="text" name="number" placeholder="9128"></label>
     </div>
+    <div class="hint" id="albumLookupHint"></div>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" placeholder="Grandpa's Morgans"></label>
     <label class="f"><span>Kind of album</span><select name="layout" id="albumLayout">
       <option value="dates">Dates and mint marks (most albums)</option><option value="set">Type set (one coin of each type)</option></select></label>
@@ -1415,9 +1423,11 @@ function openNewAlbum() {
   </form>`);
 }
 // One coin-type picker per type in the album, with "+ Add another coin type".
+function albumTypeRow(id, i) {
+  return `<div class="type-row"><select name="typeId" data-albumtype>${typeOptions(id)}</select>${i ? `<button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button>` : ""}</div>`;
+}
 function albumTypeRows(ids) {
-  const row = (id, i) => `<div class="type-row"><select name="typeId" data-albumtype>${typeOptions(id)}</select>${i ? `<button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button>` : ""}</div>`;
-  return `<div class="f"><span>Coin types in this album</span><div id="albumTypes">${ids.map(row).join("")}</div>
+  return `<div class="f"><span>Coin types in this album</span><div id="albumTypes">${ids.map(albumTypeRow).join("")}</div>
     <button type="button" class="link-btn" data-act="albumAddType">+ Add another coin type</button></div>`;
 }
 function proofSelect(cur) {
@@ -1471,6 +1481,7 @@ function openEditAlbum(id) {
       <label class="f"><span>Brand</span><select name="brand">${ALBUM_BRANDS.map((b) => `<option ${a.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
       <label class="f"><span>Album number</span><input type="text" name="number" value="${esc(a.number || "")}"></label>
     </div>
+    <div class="hint" id="albumLookupHint"></div>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" value="${esc(a.name || "")}"></label>
     <div class="small muted" style="margin-top:10px">${isSetAlbum(a) ? "Type set (one coin of each type)" : "Dates and mint marks"}</div>
     ${albumTypeRows(albumTypes(a).length ? albumTypes(a) : [COIN_TYPES[0].id])}
