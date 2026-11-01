@@ -9,6 +9,7 @@ const SNAP_PRIVATE = [
   ["notes", "Your notes"],
   ["sale", "Sale details (price, buyer, where sold)"],
   ["cert", "Grading cert numbers"],
+  ["maxPay", "Most you'd pay for wanted coins"],
 ];
 
 function openSnapshotForm() {
@@ -44,6 +45,7 @@ async function snapshotDocs(inc) {
       delete d.lastImport;
     } else if (id.startsWith("w_")) {
       if (!inc.notes) delete d.notes;
+      if (!inc.maxPay) d.maxPrice = "";
     }
     out.push({ id, data: d });
   }

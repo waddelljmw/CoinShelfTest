@@ -211,6 +211,7 @@ function bookLookup(c) {
       const base = bookBase(c, bt.kind);
       const opts = Object.keys(bt.t.rows).filter((k) => k.startsWith(base + "|")).map((k) => priceIn(bt.t.rows[k])).filter(Boolean);
       if (opts.length) { const low = opts.reduce((x, y) => (y.price < x.price ? y : x)); return { ...low, asked: c.grade, guess: true }; }
+      if (Object.keys(bt.t.rows).some((k) => k.startsWith(base + "|"))) return { below: true, lowest: bt.t.grades[0], kind: bt.kind };
     }
     return { none: true, kind: bt.kind };
   }
@@ -847,7 +848,9 @@ function closeSheet() {
   document.body.style.overflow = "";
   draft = null;
 }
-$("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") closeSheet(); });
+// Escape or tapping outside: some pop-ups (like New want list) go back instead of closing.
+function dismissSheet() { if (typeof sheetDismiss === "function" && sheetDismiss()) return; closeSheet(); }
+$("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") dismissSheet(); });
 
 /* --- Add / edit coin --- */
 let draft = null;
@@ -1051,7 +1054,11 @@ async function saveDraft() {
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
   if (!c.family) c.family = c.typeName || "Other";
   if (!c.labelEdited) c.label = autoLabel(c);
-  if (c.slotId && !(getAlbum(c.albumId) && (getAlbum(c.albumId).slots || []).some((x) => x.id === c.slotId))) delete c.slotId;
+  if (c.slotId) {
+    const sl = getAlbum(c.albumId) && (getAlbum(c.albumId).slots || []).find((x) => x.id === c.slotId);
+    // The spot is gone, or the coin's date/mint no longer matches it (so it can find its right spot).
+    if (!sl || num(c.year) !== sl.y || normMint(c.mint) !== sl.m) delete c.slotId;
+  }
   if (c.albumId === "__new") {
     const na = d._newAlbum;
     const t = TYPE_BY_ID[c.typeId];
@@ -1266,7 +1273,7 @@ function openEditAlbum(id) {
       <label class="f"><span>From year</span><input type="number" name="start" value="${a.start}"></label>
       <label class="f"><span>To year</span><input type="number" name="end" value="${a.end}"></label>
     </div>
-    <div class="hint">Changing the years keeps the spots you added, hid, renamed or reordered.</div>
+    <div class="hint">Changing the years keeps the spots you added or hid. Standard spots outside the new years are dropped and come back if you widen the years again.</div>
     <div class="btn-row"><button class="btn primary" type="submit">Save</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
@@ -1280,13 +1287,13 @@ function saveEditAlbum(form) {
   if (start !== a.start || end !== a.end) {
     const inRange = (x) => x.y >= start && x.y <= end;
     // Keep every existing spot that's still in range (with its id, name and order).
-    const kept = slots.filter(inRange);
+    const kept = slots.filter((x) => inRange(x) || x.custom);
     const have = new Set(kept.filter((x) => !x.custom).map((x) => x.y + "|" + x.m));
     // Add standard spots for newly covered years only.
     const added = buildSlots(a.typeId, start, end).filter((x) => !have.has(x.y + "|" + x.m) && !(x.y >= a.start && x.y <= a.end));
     slots = sortSlots([...kept, ...added]);
   }
-  const removed = (a.removed || []).filter((k) => +k.split("|")[0] >= start && +k.split("|")[0] <= end);
+  const removed = a.removed || [];
   put("a_" + a.id, { ...a, brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, slots, removed });
   closeSheet();
   toast("Album saved.");
@@ -1498,7 +1505,7 @@ document.addEventListener("submit", (e) => {
   else if (e.target.id === "editAlbumForm") saveEditAlbum(e.target);
   else if (e.target.id === "spotEditForm") saveSpotEdit(e.target);
 });
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closeSheet(); closeMenu(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { dismissSheet(); closeMenu(); } });
 
 // Start once every script (sheets.js, photofill.js) has loaded.
 document.addEventListener("DOMContentLoaded", () => { render(); initStore(); });
