@@ -126,7 +126,12 @@ function saveNewList(form) {
   toast("List created.");
   const ret = wlReturn;
   wlReturn = null;
-  if (ret && ret.kind === "want") { openWantForm(ret.editId || null, scopedPrefill({ ...ret.prefill, listId: wl.id })); return; }
+  if (ret && ret.kind === "want") {
+    const ow = ret.editId && getWant(ret.editId);
+    if (ow && !listAccepts(wl, ow.typeId)) { toast("List created, but it's for a different coin type, so this want stays where it is."); openWantForm(ret.editId, ret.prefill); return; }
+    openWantForm(ret.editId || null, scopedPrefill({ ...ret.prefill, listId: wl.id }));
+    return;
+  }
   if (ret && ret.kind === "missing") { renderMissingPicker(wl.id); return; }
   if (ret && ret.kind === "slot") { openSlotWantPicker(ret.el, wl.id); return; }
   closeSheet();
@@ -153,12 +158,17 @@ function readWantForm(form) {
 function openWantForm(id, prefill) {
   const w = id ? getWant(id) : null;
   ensureDefaultList();
-  const lists = wantLists();
-  const curList = getWantList((prefill && prefill.listId) || (w && w.listId) || wantsView.listId) || getWantList(DEFAULT_LIST_ID);
-  // Typed-but-unsaved values (prefill) always win over the saved want.
+  // A saved want's coin type never changes, so it can only be on lists that accept that type.
+  const fits = (l) => l && (!w || listAccepts(l, w.typeId));
+  let curList = getWantList((prefill && prefill.listId) || (w && w.listId) || wantsView.listId);
+  if (!fits(curList)) curList = getWantList(w && w.listId);
+  if (!fits(curList)) curList = getWantList(DEFAULT_LIST_ID);
+  const lists = wantLists().filter(fits);
+  // Typed-but-unsaved values (prefill) always win over the saved want, except its type.
   const d = { ...(w || {}), ...(prefill || {}), listId: curList.id };
+  if (w) d.typeId = w.typeId;
   scopedPrefill(d);
-  const lockType = curList.scope === "type" || curList.scope === "type-grade";
+  const lockType = !!w || curList.scope === "type" || curList.scope === "type-grade";
   const lockGrade = curList.scope === "type-grade";
   const opts = (() => {
     const { recent, rest } = typesRecentFirst(COIN_TYPES);
@@ -169,7 +179,7 @@ function openWantForm(id, prefill) {
   <form id="wantForm" data-id="${esc(id || "")}">
     <label class="f"><span>List</span><select name="listId" id="wantListPick" data-prev="${esc(curList.id)}">${lists.map((l) => `<option value="${esc(l.id)}" ${(d.listId || curList.id) === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
     <label class="f"><span>Coin type</span><select name="typeId" required ${lockType ? "disabled" : ""}>${opts}</select></label>
-    ${lockType ? `<input type="hidden" name="typeId" value="${esc(d.typeId)}"><div class="hint">This list is for ${esc(TYPE_BY_ID[d.typeId] ? TYPE_BY_ID[d.typeId].name : "one coin type")}${lockGrade ? " in " + esc(d.grade) : ""} only.</div>` : ""}
+    ${lockType ? `<input type="hidden" name="typeId" value="${esc(d.typeId)}"><div class="hint">${w ? "The coin type can't change once it's on your want list. Remove it and add a new one if it's wrong." : "This list is for " + esc(TYPE_BY_ID[d.typeId] ? TYPE_BY_ID[d.typeId].name : "one coin type") + (lockGrade ? " in " + esc(d.grade) : "") + " only."}</div>` : ""}
     <div class="grid2">
       <label class="f"><span>Year</span><input type="number" inputmode="numeric" name="year" value="${esc(d.year || "")}" placeholder="Any"></label>
       <label class="f"><span>Mint mark</span><select name="mint">${MINTS.map((m) => `<option value="${m}" ${(d.mint || "") === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
@@ -190,8 +200,12 @@ function saveWantForm(form) {
   if (!typeId) { toast("Pick a coin type."); return; }
   const fields = { typeId, year: num(fd.get("year")) ?? "", mint: fd.get("mint") || "", variety: String(fd.get("variety") || "").trim(),
     grade: fd.get("grade") || "", maxPrice: num(fd.get("maxPrice")) ?? "", notes: String(fd.get("notes") || "").trim(), listId: fd.get("listId") || DEFAULT_LIST_ID };
-  scopedPrefill(fields); // a scoped list always gets its own type (and grade)
   const old = form.dataset.id ? getWant(form.dataset.id) : null;
+  if (old) {
+    fields.typeId = old.typeId; // a saved want's type never changes
+    if (!listAccepts(getWantList(fields.listId), old.typeId)) { toast("That list is for a different coin type."); return; }
+  }
+  scopedPrefill(fields); // a scoped list always gets its own type (and grade)
   const w = old ? { ...newWant({ ...old, ...fields }), id: old.id, createdAt: old.createdAt, albumId: old.albumId } : newWant(fields);
   saveWant(w);
   touchType(typeId);
