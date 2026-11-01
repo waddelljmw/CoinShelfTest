@@ -133,13 +133,15 @@ function splitYear(raw) {
   return m ? { year: +m[1], mint: m[2] ? m[2].toUpperCase() : null } : { year: "", mint: null };
 }
 // Find the known coin type for a name and year (e.g. "Kennedy Half Dollar" + 1967 → the 40% silver Kennedy).
-function matchType(name, year, oz) {
+function matchType(name, year, oz, metal) {
   const n = squash(name);
   if (!n) return null;
   const inYear = (t) => !year || (year >= t.start && year <= t.end);
   const ozOk = (t) => oz === "" || oz == null || Math.abs((t.oz || 0) - oz) < 0.0005;
   const sameName = COIN_TYPES.filter((t) => squash(t.name) === n || squash(shortName(t)) === n || squash(t.family) === n);
-  let hit = sameName.find((t) => inYear(t) && ozOk(t)) || sameName.find(inYear) || null;
+  // The metal column breaks ties, e.g. 1982 copper vs. zinc Lincoln cents.
+  const metalOk = (t) => !metal || String(metal).toLowerCase().trim() === String(t.metal).toLowerCase();
+  let hit = sameName.find((t) => inYear(t) && ozOk(t) && metalOk(t)) || sameName.find((t) => inYear(t) && ozOk(t)) || sameName.find(inYear) || null;
   if (!hit) {
     const words = String(name).toLowerCase().replace(/[^a-z0-9$ ]/g, " ").split(/\s+/).filter((w) => w && !["us", "the", "coin", "silver", "clad"].includes(w));
     const loose = COIN_TYPES.filter((t) => words.length && words.every((w) => (t.name + " " + t.family + " " + t.denom).toLowerCase().includes(w)));
@@ -151,7 +153,7 @@ function matchType(name, year, oz) {
 function rowToCoin(get) {
   const yr = splitYear(get("year"));
   const typeText = get("typeName") || "";
-  const t = matchType(typeText, yr.year, money2(get("oz")));
+  const t = matchType(typeText, yr.year, money2(get("oz")), get("metal"));
   const statusSold = /sold/i.test(get("status") || "") || money2(get("soldAmount")) !== "" || !!String(get("soldDate") || "").trim();
   const svc = parseService(get("service"));
   const g = parseGrade(get("grade"));
@@ -159,7 +161,7 @@ function rowToCoin(get) {
   const c = blankCoin();
   c.year = yr.year;
   c.mint = get("mint") != null && String(get("mint")).trim() !== "" ? parseMint(get("mint")) : yr.mint || "";
-  if (t) { c.typeId = t.id; c.typeName = shortName(t); c.family = t.family; c.denom = t.denom; c.metal = t.metal; c.oz = t.oz || ""; }
+  if (t) { c.typeId = t.id; c.typeName = shortName(t); c.family = t.family; c.denom = t.denom; c.metal = t.metal; c.oz = t.oz || ""; applyYearMetal(c); }
   else { c.typeName = typeText.trim(); c.family = typeText.trim() || "Other"; }
   if (String(get("denom") || "").trim()) c.denom = String(get("denom")).trim();
   const metal = String(get("metal") || "").trim();
@@ -274,6 +276,8 @@ function renderImport() {
       if (!p.typeMatched) flags.push(p.typeText ? "type not recognized, kept as typed" : "no coin type");
       if (c.grade === "Other") flags.push("grade kept as typed");
       if (isDuplicate(c)) flags.push("looks like one you have");
+      const ia = c._albumName && albums().find((a) => squash(albumTitle(a)) === squash(c._albumName));
+      if (ia && !albumHasType(ia, c.typeId)) flags.push("album " + albumTitle(ia) + " is for other coin types, so it won't go in it");
       const v = bestEach(c);
       return `<label class="coin-row" style="cursor:pointer"><input type="checkbox" data-impskip="${i}" ${imp.skip.has(i) ? "" : "checked"} style="width:20px;height:20px;accent-color:var(--accent)">
         <span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span>
@@ -293,7 +297,8 @@ async function doImport() {
   const ids = [];
   for (const c of chosen) {
     const an = c._albumName; delete c._albumName;
-    if (an && albumByName.has(squash(an))) c.albumId = albumByName.get(squash(an));
+    // Only into an album made for this coin's type.
+    if (an && albumByName.has(squash(an)) && albumHasType(getAlbum(albumByName.get(squash(an))), c.typeId)) c.albumId = albumByName.get(squash(an));
     c.importBatch = batch;
     ids.push(c.id);
     if (c.typeId) touchType(c.typeId);

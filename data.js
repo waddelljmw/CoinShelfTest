@@ -18,10 +18,15 @@ const COIN_TYPES = [
   // Cents
   { id: "flying-eagle-cent", name: "Flying Eagle Cent", family: "Flying Eagle cent", denom: "1C", face: 0.01, start: 1856, end: 1858, mints: ["P"], metal: "Copper-nickel", melt: "copper", oz: CU.flyingEagle },
   { id: "indian-cent", name: "Indian Head Cent", family: "Indian Head cent", denom: "1C", face: 0.01, start: 1859, end: 1909, mints: ["P", "S"], metal: "Copper", melt: "copper", oz: CU.cent },
-  { id: "lincoln-wheat", name: "Lincoln Wheat Cent", family: "Lincoln cent", denom: "1C", face: 0.01, start: 1909, end: 1958, mints: ["P", "D", "S"], metal: "Copper", melt: "copper", oz: CU.cent, note: "1943 cents are steel, not copper." },
+  { id: "lincoln-wheat", name: "Lincoln Wheat Cent", family: "Lincoln cent", denom: "1C", face: 0.01, start: 1909, end: 1958, mints: ["P", "D", "S"], metal: "Copper", melt: "copper", oz: CU.cent, note: "1943 cents are zinc-coated steel, so the metal is set to Steel for 1943. 1922 cents were only struck in Denver (a 1922 with no D is a famous variety).",
+    metalByYear: { 1943: ["Steel", 0] }, varieties: { "1909|": ["", "VDB"], "1909|S": ["", "VDB"] } },
   { id: "lincoln-memorial-copper", name: "Lincoln Memorial Cent (copper)", family: "Lincoln cent", denom: "1C", face: 0.01, start: 1959, end: 1982, mints: ["P", "D", "S"], metal: "Copper", melt: "copper", oz: CU.cent, note: "1982 was struck in both copper and zinc. Weigh it: copper is 3.1 g, zinc is 2.5 g." },
   { id: "lincoln-memorial-zinc", name: "Lincoln Memorial Cent (zinc)", family: "Lincoln cent", denom: "1C", face: 0.01, start: 1982, end: 2008, mints: ["P", "D", "S"], metal: "Zinc", melt: null, oz: 0 },
-  { id: "lincoln-shield", name: "Lincoln Shield Cent", family: "Lincoln cent", denom: "1C", face: 0.01, start: 2010, end: 2025, mints: ["P", "D", "S"], metal: "Zinc", melt: null, oz: 0 },
+  { id: "lincoln-bicentennial", name: "Lincoln Bicentennial Cent (2009)", family: "Lincoln cent", denom: "1C", face: 0.01, start: 2009, end: 2009, mints: ["P", "D", "S"], metal: "Zinc", melt: null, oz: 0,
+    note: "Four reverse designs, each struck at Philadelphia and Denver. Coins from 2009 Mint and Proof sets are 95% copper: set the metal to Copper for those.",
+    varieties: { "2009|": ["Birth and Early Childhood", "Formative Years", "Professional Life", "Presidency"], "2009|D": ["Birth and Early Childhood", "Formative Years", "Professional Life", "Presidency"], "2009|S": ["Birth and Early Childhood", "Formative Years", "Professional Life", "Presidency"] } },
+  { id: "lincoln-shield", name: "Lincoln Shield Cent", family: "Lincoln cent", denom: "1C", face: 0.01, start: 2010, end: 2026, mints: ["P", "D", "S", "W"], metal: "Zinc", melt: null, oz: 0,
+    note: "The last cents for circulation were struck in 2025. 2026 cents (dated 1776–2026) come only in US Mint sets. 2017 Philadelphia cents carry a P mint mark." },
   // Nickels
   { id: "shield-nickel", name: "Shield Nickel", family: "Shield nickel", denom: "5C", face: 0.05, start: 1866, end: 1883, mints: ["P"], metal: "Copper-nickel", melt: "copper", oz: CU.nickel },
   { id: "liberty-nickel", name: "Liberty Head V Nickel", family: "Liberty nickel", denom: "5C", face: 0.05, start: 1883, end: 1912, mints: ["P", "D", "S"], metal: "Copper-nickel", melt: "copper", oz: CU.nickel },
@@ -51,6 +56,10 @@ const COIN_TYPES = [
   // Dollars
   { id: "morgan-dollar", name: "Morgan Dollar", family: "Morgan dollar", denom: "$1", face: 1, start: 1878, end: 1921, mints: ["P", "CC", "O", "S", "D"], metal: "Silver", melt: "silver", oz: AG.dollar },
   { id: "peace-dollar", name: "Peace Dollar", family: "Peace dollar", denom: "$1", face: 1, start: 1921, end: 1935, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.dollar },
+  { id: "morgan-modern", name: "Morgan Dollar (2021 on, .999 silver)", family: "Morgan dollar", denom: "$1", face: 1, start: 2021, end: 2026, mints: ["P", "D", "S", "O", "CC", "W"], metal: "Silver", melt: "silver", oz: 0.858,
+    note: "US Mint legal-tender silver dollars. The 2021 O and CC are privy marks struck at Philadelphia. None were made in 2022. S coins from 2023 on are proofs." },
+  { id: "peace-modern", name: "Peace Dollar (2021 on, .999 silver)", family: "Peace dollar", denom: "$1", face: 1, start: 2021, end: 2026, mints: ["P", "S", "W"], metal: "Silver", melt: "silver", oz: 0.858,
+    note: "US Mint legal-tender silver dollars. None were made in 2022. S coins from 2023 on are proofs." },
   { id: "ike-clad", name: "Eisenhower Dollar (clad)", family: "Eisenhower dollar", denom: "$1", face: 1, start: 1971, end: 1978, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0 },
   { id: "ike-40", name: "Eisenhower Dollar (40% silver)", family: "Eisenhower dollar", denom: "$1", face: 1, start: 1971, end: 1976, mints: ["S"], metal: "Silver", melt: "silver", oz: AG.ike40 },
   { id: "sba-dollar", name: "Susan B. Anthony Dollar", family: "Small dollar", denom: "$1", face: 1, start: 1979, end: 1999, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0 },
@@ -87,7 +96,19 @@ const COMMON_FAMILIES = [
 
 // Exact dates and mint marks for popular album series.
 // Other series build every year × mint combination; remove slots that were never struck.
+// Lincoln cents: the mints that struck regular (non-proof) cents each year. "P" means no mint mark.
+const LINCOLN_SLOTS = (() => {
+  const yrs = (a, b, m) => Array.from({ length: b - a + 1 }, (_, i) => [a + i, m]);
+  const wheat = [[1909, "P S"], [1910, "P S"], ...yrs(1911, 1920, "P D S"), [1921, "P S"], [1922, "D"], [1923, "P S"], ...yrs(1924, 1931, "P D S"),
+    ...yrs(1932, 1934, "P D"), ...yrs(1935, 1955, "P D S"), ...yrs(1956, 1958, "P D")];
+  const copper = [...yrs(1959, 1964, "P D"), ...yrs(1965, 1967, "P"), ...yrs(1968, 1974, "P D S"), ...yrs(1975, 1982, "P D")];
+  const shield = yrs(2010, Math.max(2026, new Date().getFullYear()), "P D");
+  return { "lincoln-wheat": wheat, "lincoln-memorial-copper": copper, "lincoln-memorial-zinc": yrs(1982, 2008, "P D"), "lincoln-bicentennial": [[2009, "P D"]], "lincoln-shield": shield };
+})();
 const EXACT_SLOTS = {
+  ...LINCOLN_SLOTS,
+  "morgan-modern": [[2021, "P D S O CC"], [2023, "P S"], [2024, "P S"], [2025, "P S"], [2026, "P W"]],
+  "peace-modern": [[2021, "P"], [2023, "P S"], [2024, "P S"], [2025, "P S"], [2026, "P W"]],
   "morgan-dollar": [
     [1878, "P CC S"], [1879, "P CC O S"], [1880, "P CC O S"], [1881, "P CC O S"], [1882, "P CC O S"],
     [1883, "P CC O S"], [1884, "P CC O S"], [1885, "P CC O S"], [1886, "P O S"], [1887, "P O S"],
