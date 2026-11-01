@@ -78,13 +78,13 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - **Saving files:** reports, CSV and snapshots save as normal phone downloads.
 - **Privacy:** the web address is public, but your coins are not. Each phone keeps its own data.
 
-**Step 1.3. Sharing with your partner. Model: Sonnet.** — DONE ✅ (merge pending)
+**Step 1.3. Sharing with your partner. Model: Sonnet.** — DONE ✅
 
 - [x] Options → **Share the app** sends the app's link through the phone's Share menu. Your partner installs it and gets their own separate collection.
 - [x] **Share a snapshot** opens the Share menu with the view-only file (Messages, email, Drive...).
 - A shared, live collection would need an online account service. That's its own project, to decide later.
 
-**Step 1.4. Review. Model: Opus.** — DONE ✅ (merge pending)
+**Step 1.4. Review. Model: Opus.** — DONE ✅
 
 - [x] Fixed: a photo on a coin you hadn't saved yet could be deleted if the app was open in another window.
 - [x] Fixed: restoring a backup replaced your value history and settings; now they're combined.
