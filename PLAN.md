@@ -44,7 +44,7 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 
 ## Phase 1: Make it an independent app (your priority 1)
 
-**Step 1.0. Foundation. Model: Opus** — *in progress*
+**Step 1.0. Foundation. Model: Opus** — DONE ✅
 *Say this:* "Do Step 1.0 of the plan."
 
 - [x] **PLAN.md** (this file): the plan plus a checklist Claude ticks off.
@@ -53,7 +53,7 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - [x] **Version number:** shown at the bottom of Options and raised with each merge, so you can tell which version your phone has.
 - [x] **README** in plain words, for you and your partner.
 - [x] **Coin catalog in its own folder** (`catalog/`): coin types and dates, Red Book prices, and the album list. The ancient-coins app can swap in its own catalog later.
-- [ ] Merged
+- [x] Merged
 
 **Step 1.1. Save on your phone, not in Claude. Model: Opus** (it moves your data).
 *Say this:* "Do Step 1.1 of the plan."
