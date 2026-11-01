@@ -57,7 +57,8 @@ function applyPhotoResult(r) {
     filled.push("type (typed, not matched)");
   }
   const y = parseInt(r.year, 10);
-  if (y >= 1700 && y <= 2100) { draft.year = y; filled.push("year"); }
+  if (y >= 1700 && !yearProblem(draft.typeId, y, "coin")) { draft.year = y; filled.push("year"); }
+  else if (y) filled.push("year skipped (" + (yearProblem(draft.typeId, y, "coin") || "not a real year") + ")");
   if (r.mint != null) {
     const m = String(r.mint).toUpperCase().trim();
     draft.mint = m === "P" && y && y < 1980 ? "" : MINTS.includes(m) ? m : draft.mint;

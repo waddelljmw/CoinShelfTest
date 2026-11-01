@@ -524,6 +524,28 @@ function searchLine(list) {
   return `<div class="small muted" style="margin:-4px 2px 10px">${n} coin${n === 1 ? "" : "s"} · ${sold ? "Sold for" : "Value"} ${money(value, "$0.00")} · Melt ${money(melt, "$0.00")}</div>`;
 }
 
+/* --- Date limits --- */
+// Owned coins: no later than this year, and inside the years the coin type was made.
+// Wants: up to WANT_YEARS_AHEAD years past this year (for coins you know are coming).
+const WANT_YEARS_AHEAD = 5;
+const thisYear = () => new Date().getFullYear();
+// A type still being made in the catalog (its end year is the catalog's last year) runs to today.
+const typeLastYear = (t) => (t.end >= 2026 ? Math.max(t.end, thisYear()) : t.end);
+// Returns a short message if the year isn't allowed, or "" if it is. kind: "coin" | "want" | "album".
+function yearProblem(typeId, year, kind) {
+  const y = num(year);
+  if (y == null || year === "") return "";
+  const t = TYPE_BY_ID[typeId];
+  const cap = kind === "want" ? thisYear() + WANT_YEARS_AHEAD : thisYear();
+  if (y > cap) return kind === "want" ? "Wants can be at most " + cap + "." : "That year hasn't happened yet. The latest is " + cap + ".";
+  if (y < 1) return "Enter a real year.";
+  const last = t && (t.end >= 2026 ? cap : t.end); // a series still being made can run up to the cap
+  if (t && (y < t.start || y > last)) return shortName(t) + " was made " + t.start + "–" + last + ".";
+  return "";
+}
+// The years an album of this type can cover.
+const albumYearRange = (typeId) => { const t = TYPE_BY_ID[typeId]; return t ? [t.start, typeLastYear(t)] : [1, thisYear()]; };
+
 /* --- Coin detail --- */
 function viewCoin(r) {
   const c = getCoin(r.id);
@@ -891,9 +913,10 @@ function renderCoinForm() {
       <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button></div></div>`}
     ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
     <div class="grid2">
-      <label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + t.end : "1921"}"></label>
+      <label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + typeLastYear(t) : "1921"}"></label>
       <label class="f"><span>Mint mark</span><select data-f="mint">${mints.map((m) => `<option value="${m}" ${d.mint === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
     </div>
+    <div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>
     <div class="grid2" ${d._isNew ? "" : "hidden"}>
       <label class="f"><span>Coin type</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="Morgan Dollar"></label>
       <label class="f"><span>Denomination</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label>
@@ -979,6 +1002,7 @@ function bookHintText(d) {
   return b.price != null ? t + (num(d.value) == null ? ". Used as the value while Value each is empty." : "") : t;
 }
 function refreshFormHints() {
+  const yh = $("#yearHint"); if (yh) yh.textContent = yearProblem(draft.typeId, draft.year, "coin");
   const sb = $("#smsBox");
   if (sb) {
     if (!hasSms(draft) || isProofGrade(draft.grade)) draft.sms = false;
@@ -1079,6 +1103,9 @@ async function saveDraft() {
   c.year = num(c.year) ?? "";
   c.qty = Math.max(1, num(c.qty) || 1);
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
+  // Coins saved before this check keep their year; only a new or changed year is checked.
+  const yp = yearProblem(c.typeId, c.year, "coin");
+  if (yp && !(prev && String(prev.year) === String(c.year))) { toast(yp); return; }
   if (!c.family) c.family = c.typeName || "Other";
   if (!c.labelEdited) c.label = autoLabel(c);
   if (c.slotId) {
@@ -1285,6 +1312,8 @@ function doNewAlbum(form) {
   const t = TYPE_BY_ID[fd.get("typeId")];
   let start = num(fd.get("start")) ?? t.start, end = num(fd.get("end")) ?? t.end;
   if (start > end) [start, end] = [end, start];
+  const [lo, hi] = albumYearRange(t.id);
+  if (start < lo || end > hi) { toast(shortName(t) + " albums can cover " + lo + "–" + hi + "."); return; }
   const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: t.id, start, end, removed: [], createdAt: Date.now() };
   a.slots = buildSlots(t.id, start, end);
   put("a_" + a.id, a);
@@ -1320,6 +1349,8 @@ function saveEditAlbum(form) {
   const fd = new FormData(form);
   let start = num(fd.get("start")) ?? a.start, end = num(fd.get("end")) ?? a.end;
   if (start > end) [start, end] = [end, start];
+  const [lo, hi] = albumYearRange(a.typeId);
+  if ((start !== a.start && start < lo) || (end !== a.end && end > hi)) { toast("This album can cover " + lo + "–" + hi + "."); return; }
   let slots = a.slots || [];
   if (start !== a.start || end !== a.end) {
     const inRange = (x) => x.y >= start && x.y <= end;
