@@ -95,7 +95,8 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 
 ## Phase 2: Track everything you own
 
-**Step 2.1. How a coin is held. Model: Opus** (new data fields), then **Sonnet** for screens.
+**Step 2.1. How a coin is held. Model: Opus** (new data fields), then **Sonnet** for screens. — DONE ✅
+- [x] Merged (v0.15.0)
 - **Holder:** album, slab, hard case, capsule, mint box with COA, 2x2, flip, envelope, roll, loose, or other.
 - **Slab extras:** a CAC sticker checkbox (green or gold) with a CAC badge on the coin.
 - **COA:** a "COA included" checkbox, plus a note about the box and packaging.
