@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.10.1";
+const APP_VERSION = "0.11.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -157,7 +157,12 @@ const allCoins = () => [...store.docs.values()].filter((d) => d.kind === "coin")
 const ownedCoins = () => allCoins().filter((c) => c.status === "owned");
 const soldCoins = () => allCoins().filter((c) => c.status === "sold");
 const deletedCoins = () => allCoins().filter((c) => c.status === "deleted");
-const albums = () => [...store.docs.values()].filter((d) => d.kind === "album").sort((a, b) => albumTitle(a).localeCompare(albumTitle(b)));
+// Albums in the order you set on the Albums page (Reorder). Any not placed yet follow, A to Z.
+const albums = () => {
+  const order = settings().albumOrder || [];
+  const pos = (a) => { const i = order.indexOf(a.id); return i < 0 ? Infinity : i; };
+  return [...store.docs.values()].filter((d) => d.kind === "album").sort((a, b) => pos(a) - pos(b) || albumTitle(a).localeCompare(albumTitle(b)));
+};
 const getCoin = (id) => store.docs.get("c_" + id);
 const getAlbum = (id) => store.docs.get("a_" + id);
 // Saving changes to an imported coin takes it out of its import batch,
@@ -748,10 +753,26 @@ function albumStats(a) {
     melt: sum(coins, (c) => (meltEach(c) || 0) * qtyOf(c)),
   };
 }
+const albumsView = { reorder: false };
+function moveAlbum(id, d) {
+  const ids = albums().map((a) => a.id);
+  const i = ids.indexOf(id), j = i + d;
+  if (i < 0 || j < 0 || j >= ids.length) return;
+  [ids[i], ids[j]] = [ids[j], ids[i]];
+  saveSettings({ albumOrder: ids });
+}
 function viewAlbums() {
   const list = albums();
+  if (albumsView.reorder && list.length) {
+    return `<h1>Albums</h1>
+      <div class="banner" style="margin:0 0 10px">Use ▲ ▼ to put your albums in the order you want.</div>
+      <div class="list">${list.map((a, i) => `<div class="coin-row"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span><span class="coin-sub">${esc(isSetAlbum(a) ? "Type set" : albumTypeText(a))}</span></span>
+        <span class="slot-mv"><button data-act="moveAlbum" data-id="${esc(a.id)}" data-d="-1" ${i ? "" : "disabled"} aria-label="Move up">▲</button><button data-act="moveAlbum" data-id="${esc(a.id)}" data-d="1" ${i < list.length - 1 ? "" : "disabled"} aria-label="Move down">▼</button></span></div>`).join("")}</div>
+      <button class="btn primary block" style="margin-top:12px" data-act="reorderAlbums">Done</button>`;
+  }
   return `<h1>Albums</h1>
     <button class="btn primary block" data-act="newAlbum">+ New album</button>
+    ${list.length > 1 ? `<div style="text-align:right;margin-top:8px"><button class="link-btn" data-act="reorderAlbums">Reorder albums</button></div>` : ""}
     <div style="margin-top:12px">${list.length ? list.map((a) => {
       const st = albumStats(a);
       const done = st.total && st.owned === st.total;
@@ -1636,6 +1657,8 @@ const actions = {
   missing: (el) => openMissing(el.dataset.id),
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
   addSpot: (el) => openAddSpot(el.dataset.id),
+  reorderAlbums: () => { albumsView.reorder = !albumsView.reorder; render(); },
+  moveAlbum: (el) => moveAlbum(el.dataset.id, +el.dataset.d),
   albumAddType: () => {
     const box = $("#albumTypes");
     if (!box) return;
@@ -1709,7 +1732,7 @@ const actions = {
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
 const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
   "hideSpot showSold slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
-  "export openImport undoImport openReport openSnapshot openBackup doBackup").split(" "));
+  "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const goEl = e.target.closest("[data-go]");
   if (goEl) { e.preventDefault(); go(goEl.dataset.go); return; }
