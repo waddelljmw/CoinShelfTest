@@ -121,7 +121,8 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - Everything else is in closed sections you tap to open: Holder, Purchase, Errors and problems, Photos, Notes.
 - Sale details aren't on this page at all. They open from a **Mark as sold** button (see Phase 7).
 
-**Step 2.4. Sets and rolls. Model: Sonnet.**
+**Step 2.4. Sets and rolls. Model: Sonnet.** — DONE ✅ (merged, v0.18.0; also single coins with no value, price or melt count at face value)
+- [x] Merged
 *Start from PR #29 (branch `step-2.2-sets-rolls`, built before this plan changed): reuse its good parts, add what's new here, then close #29.*
 - **Proof and mint sets:** one entry with year, type and packaging (hard plastic or cellophane). Silver proof sets get melt automatically.
 - **Rolls:** pick the coin type (e.g. Kennedy half 90%, 40% or clad); the metal comes from the catalog.
