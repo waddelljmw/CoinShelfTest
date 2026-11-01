@@ -161,7 +161,7 @@ const SPOT_METALS = [
   { key: "copper", label: "Copper", unit: "lb" },
 ];
 const SOURCE_DEFAULTS = ["Inherited", "Coin shop", "Coin show", "Pawn shop", "eBay", "Gift", "Pocket change", "Bank roll"];
-const ALBUM_BRANDS = ["Whitman", "Dansco", "Other"];
+const ALBUM_BRANDS = ["Whitman", "Dansco", "H.E. Harris", "Littleton", "Other"];
 
 // Short, plain-language grade guide (our own summary, not copied from any book).
 const GRADE_GUIDE = [
