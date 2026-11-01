@@ -133,7 +133,9 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
   - A roll is all one metal (no mixed silver and clad rolls).
 - **Cases with several coins** (e.g. 3 steel wheat cents): one case, with each coin still counted.
 
-**Step 2.5. Coins outside the catalog. Model: Sonnet.**
+**Step 2.5. Coins outside the catalog. Model: Sonnet.** — BUILT (v0.19.0), waiting for merge
+- [ ] Merged
+- Done: **Kind** (Commemorative, Medal, Token, Foreign coin, Other) so they group on Your Coins; **Used before** list so metal and weight are typed once; **grams + purity** helper that works out ounces.
 - Commemoratives (like the 1993 James Madison), medals, casino tokens with a silver weight (like your .7 ozt tokens), and foreign coins.
 - Type the metal and weight once, and melt is worked out automatically.
 

@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.18.0";
+const APP_VERSION = "0.19.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -1304,7 +1304,8 @@ function renderCoinForm() {
     ? `<div class="f"><span>Coin type</span><div class="locked-type"><b>${esc(t ? t.name : d.typeName || "Custom coin")}</b>${d.denom ? ` <span class="muted small">${esc(d.denom)}</span>` : ""}</div>
       <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button></div></div>`
     : other
-      ? `<div class="grid2">
+      ? `${otherPicker(d)}<label class="f"><span>Kind</span><select data-f="family" data-rerender><option value="">Choose…</option>${OTHER_KINDS.map((k) => `<option ${d.family === k ? "selected" : ""}>${k}</option>`).join("")}</select></label>
+      <div class="grid2">
       <label class="f"><span>What is it called?</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="e.g. Casino token"></label>
       <label class="f"><span>Face value</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label></div>`
       : `<div class="f typeahead"><span>Coin type</span>
@@ -1354,6 +1355,7 @@ function renderCoinForm() {
       ${it === "set" ? "" : `<label class="f"><span>Metal</span><select data-f="metal" data-rerender><option value="">Choose…</option>${METALS.map((m) => `<option ${d.metal === m ? "selected" : ""}>${m}</option>`).join("")}</select></label>`}
       <label class="f"><span>${it === "set" ? "Silver in the set (oz)" : it === "roll" ? "Metal content per coin (oz)" : "Metal content (oz)"}</span><input type="number" inputmode="decimal" step="0.00001" data-f="oz" value="${esc(d.oz)}" placeholder="0.77344"></label>
     </div>
+    ${other ? gramsHelper(d) : ""}
     <div class="hint" id="meltHint">${esc(meltHintText(d))}</div>`, num(d.qty) > 1 || d.value || (other && d.metal))}
 
     ${sec("status", "Status" + (d._status && d._status !== "owned" ? ` <span class="muted small">· ${esc(STATUS_TEXT[d._status] || "")}</span>` : ""), statusFields(d), (d._status && d._status !== "owned") || d.upgrade || d.status === "sold")}
@@ -1490,6 +1492,37 @@ function setOzText(d) {
   if (!d.setKind || !d.year) return "";
   const v = setSilverOz(d.setKind, num(d.year));
   return v == null ? "Type the silver content from the box or a price guide, if it has silver." : v === 0 ? "This set has no silver coins." : "Filled in: " + v + " oz of silver in this set.";
+}
+// Coins outside the catalog: kinds, remembered items, and a grams-to-ounces helper.
+const OTHER_KINDS = ["Commemorative", "Medal", "Token", "Foreign coin", "Other"];
+const GRAMS_PER_TROY_OZ = 31.1035;
+// Things typed before (name, face value, kind, metal, weight), newest first, so metal and weight are typed once.
+function savedOthers() {
+  const seen = new Map();
+  allCoins().filter((c) => !c.typeId && c.typeName && itemOf(c) === "coin" && (c.status === "owned" || c.status === "sold")).forEach((c) => {
+    const k = [c.typeName, c.denom, c.metal, c.oz].join("|");
+    if (!seen.has(k)) seen.set(k, { name: c.typeName, denom: c.denom || "", family: OTHER_KINDS.includes(c.family) ? c.family : "", metal: c.metal || "", oz: c.oz || "" });
+  });
+  return [...seen.values()];
+}
+function otherPicker(d) {
+  if (!d._isNew) return "";
+  const list = savedOthers();
+  if (!list.length) return "";
+  return `<label class="f"><span>Used before</span><select data-act-change="useOther"><option value="">Pick one you've added before…</option>${list.map((o, i) => `<option value="${i}">${esc(o.name)}${o.denom ? " · " + esc(o.denom) : ""}${o.metal ? " · " + esc(o.metal) : ""}${num(o.oz) ? " · " + esc(o.oz) + " oz" : ""}</option>`).join("")}</select></label>`;
+}
+function gramsHelper(d) {
+  if (!MELT_OF_METAL[d.metal]) return "";
+  return `<div class="grid2">
+    <label class="f"><span>Weight in grams</span><input type="number" inputmode="decimal" step="0.001" data-f="_grams" value="${esc(d._grams || "")}" placeholder="e.g. 20"></label>
+    <label class="f"><span>Purity</span><input type="number" inputmode="decimal" step="0.001" data-f="_purity" value="${esc(d._purity || "")}" placeholder="0.900"></label></div>
+  <div class="hint">Only know grams? Enter the weight and purity (0.900 = 90%) and the ounces fill in above.</div>`;
+}
+function gramsToOz(d) {
+  const g = num(d._grams), p = num(d._purity);
+  if (!g || !p || p <= 0 || p > 1) return;
+  d.oz = String(Math.round((g * p / GRAMS_PER_TROY_OZ) * 100000) / 100000);
+  const oi = $("[data-f=oz]"); if (oi) oi.value = d.oz;
 }
 function meltHintText(d) {
   const m = meltEach(d);
@@ -1629,7 +1662,7 @@ async function saveDraft() {
   const d = draft;
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
-  delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
+  delete c._grams; delete c._purity; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = formHolder(d);
   if (c.gradeMode !== "cert") { c.cac = ""; c.catNo = ""; }
   // Status: Sold (and deleted) are only changed from the coin's page.
@@ -2278,7 +2311,8 @@ document.addEventListener("input", (e) => {
     applyYearMetal(draft);
     if (draft.metal !== before) { const ms = $("[data-f=metal]"), oz = $("[data-f=oz]"); if (ms) ms.value = draft.metal; if (oz) oz.value = draft.oz; toast("Metal set to " + draft.metal + " for " + draft.year + "."); }
   }
-  if (f === "typeName") { draft.family = ""; if (TYPE_BY_ID[draft.typeId] && shortName(TYPE_BY_ID[draft.typeId]) !== el.value) draft.typeId = ""; }
+  if (f === "_grams" || f === "_purity") gramsToOz(draft);
+  if (f === "typeName") { if (!OTHER_KINDS.includes(draft.family)) draft.family = ""; if (TYPE_BY_ID[draft.typeId] && shortName(TYPE_BY_ID[draft.typeId]) !== el.value) draft.typeId = ""; }
   if (!draft.labelEdited) { const li = $("#labelInput"); if (li) li.value = autoLabel(draft); }
   if (f === "oz" && itemOf(draft) === "set") draft._ozEdited = el.value !== "";
   if (f === "rollCount") draft._countEdited = true;
@@ -2289,6 +2323,7 @@ document.addEventListener("focusin", (e) => { if (e.target.id === "typeSearch") 
 document.addEventListener("change", (e) => {
   const el = e.target;
   if (el.dataset.list) { listState[el.dataset.list] = el.value; render(); return; }
+  if (el.dataset.actChange === "useOther") { const o = savedOthers()[+el.value]; if (o) { Object.assign(draft, { typeName: o.name, denom: o.denom, family: o.family, metal: o.metal, oz: o.oz }); const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; } return; }
   if (el.id === "photoInput") { addPhotos([...el.files]); return; }
   if (el.id === "receiptInput") { addPhotos([...el.files], "receiptPhotos"); return; }
   if (el.id === "spotM") { refreshSpotHints(); return; }
