@@ -7,6 +7,10 @@
 // (compared lowercase with spaces, dashes and punctuation removed).
 const SHEET_COLS = [
   { key: "label", head: "Label", names: ["label", "name", "title", "description"] },
+  { key: "item", head: "Item", names: ["item", "itemtype", "entrytype"] },
+  { key: "rollCount", head: "Coins per roll", names: ["coinsperroll", "rollcount", "coinsinroll"] },
+  { key: "rollCond", head: "Roll condition", names: ["rollcondition", "rollcond"] },
+  { key: "bankWrap", head: "Original bank wrap", names: ["originalbankwrap", "bankwrap"] },
   { key: "status", head: "Status", names: ["status", "state"] },
   { key: "year", head: "Year", names: ["year", "date", "yr"] },
   { key: "mint", head: "Mint", names: ["mint", "mintmark", "mm"] },
@@ -68,7 +72,7 @@ function coinToRow(c) {
   const m = meltEach(c);
   const rb = bookPrice(c);
   return {
-    label: labelOf(c), status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
+    label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : "Coin", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
     catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
@@ -216,6 +220,23 @@ function rowToCoin(get) {
   else if (/^gone|traded|gifted|lost/.test(st)) { c.status = "gone"; c.gone = { reason: /trade/.test(st) ? "Traded" : /gift/.test(st) ? "Gifted" : /lost/.test(st) ? "Lost" : "", date: "" }; }
   c.acquired = normDate(get("acquired"));
   c.notes = String(get("notes") || "").trim();
+  const itemT = String(get("item") || "").trim().toLowerCase();
+  if (itemT === "set" || itemT === "roll") {
+    const hl = itemT === "set" ? SET_HOLDERS : ROLL_HOLDERS;
+    const hh = hl.find((x) => x.toLowerCase() === holdT.toLowerCase());
+    if (hh) { c.holder = hh; if (c.packaging === holdT) c.packaging = ""; }
+  }
+  if (itemT === "set") {
+    const k = SET_KINDS.find((x) => x.name.toLowerCase() === typeText.trim().toLowerCase()) || SET_BY_ID.other;
+    Object.assign(c, { item: "set", setKind: k.id, typeId: "", typeName: k.id === "other" ? typeText.trim() || k.name : k.name, family: "Sets", denom: "", mint: "", gradeMode: "raw", grade: "", cac: "" });
+    c.metal = num(c.oz) ? "Silver" : "";
+  } else if (itemT === "roll") {
+    c.item = "roll"; c.gradeMode = "raw"; c.grade = ""; c.cac = "";
+    c.rollCount = Math.max(1, Math.round(+money2(get("rollCount")) || (t && ROLL_COUNTS[t.denom]) || 1));
+    const rc = String(get("rollCond") || "").trim().toLowerCase();
+    c.rollCond = ROLL_CONDS.find((x) => x.toLowerCase() === rc) || "";
+    c.bankWrap = yesish(get("bankWrap"));
+  }
   const lab = String(get("label") || "").trim();
   if (lab && lab !== autoLabel(c)) { c.label = lab; c.labelEdited = true; }
   if (statusSold) {

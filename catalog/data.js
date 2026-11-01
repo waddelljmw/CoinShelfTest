@@ -223,6 +223,51 @@ const SPOT_METALS = [
 ];
 // How a coin is kept. "Album" and "Slab" are filled in on their own when a coin is in an album or certified.
 const HOLDERS = ["Album", "Slab", "Hard case", "Capsule", "Mint box", "2x2", "Flip", "Envelope", "Roll", "Loose", "Other"];
+// Holders offered for sets and rolls.
+const SET_HOLDERS = ["Hard plastic", "Cellophane", "Mint box", "Other"];
+const ROLL_HOLDERS = ["Paper wrap", "Plastic tube", "Mint-sealed", "Other"];
+// Roll condition, as dealers describe nicer rolls.
+const ROLL_CONDS = ["Circulated", "AU", "UNC", "BU"];
+// Holders that can hold several coins in one case (e.g. three steel cents).
+const CASE_HOLDERS = ["Hard case", "Capsule", "Mint box", "Other"];
+// Usual number of coins in a bank roll, by denomination (can be changed per roll).
+const ROLL_COUNTS = { "1C": 50, "5C": 40, "10C": 50, "25C": 40, "50C": 20, "$1": 25 };
+// Proof and mint sets. years: the years each kind was made.
+const SET_KINDS = [
+  { id: "proof", name: "Proof set", years: [[1936, 1942], [1950, 1964], [1968, 9999]] },
+  { id: "silver-proof", name: "Silver proof set", years: [[1992, 9999]] },
+  { id: "mint", name: "Mint set", years: [[1947, 1964], [1968, 1981], [1984, 9999]] },
+  { id: "sms", name: "Special Mint Set", years: [[1965, 1967]] },
+  { id: "bicentennial", name: "Bicentennial silver set (3 coins)", years: [[1976, 1976]] },
+  { id: "other", name: "Other set", years: null },
+];
+const SET_BY_ID = Object.fromEntries(SET_KINDS.map((k) => [k.id, k]));
+// Silver in a set, in troy ounces. null = not known here: type it from the box.
+// 90% silver: dime 0.07234, quarter 0.18084, half 0.36169 (Numismatic News). 40% Kennedy half 0.14792.
+// .999 silver from 2019: dime 0.079, quarter 0.199, half 0.399 (U.S. Mint specs). Bicentennial 40% quarter + half + dollar = 0.53797.
+function setSilverOz(kind, y) {
+  if (!y) return null;
+  const set90 = (quarters) => +(0.07234 + 0.18084 * quarters + 0.36169).toFixed(5);
+  const set999 = (quarters) => +(0.079 + 0.199 * quarters + 0.399).toFixed(3);
+  if (kind === "proof") return y >= 1950 && y <= 1964 ? set90(1) : y >= 1968 && y <= 1970 ? 0.14792 : y >= 1971 ? 0 : null;
+  if (kind === "silver-proof") {
+    if (y >= 1992 && y <= 1998) return set90(1);
+    if (y === 2009) return set90(6); // six D.C. and territories quarters
+    if (y >= 1999 && y <= 2018) return set90(5); // five state / America the Beautiful quarters
+    if ([2019, 2020, 2022, 2023, 2024, 2025].includes(y)) return set999(5);
+    return null; // 2021 (two quarters) and newer years: type it from the box
+  }
+  if (kind === "sms") return 0.14792;
+  if (kind === "bicentennial") return 0.53797;
+  if (kind === "mint") return y >= 1971 ? 0 : null; // older mint sets vary by year: type it from the box
+  return null;
+}
+function setYearProblem(kind, year) {
+  const y = +year, k = SET_BY_ID[kind];
+  if (!year || !k || !k.years) return "";
+  if (k.years.some(([a, b]) => y >= a && y <= b)) return "";
+  return k.name + "s weren't made in " + y + ".";
+}
 const SOURCE_DEFAULTS = ["Inherited", "Coin shop", "Coin show", "Pawn shop", "eBay", "Whatnot", "Gift", "Pocket change", "Bank roll"];
 const ALBUM_BRANDS = ["Whitman", "Dansco", "H.E. Harris", "Littleton", "Other"];
 
