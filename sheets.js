@@ -42,6 +42,7 @@ const SHEET_COLS = [
   { key: "buyFees", head: "Purchase fees", names: ["purchasefees", "buyerspremium", "buyerfees"] },
   { key: "totalCost", head: "Total cost", names: ["totalcost"], exportOnly: true },
   { key: "payMethod", head: "Paid with", names: ["paidwith", "paymentmethod", "payment"] },
+  { key: "trackNo", head: "Tracking number", names: ["trackingnumber", "tracking", "trackingno"] },
   { key: "receiptNo", head: "Receipt number", names: ["receiptnumber", "receipt", "invoice", "invoicenumber", "ordernumber"] },
   { key: "acquired", head: "Date acquired", names: ["dateacquired", "acquired", "purchasedate", "datepurchased", "dateadded", "bought"] },
   { key: "album", head: "Album", names: ["album", "folder", "binder"] },
@@ -68,7 +69,7 @@ function coinToRow(c) {
   const rb = bookPrice(c);
   return {
     label: labelOf(c), status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
-    catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
+    catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
     cert: c.cert, cac: cacOf(c), holder: holderOf(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
@@ -204,7 +205,7 @@ function rowToCoin(get) {
   c.source = String(get("source") || "").trim();
   const txt = (k) => String(get(k) || "").trim();
   const listIn = (k, all) => txt(k).split(/[;,]/).map((x) => x.trim()).filter(Boolean).map((x) => all.find((a) => a.toLowerCase() === x.toLowerCase()) || x);
-  c.seller = txt("seller"); c.payMethod = txt("payMethod"); c.receiptNo = txt("receiptNo"); c.knownVar = txt("knownVar");
+  c.seller = txt("seller"); c.payMethod = txt("payMethod"); c.receiptNo = txt("receiptNo"); c.trackNo = txt("trackNo").replace(/\s+/g, ""); c.knownVar = txt("knownVar");
   ["buyTax", "buyShip", "buyFees"].forEach((k) => { c[k] = String(money2(get(k))); });
   c.mintErrors = listIn("mintErrors", MINT_ERRORS); c.problems = listIn("problems", COIN_PROBLEMS);
   c.upgrade = yesish(get("upgrade"));

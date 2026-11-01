@@ -33,7 +33,7 @@ async function snapshotDocs(inc) {
     const d = JSON.parse(JSON.stringify(d0));
     if (id.startsWith("c_")) {
       if (d.status === "deleted") continue;
-      if (!inc.paid) { delete d.paid; ["buyTax", "buyShip", "buyFees", "seller", "payMethod", "receiptNo"].forEach((k) => delete d[k]); }
+      if (!inc.paid) { delete d.paid; ["buyTax", "buyShip", "buyFees", "seller", "payMethod", "receiptNo", "trackNo", "trackCarrier"].forEach((k) => delete d[k]); }
       delete d.receiptPhotos; // receipts are never shared
       if (!inc.source) delete d.source;
       if (!inc.notes) delete d.notes;

@@ -402,6 +402,24 @@ function knownVarieties(c) {
 }
 // Every photo a record points to: coin photos and receipt photos.
 const photoRefsOf = (d) => [...((d && d.photos) || []), ...((d && d.receiptPhotos) || [])];
+// Package tracking. The carrier is picked, or worked out from how the number looks.
+const CARRIERS = ["USPS", "UPS", "FedEx", "DHL"];
+function carrierOf(c) {
+  if (CARRIERS.includes(c.trackCarrier)) return c.trackCarrier;
+  const n = String(c.trackNo || "").replace(/\s/g, "").toUpperCase();
+  if (/^1Z[0-9A-Z]{16}$/.test(n)) return "UPS";
+  if (/^(9\d{19,21}|[A-Z]{2}\d{9}US)$/.test(n)) return "USPS";
+  if (/^(\d{12}|\d{15})$/.test(n)) return "FedEx";
+  return "";
+}
+function trackUrl(c) {
+  const n = String(c.trackNo || "").replace(/\s/g, "");
+  if (!n) return "";
+  const e = encodeURIComponent(n);
+  return { USPS: "https://tools.usps.com/go/TrackConfirmAction?tLabels=" + e, UPS: "https://www.ups.com/track?tracknum=" + e,
+    FedEx: "https://www.fedex.com/fedextrack/?trknbr=" + e, DHL: "https://www.dhl.com/us-en/home/tracking/tracking-express.html?submit=1&tracking-id=" + e }[carrierOf(c)]
+    || "https://www.google.com/search?q=" + encodeURIComponent("track package " + n); // unknown carrier: a search finds it
+}
 const pastSellers = () => [...new Set(allCoins().map((c) => (c.seller || "").trim()).filter(Boolean))].sort();
 
 function gradeText(c) {
@@ -754,6 +772,9 @@ function viewCoin(r) {
     </div>
     ${purchaseCard(c, row)}
     ${errorsCard(c, row)}
+    ${c.trackNo ? `<div class="card"><b>${stageOf(c) === "coming" ? "On the way" : "Shipping"}</b>${row("Tracking", esc(c.trackNo))}${row("Carrier", esc(carrierOf(c) || "Not sure"))}${row("Received", esc(c.receivedDate || ""))}
+      <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-top:8px" href="${esc(trackUrl(c))}" target="_blank" rel="noopener">Track package ↗</a></div>` : ""}
+    ${stageOf(c) === "coming" ? `<button class="btn block primary" style="margin-bottom:8px" data-act="received" data-id="${esc(c.id)}">✓ Mark as received</button>` : ""}
     ${c.status === "gone" ? `<div class="card"><b>Gone</b>${row("Why", esc((c.gone && c.gone.reason) || ""))}${row("Date", esc((c.gone && c.gone.date) || ""))}<div class="small muted">Not counted in your totals.</div></div>` : ""}
     ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}</div>` : ""}
     ${c.notes ? `<div class="card"><div class="muted small">Notes</div><div style="white-space:pre-wrap">${esc(c.notes)}</div></div>` : ""}
@@ -1332,6 +1353,10 @@ function statusFields(d) {
       <label class="switch" style="align-self:end"><span>Upgrade wanted<div class="small muted">You'd like a nicer one</div></span><input type="checkbox" data-fcheck="upgrade" ${d.upgrade ? "checked" : ""}></label>
     </div>
     <div class="hint">${d._status === "coming" ? "Bought or won, not here yet. Counted in your totals." : d._status === "gone" ? "Traded, gifted or lost. Left out of your totals." : inh ? "Inherited coins can't be set to For sale." : ""}</div>
+    ${d._status === "coming" || d.trackNo ? `<div class="grid2">
+      <label class="f"><span>Tracking number</span><input type="text" data-f="trackNo" id="trackNo" value="${esc(d.trackNo || "")}" placeholder="Paste it here" maxlength="40" autocapitalize="characters"></label>
+      <label class="f"><span>Carrier</span><select data-f="trackCarrier"><option value="">Work it out</option>${CARRIERS.map((x) => `<option ${d.trackCarrier === x ? "selected" : ""}>${x}</option>`).join("")}</select></label></div>
+      <button type="button" class="link-btn" data-act="pasteTrack">📋 Paste tracking number</button>` : ""}
     ${d._status === "gone" ? `<div class="grid2">
       <label class="f"><span>What happened?</span><select data-f="_goneReason"><option value="">Choose…</option>${GONE_REASONS.map((x) => `<option ${d._goneReason === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
       <label class="f"><span>When</span><input type="date" data-f="_goneDate" value="${esc(d._goneDate || "")}" max="${today()}"></label></div>` : ""}`;
@@ -1522,7 +1547,8 @@ async function saveDraft() {
   }
   c.upgrade = !!c.upgrade;
   c.mintErrors = listOf(c.mintErrors); c.problems = listOf(c.problems);
-  ["seller", "knownVar", "receiptNo", "catNo"].forEach((k) => { c[k] = String(c[k] || "").trim(); });
+  c.trackNo = String(c.trackNo || "").replace(/\s+/g, "");
+  ["seller", "knownVar", "receiptNo", "catNo", "trackCarrier"].forEach((k) => { c[k] = String(c[k] || "").trim(); });
   BUY_EXTRAS.forEach((k) => { c[k] = num(c[k]) == null ? "" : String(Math.max(0, num(c[k]))); });
   const prev = !d._isNew && getCoin(c.id);
   if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
@@ -1956,6 +1982,21 @@ const actions = {
     saveCoin({ ...c, status: "deleted", prevStatus, deletedAt: Date.now() });
     go("coins");
     toast("Coin deleted.", { label: "Undo", fn: () => { const x = getCoin(c.id); if (x) { saveCoin({ ...x, status: prevStatus }); toast("Restored."); } } });
+  },
+  received: (el) => {
+    const c = getCoin(el.dataset.id);
+    if (!c) return;
+    const before = JSON.parse(JSON.stringify(c));
+    saveCoin({ ...c, stage: "", receivedDate: today() });
+    toast("Received. It's in your collection.", { label: "Undo", fn: () => { put("c_" + before.id, before); toast("Undone."); } });
+  },
+  pasteTrack: async () => {
+    const inp = $("#trackNo");
+    try {
+      const t = (await navigator.clipboard.readText()).trim().replace(/\s+/g, "");
+      if (!t) { toast("Nothing copied yet. Copy the tracking number first."); return; }
+      draft.trackNo = t.slice(0, 40); if (inp) inp.value = draft.trackNo;
+    } catch (e) { toast("Couldn't read the clipboard. Long-press the box and tap Paste."); if (inp) inp.focus(); }
   },
   ungone: (el) => {
     const c = getCoin(el.dataset.id);

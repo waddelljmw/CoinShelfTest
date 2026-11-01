@@ -87,13 +87,25 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // 7. CSV round trip
   const csv = await p.evaluate(() => toCsv());
-  ok("CSV has new columns", /Known variety,Mint errors,Problems,Upgrade wanted/.test(csv) && /Seller,Purchase tax,Purchase shipping,Purchase fees,Total cost,Paid with,Receipt number/.test(csv) && /For sale/.test(csv) && /Off-center/.test(csv));
+  ok("CSV has new columns", /Known variety,Mint errors,Problems,Upgrade wanted/.test(csv) && /Seller,Purchase tax,Purchase shipping,Purchase fees,Total cost,Paid with,Tracking number,Receipt number/.test(csv) && /For sale/.test(csv) && /Off-center/.test(csv));
   const back = await p.evaluate(() => {
     const rows = parseCsv(toCsv()); const head = rows[0]; const taken = new Set(); const map = head.map((h) => { const k = guessField(h, taken); if (k) taken.add(k); return k; });
     const r = rows.find((x) => x.includes("Bob's Coins")); const g = (key) => { const i = map.indexOf(key); return i < 0 ? null : r[i]; };
     const c = rowToCoin(g).coin; return [c.seller, c.buyTax, c.buyShip, c.buyFees, c.stage, c.upgrade, c.payMethod, c.receiptNo].join("|");
   });
   ok("CSV import reads new fields", back === "Bob's Coins|4|5|1.5|forsale|true|Cash|A-17");
+
+  // 7b. Tracking: On the way shows the field; link by carrier; Mark as received
+  await add("peace", "1924");
+  await p.selectOption("[data-f=_status]", "coming"); await p.waitForTimeout(80);
+  await p.fill("#trackNo", "1Z999AA10123456784");
+  await save();
+  ok("track link UPS", /ups\.com\/track\?tracknum=1Z999AA10123456784/.test(await p.getAttribute("a:has-text('Track package')", "href")));
+  const urls = await p.evaluate(() => [trackUrl({ trackNo: "9400 1000 0000 0000 0000 00" }), trackUrl({ trackNo: "123456789012" }), trackUrl({ trackNo: "ABC" }), trackUrl({ trackNo: "123456789012", trackCarrier: "USPS" })]);
+  ok("track links", /usps/.test(urls[0]) && /fedex/.test(urls[1]) && /google/.test(urls[2]) && /usps/.test(urls[3]));
+  await p.click("[data-act=received]"); await p.waitForTimeout(150);
+  c = await coin(1924);
+  ok("received", c.stage === "" && !!c.receivedDate && c.trackNo === "1Z999AA10123456784" && !(await p.isVisible("[data-act=received]")));
 
   // 8. Receipt photos: kept by cleanup and backups; never in snapshots
   const refs = await p.evaluate(() => photoRefsOf({ photos: [{ lid: "a" }], receiptPhotos: [{ lid: "b" }] }).map((x) => x.lid).join());
