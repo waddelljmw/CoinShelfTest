@@ -11,6 +11,11 @@ const SHEET_COLS = [
   { key: "rollCount", head: "Coins per roll", names: ["coinsperroll", "rollcount", "coinsinroll"] },
   { key: "rollCond", head: "Roll condition", names: ["rollcondition", "rollcond"] },
   { key: "bankWrap", head: "Original bank wrap", names: ["originalbankwrap", "bankwrap"] },
+  { key: "bWeight", head: "Weight (oz)", names: ["weightoz", "weight", "barweight"] },
+  { key: "bPurity", head: "Purity", names: ["purity", "fineness"] },
+  { key: "bMaker", head: "Maker", names: ["maker", "mintmaker", "refiner"] },
+  { key: "bSerial", head: "Serial number", names: ["serialnumber", "serial"] },
+  { key: "stack", head: "Stack", names: ["stack"] },
   { key: "status", head: "Status", names: ["status", "state"] },
   { key: "year", head: "Year", names: ["year", "date", "yr"] },
   { key: "mint", head: "Mint", names: ["mint", "mintmark", "mm"] },
@@ -72,7 +77,7 @@ function coinToRow(c) {
   const m = meltEach(c);
   const rb = bookPrice(c);
   return {
-    label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : "Coin", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
+    label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : itemOf(c) === "bullion" ? shapeName(c.bShape) : "Coin", bWeight: itemOf(c) === "bullion" ? c.bWeight || "" : "", bPurity: itemOf(c) === "bullion" ? c.bPurity || "" : "", bMaker: c.bMaker || "", bSerial: c.bSerial || "", stack: stackOf(c), rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
     catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
@@ -237,6 +242,15 @@ function rowToCoin(get) {
     c.rollCond = ROLL_CONDS.find((x) => x.toLowerCase() === rc) || "";
     c.bankWrap = yesish(get("bankWrap"));
   }
+  const shapeIn = ["bar", "round", "other silver item", "other", "shape"].includes(itemT) ? (itemT === "bar" || itemT === "round" ? itemT[0].toUpperCase() + itemT.slice(1) : "Other") : itemT === "bullion" ? "Bar" : "";
+  if (shapeIn) {
+    const w = +money2(get("bWeight")), pu = +money2(get("bPurity")) || 0.999;
+    if (w > 0 && pu <= 1) {
+      Object.assign(c, { item: "bullion", bShape: shapeIn, bWeight: String(w), bPurity: String(pu), bMaker: txt("bMaker"), bSerial: txt("bSerial"),
+        typeId: "", typeName: "Bullion", family: "Bullion", denom: "", mint: "", year: "", gradeMode: "raw", grade: "", cac: "", metal: "Silver", stack: txt("stack") || "My Silver Stack" });
+      c.oz = String(bullionOz(c));
+    }
+  } else if (txt("stack") && c.gradeMode === "raw" && c.grade === "Junk" && c.metal === "Silver") c.stack = txt("stack");
   const lab = String(get("label") || "").trim();
   if (lab && lab !== autoLabel(c)) { c.label = lab; c.labelEdited = true; }
   if (statusSold) {

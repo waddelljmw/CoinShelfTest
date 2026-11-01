@@ -150,13 +150,13 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - [x] Planned (Nov 1, 2026). Your choices: Silver Eagles stay with your coins; junk silver coins can join a stack; stacks count in your total, because the total should match your whole real shelf.
 - [ ] Merged
 - A "Stacks" section kept apart from coins, starting with My Silver Stack. My Gold Stack and others can be added later.
-- Bars, rounds and shapes, each with weight, purity, maker and serial number (like your 10 oz Engelhard bar).
+- Bars, rounds and other silver items, each with weight, purity, maker and serial number (like your 10 oz Engelhard bar).
 - Each stack shows total ounces and melt, and counts in your overall total. A Home on/off chip per stack (like Inherited) lets you leave one out for a moment.
 - Gold details are discussed before that part is built.
 
 *How to build it (for Claude):*
-- **"What is it?" gets Bullion** (bar, round or shape). It is saved as a coin record with `item: "bullion"`, so purchase, status, Mark as sold, photos, backup, groups and Undo all keep working. Extend `itemOf`; old records convert on read.
-- **Bullion fields:** shape (bar/round/shape), metal (Silver for now), maker, weight in oz (grams helper from 2.5), purity (default .999), serial number, quantity. Pure ounces = weight × purity. Value = melt unless he types his own value (collectible bars). No year/mint/grade needed.
+- **"What is it?" gets Bullion** (bar, round or other silver item). It is saved as a coin record with `item: "bullion"`, so purchase, status, Mark as sold, photos, backup, groups and Undo all keep working. Extend `itemOf`; old records convert on read.
+- **Bullion fields:** type (bar/round/other silver item), metal (Silver for now), maker, weight in oz (grams helper from 2.5), purity (default .999), serial number, quantity. Pure ounces = weight × purity. Value = melt unless he types his own value (collectible bars). No year/mint/grade needed.
 - **`stack` field** (a name, like `group`): bullion defaults to "My Silver Stack". Raw coins graded **Junk** that have silver get an optional "Put in a stack" picker. Silver Eagles and other graded coins don't get the picker.
 - **Stacks page** (menu): each stack with item count, total pure oz and melt; tap to list its items.
 - **Totals:** a stacked item counts only if its group chip AND its stack chip are on (an inherited bar stays "Inherited" and in My Silver Stack). Stacks are on by default (new `hiddenStacks` setting). Value history keeps the full total.
