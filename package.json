@@ -1,0 +1,12 @@
+{
+  "name": "coin-cabinet",
+  "version": "0.9.0",
+  "private": true,
+  "description": "Coin Cabinet: a private coin inventory app. Plain files, no build step.",
+  "scripts": {
+    "test": "node tests/run-all.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.50.0"
+  }
+}
