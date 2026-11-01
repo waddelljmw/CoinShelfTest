@@ -1,5 +1,5 @@
 // Phase 1 review fixes: photo cleanup age, restore merges settings/history, update waits for open forms.
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 const http = require("http"), fs = require("fs"), path = require("path");
 const root = path.resolve(__dirname, "..");
 let swVersion = null;

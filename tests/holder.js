@@ -1,5 +1,5 @@
 // Step 2.1: holder, CAC sticker, COA + packaging, quick-add remembers holder and source, old coins still read right.
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });

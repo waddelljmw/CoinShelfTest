@@ -8,7 +8,7 @@ const fs = require("fs"), path = require("path");
 
 const dir = __dirname;
 const pick = process.argv.slice(2);
-const tests = fs.readdirSync(dir).filter((f) => f.endsWith(".js") && f !== "run-all.js").map((f) => f.replace(/\.js$/, "")).filter((t) => !pick.length || pick.includes(t)).sort();
+const tests = fs.readdirSync(dir).filter((f) => f.endsWith(".js") && f !== "run-all.js" && !f.startsWith("_")).map((f) => f.replace(/\.js$/, "")).filter((t) => !pick.length || pick.includes(t)).sort();
 let bad = 0;
 for (const t of tests) {
   let out = "";

@@ -1,4 +1,4 @@
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
   const errors = []; p.on("pageerror", (e) => errors.push(e.message));
@@ -48,7 +48,7 @@ const { chromium } = require("playwright");
   await b.close();
 })();
 (async () => {
-  const { chromium } = require("playwright");
+  const { chromium } = require("./_compat");
   const b = await chromium.launch(); const p = await b.newPage();
   await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
   const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);

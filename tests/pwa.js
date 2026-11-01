@@ -1,5 +1,5 @@
 // Step 1.2: installable app, works offline, shows "new version ready" and updates on tap.
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 const http = require("http"), fs = require("fs"), path = require("path");
 const root = path.resolve(__dirname, "..");
 let swVersion = null; // when set, sw.js is served with this cache name (a pretend new release)

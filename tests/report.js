@@ -1,4 +1,4 @@
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 const fs = require("fs");
 (async () => {
   const b = await chromium.launch();

@@ -1,4 +1,4 @@
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 (async () => {
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });

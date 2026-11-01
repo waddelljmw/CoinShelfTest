@@ -167,3 +167,7 @@ body.readonly [data-spot], body.readonly [data-setting], body.readonly [data-act
 .cac { font-size: 11px; border-radius: 6px; padding: 0 5px; margin-left: 6px; font-weight: 700; white-space: nowrap; color: #fff; }
 .cac.green { background: #1f8a4c; }
 .cac.gold { background: #b8860b; }
+.what-btn { text-align: left; margin-top: 8px; padding: 14px; }
+.what-btn b { display: block; font-size: 16px; }
+.what-btn small { display: block; color: var(--muted); font-weight: normal; margin-top: 2px; }
+summary .small { font-weight: normal; }
