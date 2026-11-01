@@ -233,6 +233,7 @@ function gotWant(id) {
   if (w.variety) { const known = bookVarieties(draft).find((x) => x && varietyFits(x, w.variety)); draft.variety = known || ""; draft.spotVariety = w.variety; }
   if (w.albumId && getAlbum(w.albumId)) draft.albumId = w.albumId;
   draft._fromWant = w.id;
+  if (w.pf) draft._proof = true;
   renderCoinForm();
   if (w.pf) toast("This want is a proof. Pick a proof grade (PR-60 to PR-70).");
 }
@@ -351,6 +352,7 @@ function slotHave(el) {
   openCoinForm(null);
   if (t) { draft.typeId = t.id; draft.typeName = shortName(t); draft.family = t.family; draft.denom = t.denom; draft.metal = t.metal; draft.oz = t.oz || ""; }
   draft.year = s0.set ? "" : s0.y; draft.mint = s0.m || ""; draft.albumId = a.id;
+  if (s0.pf) draft._proof = true;
   applyYearMetal(draft);
   const v = s0.v || "";
   // Remember the exact spot, so renaming or moving the spot never moves the coin.

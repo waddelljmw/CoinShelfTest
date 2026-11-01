@@ -987,11 +987,23 @@ function initSourceKind(d) {
   if (d._sourceKind !== undefined) return;
   d._sourceKind = !d.source ? "" : sourceOptions().includes(d.source) ? d.source : "Other";
 }
+// Mint marks offered for a type. Proofs have their own list: e.g. West Point (W) proofs of Silver Eagles.
+function proofMintsOf(t) {
+  if (t.proofMints) return t.proofMints;
+  return t.end < 1968 ? ["P"] : t.start >= 1968 ? ["S"] : ["P", "S"]; // US proofs moved from Philadelphia to San Francisco in 1968
+}
+function mintChoices(t, proof) {
+  if (!t) return MINTS;
+  const ms = proof ? proofMintsOf(t) : t.mints;
+  return ["", ...ms.filter((m) => m !== "P"), ...(!proof && ms.includes("P") ? ["P"] : [])];
+}
 function renderCoinForm() {
   const d = draft;
   const t = TYPE_BY_ID[d.typeId];
-  const mints = t ? ["", ...t.mints.filter((m) => m !== "P"), "P"] : MINTS;
-  const grades = d.gradeMode === "cert" ? CERT_GRADES : GRADES;
+  if (isProofGrade(d.grade)) d._proof = true;
+  else if (d._proof === undefined) d._proof = false;
+  const mints = mintChoices(t, d._proof).concat(d.mint && !mintChoices(t, d._proof).includes(d.mint) ? [d.mint] : []); // keep an older saved mint visible
+  const grades = (d.gradeMode === "cert" ? CERT_GRADES : GRADES).filter((g) => isProofGrade(g) === !!d._proof);
   const melt = meltEach(d);
   initSourceKind(d);
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add coin") : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
@@ -1020,6 +1032,7 @@ function renderCoinForm() {
         <label class="f"><span>Grading service</span><select data-f="service" data-rerender>${SERVICES.map((s) => `<option ${d.service === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
         <label class="f"><span>Cert number</span><input type="text" inputmode="numeric" data-f="cert" value="${esc(d.cert)}"></label></div>
         ${d.service === "Other" ? `<label class="f"><span>Service name</span><input type="text" data-f="customService" value="${esc(d.customService)}"></label>` : ""}` : ""}
+      <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
@@ -1188,7 +1201,7 @@ function showTypeList(q) {
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; delete c._replaces; // working copies aren't saved
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; delete c._replaces; delete c._proof; // working copies aren't saved
   const prev = !d._isNew && getCoin(c.id);
   if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
   const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);
@@ -1631,6 +1644,15 @@ const actions = {
   gmode: (el) => { draft.gradeMode = el.dataset.v; if (draft.gradeMode === "cert" && draft.grade === "Junk") draft.grade = ""; renderCoinForm(); },
   pickType: (el) => pickType(el.dataset.id),
   retype: () => retypeDraft(),
+  toggleProof: (el) => {
+    if (!draft) return;
+    draft._proof = el.checked;
+    if (isProofGrade(draft.grade) !== draft._proof) draft.grade = "";
+    if (draft.mint && !mintChoices(TYPE_BY_ID[draft.typeId], draft._proof).includes(draft.mint)) draft.mint = "";
+    const y = $(".sheet").scrollTop;
+    renderCoinForm();
+    $(".sheet").scrollTop = y;
+  },
   rmPhoto: (el) => { draft.photos.splice(+el.dataset.i, 1); renderCoinForm(); },
   resetLabel: () => { draft.labelEdited = false; draft.label = ""; renderCoinForm(); },
 };
