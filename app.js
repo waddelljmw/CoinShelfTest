@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.14.1";
+const APP_VERSION = "0.15.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -358,6 +358,11 @@ function valueSource(c) {
 // Best available value: entered value, else melt.
 const bestEach = (c) => valueEach(c) ?? meltEach(c);
 const qtyOf = (c) => Math.max(1, num(c.qty) || 1);
+// Holder: saved choice, or for older coins (saved before holders existed) worked out from the album / certified fields.
+const holderOf = (c) => c.holder || (c.albumId ? "Album" : c.gradeMode === "cert" ? "Slab" : "");
+const holderText = (c) => { const h = holderOf(c); return h === "Other" ? (c.packaging || "").trim() || "Other" : h; };
+const cacOf = (c) => (c.gradeMode === "cert" && (c.cac === "Green" || c.cac === "Gold") ? c.cac : "");
+const cacBadge = (c) => (cacOf(c) ? `<span class="cac ${cacOf(c).toLowerCase()}" title="CAC ${cacOf(c)} sticker">CAC${cacOf(c) === "Gold" ? " Gold" : ""}</span>` : "");
 const isInherited = (c) => (c.source || "").trim().toLowerCase() === "inherited";
 const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
@@ -459,7 +464,7 @@ function coinRow(c, opts = {}) {
     ${thumbHtml(c)}
     <span class="coin-main">
       <span class="coin-label">${esc(labelOf(c))}</span>
-      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}</span>
+      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}</span>
     </span>
     <span class="coin-val">${c.status === "sold" ? money(num(c.sold && c.sold.amount)) : money(v == null ? null : v * q)}${m != null && c.status !== "sold" ? `<div class="melt">melt ${money(m * q)}</div>` : ""}</span>
   </button>`;
@@ -660,8 +665,11 @@ function viewCoin(r) {
     ${mintageLine(c)}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
-      ${row("Grade", esc(gradeText(c)))}
+      ${row("Grade", esc(gradeText(c)) + cacBadge(c))}
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
+      ${row("Holder", esc(holderText(c)))}
+      ${row("COA", c.coa ? "Included" : null)}
+      ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
       ${row(isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? "Value each (Red Book)" : "Value each", money(v))}
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row("Red Book", money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
@@ -1103,12 +1111,13 @@ $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") dism
 let draft = null;
 function blankCoin() {
   return { kind: "coin", id: uid(), status: "owned", typeId: "", typeName: "", family: "", denom: "", year: "", mint: "", gradeMode: "raw", grade: "", customGrade: "",
-    service: "PCGS", customService: "", cert: "", metal: "", oz: "", qty: 1, paid: "", value: "", source: "", acquired: "", albumId: "", notes: "", photos: [], fbl: false, sms: false, variety: "", label: "", labelEdited: false, createdAt: Date.now() };
+    service: "PCGS", customService: "", cert: "", metal: "", oz: "", qty: 1, paid: "", value: "", source: "", acquired: "", albumId: "", notes: "", holder: "", cac: "", coa: false, packaging: "", photos: [], fbl: false, sms: false, variety: "", label: "", labelEdited: false, createdAt: Date.now() };
 }
 function openCoinForm(id) {
   const existing = id ? getCoin(id) : null;
   draft = existing ? JSON.parse(JSON.stringify(existing)) : blankCoin();
   draft._isNew = !existing;
+  if (!existing) { const s = settings(); draft.source = s.lastSource || ""; draft._lastHolder = s.lastHolder || ""; } // quick-add: remember last source and holder
   draft._newAlbum = { brand: "Whitman", number: "" };
   renderCoinForm();
 }
@@ -1164,7 +1173,8 @@ function renderCoinForm() {
       ${d.gradeMode === "cert" ? `<div class="grid2">
         <label class="f"><span>Grading service</span><select data-f="service" data-rerender>${SERVICES.map((s) => `<option ${d.service === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
         <label class="f"><span>Cert number</span><input type="text" inputmode="numeric" data-f="cert" value="${esc(d.cert)}"></label></div>
-        ${d.service === "Other" ? `<label class="f"><span>Service name</span><input type="text" data-f="customService" value="${esc(d.customService)}"></label>` : ""}` : ""}
+        ${d.service === "Other" ? `<label class="f"><span>Service name</span><input type="text" data-f="customService" value="${esc(d.customService)}"></label>` : ""}
+        <label class="f"><span>CAC sticker</span><select data-f="cac"><option value="">None</option><option ${d.cac === "Green" ? "selected" : ""}>Green</option><option ${d.cac === "Gold" ? "selected" : ""}>Gold</option></select></label>` : ""}
       <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
@@ -1201,6 +1211,8 @@ function renderCoinForm() {
       <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
       <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}
 
+    ${holderFields(d)}
+
     <label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>
 
     <details ${(d.photos || []).length ? "open" : ""}><summary>Photos (${(d.photos || []).length})</summary>
@@ -1220,6 +1232,19 @@ function renderCoinForm() {
   refreshFormHints();
 }
 
+// The holder the form shows: what was picked, else Album / Slab when that fits, else (new coins) the last holder used.
+function formHolder(d) {
+  return d.holder || (d.albumId ? "Album" : d.gradeMode === "cert" ? "Slab" : d._isNew ? d._lastHolder || "" : "");
+}
+function holderFields(d) {
+  const h = formHolder(d);
+  const showPack = d.coa || h === "Mint box" || h === "Other";
+  return `<div class="grid2">
+      <label class="f"><span>Holder</span><select data-f="holder" data-rerender><option value="">Choose…</option>${HOLDERS.map((x) => `<option ${h === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+      <label class="switch" style="align-self:end"><span>COA included<div class="small muted">Certificate of authenticity</div></span><input type="checkbox" data-fcheck="coa" data-rerender ${d.coa ? "checked" : ""}></label>
+    </div>
+    ${showPack ? `<label class="f"><span>${h === "Other" ? "Describe the holder / packaging" : "Box and packaging"}</span><input type="text" data-f="packaging" value="${esc(d.packaging || "")}" placeholder="${h === "Other" ? "e.g. velvet case" : "e.g. original blue box, outer sleeve"}"></label>` : ""}`;
+}
 function smsField(d) {
   if (!hasSms(d) || isProofGrade(d.grade)) return "";
   return `<label class="switch"><span>Special Mint Set (SMS)<div class="small muted">From a 1964–1967 Special Mint Set, not a regular strike.</div></span><input type="checkbox" data-fcheck="sms" ${d.sms ? "checked" : ""}></label>`;
@@ -1337,6 +1362,9 @@ async function saveDraft() {
   const d = draft;
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
+  delete c._lastHolder;
+  c.holder = formHolder(d);
+  if (c.gradeMode !== "cert") c.cac = "";
   const prev = !d._isNew && getCoin(c.id);
   if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
   const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);
@@ -1380,6 +1408,11 @@ async function saveDraft() {
     }
   }
   const isNew = d._isNew;
+  if (isNew) { // quick-add remembers these for the next coin (Album and Slab fill in on their own)
+    const keep = ["Album", "Slab"].includes(c.holder) ? settings().lastHolder || "" : c.holder;
+    const s0 = settings();
+    if ((s0.lastSource || "") !== (c.source || "") || (s0.lastHolder || "") !== keep) saveSettings({ lastSource: c.source || "", lastHolder: keep });
+  }
   if (d._fromWant) remove("w_" + d._fromWant); // bought a coin off the want list
   if (c.typeId) touchType(c.typeId);
   closeSheet();
@@ -1826,7 +1859,7 @@ const actions = {
     toast("Album deleted. Its coins are still in your collection.", { label: "Undo", fn: () => { put("a_" + a.id, a); inAlbum.forEach((c) => { const x = getCoin(c.id); if (x) saveCoin({ ...x, albumId: a.id }); }); } });
   },
   // form
-  gmode: (el) => { draft.gradeMode = el.dataset.v; if (draft.gradeMode === "cert" && draft.grade === "Junk") draft.grade = ""; renderCoinForm(); },
+  gmode: (el) => { draft.gradeMode = el.dataset.v; if (draft.gradeMode === "raw" && draft.holder === "Slab") draft.holder = ""; if (draft.gradeMode === "cert" && draft.grade === "Junk") draft.grade = ""; renderCoinForm(); },
   pickType: (el) => pickType(el.dataset.id),
   retype: () => retypeDraft(),
   toggleProof: (el) => {
@@ -1920,7 +1953,11 @@ document.addEventListener("change", (e) => {
   if (el.id === "albumLayout") { const h = $("#albumHint"); if (h) h.textContent = el.value === "set" ? "Add each coin type your type set holds. Each gets one spot, and any date fills it. The years are just for your reference." : "Use the years printed on your album. Each coin type gets spots for the dates and mint marks struck in those years."; return; }
   if (!draft) return;
   if (el.dataset.na) { draft._newAlbum[el.dataset.na] = el.value; if (el.dataset.na === "brand") renderCoinForm(); return; }
-  if (el.dataset.fcheck) { draft[el.dataset.fcheck] = el.checked; refreshFormHints(); return; }
+  if (el.dataset.fcheck) {
+    draft[el.dataset.fcheck] = el.checked;
+    if (el.hasAttribute("data-rerender")) { const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; return; }
+    refreshFormHints(); return;
+  }
   if (el.dataset.f) {
     draft[el.dataset.f] = el.value;
     if (el.dataset.f === "metal" && !MELT_OF_METAL[el.value]) draft.oz = "";

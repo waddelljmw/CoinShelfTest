@@ -17,6 +17,10 @@ const SHEET_COLS = [
   { key: "grade", head: "Grade", names: ["grade", "condition", "estimatedgrade", "myestimatedgrade"] },
   { key: "service", head: "Grading service", names: ["gradingservice", "service", "grader", "tpg", "company"] },
   { key: "cert", head: "Cert number", names: ["certnumber", "cert", "certno", "certification", "certificationnumber", "serial"] },
+  { key: "cac", head: "CAC", names: ["cac", "cacsticker"] },
+  { key: "holder", head: "Holder", names: ["holder", "holdertype", "storage", "housing"] },
+  { key: "coa", head: "COA", names: ["coa", "certificateofauthenticity"] },
+  { key: "packaging", head: "Packaging", names: ["packaging", "boxpackaging", "packagingnotes"] },
   { key: "fbl", head: "FBL", names: ["fbl", "fullbelllines"] },
   { key: "sms", head: "SMS", names: ["sms", "specialmintset"] },
   { key: "metal", head: "Metal", names: ["metal", "composition"] },
@@ -54,7 +58,7 @@ function coinToRow(c) {
     label: labelOf(c), status: c.status === "sold" ? "Sold" : "Owned", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
-    cert: c.cert, fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
+    cert: c.cert, cac: cacOf(c), holder: holderOf(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
     redBook: rb ?? "", meltEach: m == null ? "" : m.toFixed(2), source: (c.source || "").trim(), acquired: c.acquired,
     album: a ? albumTitle(a) : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance, soldWhere: c.sold ? whereText(c.sold) : "", soldTo: s.to || "",
   };
@@ -172,6 +176,13 @@ function rowToCoin(get) {
   if (g.customGrade) c.customGrade = g.customGrade;
   if (certified) { c.service = svc.service || "PCGS"; c.customService = svc.customService || ""; c.cert = String(get("cert") || "").trim(); }
   c.variety = String(get("variety") || "").trim();
+  const cacT = String(get("cac") || "").trim();
+  if (certified && cacT) c.cac = /gold/i.test(cacT) ? "Gold" : /green|yes|true|^y$|^x$|cac/i.test(cacT) ? "Green" : "";
+  const holdT = String(get("holder") || "").trim();
+  if (holdT) { const hit = HOLDERS.find((h) => h.toLowerCase() === holdT.toLowerCase().replace(/^slabbed$/, "slab")); c.holder = hit || "Other"; if (!hit) c.packaging = holdT; }
+  c.coa = yesish(get("coa"));
+  const packT = String(get("packaging") || "").trim();
+  if (packT) c.packaging = c.packaging ? c.packaging + "; " + packT : packT;
   c.fbl = yesish(get("fbl"));
   c.sms = yesish(get("sms"));
   c.qty = Math.max(1, Math.round(+money2(get("qty")) || 1));
