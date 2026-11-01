@@ -8,9 +8,11 @@ const wants = () => [...store.docs.values()].filter((d) => d.kind === "want");
 const getWant = (id) => store.docs.get("w_" + id);
 const saveWant = (w) => put("w_" + w.id, w);
 const wantsIn = (listId) => wants().filter((w) => (w.listId || DEFAULT_LIST_ID) === listId);
-const findWant = (typeId, year, mint, variety, listId) => wants().find((w) => w.typeId === typeId && String(w.year) === String(year) && normMint(w.mint) === normMint(mint)
-  && String(w.variety || "").toLowerCase() === String(variety || "").toLowerCase() && (!listId || (w.listId || DEFAULT_LIST_ID) === listId));
-const wantLabel = (w) => [w.year ? String(w.year) + (w.mint ? "-" + w.mint : "") : "", w.typeName, w.denom].filter(Boolean).join(" ") + (w.variety ? " · " + w.variety : "");
+const findWant = (typeId, year, mint, variety, listId, pf) => wants().find((w) => w.typeId === typeId && String(w.year) === String(year) && normMint(w.mint) === normMint(mint)
+  && String(w.variety || "").toLowerCase() === String(variety || "").toLowerCase() && (!listId || (w.listId || DEFAULT_LIST_ID) === listId) && !!w.pf === !!pf);
+// The want for an album spot (proof spots have their own wants).
+const spotFindWant = (a, s, listId) => findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v, listId, s.pf);
+const wantLabel = (w) => [w.year ? String(w.year) + (w.mint ? "-" + w.mint : "") : "", w.typeName, w.denom, w.pf ? "Proof" : ""].filter(Boolean).join(" ") + (w.variety ? " · " + w.variety : "");
 // A pretend coin, so Red Book, eBay and mintage lookups work for a want.
 const wantAsCoin = (w) => ({ typeId: w.typeId, typeName: w.typeName, denom: w.denom, year: w.year, mint: w.mint, variety: w.variety || "", gradeMode: "raw", grade: w.grade || "", label: "" });
 
@@ -20,7 +22,7 @@ function newWant(fields) {
     kind: "want", id: uid(), createdAt: Date.now(), typeId: fields.typeId || "", typeName: t ? shortName(t) : fields.typeName || "",
     family: t ? t.family : fields.typeName || "Other", denom: t ? t.denom : "", year: fields.year || "", mint: fields.mint || "",
     variety: fields.variety || "", grade: fields.grade || "", maxPrice: fields.maxPrice ?? "", notes: fields.notes || "",
-    albumId: fields.albumId || "", listId: fields.listId || DEFAULT_LIST_ID,
+    albumId: fields.albumId || "", listId: fields.listId || DEFAULT_LIST_ID, ...(fields.pf ? { pf: true } : {}),
   };
 }
 
@@ -251,7 +253,7 @@ function renderMissingPicker(preselect) {
   if (!a) return;
   const st = albumStats(a);
   const missing = st.slots.filter((s) => !st.filled.has(slotKey(s)));
-  const spotWant = (s) => findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v);
+  const spotWant = (s) => spotFindWant(a, s);
   const lists = wantLists();
   openSheet(`<div class="sheet-head"><h2>Missing (${missing.length})</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     ${missing.length ? `<div class="card">${missing.map((s, i) => {
@@ -282,10 +284,10 @@ function openSlotMenu(el) {
   const t = TYPE_BY_ID[slotType(a, s)];
   const coin = el.dataset.coin ? getCoin(el.dataset.coin) : null;
   const fake = { typeId: t ? t.id : "", typeName: t ? shortName(t) : "", denom: t ? t.denom : "", year: y, mint: m, variety: v, gradeMode: "raw", grade: "" };
-  const label = (s.set ? [t ? t.name : "Coin"] : [y + (m ? "-" + m : ""), fake.typeName, fake.denom]).filter(Boolean).join(" ") + (v ? " · " + v : "");
-  if (v) fake.label = autoLabel(fake) + " " + v;
-  const w = findWant(fake.typeId, y, m, v);
-  const mt = s.set ? null : mintageInfo({ ...fake, grade: "VF-20" });
+  const label = (s.set ? [t ? t.name : "Coin"] : [y + (m ? "-" + m : ""), fake.typeName, fake.denom, s.pf ? "Proof" : ""]).filter(Boolean).join(" ") + (v ? " · " + v : "");
+  if (v || s.pf) fake.label = autoLabel(fake) + (s.pf ? " Proof" : "") + (v ? " " + v : "");
+  const w = spotFindWant(a, s);
+  const mt = s.set ? null : mintageInfo({ ...fake, grade: s.pf ? "PR-65" : "VF-20" });
   const sd = `data-album="${esc(a.id)}" data-sid="${esc(s.id || "")}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}"`;
   openSheet(`<div class="sheet-head"><h2>${esc(label)}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <div class="small muted" style="margin:-4px 0 12px">${coin ? "In this album · " + esc(gradeText(coin)) : "Not in this album yet"}${mt ? " · Mintage " + esc(mt.text) : ""}</div>
@@ -305,7 +307,7 @@ function slotWant(el) {
   const a = getAlbum(el.dataset.album);
   if (!a) return;
   const s = spotFromEl(a, el);
-  openSlotWantPicker({ album: a.id, y: s.set ? "" : s.y, m: s.m || "", v: s.v || "", typeId: slotType(a, s) });
+  openSlotWantPicker({ album: a.id, y: s.set ? "" : s.y, m: s.m || "", v: s.v || "", typeId: slotType(a, s), pf: !!s.pf });
 }
 function openSlotWantPicker(d, preselect) {
   const a = getAlbum(d.album);
@@ -318,7 +320,7 @@ function openSlotWantPicker(d, preselect) {
   const pre = preselect || (lists.some((l) => l.id === wantsView.listId) ? wantsView.listId : DEFAULT_LIST_ID);
   slotWantCtx = d;
   openSheet(`<div class="sheet-head"><h2>Add to want list</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
-    <p><b>${esc((d.y ? d.y + (d.m ? "-" + d.m : "") + " " : "") + (t ? shortName(t) : "") + (d.v ? " · " + d.v : ""))}</b></p>
+    <p><b>${esc((d.y ? d.y + (d.m ? "-" + d.m : "") + " " : "") + (t ? shortName(t) : "") + (d.pf ? " Proof" : "") + (d.v ? " · " + d.v : ""))}</b></p>
     <label class="f"><span>Which list</span><select id="slotListPick">${lists.map((l) => `<option value="${esc(l.id)}" ${pre === l.id ? "selected" : ""}>${esc(l.name)}${l.scope === "type-grade" ? " (" + esc(l.grade) + ")" : ""}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
     <div class="btn-row"><button class="btn primary" data-act="slotWantAdd">Add</button><button class="btn" data-act="closeSheet">Cancel</button></div>`);
 }
@@ -332,7 +334,7 @@ function slotWantAdd() {
   const y = d.y === "" ? "" : +d.y;
   const tid = d.typeId || slotType(a, { y, m: d.m });
   if (!listAccepts(wl, tid)) { toast("That list is for a different coin type."); return; }
-  if (!findWant(tid, y, d.m, d.v, listId)) saveWant(newWant({ typeId: tid, year: y, mint: d.m, variety: d.v, albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" }));
+  if (!findWant(tid, y, d.m, d.v, listId, d.pf)) saveWant(newWant({ typeId: tid, year: y, mint: d.m, variety: d.v, pf: d.pf, albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" }));
   closeSheet();
   toast("Added to " + ((wl && wl.name) || "your want list") + ".");
 }
@@ -355,11 +357,12 @@ function slotHave(el) {
     const known = bookVarieties(draft).filter((x) => x && varietyFits(x, v));
     if (known.length === 1) draft.variety = known[0];
   }
-  const w = findWant(draft.typeId, draft.year, draft.mint, v);
+  const w = spotFindWant(aa, s0);
   if (w) draft._fromWant = w.id;
   draft._stay = true;   // after saving, stay on this album
   draft._short = true;  // three-quarter-height window over the album
   renderCoinForm();
+  if (s0.pf) toast("Proof spot: pick a proof grade (PR-60 to PR-70).");
 }
 
 /* ---------- wiring ---------- */
@@ -398,7 +401,7 @@ Object.assign(actions, {
     toast("List deleted.");
     go("wants");
   },
-  missAll: () => { const a = getAlbum(missingPick.albumId); const st = albumStats(a); st.slots.filter((s) => !st.filled.has(slotKey(s)) && !findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v)).forEach((s) => missingPick.chosen.add(slotKey(s))); renderMissingPicker(); },
+  missAll: () => { const a = getAlbum(missingPick.albumId); const st = albumStats(a); st.slots.filter((s) => !st.filled.has(slotKey(s)) && !spotFindWant(a, s)).forEach((s) => missingPick.chosen.add(slotKey(s))); renderMissingPicker(); },
   missNone: () => { missingPick.chosen.clear(); renderMissingPicker(); },
   missAdd: () => {
     const a = getAlbum(missingPick.albumId);
@@ -408,7 +411,7 @@ Object.assign(actions, {
     const slots = st.slots.filter((s) => missingPick.chosen.has(slotKey(s)));
     const wl = getWantList(listId);
     if (slots.some((s) => !listAccepts(wl, slotType(a, s)))) { toast("That list is for a different coin type."); return; }
-    slots.forEach((s) => { const tid = slotType(a, s), y = s.set ? "" : s.y; if (!findWant(tid, y, s.m, s.v)) saveWant(newWant({ typeId: tid, year: y, mint: s.m, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" })); });
+    slots.forEach((s) => { const tid = slotType(a, s), y = s.set ? "" : s.y; if (!spotFindWant(a, s)) saveWant(newWant({ typeId: tid, year: y, mint: s.m, pf: s.pf, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" })); });
     wantsView.listId = listId;
     closeSheet();
     toast("Added " + slots.length + " coin" + (slots.length === 1 ? "" : "s") + " to " + (getWantList(listId) || {}).name + ".");
