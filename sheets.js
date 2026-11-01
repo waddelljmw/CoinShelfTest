@@ -13,10 +13,15 @@ const SHEET_COLS = [
   { key: "typeName", head: "Coin type", names: ["cointype", "type", "series", "coin", "design", "kind"] },
   { key: "denom", head: "Denomination", names: ["denomination", "denom", "facevalue", "face"] },
   { key: "variety", head: "Variety", names: ["variety", "var"] },
+  { key: "knownVar", head: "Known variety", names: ["knownvariety", "dievariety"] },
+  { key: "mintErrors", head: "Mint errors", names: ["minterrors", "minterror", "error", "errors"] },
+  { key: "problems", head: "Problems", names: ["problems", "problem", "damage", "details"] },
+  { key: "upgrade", head: "Upgrade wanted", names: ["upgradewanted", "upgrade"] },
   { key: "gradeMode", head: "Raw or certified", names: ["raworcertified", "rawcertified", "gradetype", "certified", "slabbed", "graded"] },
   { key: "grade", head: "Grade", names: ["grade", "condition", "estimatedgrade", "myestimatedgrade"] },
   { key: "service", head: "Grading service", names: ["gradingservice", "service", "grader", "tpg", "company"] },
   { key: "cert", head: "Cert number", names: ["certnumber", "cert", "certno", "certification", "certificationnumber", "serial"] },
+  { key: "catNo", head: "Catalog number", names: ["catalognumber", "pcgsnumber", "pcgscoinnumber", "coinnumber", "catno"] },
   { key: "cac", head: "CAC", names: ["cac", "cacsticker"] },
   { key: "holder", head: "Holder", names: ["holder", "holdertype", "storage", "housing"] },
   { key: "coa", head: "COA", names: ["coa", "certificateofauthenticity"] },
@@ -30,7 +35,15 @@ const SHEET_COLS = [
   { key: "value", head: "Value each", names: ["valueeach", "value", "estimatedvalue", "worth", "currentvalue", "marketvalue"] },
   { key: "redBook", head: "Red Book each", names: ["redbookeach", "redbook", "redbookvalue"], exportOnly: true },
   { key: "meltEach", head: "Melt each", names: ["melteach", "melt", "meltvalue"], exportOnly: true },
-  { key: "source", head: "Source", names: ["source", "from", "acquiredfrom", "seller", "boughtfrom", "origin"] },
+  { key: "source", head: "Source", names: ["source", "from", "acquiredfrom", "boughtfrom", "origin"] },
+  { key: "seller", head: "Seller", names: ["seller", "sellername", "vendor", "dealer"] },
+  { key: "buyTax", head: "Purchase tax", names: ["purchasetax", "taxpaid", "salestaxpaid"] },
+  { key: "buyShip", head: "Purchase shipping", names: ["purchaseshipping", "shippingpaid", "inboundshipping"] },
+  { key: "buyFees", head: "Purchase fees", names: ["purchasefees", "buyerspremium", "buyerfees"] },
+  { key: "totalCost", head: "Total cost", names: ["totalcost"], exportOnly: true },
+  { key: "payMethod", head: "Paid with", names: ["paidwith", "paymentmethod", "payment"] },
+  { key: "trackNo", head: "Tracking number", names: ["trackingnumber", "tracking", "trackingno"] },
+  { key: "receiptNo", head: "Receipt number", names: ["receiptnumber", "receipt", "invoice", "invoicenumber", "ordernumber"] },
   { key: "acquired", head: "Date acquired", names: ["dateacquired", "acquired", "purchasedate", "datepurchased", "dateadded", "bought"] },
   { key: "album", head: "Album", names: ["album", "folder", "binder"] },
   { key: "notes", head: "Notes", names: ["notes", "note", "comments", "comment", "memo"] },
@@ -55,7 +68,8 @@ function coinToRow(c) {
   const m = meltEach(c);
   const rb = bookPrice(c);
   return {
-    label: labelOf(c), status: c.status === "sold" ? "Sold" : "Owned", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
+    label: labelOf(c), status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
+    catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
     cert: c.cert, cac: cacOf(c), holder: holderOf(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
@@ -189,6 +203,17 @@ function rowToCoin(get) {
   c.paid = String(money2(get("paid")));   // stored as text, like the add-coin form
   c.value = String(money2(get("value")));
   c.source = String(get("source") || "").trim();
+  const txt = (k) => String(get(k) || "").trim();
+  const listIn = (k, all) => txt(k).split(/[;,]/).map((x) => x.trim()).filter(Boolean).map((x) => all.find((a) => a.toLowerCase() === x.toLowerCase()) || x);
+  c.seller = txt("seller"); c.payMethod = txt("payMethod"); c.receiptNo = txt("receiptNo"); c.trackNo = txt("trackNo").replace(/\s+/g, ""); c.knownVar = txt("knownVar");
+  ["buyTax", "buyShip", "buyFees"].forEach((k) => { c[k] = String(money2(get(k))); });
+  c.mintErrors = listIn("mintErrors", MINT_ERRORS); c.problems = listIn("problems", COIN_PROBLEMS);
+  c.upgrade = yesish(get("upgrade"));
+  if (certified) c.catNo = txt("catNo");
+  const st = squash(get("status"));
+  if (/forsale/.test(st) && !/inherited/i.test(c.source)) c.stage = "forsale";
+  else if (/ontheway|coming|ordered|intransit/.test(st)) c.stage = "coming";
+  else if (/^gone|traded|gifted|lost/.test(st)) { c.status = "gone"; c.gone = { reason: /trade/.test(st) ? "Traded" : /gift/.test(st) ? "Gifted" : /lost/.test(st) ? "Lost" : "", date: "" }; }
   c.acquired = normDate(get("acquired"));
   c.notes = String(get("notes") || "").trim();
   const lab = String(get("label") || "").trim();
