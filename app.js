@@ -884,16 +884,17 @@ function renderCoinForm() {
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" autocomplete="off">
     ${sampleApi && d._isNew ? photoFillButton(d) : ""}
-    <div class="f typeahead"><span>Start from a known coin</span>
+    ${d._isNew ? `<div class="f typeahead"><span>Start from a known coin</span>
       <input type="search" id="typeSearch" placeholder="Search Red Book types, e.g. Morgan" value="${esc(t ? t.name : "")}">
       <div class="ta-list" id="typeList" hidden></div>
-    </div>
+    </div>` : `<div class="f"><span>Coin type</span><div class="locked-type"><b>${esc(t ? t.name : d.typeName || "Custom coin")}</b>${d.denom ? ` <span class="muted small">${esc(d.denom)}</span>` : ""}</div>
+      <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button></div></div>`}
     ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
     <div class="grid2">
       <label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + t.end : "1921"}"></label>
       <label class="f"><span>Mint mark</span><select data-f="mint">${mints.map((m) => `<option value="${m}" ${d.mint === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
     </div>
-    <div class="grid2">
+    <div class="grid2" ${d._isNew ? "" : "hidden"}>
       <label class="f"><span>Coin type</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="Morgan Dollar"></label>
       <label class="f"><span>Denomination</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label>
     </div>
@@ -933,7 +934,7 @@ function renderCoinForm() {
     ${d._sourceKind === "Other" ? `<label class="f"><span>Where did you get it?</span><input type="text" data-f="source" value="${esc(d.source)}" placeholder="e.g. Grandpa's collection, flea market"></label>` : ""}
     <div class="hint" id="inhHint" ${isInherited(d) ? "" : "hidden"}><span class="dns">Do not sell</span> Inherited coins are marked do-not-sell and aren't counted in gains.</div>
 
-    <label class="f"><span>Album</span><select data-f="albumId" data-rerender><option value="">Not in an album</option>${albums().map((a) => `<option value="${esc(a.id)}" ${d.albumId === a.id ? "selected" : ""}>${esc(albumTitle(a))}</option>`).join("")}<option value="__new" ${d.albumId === "__new" ? "selected" : ""}>+ New album…</option></select></label>
+    <label class="f"><span>Album</span><select data-f="albumId" data-rerender><option value="">Not in an album</option>${albumsForCoin(d).map((a) => `<option value="${esc(a.id)}" ${d.albumId === a.id ? "selected" : ""}>${esc(albumTitle(a))}</option>`).join("")}<option value="__new" ${d.albumId === "__new" ? "selected" : ""}>+ New album…</option></select></label>
     ${d.albumId === "__new" ? `<div class="grid2">
       <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
       <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
@@ -998,7 +999,12 @@ function refreshFormHints() {
   if (vi && !isJunk(draft)) { const bp = bookPrice(draft); vi.placeholder = bp != null ? bp.toFixed(2) : "$"; }
 }
 
+// Albums a coin can go in: only albums for its coin type (plus the one it's already in).
+function albumsForCoin(d) {
+  return albums().filter((a) => a.id === d.albumId || (d.typeId ? a.typeId === d.typeId : d._isNew || !a.typeId));
+}
 function pickType(id) {
+  if (draft && !draft._isNew) return; // a saved coin's type never changes
   const t = TYPE_BY_ID[id];
   draft.fbl = false;
   if (!t) return;
@@ -1009,7 +1015,24 @@ function pickType(id) {
   draft.metal = t.metal;
   draft.oz = t.oz || "";
   if (draft.mint && !t.mints.includes(draft.mint) && draft.mint !== "") draft.mint = "";
+  const al = draft.albumId && getAlbum(draft.albumId);
+  if (al && al.typeId !== t.id) { draft.albumId = ""; delete draft.slotId; } // that album is for another type
   renderCoinForm();
+}
+
+// The fields that make up a coin's type. Locked once the coin is saved.
+const TYPE_FIELDS = ["typeId", "typeName", "family", "denom"];
+// "Wrong type? Re-add it": a new coin with everything copied except the type, replacing the old one on save.
+function retypeDraft() {
+  if (!draft || draft._isNew) return;
+  const old = getCoin(draft.id);
+  if (!old) return;
+  const keep = JSON.parse(JSON.stringify(draft));
+  draft = { ...keep, id: uid(), _isNew: true, _replaces: old.id, typeId: "", typeName: "", family: "", denom: "", metal: "", oz: "",
+    variety: "", fbl: false, sms: false, label: "", labelEdited: false, albumId: "", createdAt: Date.now(), _newAlbum: { brand: "Whitman", number: "" } };
+  delete draft.slotId; delete draft.lotId; delete draft.splitFrom;
+  renderCoinForm();
+  toast("Pick the right coin type, then tap Add coin. Everything else was copied.");
 }
 
 /* --- recently used coin types (kept in settings, newest first, max 5) --- */
@@ -1048,7 +1071,11 @@ function showTypeList(q) {
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; // working copies aren't saved
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; delete c._replaces; // working copies aren't saved
+  const prev = !d._isNew && getCoin(c.id);
+  if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
+  const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);
+  if (al0 && (al0.typeId || "") !== (c.typeId || "") && !(prev && prev.albumId === c.albumId)) { toast("That album is for a different coin type."); return; }
   c.year = num(c.year) ?? "";
   c.qty = Math.max(1, num(c.qty) || 1);
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
@@ -1077,6 +1104,16 @@ async function saveDraft() {
   if (c.typeId) touchType(c.typeId);
   closeSheet();
   await saveCoin(c);
+  if (d._replaces) {
+    const old = getCoin(d._replaces);
+    if (old) {
+      const before = JSON.parse(JSON.stringify(old));
+      await saveCoin({ ...old, prevStatus: old.status, status: "deleted", deletedAt: Date.now() });
+      toast("Re-added as " + labelOf(c) + ". The old entry is in Recently deleted.", { label: "Undo", fn: () => { remove("c_" + c.id); saveCoin(before); go("coin-" + before.id); } });
+      go("coin-" + c.id);
+      return;
+    }
+  }
   if (isNew && d._stay) { toast("Added to " + (getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "the album") + "."); return; } // stay on the album
   toast(isNew ? "Coin added." : "Saved.");
   if (isNew) go("coin-" + c.id);
@@ -1411,6 +1448,7 @@ const actions = {
   // form
   gmode: (el) => { draft.gradeMode = el.dataset.v; if (draft.gradeMode === "cert" && draft.grade === "Junk") draft.grade = ""; renderCoinForm(); },
   pickType: (el) => pickType(el.dataset.id),
+  retype: () => retypeDraft(),
   rmPhoto: (el) => { draft.photos.splice(+el.dataset.i, 1); renderCoinForm(); },
   resetLabel: () => { draft.labelEdited = false; draft.label = ""; renderCoinForm(); },
 };
@@ -1489,6 +1527,7 @@ document.addEventListener("change", (e) => {
     draft[el.dataset.f] = el.value;
     if (el.dataset.f === "metal" && !MELT_OF_METAL[el.value]) draft.oz = "";
     if (el.dataset.f === "_sourceKind") draft.source = el.value === "Other" ? "" : el.value;
+    if (el.dataset.f === "albumId" && draft._isNew && !draft.typeId) { const al = getAlbum(el.value); if (al && TYPE_BY_ID[al.typeId]) { pickType(al.typeId); return; } }
     if (el.hasAttribute("data-rerender")) {
       const y = $(".sheet").scrollTop;
       renderCoinForm();

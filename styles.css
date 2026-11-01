@@ -150,4 +150,5 @@ body.readonly [data-spot], body.readonly [data-setting], body.readonly [data-act
 /* Three-quarter-height pop-up window */
 .sheet.sheet-75 { height: 90vh; max-height: 90vh; }
 
+.locked-type { padding: 10px 12px; border: 1px solid var(--line, #ccc); border-radius: 10px; background: rgba(0,0,0,.03); }
 .album-chip { margin: -2px 2px 10px; font-size: 15px; }
