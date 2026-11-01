@@ -113,7 +113,8 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
   - **Problems:** cleaned, scratched, holed, bent and others. These show as "Details" next to the grade and lower the value.
 - **Catalog number** (PCGS or NGC), shown only for slabs and copied from the label. Phase 3 uses it to open that exact coin in the PCGS Photo Guide.
 
-**Step 2.3. A cleaner Add coin page. Model: Sonnet.** — PR open (v0.17.0). Done: "What is it?" (US coin, or medal/token/foreign); sets, rolls and bullion choices come with 2.4 and 2.7.
+**Step 2.3. A cleaner Add coin page. Model: Sonnet.** — DONE ✅ (merged, v0.17.0). Done: "What is it?" (US coin, or medal/token/foreign); sets, rolls and bullion choices come with 2.4 and 2.7.
+- [x] Merged
 *Made for anyone, even people who aren't good with technology.*
 - The page asks **"What is it?"** first (US coin, set, roll, medal or token, foreign, bullion) and only shows the fields that matter.
 - Page one is just the basics: type, year, mint and grade.
