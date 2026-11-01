@@ -198,6 +198,7 @@ function saveWantForm(form) {
   if (fd.get("listId") === "__new") { toast("Pick or create a list first."); return; }
   const typeId = fd.get("typeId");
   if (!typeId) { toast("Pick a coin type."); return; }
+
   const fields = { typeId, year: num(fd.get("year")) ?? "", mint: fd.get("mint") || "", variety: String(fd.get("variety") || "").trim(),
     grade: fd.get("grade") || "", maxPrice: num(fd.get("maxPrice")) ?? "", notes: String(fd.get("notes") || "").trim(), listId: fd.get("listId") || DEFAULT_LIST_ID };
   const old = form.dataset.id ? getWant(form.dataset.id) : null;
@@ -206,6 +207,8 @@ function saveWantForm(form) {
     if (!listAccepts(getWantList(fields.listId), old.typeId)) { toast("That list is for a different coin type."); return; }
   }
   scopedPrefill(fields); // a scoped list always gets its own type (and grade)
+  const yp = yearProblem(fields.typeId, fields.year, "want"); // checked against the type the want will really have
+  if (yp) { toast(yp); return; }
   const w = old ? { ...newWant({ ...old, ...fields }), id: old.id, createdAt: old.createdAt, albumId: old.albumId } : newWant(fields);
   saveWant(w);
   touchType(typeId);

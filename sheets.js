@@ -253,7 +253,7 @@ function isDuplicate(c) {
 function renderImport() {
   const parsed = importCoins();
   const hasYear = imp.map.includes("year"), hasType = imp.map.includes("typeName");
-  if (!imp.dupChecked) { parsed.forEach((p, i) => { if (isDuplicate(p.coin)) imp.skip.add(i); }); imp.dupChecked = true; }
+  if (!imp.dupChecked) { parsed.forEach((p, i) => { if (isDuplicate(p.coin) || (p.coin.year && yearProblem(p.coin.typeId, p.coin.year, "coin"))) imp.skip.add(i); }); imp.dupChecked = true; }
   const fieldOpts = (sel) => `<option value="">Don't import</option>` + SHEET_COLS.filter((c) => !c.exportOnly).map((c) => `<option value="${c.key}" ${sel === c.key ? "selected" : ""}>${esc(c.head)}</option>`).join("");
   const sample = (i) => { const v = imp.rows.map((r) => r[i]).find((x) => String(x || "").trim()); return v ? String(v).slice(0, 24) : ""; };
   const nNew = parsed.filter((_, i) => !imp.skip.has(i)).length;
@@ -266,10 +266,11 @@ function renderImport() {
     </details>
     ${!hasYear || !hasType ? `<div class="banner" style="margin:12px 0 0">Pick which column is the <b>${!hasYear ? "Year" : "Coin type"}</b> to continue.</div>` : `
     <h2>Preview</h2>
-    <div class="small muted" style="margin:-4px 0 8px">Untick any row you don't want. Rows that look like coins you already have start unticked.</div>
+    <div class="small muted" style="margin:-4px 0 8px">Untick any row you don't want. Rows that look like coins you already have, or have a year that doesn't fit, start unticked.</div>
     <div class="list">${parsed.map((p, i) => {
       const c = p.coin; const flags = [];
       if (!c.year) flags.push("no year");
+      else if (yearProblem(c.typeId, c.year, "coin")) flags.push("year doesn't fit: " + yearProblem(c.typeId, c.year, "coin"));
       if (!p.typeMatched) flags.push(p.typeText ? "type not recognized, kept as typed" : "no coin type");
       if (c.grade === "Other") flags.push("grade kept as typed");
       if (isDuplicate(c)) flags.push("looks like one you have");
@@ -284,7 +285,8 @@ function renderImport() {
 async function doImport() {
   const parsed = importCoins();
   const batch = "imp_" + uid();
-  const chosen = parsed.filter((_, i) => !imp.skip.has(i)).map((p) => p.coin);
+  const chosen = parsed.filter((_, i) => !imp.skip.has(i)).map((p) => p.coin).filter((c) => !c.year || !yearProblem(c.typeId, c.year, "coin"));
+  const dropped = parsed.filter((_, i) => !imp.skip.has(i)).length - chosen.length;
   const albumByName = new Map(albums().map((a) => [squash(albumTitle(a)), a.id]));
   closeSheet();
   toast("Importing " + chosen.length + " rows…");
@@ -301,7 +303,7 @@ async function doImport() {
   const anySold = chosen.some((c) => c.status === "sold");
   if (anySold && !settings().soldAutoDone) saveSettings({ showSold: true, soldAutoDone: true });
   go("coins");
-  toast("Imported " + ids.length + " rows.", { label: "Undo", fn: () => undoImport(true) });
+  toast("Imported " + ids.length + " rows." + (dropped ? " Skipped " + dropped + " with a year that doesn't fit." : ""), { label: "Undo", fn: () => undoImport(true) });
 }
 // Imported rows you haven't changed since. Edited coins leave the batch (see saveCoin).
 const importLeft = (li) => li.ids.map(getCoin).filter((c) => c && c.importBatch === li.batch && c.status !== "deleted");
