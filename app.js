@@ -540,7 +540,7 @@ function yearProblem(typeId, year, kind) {
   if (y > cap) return kind === "want" ? "Wants can be at most " + cap + "." : "That year hasn't happened yet. The latest is " + cap + ".";
   if (y < 1) return "Enter a real year.";
   const last = t && (t.end >= 2026 ? cap : t.end); // a series still being made can run up to the cap
-  if (t && (y < t.start || y > last)) return shortName(t) + " was made " + t.start + "–" + last + ".";
+  if (t && (y < t.start || y > last)) return t.name + " was made " + t.start + "–" + last + ".";
   return "";
 }
 // The years an album of this type can cover.
@@ -558,7 +558,7 @@ function viewCoin(r) {
   const sold = c.sold || {};
   return `${coinBackLink()}
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}</h1>
-    ${album ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button></div>` : ""}
+    ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button></div>` : ""}
     ${mintageLine(c)}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
@@ -632,7 +632,9 @@ function buildAlbumSlots(types, layout, start, end, proofs) {
     if (proofs) proofYears(id).filter((y) => y >= Math.max(start, t.start) && y <= Math.min(end, typeLastYear(t))).forEach((y) => {
       const m = proofMint(id, y);
       if (proofs === "s" && m !== "S") return;
-      out.push({ id: uid(), y, m, pf: true, t: id });
+      const k = y + "|" + m + "|PF";
+      out.push(seen.has(k) ? { id: uid(), y, m, pf: true, t: id, tx: true } : { id: uid(), y, m, pf: true, t: id });
+      seen.add(k);
     });
   });
   return sortSlots(out);
@@ -822,8 +824,8 @@ function openAddSpot(id) {
   openSheet(`<div class="sheet-head"><h2>Add a spot</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <p class="small muted" style="margin-top:0">For a spot your album has that isn't shown, like a variety. A coin with a matching variety fills it.</p>
     <form id="spotForm" data-id="${esc(a.id)}">
-      ${isSetAlbum(a) ? `<label class="f"><span>Coin type</span><select name="t">${albumTypes(a).map((id) => `<option value="${id}">${esc(TYPE_BY_ID[id].name)}</option>`).join("")}</select></label>
-      <div class="hint">To add a type that isn't in this album yet, use Edit album.</div>` : `<div class="grid2">
+      ${isSetAlbum(a) || albumTypes(a).length > 1 ? `<label class="f"><span>Coin type</span><select name="t">${albumTypes(a).map((id) => `<option value="${id}">${esc(TYPE_BY_ID[id].name)}</option>`).join("")}</select></label>
+      <div class="hint">To add a type that isn't in this album yet, use Edit album.</div>` : ""}${isSetAlbum(a) ? "" : `<div class="grid2">
         <label class="f"><span>Year</span><input type="number" inputmode="numeric" name="y" id="spotY" required placeholder="${a.start}"></label>
         <label class="f"><span>Mint mark</span><select name="m" id="spotM">${MINTS.map((m) => `<option value="${m}">${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
       </div>`}
@@ -856,7 +858,13 @@ function saveSpot(form) {
     if (!y || y < 1700 || y > thisYear()) { toast("Enter a year."); return; }
     spot = { id: uid(), y, m: normMint(fd.get("m") || ""), v: String(fd.get("v") || "").trim(), custom: true };
     if (fd.get("pf")) spot.pf = true;
-    if (albumTypes(a).length > 1) spot.t = slotType(a, spot);
+    if (albumTypes(a).length > 1) {
+      spot.t = fd.get("t") || slotType(a, spot);
+      const tt = TYPE_BY_ID[spot.t];
+      if (tt && (y < tt.start || y > typeLastYear(tt))) { toast(tt.name + " was made " + tt.start + "–" + typeLastYear(tt) + "."); return; }
+      // Same date as another type's spot (e.g. 1921 Morgan and 1921 Peace): keep them apart.
+      if ((a.slots || []).some((x) => slotKey(x) === slotKey({ ...spot, t: undefined }) && slotType(a, x) !== spot.t)) spot.tx = true;
+    }
   }
   if (!spot.v) delete spot.v;
   const k = slotKey(spot);
@@ -1172,9 +1180,12 @@ async function saveDraft() {
   if (!c.labelEdited) c.label = autoLabel(c);
   if (c.slotId) {
     const sl = getAlbum(c.albumId) && (getAlbum(c.albumId).slots || []).find((x) => x.id === c.slotId);
+    const al = getAlbum(c.albumId);
     if (sl && sl.pf && d._isNew && !isProofGrade(c.grade)) { toast("This is a proof spot. Pick a proof grade (PR-60 to PR-70)."); return; }
-    // The spot is gone, or the coin's date/mint no longer matches it (so it can find its right spot).
-    if (!sl || num(c.year) !== sl.y || normMint(c.mint) !== sl.m) delete c.slotId;
+    if (sl && !sl.pf && !sl.set && d._isNew && al.proofs && isProofGrade(c.grade)) { toast("This spot is for a regular coin. Use the album's Proof spot for a proof."); return; }
+    // The spot is gone, or the coin no longer fits it (date, mint, type, or proof vs. regular), so it finds its right spot.
+    const fitsSpot = sl && (sl.set ? c.typeId === sl.t : num(c.year) === sl.y && normMint(c.mint) === sl.m && (!sl.pf === !isProofGrade(c.grade) || !(sl.pf || al.proofs)));
+    if (!fitsSpot) delete c.slotId;
   }
   if (c.albumId === "__new") {
     const na = d._newAlbum;
@@ -1456,7 +1467,7 @@ function saveEditAlbum(form) {
   if (!unchanged) {
     const fits = (x, ts, s0, e0, pf) => ts.includes(x.t) && (set || (x.y >= s0 && x.y <= e0)) && (!x.pf || pf === "all" || (pf === "s" && x.m === "S"));
     // Keep your own spots, and standard spots that still fit (with their ids, names and order).
-    const kept = slots.map((x) => (x.t || x.custom ? x : { ...x, t: slotType(a, x) })).filter((x) => x.custom || fits(x, types, start, end, proofs));
+    const kept = slots.map((x) => (x.t || x.custom ? x : { ...x, t: slotType(a, x) })).filter((x) => (x.custom && (!x.t || types.includes(x.t))) || fits(x, types, start, end, proofs));
     const have = new Set(kept.map(slotKey));
     // Add standard spots for new types and new years only (spots you removed before stay removed).
     const added = buildAlbumSlots(types, layout, start, end, proofs).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end, oldPf));
