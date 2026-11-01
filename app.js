@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.16.0";
+const APP_VERSION = "0.17.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -1241,34 +1241,55 @@ function mintChoices(t, proof) {
   const ms = proof ? proofMintsOf(t) : t.mints;
   return ["", ...ms.filter((m) => m !== "P"), ...(!proof && ms.includes("P") ? ["P"] : [])];
 }
+// Closed-by-default section. It stays open (or closed) as you left it, even when the form redraws.
+function sec(key, title, body, hasData) {
+  const o = draft._open && draft._open[key];
+  const open = o !== undefined ? o : !!hasData && !draft._isNew; // new coins start with every section closed
+  return `<details data-sec="${key}" ${open ? "open" : ""}><summary>${title}</summary>${body}</details>`;
+}
+function whatPicker() {
+  return openSheet(`<div class="sheet-head"><h2>Add coin</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
+  <div class="f"><span>What is it?</span></div>
+  <button type="button" class="btn block what-btn" data-act="what" data-v="us"><b>US coin</b><small>Cent to dollar, loose or in a holder</small></button>
+  <button type="button" class="btn block what-btn" data-act="what" data-v="other"><b>Medal, token or foreign coin</b><small>Anything that isn't a US coin from the Red Book</small></button>`, "sheet-75");
+}
 function renderCoinForm() {
   const d = draft;
+  if (d._isNew && !d.typeId && !d.typeName && !d._what) return whatPicker();
+  document.querySelectorAll(`#coinForm[data-coin="${d.id}"] details[data-sec]`).forEach((x) => { (d._open = d._open || {})[x.dataset.sec] = x.open; }); // keep sections as you left them
   const t = TYPE_BY_ID[d.typeId];
+  const other = d._isNew && !d.typeId && d._what === "other" || !d._isNew && !t;
   if (d.grade && d.grade !== "Other") d._proof = isProofGrade(d.grade); // a grade that's set decides the switch
   else if (d._proof === undefined) d._proof = false;
   const mints = mintChoices(t, d._proof).concat(d.mint && !mintChoices(t, d._proof).includes(d.mint) ? [d.mint] : []); // keep an older saved mint visible
   const grades = (d.gradeMode === "cert" ? CERT_GRADES : GRADES).filter((g) => isProofGrade(g) === !!d._proof);
   const melt = meltEach(d);
   initSourceKind(d);
+  const h = formHolder(d);
+  const typeBlock = !d._isNew
+    ? `<div class="f"><span>Coin type</span><div class="locked-type"><b>${esc(t ? t.name : d.typeName || "Custom coin")}</b>${d.denom ? ` <span class="muted small">${esc(d.denom)}</span>` : ""}</div>
+      <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button></div></div>`
+    : other
+      ? `<div class="grid2">
+      <label class="f"><span>What is it called?</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="e.g. Casino token"></label>
+      <label class="f"><span>Face value</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label></div>`
+      : `<div class="f typeahead"><span>Coin type</span>
+      <input type="search" id="typeSearch" placeholder="Search by name, e.g. Morgan" value="${esc(t ? t.name : "")}">
+      <div class="ta-list" id="typeList" hidden></div>
+      <div class="hint"><button type="button" class="link-btn" data-act="what" data-v="other">Can't find it? Type it yourself</button></div>
+    </div>`;
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add coin") : "Edit coin"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
-  <form id="coinForm" autocomplete="off">
-    ${sampleApi && d._isNew ? photoFillButton(d) : ""}
-    ${d._isNew ? `<div class="f typeahead"><span>Start from a known coin</span>
-      <input type="search" id="typeSearch" placeholder="Search Red Book types, e.g. Morgan" value="${esc(t ? t.name : "")}">
-      <div class="ta-list" id="typeList" hidden></div>
-    </div>` : `<div class="f"><span>Coin type</span><div class="locked-type"><b>${esc(t ? t.name : d.typeName || "Custom coin")}</b>${d.denom ? ` <span class="muted small">${esc(d.denom)}</span>` : ""}</div>
-      <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button></div></div>`}
+  <form id="coinForm" data-coin="${d.id}" autocomplete="off">
+    ${sampleApi && d._isNew && !other ? photoFillButton(d) : ""}
+    ${typeBlock}
     ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
     <div class="grid2">
       <label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + typeLastYear(t) : "1921"}"></label>
-      <label class="f"><span>Mint mark</span><select data-f="mint">${mints.map((m) => `<option value="${m}" ${d.mint === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
+      ${other ? "" : `<label class="f"><span>Mint mark</span><select data-f="mint">${mints.map((m) => `<option value="${m}" ${d.mint === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>`}
     </div>
     <div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>
-    <div class="grid2" ${d._isNew ? "" : "hidden"}>
-      <label class="f"><span>Coin type</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="Morgan Dollar"></label>
-      <label class="f"><span>Denomination</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label>
-    </div>
 
     <fieldset><legend>Grade</legend>
       <div class="seg"><button type="button" data-act="gmode" data-v="raw" class="${d.gradeMode === "raw" ? "on" : ""}">Raw</button><button type="button" data-act="gmode" data-v="cert" class="${d.gradeMode === "cert" ? "on" : ""}">Certified</button></div>
@@ -1290,49 +1311,37 @@ function renderCoinForm() {
       <div id="varietyBox">${varietyField(d)}</div>
     </fieldset>
 
-    <div class="grid2">
-      <label class="f"><span>Metal</span><select data-f="metal" data-rerender><option value="">Choose…</option>${METALS.map((m) => `<option ${d.metal === m ? "selected" : ""}>${m}</option>`).join("")}</select></label>
-      <label class="f"><span>Metal content (oz)</span><input type="number" inputmode="decimal" step="0.00001" data-f="oz" value="${esc(d.oz)}" placeholder="0.77344"></label>
-    </div>
-    <div class="hint" id="meltHint">${melt != null ? "Melt today: " + money(melt) + " each" : meltKey(d) ? "Enter the spot price in Options to see melt." : ""}</div>
-
-    <div class="grid3">
+    ${sec("value", "Quantity, value and metal", `<div class="grid2">
       <label class="f"><span>Quantity</span><input type="number" inputmode="numeric" min="1" data-f="qty" value="${esc(d.qty)}"></label>
-      <label class="f"><span>Paid each</span><input type="number" inputmode="decimal" step="0.01" data-f="paid" value="${esc(d.paid)}" placeholder="$"></label>
       <label class="f"><span>Value each</span><input type="number" inputmode="decimal" step="0.01" data-f="value" value="${esc(isJunk(d) ? "" : d.value)}" placeholder="${isJunk(d) ? "melt" : "$"}" ${isJunk(d) ? "disabled" : ""}></label>
     </div>
     <div class="hint" id="bookHint">${esc(bookHintText(d))}</div>
     <div class="grid2">
-      <label class="f"><span>Source</span><select data-f="_sourceKind" data-rerender><option value="">Choose…</option>${sourceOptions().map((s) => `<option value="${esc(s)}" ${d._sourceKind === s ? "selected" : ""}>${esc(s)}</option>`).join("")}<option value="Other" ${d._sourceKind === "Other" ? "selected" : ""}>Other…</option></select></label>
-      <label class="f"><span>Date acquired</span><input type="date" data-f="acquired" value="${esc(d.acquired)}"></label>
+      <label class="f"><span>Metal</span><select data-f="metal" data-rerender><option value="">Choose…</option>${METALS.map((m) => `<option ${d.metal === m ? "selected" : ""}>${m}</option>`).join("")}</select></label>
+      <label class="f"><span>Metal content (oz)</span><input type="number" inputmode="decimal" step="0.00001" data-f="oz" value="${esc(d.oz)}" placeholder="0.77344"></label>
     </div>
-    ${d._sourceKind === "Other" ? `<label class="f"><span>Where did you get it?</span><input type="text" data-f="source" value="${esc(d.source)}" placeholder="e.g. Grandpa's collection, flea market"></label>` : ""}
-    <div class="hint" id="inhHint" ${isInherited(d) ? "" : "hidden"}><span class="dns">Do not sell</span> Inherited coins are marked do-not-sell and aren't counted in gains.</div>
+    <div class="hint" id="meltHint">${melt != null ? "Melt today: " + money(melt) + " each" : meltKey(d) ? "Enter the spot price in Options to see melt." : ""}</div>`, num(d.qty) > 1 || d.value || (other && d.metal))}
 
-    <label class="f"><span>Album</span><select data-f="albumId" data-rerender><option value="">Not in an album</option>${albumsForCoin(d).map((a) => `<option value="${esc(a.id)}" ${d.albumId === a.id ? "selected" : ""}>${esc(albumTitle(a))}</option>`).join("")}<option value="__new" ${d.albumId === "__new" ? "selected" : ""}>+ New album…</option></select></label>
+    ${sec("status", "Status" + (d._status && d._status !== "owned" ? ` <span class="muted small">· ${esc(STATUS_TEXT[d._status] || "")}</span>` : ""), statusFields(d), (d._status && d._status !== "owned") || d.upgrade || d.status === "sold")}
+
+    ${sec("holder", "Holder and album" + (h ? ` <span class="muted small">· ${esc(h)}</span>` : ""), `<label class="f"><span>Album</span><select data-f="albumId" data-rerender><option value="">Not in an album</option>${albumsForCoin(d).map((a) => `<option value="${esc(a.id)}" ${d.albumId === a.id ? "selected" : ""}>${esc(albumTitle(a))}</option>`).join("")}<option value="__new" ${d.albumId === "__new" ? "selected" : ""}>+ New album…</option></select></label>
     ${d.albumId === "__new" ? `<div class="grid2">
       <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
       <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
       <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}
-
-    ${statusFields(d)}
-
-    ${holderFields(d)}
+    ${holderFields(d)}`, d.albumId || d.holder || d.coa || d.packaging)}
 
     ${purchaseFields(d)}
 
     ${errorFields(d)}
 
-    <label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>
-
-    <details ${(d.photos || []).length ? "open" : ""}><summary>Photos (${(d.photos || []).length})</summary>
-      <div class="photos">${(d.photos || []).map((p, i) => `<div class="ph"><img src="${esc(photoSrc(p))}" alt=""><button type="button" class="rm" data-act="rmPhoto" data-i="${i}" aria-label="Remove photo">✕</button></div>`).join("")}</div>
+    ${sec("photos", `Photos (${(d.photos || []).length})`, `<div class="photos">${(d.photos || []).map((p, i) => `<div class="ph"><img src="${esc(photoSrc(p))}" alt=""><button type="button" class="rm" data-act="rmPhoto" data-i="${i}" aria-label="Remove photo">✕</button></div>`).join("")}</div>
       <label class="btn file-btn" style="display:inline-block;margin-top:10px">Add photos<input type="file" accept="image/*" multiple id="photoInput"></label>
-      <div class="hint" id="photoHint">${store.mode === "db" && !assetsApi ? "Photos can't be saved from this view." : ""}</div>
-    </details>
+      <div class="hint" id="photoHint">${store.mode === "db" && !assetsApi ? "Photos can't be saved from this view." : ""}</div>`, (d.photos || []).length)}
 
-    <label class="f"><span>Label</span><input type="text" id="labelInput" data-f="label" value="${esc(d.labelEdited ? d.label : autoLabel(d))}"></label>
-    <div class="hint">Fills in as date-mint mark, coin type, denomination. Type over it to use your own.${d.labelEdited ? ` <button type="button" class="link-btn" data-act="resetLabel">Use automatic label</button>` : ""}</div>
+    ${sec("notes", "Notes and label", `<label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>
+      <label class="f"><span>Label</span><input type="text" id="labelInput" data-f="label" value="${esc(d.labelEdited ? d.label : autoLabel(d))}"></label>
+      <div class="hint">Fills in as date-mint mark, coin type, denomination. Type over it to use your own.${d.labelEdited ? ` <button type="button" class="link-btn" data-act="resetLabel">Use automatic label</button>` : ""}</div>`, d.notes || d.labelEdited)}
 
     <div class="btn-row">
       <button type="submit" class="btn primary">${d._isNew ? "Add coin" : "Save changes"}</button>
@@ -1362,9 +1371,15 @@ function statusFields(d) {
       <label class="f"><span>When</span><input type="date" data-f="_goneDate" value="${esc(d._goneDate || "")}" max="${today()}"></label></div>` : ""}`;
 }
 function purchaseFields(d) {
-  const open = d.seller || BUY_EXTRAS.some((k) => num(d[k]) != null) || d.payMethod || d.receiptNo || (d.receiptPhotos || []).length;
+  const has = d.seller || d.paid || d.acquired || BUY_EXTRAS.some((k) => num(d[k]) != null) || d.payMethod || d.receiptNo || (d.receiptPhotos || []).length || (d.source && !d._isNew);
   const money$ = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" data-f="${k}" value="${esc(d[k] || "")}" placeholder="$"></label>`;
-  return `<details ${open ? "open" : ""}><summary>Purchase details</summary>
+  return sec("purchase", "Purchase details" + (d.source ? ` <span class="muted small">· ${esc(d.source)}</span>` : ""), `<div class="grid2">
+      <label class="f"><span>Paid each</span><input type="number" inputmode="decimal" step="0.01" data-f="paid" value="${esc(d.paid)}" placeholder="$"></label>
+      <label class="f"><span>Date acquired</span><input type="date" data-f="acquired" value="${esc(d.acquired)}"></label>
+    </div>
+    <label class="f"><span>Source</span><select data-f="_sourceKind" data-rerender><option value="">Choose…</option>${sourceOptions().map((s) => `<option value="${esc(s)}" ${d._sourceKind === s ? "selected" : ""}>${esc(s)}</option>`).join("")}<option value="Other" ${d._sourceKind === "Other" ? "selected" : ""}>Other…</option></select></label>
+    ${d._sourceKind === "Other" ? `<label class="f"><span>Where did you get it?</span><input type="text" data-f="source" value="${esc(d.source)}" placeholder="e.g. Grandpa's collection, flea market"></label>` : ""}
+    <div class="hint" id="inhHint" ${isInherited(d) ? "" : "hidden"}><span class="dns">Do not sell</span> Inherited coins are marked do-not-sell and aren't counted in gains.</div>
       <div class="grid2">
         <label class="f"><span>Seller</span><input type="text" data-f="seller" list="sellerList" value="${esc(d.seller || "")}" placeholder="Person or shop" maxlength="60"></label>
         <label class="f"><span>Paid with</span><select data-f="payMethod"><option value="">Choose…</option>${PAY_METHODS.concat(d.payMethod && !PAY_METHODS.includes(d.payMethod) ? [d.payMethod] : []).map((x) => `<option ${d.payMethod === x ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
@@ -1374,8 +1389,7 @@ function purchaseFields(d) {
       <div class="hint" id="costHint">${costHintText(d)}</div>
       <label class="f"><span>Receipt number</span><input type="text" data-f="receiptNo" value="${esc(d.receiptNo || "")}" placeholder="Order or invoice number" maxlength="60"></label>
       <div class="photos">${(d.receiptPhotos || []).map((p, i) => `<div class="ph"><img src="${esc(photoSrc(p))}" alt=""><button type="button" class="rm" data-act="rmPhoto" data-k="receiptPhotos" data-i="${i}" aria-label="Remove receipt photo">✕</button></div>`).join("")}</div>
-      <label class="btn file-btn" style="display:inline-block;margin-top:6px">${(d.receiptPhotos || []).length ? "Add another receipt photo" : "Add receipt photo"}<input type="file" accept="image/*" id="receiptInput"></label>
-    </details>`;
+      <label class="btn file-btn" style="display:inline-block;margin-top:6px">${(d.receiptPhotos || []).length ? "Add another receipt photo" : "Add receipt photo"}<input type="file" accept="image/*" id="receiptInput"></label>`, has);
 }
 function costHintText(d) {
   const c = costOf(d);
@@ -1389,7 +1403,7 @@ function knownVarHint(d) {
 function errorFields(d) {
   const errs = listOf(d.mintErrors), probs = listOf(d.problems);
   const checks = (key, all, on) => `<div class="chk-list">${all.map((x) => `<label><input type="checkbox" data-flist="${key}" value="${esc(x)}" ${on.includes(x) ? "checked" : ""}>${esc(x)}</label>`).join("")}</div>`;
-  return `<details ${d.knownVar || errs.length || probs.length || d.errorNote ? "open" : ""}><summary>Errors and problems${probs.length ? " · Details" : ""}</summary>
+  return sec("errors", "Errors and problems" + (probs.length ? " · Details" : ""), `
       <label class="f"><span>Known variety</span><input type="text" data-f="knownVar" list="kvList" value="${esc(d.knownVar || "")}" placeholder="e.g. Doubled Die Obverse" maxlength="60"></label>
       <datalist id="kvList">${knownVarieties(d).map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
       <div class="hint" id="kvHint">${esc(knownVarHint(d))}</div>
@@ -1398,8 +1412,7 @@ function errorFields(d) {
       <div class="small"><b>Problems</b> <span class="muted">(damage after it left the Mint)</span></div>
       ${checks("problems", COIN_PROBLEMS, probs)}
       <div class="hint">Any problem makes it a "Details" coin. Red Book prices are for coins without problems, so they aren't used for it.</div>
-      <label class="f"><span>Describe (optional)</span><textarea data-f="errorNote" placeholder="e.g. 10% off-center at 3 o'clock">${esc(d.errorNote || "")}</textarea></label>
-    </details>`;
+      <label class="f"><span>Describe (optional)</span><textarea data-f="errorNote" placeholder="e.g. 10% off-center at 3 o'clock">${esc(d.errorNote || "")}</textarea></label>`, d.knownVar || errs.length || probs.length || d.errorNote);
 }
 // The holder the form shows: what was picked, else Album / Slab when that fits, else (new coins) the last holder used.
 function formHolder(d) {
@@ -1491,7 +1504,7 @@ function retypeDraft() {
   const old = getCoin(draft.id);
   if (!old) return;
   const keep = JSON.parse(JSON.stringify(draft));
-  draft = { ...keep, id: uid(), _isNew: true, _replaces: old.id, typeId: "", typeName: "", family: "", denom: "", metal: "", oz: "",
+  draft = { ...keep, id: uid(), _isNew: true, _what: "us", _replaces: old.id, typeId: "", typeName: "", family: "", denom: "", metal: "", oz: "",
     variety: "", fbl: false, sms: false, label: "", labelEdited: false, albumId: "", createdAt: Date.now(), _newAlbum: { brand: "Whitman", number: "" } };
   delete draft.slotId; delete draft.lotId; delete draft.splitFrom;
   renderCoinForm();
@@ -1534,7 +1547,7 @@ function showTypeList(q) {
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
   delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = formHolder(d);
   if (c.gradeMode !== "cert") { c.cac = ""; c.catNo = ""; }
@@ -2073,6 +2086,7 @@ const actions = {
   // form
   gmode: (el) => { draft.gradeMode = el.dataset.v; if (draft.gradeMode === "raw" && draft.holder === "Slab") draft.holder = ""; if (draft.gradeMode === "cert" && draft.grade === "Junk") draft.grade = ""; renderCoinForm(); },
   pickType: (el) => pickType(el.dataset.id),
+  what: (el) => { draft._what = el.dataset.v; if (el.dataset.v === "other") { draft.typeId = ""; draft.mint = ""; } renderCoinForm(); },
   retype: () => retypeDraft(),
   toggleProof: (el) => {
     if (!draft) return;
@@ -2191,6 +2205,10 @@ document.addEventListener("change", (e) => {
     }
   }
 });
+document.addEventListener("toggle", (e) => { // remember which sections you opened, so redrawing the form keeps them open
+  const k = e.target.dataset && e.target.dataset.sec;
+  if (k && draft) (draft._open = draft._open || {})[k] = e.target.open;
+}, true);
 document.addEventListener("submit", (e) => {
   e.preventDefault();
   if (e.target.id === "coinForm") saveDraft();

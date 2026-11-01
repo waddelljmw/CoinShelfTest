@@ -1,4 +1,4 @@
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 const http = require("http"), fs = require("fs"), path = require("path");
 const root = require("path").resolve(__dirname, "..");
 const srv = http.createServer((q, r) => { const f = path.join(root, q.url.split("?")[0] === "/" ? "index.html" : q.url.split("?")[0]); fs.readFile(f, (e, d) => { if (e) { r.statusCode = 404; return r.end(); } r.end(d); }); }).listen(8765);

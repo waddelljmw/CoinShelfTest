@@ -1,5 +1,5 @@
 // Dates follow the phone's own time zone, not London time.
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 (async () => {
   const b = await chromium.launch();
   const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);

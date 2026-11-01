@@ -1,5 +1,5 @@
 // Step 2.2: status, purchase details and total cost, errors and problems, catalog number, old coins, CSV, backups.
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
@@ -12,7 +12,6 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   // 1. Purchase details and total cost
   await add("morgan", "1921");
   await p.fill("[data-f=qty]", "2"); await p.fill("[data-f=paid]", "40");
-  await p.click("summary:has-text('Purchase details')");
   await p.fill("[data-f=seller]", "Bob's Coins"); await p.fill("[data-f=buyTax]", "4"); await p.fill("[data-f=buyShip]", "5"); await p.fill("[data-f=buyFees]", "1.5");
   await p.selectOption("[data-f=payMethod]", "Cash"); await p.fill("[data-f=receiptNo]", "A-17");
   ok("cost hint", /Total cost: \$90\.50 for 2 coins/.test(await p.textContent("#costHint")));
@@ -59,7 +58,6 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await add("franklin", "1950");
   await p.selectOption("[data-f=grade]", "MS-63"); await p.waitForTimeout(80);
   ok("Red Book used before problems", (await p.evaluate(() => valueSource(draft))) === "book");
-  await p.click("summary:has-text('Errors and problems')");
   await p.check('[data-flist=problems][value="Cleaned"]'); await p.check('[data-flist=mintErrors][value="Off-center"]');
   ok("problem stops Red Book value", (await p.evaluate(() => valueSource(draft))) !== "book" && /isn't used/.test(await p.textContent("#bookHint")));
   await save();

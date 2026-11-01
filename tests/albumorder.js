@@ -1,5 +1,5 @@
 // Albums can be put in any order on the Albums page.
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
   const errors = []; p.on("pageerror", (e) => errors.push(e.message));

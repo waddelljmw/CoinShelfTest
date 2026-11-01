@@ -1,5 +1,5 @@
 // Step 1.3: share the app link, and share a snapshot through the phone's Share menu.
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
   const errors = []; p.on("pageerror", (e) => errors.push(e.message));

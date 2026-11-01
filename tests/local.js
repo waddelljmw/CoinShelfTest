@@ -1,5 +1,5 @@
 // Step 1.1: saving on the device, photos, Backup and Restore (incl. moving coins out of the Claude version).
-const { chromium } = require("playwright");
+const { chromium } = require("./_compat");
 const http = require("http"), fs = require("fs"), path = require("path");
 const root = path.resolve(__dirname, "..");
 // a tiny red JPEG-ish PNG for photos
