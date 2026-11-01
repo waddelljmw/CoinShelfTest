@@ -60,7 +60,7 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - [x] **Storage:** when the app runs on its own, coins, photos, albums and lists are saved on the device, so it works with no internet.
 - [x] **Backup and Restore** (Options): one file with everything, photos included. Restore adds a backup without deleting anything. Home reminds you if your last backup is over 30 days old.
 - [x] **Moving your data:** in the Claude version, Options → Backup and restore saves the file you'll restore into the phone app in Step 1.2.
-- [ ] Merged
+- [x] Merged
 - *The "Update ready" banner and the backup reminder before big updates come with Step 1.2.*
 
 **Step 1.2. Put it online and installable. Model: Sonnet.**
