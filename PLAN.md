@@ -145,10 +145,10 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - Tag coins with a group, like *Inherited* (never for sale) or *My collection*.
 - Turn each group on or off in your totals. Value and melt update right away.
 
-**Step 2.7. My Silver Stack and other stacks. Model: Opus** (planning) — planned ✅, then **Sonnet** to build.
+**Step 2.7. My Silver Stack and other stacks. Model: Opus** (planning) — DONE ✅ (merged, v0.21.0)
 *Say this (on Sonnet):* "Do Step 2.7 of the plan."
 - [x] Planned (Nov 1, 2026). Your choices: Silver Eagles stay with your coins; junk silver coins can join a stack; stacks count in your total, because the total should match your whole real shelf.
-- [ ] Merged
+- [x] Merged
 - A "Stacks" section kept apart from coins, starting with My Silver Stack. My Gold Stack and others can be added later.
 - Bars, rounds and other silver items, each with weight, purity, maker and serial number (like your 10 oz Engelhard bar).
 - Each stack shows total ounces and melt, and counts in your overall total. A Home on/off chip per stack (like Inherited) lets you leave one out for a moment.
