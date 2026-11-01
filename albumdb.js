@@ -48,13 +48,46 @@ const ALBUM_DB = {
   "Dansco|7176": { name: "Eisenhower Dollars 1971–1978", types: ["ike-clad", "ike-40"], start: 1971, end: 1978 },
   "Dansco|7178": { name: "Morgan Dollars 1878–1890", types: ["morgan-dollar"], start: 1878, end: 1890 },
   "Dansco|7179": { name: "Morgan Dollars 1891–1921", types: ["morgan-dollar"], start: 1891, end: 1921 },
+  // Littleton Coin Company albums (numbers from retailer listings; "LCA" is part of the number)
+  "Littleton|LCA24": { name: "Flying Eagle and Indian Head Cents 1856–1909", types: ["flying-eagle-cent", "indian-cent"], start: 1856, end: 1909 },
+  "Littleton|LCA1": { name: "Lincoln Cents Vol. 1, 1909–1958", types: ["lincoln-wheat"], start: 1909, end: 1958 },
+  "Littleton|LCA19": { name: "Lincoln Cents Vol. 2, 1959–2011", types: ["lincoln-memorial-copper", "lincoln-memorial-zinc", "lincoln-bicentennial", "lincoln-shield"], start: 1959, end: 2011 },
+  "Littleton|LCA76": { name: "Lincoln Cents Vol. 3, 2012 to date", types: ["lincoln-shield"], start: 2012, end: 0 },
+  "Littleton|LCA23": { name: "Liberty Head Nickels 1883–1912", types: ["liberty-nickel"], start: 1883, end: 1912 },
+  "Littleton|LCA29": { name: "Jefferson Nickels Vol. 2, 1976–2006", types: ["jefferson-nickel"], start: 1976, end: 2006 },
+  "Littleton|LCA3": { name: "Roosevelt Dimes 1946–2012", types: ["roosevelt-silver", "roosevelt-clad"], start: 1946, end: 2012 },
+  "Littleton|LCA77": { name: "Roosevelt Dimes Vol. 2, 2013 to date", types: ["roosevelt-clad"], start: 2013, end: 0 },
+  "Littleton|LCA26": { name: "Barber Quarters 1892–1916", types: ["barber-quarter"], start: 1892, end: 1916 },
+  "Littleton|LCA57": { name: "Standing Liberty Quarters 1916–1930", types: ["standing-liberty-quarter"], start: 1916, end: 1930 },
+  "Littleton|LCA4": { name: "Washington Quarters Vol. 1, 1932–1967", types: ["washington-silver", "washington-clad"], start: 1932, end: 1967 },
+  "Littleton|LCA15": { name: "Washington Quarters Vol. 2, 1968–1998", types: ["washington-clad"], start: 1968, end: 1998, proofs: "s" },
+  "Littleton|LCA15A": { name: "Washington Quarters Vol. 2, 1968–1998", types: ["washington-clad"], start: 1968, end: 1998, proofs: "s" },
+  "Littleton|LCA48": { name: "50 State Quarters 1999–2008 (P and D)", types: ["state-quarter"], start: 1999, end: 2008 },
+  "Littleton|LCA17": { name: "State Quarters with Proofs 1999–2003", types: ["state-quarter"], start: 1999, end: 2003, proofs: "s" },
+  "Littleton|LCA18": { name: "State Quarters with Proofs 2004–2008", types: ["state-quarter"], start: 2004, end: 2008, proofs: "s" },
+  "Littleton|LCA18T": { name: "State Quarters with Proofs 2004–2008", types: ["state-quarter"], start: 2004, end: 2008, proofs: "s" },
+  "Littleton|LCA75": { name: "America the Beautiful Quarters Vol. 2, 2016–2021", types: ["atb-quarter"], start: 2016, end: 2021, proofs: "s" },
+  "Littleton|LCA85": { name: "American Women Quarters 2022–2025", types: ["women-quarter"], start: 2022, end: 2025, proofs: "s" },
+  "Littleton|LCA5": { name: "Walking Liberty Half Dollars 1916–1947", types: ["walking-liberty-half"], start: 1916, end: 1947 },
+  "Littleton|LCA6": { name: "Franklin Half Dollars 1948–1963", types: ["franklin-half"], start: 1948, end: 1963, proofs: "all" },
+  "Littleton|LCA49": { name: "Kennedy Half Dollars 1964–1987", types: ["kennedy-90", "kennedy-40", "kennedy-clad"], start: 1964, end: 1987, proofs: "all" },
+  "Littleton|LCA50": { name: "Kennedy Half Dollars 1988–2004", types: ["kennedy-clad"], start: 1988, end: 2004 },
+  "Littleton|LCA68": { name: "Kennedy Half Dollars 2005 to date", types: ["kennedy-clad"], start: 2005, end: 0 },
+  "Littleton|LCA8": { name: "Morgan Dollars Vol. 1, 1878–1891", types: ["morgan-dollar"], start: 1878, end: 1891 },
+  "Littleton|LCA9": { name: "Morgan Dollars Vol. 2, 1892–1921", types: ["morgan-dollar"], start: 1892, end: 1921 },
+  "Littleton|LCA10": { name: "Peace Dollars 1921–1935", types: ["peace-dollar"], start: 1921, end: 1935 },
+  "Littleton|LCA11": { name: "Eisenhower Dollars 1971–1978", types: ["ike-clad", "ike-40"], start: 1971, end: 1978, proofs: "all" },
+  "Littleton|LCA12": { name: "Susan B. Anthony Dollars", types: ["sba-dollar"], start: 1979, end: 1999 },
+  "Littleton|LCA59": { name: "Sacagawea Dollars 2000 to date", types: ["sacagawea-dollar"], start: 2000, end: 0 },
+  "Littleton|LCA79": { name: "American Silver Eagles 2015–2022", types: ["silver-eagle"], start: 2015, end: 2022 },
   // H.E. Harris folders
   "H.E. Harris|2672": { name: "Lincoln Cents #1, 1909–1940", types: ["lincoln-wheat"], start: 1909, end: 1940 },
 };
 
 // Finds an album by brand and number, or null. Fills in "to date" years.
 function lookupAlbum(brand, number) {
-  const n = String(number || "").trim().replace(/^#/, "").toUpperCase();
+  let n = String(number || "").trim().replace(/^#/, "").replace(/\s+/g, "").toUpperCase();
+  if (brand === "Littleton" && /^\d+[A-Z]*$/.test(n)) n = "LCA" + n; // "4" and "LCA4" are the same album
   const e = n && ALBUM_DB[brand + "|" + n];
   if (!e) return null;
   const types = e.types.filter((id) => TYPE_BY_ID[id]);
