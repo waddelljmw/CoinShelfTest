@@ -1,0 +1,196 @@
+# Coin Cabinet: Master Plan
+
+Last updated November 1, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
+
+**Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
+
+## What you want, in short
+
+- **One place for everything** you own: inherited coins (never for sale), your own collection, proof and mint sets, rolls, slabs (with CAC stickers), medals, tokens, foreign coins, bullion bars, and boxes of wheat pennies.
+- **Values you can trust:** numismatic value and melt value, with live metal prices. You can include or leave out groups (inherited, bullion stacks) from your totals.
+- **Fast to use on your phone,** working offline as its own app, not only inside Claude.
+- **Looks like a real shelf:** albums, stacks and boxes on shelves, with your totals on the top shelf.
+- **Later:** a Seller Mode you can hide, and a second app for ancient coins for your friend who sells on Whatnot.
+- **Sharing:** with one partner who also collects. No plans to sell the app.
+
+## How to use this plan (no tech knowledge needed)
+
+1. Each step has a **"Say this"** line. Copy it into the chat.
+2. Each step says which model to use. To switch, type `/model` and pick **Sonnet 5.5** or **Opus 5.5** before you send the "Say this" line.
+   - **Sonnet 5.5:** building, routine fixes and testing. It costs fewer tokens, so use it for most steps.
+   - **Opus 5.5:** planning, reviewing for hidden mistakes, and changes to how your data is stored. It costs more, so only use it where the plan says.
+3. After each step you get a merge link. Say **"merge it"**, then delete the branch at https://github.com/waddelljmw/CoinShelfTest/branches.
+4. If a chat gets long, start a new one. Long chats use more tokens.
+
+---
+
+## Phase 0: Review fixes — DONE ✅
+
+- [x] **0.1** Review leftovers (album years keep your spots, coins re-link after date edits, snapshot hides "Most I'd pay", melt message, New list sheet)
+- [x] **0.2** Coin type is locked once saved, with "Wrong type? Re-add it"
+- [x] **0.3** Date limits (no coins from the future; wants up to 5 years ahead)
+- [x] **0.4** Safety review and fixes
+
+**Added along the way (also done):**
+- [x] Album name shows on a coin's page
+- [x] Albums with several coin types (e.g. Washington silver + clad), and type-set albums
+- [x] Proof spots in albums (None / S proofs only / All proofs)
+- [x] Proof switch on coins, with proof-only mint marks (e.g. West Point W)
+- [x] Every Lincoln cent type through 2026 (VDB, 1922-D, 1943 steel, 2009 designs) and modern Morgan and Peace dollars
+- [x] Album lookup: type a brand and number and it fills in the album (74 albums from Whitman, Dansco, Littleton and H.E. Harris), with exact dates and designs for every coin series in it
+- [x] Second safety review and fixes
+
+---
+
+## Phase 1: Make it an independent app (your priority 1)
+
+**Step 1.0. Foundation. Model: Opus** — *in progress*
+*Say this:* "Do Step 1.0 of the plan."
+
+- [x] **PLAN.md** (this file): the plan plus a checklist Claude ticks off.
+- [x] **CLAUDE.md:** your working rules, read automatically by every new Claude session (short replies, model advice, test before publishing, merge and branch links).
+- [x] **Tests saved in the repo:** all 42 tests now live in the `tests` folder, with one command to run them all (`node tests/run-all.js`). Any future session can check that nothing broke.
+- [x] **Version number:** shown at the bottom of Options and raised with each merge, so you can tell which version your phone has.
+- [x] **README** in plain words, for you and your partner.
+- [x] **Coin catalog in its own folder** (`catalog/`): coin types and dates, Red Book prices, and the album list. The ancient-coins app can swap in its own catalog later.
+- [ ] Merged
+
+**Step 1.1. Save on your phone, not in Claude. Model: Opus** (it moves your data).
+*Say this:* "Do Step 1.1 of the plan."
+
+- **Storage:** coins, photos, albums and lists are stored on the device, so the app works with no internet.
+- **Backup:** Backup and Restore buttons save everything, photos included, in one file. A reminder appears if you haven't backed up in 30 days, and before big updates.
+- **Moving your data:** a "Move my data out" button in the current Claude version. You back up from there and restore into the new app.
+
+**Step 1.2. Put it online and installable. Model: Sonnet.**
+*Say this:* "Do Step 1.2 of the plan."
+
+- **Hosting:** free hosting on GitHub Pages from your repo, at a web address like `waddelljmw.github.io/CoinShelfTest`.
+- **Install:** "Add to Home screen" on Android installs it like a normal app: icon, full screen, works offline.
+- **Updates:** after each merge the app updates itself the next time it's online, with an "Update ready, tap to refresh" banner. Your coins are never touched by updates.
+- **Saving files:** reports, CSV and snapshots save as normal phone downloads.
+- **Privacy:** the web address is public, but your coins are not. Each phone keeps its own data.
+
+**Step 1.3. Sharing with your partner. Model: Sonnet.**
+*Say this:* "Do Step 1.3 of the plan."
+
+- Your partner opens the same web address and gets their own separate collection.
+- You show each other your collections with the view-only snapshot file.
+- A shared, live collection would need an online account service. That's its own project, to decide later.
+
+**Step 1.4. Review. Model: Opus.**
+*Say this:* "Run an adversarial review of Phase 1."
+
+---
+
+## Phase 2: Track everything you own
+
+**Step 2.1. How a coin is held. Model: Opus** (new data fields), then **Sonnet** for screens.
+- **Holder:** album, slab, hard case, capsule, mint box with COA, 2x2, flip, envelope, roll, loose, or other.
+- **Slab extras:** a CAC sticker checkbox (green or gold) with a CAC badge on the coin.
+- **COA:** a "COA included" checkbox, plus a note about the box and packaging.
+- **Speed:** quick-add remembers your last holder and source.
+
+**Step 2.2. Sets, rolls and groups. Model: Sonnet.**
+- **Proof and mint sets:** one entry with year, type and packaging (hard plastic or cellophane). Silver proof sets get melt automatically.
+- **Rolls:** coin type, number of coins, face value and roll value.
+- **Cases with several coins** (e.g. 3 steel wheat cents): one case, with each coin still counted.
+
+**Step 2.3. Coins outside the catalog. Model: Sonnet.**
+- Commemoratives (like the 1993 James Madison), medals, casino tokens with a silver weight (like your .7 ozt tokens), and foreign coins.
+- Type the metal and weight once, and melt is worked out automatically.
+- The Add coin form asks "What is it?" first (US coin, set, roll, medal or token, foreign, bullion) and only shows the fields that matter.
+
+**Step 2.4. Groups you can include or leave out. Model: Sonnet.**
+- Tag coins with a group, like *Inherited* (never for sale) or *My collection*.
+- Turn each group on or off in your totals. Value and melt update right away.
+- Inherited coins are "Not for sale" and can't be marked for sale by accident.
+
+**Step 2.5. My Silver Stack and other stacks. Model: Opus** (planning), then **Sonnet**.
+- A "Stacks" section kept apart from coins, starting with My Silver Stack. My Gold Stack and others can be added later.
+- Bars, rounds and shapes, each with weight, purity, maker and serial number (like your 10 oz Engelhard bar).
+- Each stack shows total ounces and melt. You choose whether it counts in your overall total.
+- Silver Eagles can live in a stack or with your coins, whichever you prefer. Gold details are discussed before that part is built.
+
+**Step 2.6. The wheat penny box organizer. Model: Sonnet.**
+- A "Box" works like an album. Name it (e.g. Black box 1), set rows and slots per row; each spot holds a 2x2.
+- See what's in each row, search for "1909-S", and get its row and slot number.
+- See which Lincoln dates you're still missing.
+
+**Step 2.7. More albums. Model: Sonnet.**
+- Add Littleton albums that couldn't be confirmed online (type sets, the Silver Eagle album, America the Beautiful Vol. 1). Send photos of their pages.
+- Add proof dates for more series (Lincoln, Kennedy, Roosevelt, Silver Eagles and others) from Red Book pages you send, so "with proofs" albums get their proof spots.
+
+**Step 2.8. Review. Model: Opus.**
+
+---
+
+## Phase 3: Research links. Model: Sonnet.
+
+- **Photo guide:** once a coin type is picked in Add coin, a "PCGS Photo Guide" button opens that coin's own guide page. The menu link stays as it is.
+- **eBay sold listings:** a button on want-list items, the Coin Value page and the Add coin form.
+- **Red Book grading guide:** send photos of the grading pages and a short "What to look for" note per grade appears next to the grade picker.
+
+---
+
+## Phase 4: The shelf look
+
+**Step 4.1. Design. Model: Opus.** You see a few mockups first and pick one.
+- **Top shelf:** total value, melt value and live metal prices, shown like plaques.
+- **Middle shelves:** album spines for each album (generic designs, without copying brand logos), a stack of bars for My Silver Stack, a coin stack for My Coins, and boxes for your 2x2 boxes and sets.
+- **Tapping** an item opens that section. The graphics are original drawings, so there are no copyright issues and the app stays fast.
+
+**Step 4.2. Build it. Model: Sonnet.** Then you check it on your phone.
+
+---
+
+## Phase 5: Features that need an outside service. Model: Sonnet.
+
+- **Photo fill** (reading a coin from a photo) needs an AI service. Choose between: (a) leaving it off in the standalone app, or (b) using your own Anthropic API key, which costs a few cents per coin. It's explained step by step when we get there.
+- **Live metal prices:** fetched from a free price source when you're online, with the last prices kept for offline use. You can still type them in.
+
+---
+
+## Phase 6: Paused item: snapshot photos. Model: Sonnet.
+
+*You asked to pause this.*
+- **The problem:** coin photos show blank inside a shared snapshot file.
+- **The fix:** store the photos in the file itself.
+- **Why it waits:** Phase 1 changes how photos are stored, so it comes after.
+
+---
+
+## Phase 7: Basic selling (part of priority 1). Model: Sonnet.
+
+- A "For sale" mark with an asking price, and a simple For Sale list.
+- Profit per sale (what you paid vs. what it sold for), including shipping and fees. This builds on what the app already has.
+
+---
+
+## Phase 8: Seller Mode (priority 2, details planned later)
+
+**Step 8.0. Plan it together. Model: Opus.**
+- **Your choice to show:** a switch in Options turns Seller Mode on. When it's off, nothing about selling shows.
+- **Separate inventory:** your personal collection stays separate from your business inventory.
+- **Whatnot tools:** fast bulk entry, show-day lists, Whatnot fee math and sales per show.
+- **For first-timers:** pricing help at a coin show, such as Red Book value, melt and a suggested asking price.
+- **Business profile:** name, EIN or tax ID, address and sales-tax info.
+- **Reports:** sales, costs, profit and inventory value by month, quarter or year, ready for an accountant, with totals that line up with 1099-K forms and a Schedule C style summary.
+- **A note on taxes:** Claude isn't a tax advisor. The app organizes your records, and a tax professional should review them before you file.
+
+---
+
+## Phase 9: The ancient-coins app for your friend (priority 3)
+
+- From Step 1.0 on, the coin catalog lives in its own folder (`catalog/`), so the second app can swap in an ancient-coin catalog without rewriting the rest.
+- It starts as a copy of this project in a new GitHub repo, planned together on Opus.
+
+---
+
+## Rules for every step
+
+- Every change is tested on a phone-sized screen before you see it (`node tests/run-all.js` must pass).
+- Nothing deletes your data without asking, and Undo is offered where possible.
+- Coins you already have keep working after every change.
+- If a step would break another feature, Claude stops and asks.
+- Replies stay short to save tokens.
