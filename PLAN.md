@@ -120,6 +120,7 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - Sale details aren't on this page at all. They open from a **Mark as sold** button (see Phase 7).
 
 **Step 2.4. Sets and rolls. Model: Sonnet.**
+*Start from PR #29 (branch `step-2.2-sets-rolls`, built before this plan changed): reuse its good parts, add what's new here, then close #29.*
 - **Proof and mint sets:** one entry with year, type and packaging (hard plastic or cellophane). Silver proof sets get melt automatically.
 - **Rolls:** pick the coin type (e.g. Kennedy half 90%, 40% or clad); the metal comes from the catalog.
   - **Coin count and face value fill in for you:** cents 50 ($0.50), nickels 40 ($2), dimes 50 ($5), quarters 40 ($10), halves 20 ($10), dollars 25 ($25). You can change them.
