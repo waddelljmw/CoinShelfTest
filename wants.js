@@ -179,6 +179,7 @@ function openWantForm(id, prefill) {
   })();
   openSheet(`<div class="sheet-head"><h2>${w ? "Edit want" : "Add to want list"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <form id="wantForm" data-id="${esc(id || "")}">
+    ${w && w.pf ? `<div class="banner" style="margin:0 0 8px">This want is for a <b>proof</b> coin.</div>` : ""}
     <label class="f"><span>List</span><select name="listId" id="wantListPick" data-prev="${esc(curList.id)}">${lists.map((l) => `<option value="${esc(l.id)}" ${(d.listId || curList.id) === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
     <label class="f"><span>Coin type</span><select name="typeId" required ${lockType ? "disabled" : ""}>${opts}</select></label>
     ${lockType ? `<input type="hidden" name="typeId" value="${esc(d.typeId)}"><div class="hint">${w ? "The coin type can't change once it's on your want list. Remove it and add a new one if it's wrong." : "This list is for " + esc(TYPE_BY_ID[d.typeId] ? TYPE_BY_ID[d.typeId].name : "one coin type") + (lockGrade ? " in " + esc(d.grade) : "") + " only."}</div>` : ""}
@@ -233,6 +234,7 @@ function gotWant(id) {
   if (w.albumId && getAlbum(w.albumId)) draft.albumId = w.albumId;
   draft._fromWant = w.id;
   renderCoinForm();
+  if (w.pf) toast("This want is a proof. Pick a proof grade (PR-60 to PR-70).");
 }
 
 /* ---------- from an album's missing list ---------- */
