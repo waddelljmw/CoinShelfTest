@@ -14,7 +14,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 const today = () => new Date().toISOString().slice(0, 10);
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.9.0";
+const APP_VERSION = "0.10.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -55,8 +55,14 @@ async function initStore() {
     return;
   }
   if (!window.claude || typeof window.claude.use !== "function") {
+    // On its own (not inside Claude): save on this device.
+    if (typeof initLocalStore === "function" && await initLocalStore()) {
+      if (typeof scheduleHistory === "function") scheduleHistory();
+      render();
+      return;
+    }
     store.mode = "memory";
-    showBanner("Practice mode: open this page from Claude to save your coins. Nothing typed here is kept.");
+    showBanner("This browser can't save (it may be a private window). Practice mode: nothing typed here is kept.");
     render();
     return;
   }
@@ -116,6 +122,7 @@ function put(key, obj) {
   store.docs.set(key, body);
   if (key !== "history" && typeof scheduleHistory === "function") scheduleHistory(); // value over time
   render();
+  if (store.mode === "local") return chainWrite(key, () => localPut(key, body));
   if (store.mode !== "db" || !store.coll) return Promise.resolve();
   const prev = writeChains.get(key) || Promise.resolve();
   const next = prev.then(() => store.coll.doc(key).set(body)).catch((e) => {
@@ -124,10 +131,17 @@ function put(key, obj) {
   writeChains.set(key, next);
   return next;
 }
+// Writes to the same record happen in order.
+function chainWrite(key, fn) {
+  const next = (writeChains.get(key) || Promise.resolve()).then(fn);
+  writeChains.set(key, next);
+  return next;
+}
 function remove(key) {
   if (store.mode === "snapshot") return Promise.resolve();
   store.docs.delete(key);
   render();
+  if (store.mode === "local") return chainWrite(key, () => localRemove(key));
   if (store.mode !== "db" || !store.coll) return Promise.resolve();
   const prev = writeChains.get(key) || Promise.resolve();
   const next = prev.then(() => store.coll.doc(key).delete()).catch(() => toast("Couldn't delete that. Try again."));
@@ -321,7 +335,7 @@ function thumbHtml(c) {
   if (p) return `<img class="thumb" src="${esc(photoSrc(p))}" alt="" loading="lazy">`;
   return `<span class="thumb" aria-hidden="true">${esc((c.typeName || c.label || "?").trim().charAt(0).toUpperCase())}</span>`;
 }
-const photoSrc = (p) => (p.id ? "/_blob/" + p.id : p.url || "");
+const photoSrc = (p) => (p.lid ? (typeof localPhotoUrls !== "undefined" && localPhotoUrls.get(p.lid)) || "" : p.id ? "/_blob/" + p.id : p.url || "");
 
 /* ---------- navigation ---------- */
 const VIEWS = ["home", "value", "albums", "wants", "coins", "guide", "options"];
@@ -398,7 +412,7 @@ function viewHome() {
   const noValue = owned.filter((c) => valueSource(c) === "melt" && !isJunk(c)).length;
   const fromBook = owned.filter((c) => valueSource(c) === "book").length;
 
-  let html = `<h1>Your cabinet</h1>
+  let html = `${typeof backupReminder === "function" ? backupReminder() : ""}<h1>Your cabinet</h1>
   <div class="stats">
     <div class="stat wide"><div class="k">Collection value</div><div class="v">${money(total, "$0.00")}</div>
       ${fromBook ? `<div class="small muted">${fromBook} coin${fromBook > 1 ? "s" : ""} valued from the Red Book.</div>` : ""}
@@ -939,6 +953,10 @@ function viewOptions() {
     <div class="card">Save all your coins as a spreadsheet file (CSV), or add coins from one.
       <div class="btn-row"><button class="btn" data-act="export">Export CSV</button><button class="btn" data-act="openImport">Import CSV</button></div>
       ${s.lastImport && s.lastImport.ids ? `<div class="hint" style="margin-top:8px">Last import: ${s.lastImport.count} row${s.lastImport.count === 1 ? "" : "s"} on ${esc(s.lastImport.at)}. <button class="link-btn" data-act="undoImport">Remove them</button></div>` : ""}</div>
+    <h2>Backup and restore</h2>
+    <div class="card">${store.mode === "db" ? "Save everything, photos included, in one file. This is also how you move your coins into the Coin Cabinet app on your phone." : "Save everything, photos included, in one file, or bring coins in from a backup."}
+      ${settings().lastBackup ? `<div class="small muted" style="margin-top:6px">Last backup: ${esc(settings().lastBackup)}</div>` : ""}
+      <div class="btn-row"><button class="btn" data-act="openBackup">Backup and restore</button></div></div>
     <h2>Share a snapshot</h2>
     <div class="card">Save a view-only copy of your collection as one file to send to friends. What you paid, sources, notes and buyers are left out unless you choose to include them.
       <div class="btn-row"><button class="btn" data-act="openSnapshot">Share a snapshot</button></div></div>
@@ -949,7 +967,7 @@ function viewOptions() {
     ${del.length ? `<div class="list">${del.map((c) => `<div class="coin-row">${thumbHtml(c)}<span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(gradeText(c))}</span></span>
       <button class="btn" data-act="restore" data-id="${esc(c.id)}">Restore</button><button class="btn danger" data-act="purge" data-id="${esc(c.id)}" aria-label="Delete forever">✕</button></div>`).join("")}</div>` : `<div class="card empty">Nothing deleted.</div>`}
     <p class="small muted">Coin Cabinet version ${APP_VERSION}</p>
-    <p class="small muted">${store.mode === "db" ? "Your coins are saved to your Claude account and are private to you." : "Practice mode: nothing is saved."}</p>`;
+    <p class="small muted">${store.mode === "db" ? "Your coins are saved to your Claude account and are private to you." : store.mode === "local" ? "Your coins are saved on this device only, and are private to you. Save a backup now and then, in case the device is lost or reset." : "Practice mode: nothing is saved."}</p>`;
 }
 
 /* ---------- sheets (pop-ups) ---------- */
@@ -1299,7 +1317,10 @@ async function addPhotos(files) {
   for (const f of files) {
     if (hint) hint.textContent = "Uploading photo…";
     const blob = await shrinkImage(f);
-    if (store.mode === "db") {
+    if (store.mode === "local") {
+      try { const lid = await localAddPhoto(blob); draft && draft.photos.push({ lid }); }
+      catch (e) { toast(e && e.name === "QuotaExceededError" ? "This device is out of space for photos." : "Couldn't save that photo."); }
+    } else if (store.mode === "db") {
       if (!assetsApi) { toast("Photos can't be saved from this view."); break; }
       try {
         const a = await assetsApi.upload(blob);
@@ -1686,7 +1707,7 @@ const actions = {
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
 const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
   "hideSpot showSold slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
-  "export openImport undoImport openReport openSnapshot").split(" "));
+  "export openImport undoImport openReport openSnapshot openBackup doBackup").split(" "));
 document.addEventListener("click", (e) => {
   const goEl = e.target.closest("[data-go]");
   if (goEl) { e.preventDefault(); go(goEl.dataset.go); return; }
