@@ -80,6 +80,11 @@ function wantRow(w) {
 }
 
 /* ---------- creating a list ---------- */
+function sheetDismiss() {
+  if (!$("#wlForm") || !wlReturn) return false;
+  actions.wlCancel();
+  return true;
+}
 let wlReturn = null; // null | { kind: "want", prefill } | { kind: "missing" }
 function openNewListForm() {
   ensureDefaultList();
