@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.19.0";
+const APP_VERSION = "0.20.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -34,6 +34,7 @@ const DEFAULT_SETTINGS = {
   spot: { gold: null, silver: null, platinum: null, copper: null },
   spotUpdated: null,
   hideSpot: {},
+  hiddenGroups: [], // groups left out of the Home totals
   showSold: false,
   soldAutoDone: false,
   bookEdition: "",
@@ -377,6 +378,14 @@ const holderOf = (c) => c.holder || (c.albumId ? "Album" : c.gradeMode === "cert
 const holderText = (c) => { const h = holderOf(c); return h === "Other" ? (c.packaging || "").trim() || "Other" : h; };
 const cacOf = (c) => (c.gradeMode === "cert" && (c.cac === "Green" || c.cac === "Gold") ? c.cac : "");
 const cacBadge = (c) => (cacOf(c) ? `<span class="cac ${cacOf(c).toLowerCase()}" title="CAC ${cacOf(c)} sticker">CAC${cacOf(c) === "Gold" ? " Gold" : ""}</span>` : "");
+// Groups: set on a coin, or worked out (Inherited from the source, otherwise My collection).
+const groupOf = (c) => String(c.group || "").trim() || (isInherited(c) ? "Inherited" : "My collection");
+function groupsPresent() {
+  const g = [...new Set(ownedCoins().map(groupOf))];
+  return g.sort((a, b) => (a === "My collection" ? -1 : b === "My collection" ? 1 : a === "Inherited" ? -1 : b === "Inherited" ? 1 : a.localeCompare(b)));
+}
+const hiddenGroups = () => settings().hiddenGroups || [];
+const countedCoins = () => ownedCoins().filter((c) => !hiddenGroups().includes(groupOf(c)));
 const isInherited = (c) => (c.source || "").trim().toLowerCase() === "inherited";
 const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
@@ -552,7 +561,8 @@ function coinRow(c, opts = {}) {
 
 function viewHome() {
   const s = settings();
-  const owned = ownedCoins();
+  const everything = ownedCoins();
+  const owned = countedCoins(); // groups switched off are left out of the totals
   const count = sum(owned, qtyOf);
   const total = sum(owned, (c) => (bestEach(c) || 0) * qtyOf(c));
   const melt = sum(owned, (c) => (meltEach(c) || 0) * qtyOf(c));
@@ -567,6 +577,7 @@ function viewHome() {
   <div class="stats">
     <div class="stat wide"><div class="k">Collection value</div><div class="v">${money(total, "$0.00")}</div>
       ${fromBook ? `<div class="small muted">${fromBook} coin${fromBook > 1 ? "s" : ""} valued from the Red Book.</div>` : ""}
+      ${hiddenGroups().filter((g) => groupsPresent().includes(g)).length ? `<div class="small muted">Leaving out: ${hiddenGroups().filter((g) => groupsPresent().includes(g)).map(esc).join(", ")}.</div>` : ""}
       ${noValue ? `<div class="small muted">${noValue} coin${noValue > 1 ? "s" : ""} without a value ${noValue > 1 ? "are" : "is"} counted at melt.</div>` : ""}</div>
     <div class="stat"><div class="k">Coins</div><div class="v">${count}</div></div>
     <div class="stat"><div class="k">Melt value</div><div class="v">${money(melt, "$0.00")}</div></div>
@@ -574,6 +585,7 @@ function viewHome() {
     <div class="stat"><div class="k">Gain</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Add prices paid" : pct(paid ? gain / paid : null) + " · inherited not counted"}</div></div>
   </div>`;
 
+  if (groupsPresent().length > 1) html += `<div class="card"><div class="small muted" style="margin-bottom:6px">Count in the totals above:</div><div class="chips">${groupsPresent().map((g) => { const on = !hiddenGroups().includes(g); return `<button class="chip ${on ? "on" : ""}" data-act="toggleGroup" data-v="${esc(g)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(g)} · ${sum(everything.filter((c) => groupOf(c) === g), qtyOf)}</button>`; }).join("")}</div></div>`;
   if (typeof historyCard === "function") html += historyCard();
 
   // Melt Value by Metal, only for metals in the collection
@@ -596,7 +608,7 @@ function viewHome() {
   }
 
 
-  const recent = owned.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
+  const recent = everything.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
   html += `<h2>Recently added</h2>`;
   html += recent.length ? `<div class="list">${recent.map((c) => coinRow(c)).join("")}</div>` : `<div class="card empty">No coins yet. Tap <b>+</b> to add your first coin.</div>`;
 
@@ -1397,6 +1409,7 @@ function statusFields(d) {
       <label class="f"><span>Status</span><select data-f="_status" data-rerender>${opts.map((k) => `<option value="${k}" ${d._status === k ? "selected" : ""}>${STATUS_TEXT[k]}</option>`).join("")}</select></label>
       <label class="switch" style="align-self:end"><span>Upgrade wanted<div class="small muted">You'd like a nicer one</div></span><input type="checkbox" data-fcheck="upgrade" ${d.upgrade ? "checked" : ""}></label>
     </div>
+    <label class="f"><span>Group <span class="muted small">(optional)</span></span><input type="text" data-f="group" list="groupList" value="${esc(d.group || "")}" placeholder="${esc(isInherited(d) ? "Inherited" : "My collection")}"><datalist id="groupList">${[...new Set(["My collection", "Inherited", ...allCoins().map((c) => String(c.group || "").trim()).filter(Boolean)])].map((g) => `<option value="${esc(g)}">`).join("")}</datalist></label>
     <div class="hint">${d._status === "coming" ? "Bought or won, not here yet. Counted in your totals." : d._status === "gone" ? "Traded, gifted or lost. Left out of your totals." : inh ? "Inherited coins can't be set to For sale." : ""}</div>
     ${d._status === "coming" || d.trackNo ? `<div class="grid2">
       <label class="f"><span>Tracking number</span><input type="text" data-f="trackNo" id="trackNo" value="${esc(d.trackNo || "")}" placeholder="Paste it here" maxlength="40" autocapitalize="characters"></label>
@@ -2094,6 +2107,7 @@ const actions = {
   closeSheet,
   status: (el) => { listState.status = el.dataset.v; render(); },
   seeSold: () => { listState.status = "sold"; listState.family = null; go("coins"); },
+  toggleGroup: (el) => { const g = el.dataset.v, h = hiddenGroups(); saveSettings({ hiddenGroups: h.includes(g) ? h.filter((x) => x !== g) : [...h, g] }); },
   fam: (el) => { listState.family = el.dataset.v || null; render(); },
   dir: () => { listState.dir = listState.dir === "asc" ? "desc" : "asc"; render(); },
   edit: (el) => openCoinForm(el.dataset.id),
