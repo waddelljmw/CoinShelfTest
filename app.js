@@ -588,8 +588,43 @@ function viewCoin(r) {
 /* --- Albums --- */
 const albumTitle = (a) => a.name || [a.brand, a.number].filter(Boolean).join(" ") || "Album";
 // A slot is one spot in an album: year, mint mark, and optionally a variety (e.g. "8 Tail Feathers").
-const slotKey = (s) => s.y + "|" + s.m + (s.v ? "|" + s.v : "");
-const slotLabel = (s) => s.y + (s.m ? "-" + s.m : "");
+// Type-set spots ("set") hold one coin of a type, any date. "tx" marks a date spot shared by two of the album's types.
+const slotKey = (s) => (s.set ? "set:" + s.t : s.y + "|" + s.m) + (s.v ? "|" + s.v : "") + (s.tx ? "#" + s.t : "");
+const slotLabel = (s) => (s.set ? (TYPE_BY_ID[s.t] ? shortName(TYPE_BY_ID[s.t]) : "Coin") : s.y + (s.m ? "-" + s.m : ""));
+// An album can hold several coin types (e.g. Washington silver 1932–1964 and clad 1965 on, or a type set).
+const albumTypes = (a) => (a && a.typeIds && a.typeIds.length ? a.typeIds : a && a.typeId ? [a.typeId] : []).filter((id) => TYPE_BY_ID[id]);
+const albumHasType = (a, typeId) => albumTypes(a).includes(typeId);
+const isSetAlbum = (a) => !!a && a.layout === "set";
+const albumTypeText = (a) => albumTypes(a).map((id) => TYPE_BY_ID[id].name).join(", ");
+// The coin type a spot is for: its own, or the album type made in that spot's year.
+function slotType(a, s) {
+  if (s && s.t) return s.t;
+  const ts = albumTypes(a);
+  if (ts.length <= 1) return ts[0] || (a && a.typeId) || "";
+  const y = num(s && s.y);
+  return ts.find((id) => { const t = TYPE_BY_ID[id]; return y >= t.start && y <= typeLastYear(t); }) || ts[0];
+}
+// The spot a tapped album card stands for (by id, or by date for older cards).
+function spotFromEl(a, el) {
+  const d = el.dataset || el;
+  const ss = (a && a.slots) || [];
+  return (d.sid && ss.find((x) => x.id === d.sid)) || ss.find((x) => String(x.y) === String(d.y) && (x.m || "") === (d.m || "") && (x.v || "") === (d.v || "")) || { y: num(d.y), m: d.m || "", v: d.v || "" };
+}
+// Every standard spot for these types: dates and mint marks inside the years, or one spot per type for a type set.
+function buildAlbumSlots(types, layout, start, end) {
+  if (layout === "set") return types.map((id) => ({ id: uid(), set: true, t: id, y: "", m: "" }));
+  const out = [], seen = new Set();
+  types.forEach((id) => {
+    const t = TYPE_BY_ID[id];
+    if (!t) return;
+    buildSlots(id, Math.max(start, t.start), Math.min(end, typeLastYear(t))).forEach((s) => {
+      const k = s.y + "|" + s.m;
+      out.push(seen.has(k) ? { ...s, t: id, tx: true } : { ...s, t: id });
+      seen.add(k);
+    });
+  });
+  return sortSlots(out);
+}
 function albumSlots(a) {
   const removed = new Set(a.removed || []);
   return (a.slots || []).filter((s) => !removed.has(slotKey(s)));
@@ -632,7 +667,9 @@ function albumStats(a) {
   const slots = albumSlots(a);
   const filled = new Map();
   const used = new Set();
-  const sameDate = (c, s) => num(c.year) === s.y && normMint(c.mint) === s.m;
+  const multi = albumTypes(a).length > 1 || isSetAlbum(a);
+  // Does this coin fit this spot? Type sets match by type; date spots by date (and type, if the album has several).
+  const sameDate = (c, s) => (s.set ? c.typeId === s.t : num(c.year) === s.y && normMint(c.mint) === s.m && (!multi || c.typeId === slotType(a, s)));
   // 1) Coins added to a specific spot stay in that spot, whatever it's renamed or moved to.
   slots.forEach((s) => {
     if (!s.id) return;
@@ -664,7 +701,7 @@ function viewAlbums() {
       const done = st.total && st.owned === st.total;
       return `<button class="card" style="display:block;width:100%;text-align:left" data-go="album-${esc(a.id)}">
         <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(albumTitle(a))}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</b><span class="num">${st.owned}/${st.total}</span></div>
-        <div class="small muted">${esc(TYPE_BY_ID[a.typeId] ? TYPE_BY_ID[a.typeId].name : "")} · ${a.start}–${a.end} · ${money(st.value, "$0.00")}</div>
+        <div class="small muted">${esc(isSetAlbum(a) ? "Type set · " + albumTypes(a).length + " types" : albumTypeText(a))}${a.start ? " · " + a.start + "–" + a.end : ""} · ${money(st.value, "$0.00")}</div>
         <div class="bar"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div></button>`;
     }).join("") : `<div class="card empty">No albums yet. Make one here, or pick an album number when you add a coin.</div>`}</div>`;
 }
@@ -678,7 +715,7 @@ function viewAlbum(r) {
   const extras = st.coins.filter((c) => ![...st.filled.values()].includes(c));
   return `<button class="link-btn" data-go="albums">← Albums</button>
     <h1 style="margin-top:10px">${esc(albumTitle(a))}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</h1>
-    <div class="small muted" style="margin:-8px 0 12px">${esc([a.brand, a.number && "No. " + a.number].filter(Boolean).join(" · "))} · ${esc(TYPE_BY_ID[a.typeId] ? TYPE_BY_ID[a.typeId].name : "")} · ${a.start}–${a.end}</div>
+    <div class="small muted" style="margin:-8px 0 12px">${esc([a.brand, a.number && "No. " + a.number, isSetAlbum(a) ? "Type set" : albumTypeText(a)].filter(Boolean).join(" · "))}${a.start ? " · " + a.start + "–" + a.end : ""}</div>
     <div class="stats">
       <div class="stat"><div class="k">Owned</div><div class="v">${st.owned}/${st.total}</div></div>
       <div class="stat"><div class="k">Missing</div><div class="v">${st.total - st.owned}</div><button class="link-btn small" data-act="missing" data-id="${esc(a.id)}">Show missing</button></div>
@@ -697,7 +734,7 @@ function viewAlbum(r) {
       const gone = (a.removed || []).includes(k);
       const lab = slotLabel(s);
       const vLine = s.v ? `<span class="g" style="font-weight:600;color:var(--ink)">${esc(s.v)}</span>` : "";
-      const data = `data-album="${esc(a.id)}" data-y="${s.y}" data-m="${esc(s.m)}" data-v="${esc(s.v || "")}"`;
+      const data = `data-album="${esc(a.id)}" data-sid="${esc(s.id || "")}" data-y="${s.y}" data-m="${esc(s.m)}" data-v="${esc(s.v || "")}"`;
       if (editing) {
         const canL = i > 0 && arr[i - 1].y === s.y, canR = i < arr.length - 1 && arr[i + 1].y === s.y;
         return `<div class="slot slot-edit" style="${s.custom ? "border-color:var(--accent);" : ""}${gone ? "opacity:.4;" : ""}">
@@ -705,7 +742,7 @@ function viewAlbum(r) {
           ${canL || canR ? `<span class="slot-mv"><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="-1" ${canL ? "" : "disabled"} aria-label="Move earlier">◀</button><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="1" ${canR ? "" : "disabled"} aria-label="Move later">▶</button></span>` : ""}
         </div>`;
       }
-      const onList = findWant(a.typeId, s.y, s.m, s.v);
+      const onList = findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v);
       const tag = onList ? `<span class="g" style="color:var(--accent)">★ wanted</span>` : "";
       return hit
         ? `<button class="slot have" data-act="slotMenu" ${data} data-coin="${esc(hit.id)}">${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${tag}</button>`
@@ -716,7 +753,7 @@ function viewAlbum(r) {
       <button class="btn" data-act="editAlbum" data-id="${esc(a.id)}">Edit album</button>
       <button class="btn danger" data-act="deleteAlbum" data-id="${esc(a.id)}">Delete album</button>
     </div>
-    <p class="small muted">${EXACT_SLOTS[a.typeId] ? "Spots follow the dates and mint marks this series was struck." : "Spots include every year and mint mark for this series. Use Edit spots to hide any your album doesn't have."} If your album has a spot that's missing here, like a variety, use <b>+ Add a spot</b>.</p>`;
+    <p class="small muted">${isSetAlbum(a) ? "One spot per coin type. Any date fills it." : albumTypes(a).every((id) => EXACT_SLOTS[id]) ? "Spots follow the dates and mint marks this series was struck." : "Spots include every year and mint mark for this series. Use Edit spots to hide any your album doesn't have."} If your album has a spot that's missing here, like a variety, use <b>+ Add a spot</b>.</p>`;
 }
 
 /* --- Editing one spot: rename its label, hide/show, or remove --- */
@@ -726,7 +763,7 @@ function openSpotEdit(id, i) {
   if (!s) return;
   const k = slotKey(s);
   const gone = (a.removed || []).includes(k);
-  const opts = spotVarietyOptions(a, s.y, s.m);
+  const opts = s.set ? [] : spotVarietyOptions(a, s.y, s.m, slotType(a, s));
   openSheet(`<div class="sheet-head"><h2>${esc(slotLabel(s))}${s.v ? " · " + esc(s.v) : ""}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <form id="spotEditForm" data-id="${esc(a.id)}" data-i="${i}">
       <label class="f"><span>Variety or label (optional)</span><input type="text" name="v" id="spotV" list="spotVList" value="${esc(s.v || "")}" placeholder="e.g. 7 Tail Feathers" maxlength="60"></label>
@@ -758,8 +795,8 @@ function saveSpotEdit(form) {
 }
 
 /* --- Adding your own spot to an album (e.g. 1878 8 Tail Feathers) --- */
-function spotVarietyOptions(a, y, m) {
-  const s = a && PRICE_BOOK.series[a.typeId];
+function spotVarietyOptions(a, y, m, tid) {
+  const s = a && PRICE_BOOK.series[tid || slotType(a, { y, m })];
   if (!s || !y) return [];
   const base = String(y) + (normMint(m) ? "-" + normMint(m) : "");
   const out = new Set();
@@ -772,10 +809,11 @@ function openAddSpot(id) {
   openSheet(`<div class="sheet-head"><h2>Add a spot</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <p class="small muted" style="margin-top:0">For a spot your album has that isn't shown, like a variety. A coin with a matching variety fills it.</p>
     <form id="spotForm" data-id="${esc(a.id)}">
-      <div class="grid2">
+      ${isSetAlbum(a) ? `<label class="f"><span>Coin type</span><select name="t">${albumTypes(a).map((id) => `<option value="${id}">${esc(TYPE_BY_ID[id].name)}</option>`).join("")}</select></label>
+      <div class="hint">To add a type that isn't in this album yet, use Edit album.</div>` : `<div class="grid2">
         <label class="f"><span>Year</span><input type="number" inputmode="numeric" name="y" id="spotY" required placeholder="${a.start}"></label>
         <label class="f"><span>Mint mark</span><select name="m" id="spotM">${MINTS.map((m) => `<option value="${m}">${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
-      </div>
+      </div>`}
       <label class="f"><span>Variety or label (optional)</span><input type="text" name="v" id="spotV" list="spotVList" placeholder="e.g. 8 Tail Feathers" maxlength="60"></label>
       <datalist id="spotVList"></datalist>
       <div class="hint" id="spotHint"></div>
@@ -786,6 +824,7 @@ function refreshSpotHints() {
   const f = $("#spotForm");
   if (!f) return;
   const a = getAlbum(f.dataset.id);
+  if (!$("#spotY")) return;
   const opts = spotVarietyOptions(a, num($("#spotY").value), $("#spotM").value);
   $("#spotVList").innerHTML = opts.map((o) => `<option value="${esc(o)}">`).join("");
   $("#spotHint").innerHTML = opts.length ? "Red Book varieties for this date: " + opts.map((o) => `<button type="button" class="link-btn" data-act="pickSpotV" data-v="${esc(o)}">${esc(o)}</button>`).join(", ") : "";
@@ -794,9 +833,16 @@ function saveSpot(form) {
   const a = getAlbum(form.dataset.id);
   if (!a) return;
   const fd = new FormData(form);
-  const y = num(fd.get("y"));
-  if (!y || y < 1700 || y > 2100) { toast("Enter a year."); return; }
-  const spot = { id: uid(), y, m: normMint(fd.get("m") || ""), v: String(fd.get("v") || "").trim(), custom: true };
+  let spot;
+  if (isSetAlbum(a)) {
+    spot = { id: uid(), set: true, t: fd.get("t"), y: "", m: "", v: String(fd.get("v") || "").trim(), custom: true };
+    if (!spot.v) { toast("Give the spot a label, like Bicentennial or 1909 VDB."); return; }
+  } else {
+    const y = num(fd.get("y"));
+    if (!y || y < 1700 || y > thisYear()) { toast("Enter a year."); return; }
+    spot = { id: uid(), y, m: normMint(fd.get("m") || ""), v: String(fd.get("v") || "").trim(), custom: true };
+    if (albumTypes(a).length > 1) spot.t = slotType(a, spot);
+  }
   if (!spot.v) delete spot.v;
   const k = slotKey(spot);
   if ((a.slots || []).some((x) => slotKey(x) === k)) {
@@ -806,7 +852,8 @@ function saveSpot(form) {
     toast(wasHidden ? "That spot was hidden. It's back now." : "That spot is already in the album.");
     return;
   }
-  put("a_" + a.id, { ...a, slots: sortSlots([...(withSlotIds(a).slots || []), spot]) });
+  const all = [...(withSlotIds(a).slots || []), spot];
+  put("a_" + a.id, { ...a, slots: isSetAlbum(a) ? all : sortSlots(all) });
   closeSheet();
   toast("Spot added: " + slotLabel(spot) + (spot.v ? " " + spot.v : "") + ".");
 }
@@ -1025,7 +1072,7 @@ function refreshFormHints() {
 
 // Albums a coin can go in: only albums for its coin type (plus the one it's already in).
 function albumsForCoin(d) {
-  return albums().filter((a) => a.id === d.albumId || (d.typeId ? a.typeId === d.typeId : d._isNew || !a.typeId));
+  return albums().filter((a) => a.id === d.albumId || (d.typeId ? albumHasType(a, d.typeId) : d._isNew || !albumTypes(a).length));
 }
 function pickType(id) {
   if (draft && !draft._isNew) return; // a saved coin's type never changes
@@ -1040,7 +1087,7 @@ function pickType(id) {
   draft.oz = t.oz || "";
   if (draft.mint && !t.mints.includes(draft.mint) && draft.mint !== "") draft.mint = "";
   const al = draft.albumId && getAlbum(draft.albumId);
-  if (al && al.typeId !== t.id) { draft.albumId = ""; delete draft.slotId; } // that album is for another type
+  if (al && !albumHasType(al, t.id)) { draft.albumId = ""; delete draft.slotId; } // that album is for other types
   renderCoinForm();
 }
 
@@ -1099,7 +1146,7 @@ async function saveDraft() {
   const prev = !d._isNew && getCoin(c.id);
   if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
   const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);
-  if (al0 && (al0.typeId || "") !== (c.typeId || "") && !(prev && prev.albumId === c.albumId)) { toast("That album is for a different coin type."); return; }
+  if (al0 && albumTypes(al0).length && !albumHasType(al0, c.typeId) && !(prev && prev.albumId === c.albumId)) { toast("That album is for a different coin type."); return; }
   c.year = num(c.year) ?? "";
   c.qty = Math.max(1, num(c.qty) || 1);
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
@@ -1116,7 +1163,7 @@ async function saveDraft() {
   if (c.albumId === "__new") {
     const na = d._newAlbum;
     const t = TYPE_BY_ID[c.typeId];
-    const match = albums().find((a) => a.brand === na.brand && (a.number || "") === na.number.trim() && a.typeId === c.typeId);
+    const match = albums().find((a) => a.brand === na.brand && (a.number || "") === na.number.trim() && albumHasType(a, c.typeId));
     if (match) c.albumId = match.id;
     else {
       const a = { kind: "album", id: uid(), brand: na.brand, number: na.number.trim(), name: na.brand === "Other" ? na.number.trim() : "", typeId: c.typeId,
@@ -1292,32 +1339,53 @@ function openNewAlbum() {
       <label class="f"><span>Album number</span><input type="text" name="number" placeholder="9128"></label>
     </div>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" placeholder="Grandpa's Morgans"></label>
-    <label class="f"><span>Coin type</span><select name="typeId" id="albumType">${typeOptions()}</select></label>
+    <label class="f"><span>Kind of album</span><select name="layout" id="albumLayout">
+      <option value="dates">Dates and mint marks (most albums)</option><option value="set">Type set (one coin of each type)</option></select></label>
+    ${albumTypeRows([firstAlbumType().id])}
     <div class="grid2">
       <label class="f"><span>From year</span><input type="number" name="start" id="albumStart" value="${firstAlbumType().start}"></label>
-      <label class="f"><span>To year</span><input type="number" name="end" id="albumEnd" value="${firstAlbumType().end}"></label>
+      <label class="f"><span>To year</span><input type="number" name="end" id="albumEnd" value="${typeLastYear(firstAlbumType())}"></label>
     </div>
-    <div class="hint">Every date and mint mark struck in the range gets a spot. You can add, hide or reorder spots later.</div>
+    <div class="hint" id="albumHint">Use the years printed on your album. Each coin type gets spots for the dates and mint marks struck in those years. You can add, hide or reorder spots later.</div>
     <div class="btn-row"><button class="btn primary" type="submit">Create album</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
-function typeOptions() {
+// One coin-type picker per type in the album, with "+ Add another coin type".
+function albumTypeRows(ids) {
+  const row = (id, i) => `<div class="type-row"><select name="typeId" data-albumtype>${typeOptions(id)}</select>${i ? `<button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button>` : ""}</div>`;
+  return `<div class="f"><span>Coin types in this album</span><div id="albumTypes">${ids.map(row).join("")}</div>
+    <button type="button" class="link-btn" data-act="albumAddType">+ Add another coin type</button></div>`;
+}
+function readAlbumTypes(form) { return [...new Set(new FormData(form).getAll("typeId").filter((id) => TYPE_BY_ID[id]))]; }
+// Check the album's types and years. Returns a message, or "" when it's fine.
+function albumProblem(types, layout, start, end) {
+  if (!types.length) return "Pick at least one coin type.";
+  if (layout === "set") return "";
+  const off = types.find((id) => { const t = TYPE_BY_ID[id]; return t.start > end || typeLastYear(t) < start; });
+  if (off) return TYPE_BY_ID[off].name + " wasn't made in " + start + "–" + end + ".";
+  const lo = Math.min(...types.map((id) => TYPE_BY_ID[id].start)), hi = Math.max(...types.map((id) => typeLastYear(TYPE_BY_ID[id])));
+  if (start < lo || end > hi) return "These coin types cover " + lo + "–" + hi + ".";
+  return "";
+}
+function typeOptions(sel) {
   const { recent, rest } = typesRecentFirst(COIN_TYPES);
-  const opt = (t) => `<option value="${t.id}">${esc(t.name)} (${t.start}–${t.end})</option>`;
+  const opt = (t) => `<option value="${t.id}" ${sel === t.id ? "selected" : ""}>${esc(t.name)} (${t.start}–${t.end})</option>`;
   return recent.length ? `<optgroup label="Recent">${recent.map(opt).join("")}</optgroup><optgroup label="All types">${rest.map(opt).join("")}</optgroup>` : rest.map(opt).join("");
 }
 const firstAlbumType = () => TYPE_BY_ID[recentTypeIds()[0]] || COIN_TYPES[0];
 function doNewAlbum(form) {
   const fd = new FormData(form);
-  const t = TYPE_BY_ID[fd.get("typeId")];
-  let start = num(fd.get("start")) ?? t.start, end = num(fd.get("end")) ?? t.end;
+  const types = readAlbumTypes(form);
+  const layout = fd.get("layout") === "set" ? "set" : "dates";
+  const t = TYPE_BY_ID[types[0]];
+  let start = num(fd.get("start")) ?? (t ? t.start : 0), end = num(fd.get("end")) ?? (t ? t.end : 0);
   if (start > end) [start, end] = [end, start];
-  const [lo, hi] = albumYearRange(t.id);
-  if (start < lo || end > hi) { toast(shortName(t) + " albums can cover " + lo + "–" + hi + "."); return; }
-  const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: t.id, start, end, removed: [], createdAt: Date.now() };
-  a.slots = buildSlots(t.id, start, end);
+  const prob = albumProblem(types, layout, start, end);
+  if (prob) { toast(prob); return; }
+  const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: types[0], typeIds: types, layout, start, end, removed: [], createdAt: Date.now() };
+  a.slots = buildAlbumSlots(types, layout, start, end);
   put("a_" + a.id, a);
-  touchType(t.id);
+  types.forEach(touchType);
   closeSheet();
   go("album-" + a.id);
 }
@@ -1326,7 +1394,6 @@ function doNewAlbum(form) {
 function openEditAlbum(id) {
   const a = getAlbum(id);
   if (!a) return;
-  const t = TYPE_BY_ID[a.typeId];
   openSheet(`<div class="sheet-head"><h2>Edit album</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <form id="editAlbumForm" data-id="${esc(a.id)}">
     <div class="grid2">
@@ -1334,12 +1401,13 @@ function openEditAlbum(id) {
       <label class="f"><span>Album number</span><input type="text" name="number" value="${esc(a.number || "")}"></label>
     </div>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" value="${esc(a.name || "")}"></label>
-    <div class="small muted" style="margin-top:10px">Coin type: ${esc(t ? t.name : a.typeId)}</div>
+    <div class="small muted" style="margin-top:10px">${isSetAlbum(a) ? "Type set (one coin of each type)" : "Dates and mint marks"}</div>
+    ${albumTypeRows(albumTypes(a).length ? albumTypes(a) : [COIN_TYPES[0].id])}
     <div class="grid2">
       <label class="f"><span>From year</span><input type="number" name="start" value="${a.start}"></label>
       <label class="f"><span>To year</span><input type="number" name="end" value="${a.end}"></label>
     </div>
-    <div class="hint">Changing the years keeps the spots you added or hid. Standard spots outside the new years are dropped and come back if you widen the years again.</div>
+    <div class="hint">Adding a coin type adds its spots. Changing the years or removing a type keeps the spots you added or hid; standard spots that no longer fit are dropped and come back if you add them again.</div>
     <div class="btn-row"><button class="btn primary" type="submit">Save</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
@@ -1349,22 +1417,37 @@ function saveEditAlbum(form) {
   const fd = new FormData(form);
   let start = num(fd.get("start")) ?? a.start, end = num(fd.get("end")) ?? a.end;
   if (start > end) [start, end] = [end, start];
-  const [lo, hi] = albumYearRange(a.typeId);
-  if ((start !== a.start && start < lo) || (end !== a.end && end > hi)) { toast("This album can cover " + lo + "–" + hi + "."); return; }
+  const layout = isSetAlbum(a) ? "set" : "dates";
+  const set = layout === "set";
+  const oldTypes = albumTypes(a), types = readAlbumTypes(form);
+  const unchanged = types.join() === oldTypes.join() && start === a.start && end === a.end;
+  // Years already allowed for an unchanged album, so older albums with odd ranges can still be renamed.
+  const prob = unchanged ? "" : albumProblem(types, layout, start, end);
+  if (prob) { toast(prob); return; }
   let slots = a.slots || [];
-  if (start !== a.start || end !== a.end) {
-    const inRange = (x) => x.y >= start && x.y <= end;
-    // Keep every existing spot that's still in range (with its id, name and order).
-    const kept = slots.filter((x) => inRange(x) || x.custom);
-    const have = new Set(kept.filter((x) => !x.custom).map((x) => x.y + "|" + x.m));
-    // Add standard spots for newly covered years only.
-    const added = buildSlots(a.typeId, start, end).filter((x) => !have.has(x.y + "|" + x.m) && !(x.y >= a.start && x.y <= a.end));
-    slots = sortSlots([...kept, ...added]);
+  if (!unchanged) {
+    const fits = (x, ts, s0, e0) => ts.includes(x.t) && (set || (x.y >= s0 && x.y <= e0));
+    // Keep your own spots, and standard spots that still fit (with their ids, names and order).
+    const kept = slots.map((x) => (x.t || x.custom ? x : { ...x, t: slotType(a, x) })).filter((x) => x.custom || fits(x, types, start, end));
+    const have = new Set(kept.map(slotKey));
+    // Add standard spots for new types and new years only (spots you removed before stay removed).
+    const added = buildAlbumSlots(types, layout, start, end).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end));
+    slots = set ? [...kept, ...added] : sortSlots([...kept, ...added]);
   }
   const removed = a.removed || [];
-  put("a_" + a.id, { ...a, brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, slots, removed });
+  put("a_" + a.id, { ...a, brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, slots, removed });
   closeSheet();
   toast("Album saved.");
+}
+
+// New album: the years follow the coin types picked (earliest start to latest end).
+function albumYearsFromTypes() {
+  const f = $("#albumForm");
+  if (!f || !$("#albumStart")) return;
+  const ts = readAlbumTypes(f).map((id) => TYPE_BY_ID[id]);
+  if (!ts.length) return;
+  $("#albumStart").value = Math.min(...ts.map((t) => t.start));
+  $("#albumEnd").value = Math.max(...ts.map(typeLastYear));
 }
 
 // Delegates to wants.js, which knows about want lists.
@@ -1436,6 +1519,12 @@ const actions = {
   missing: (el) => openMissing(el.dataset.id),
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
   addSpot: (el) => openAddSpot(el.dataset.id),
+  albumAddType: () => {
+    const box = $("#albumTypes");
+    if (!box) return;
+    box.insertAdjacentHTML("beforeend", `<div class="type-row"><select name="typeId" data-albumtype><option value="">Choose a coin type…</option>${typeOptions("")}</select><button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button></div>`);
+  },
+  albumDelType: (el) => { const r = el.closest(".type-row"); if (r) r.remove(); albumYearsFromTypes(); },
   editAlbum: (el) => openEditAlbum(el.dataset.id),
   spotEdit: (el) => openSpotEdit(el.dataset.id, +el.dataset.i),
   moveSpot: (el) => {
@@ -1546,11 +1635,8 @@ document.addEventListener("change", (e) => {
   if (el.dataset.list) { listState[el.dataset.list] = el.value; render(); return; }
   if (el.id === "photoInput") { addPhotos([...el.files]); return; }
   if (el.id === "spotM") { refreshSpotHints(); return; }
-  if (el.id === "albumType") {
-    const t = TYPE_BY_ID[el.value];
-    $("#albumStart").value = t.start; $("#albumEnd").value = t.end;
-    return;
-  }
+  if (el.dataset.albumtype != null) { albumYearsFromTypes(); return; }
+  if (el.id === "albumLayout") { const h = $("#albumHint"); if (h) h.textContent = el.value === "set" ? "Add each coin type your type set holds. Each gets one spot, and any date fills it. The years are just for your reference." : "Use the years printed on your album. Each coin type gets spots for the dates and mint marks struck in those years."; return; }
   if (!draft) return;
   if (el.dataset.na) { draft._newAlbum[el.dataset.na] = el.value; if (el.dataset.na === "brand") renderCoinForm(); return; }
   if (el.dataset.fcheck) { draft[el.dataset.fcheck] = el.checked; refreshFormHints(); return; }
@@ -1558,7 +1644,7 @@ document.addEventListener("change", (e) => {
     draft[el.dataset.f] = el.value;
     if (el.dataset.f === "metal" && !MELT_OF_METAL[el.value]) draft.oz = "";
     if (el.dataset.f === "_sourceKind") draft.source = el.value === "Other" ? "" : el.value;
-    if (el.dataset.f === "albumId" && draft._isNew && !draft.typeId) { const al = getAlbum(el.value); if (al && TYPE_BY_ID[al.typeId]) { pickType(al.typeId); return; } }
+    if (el.dataset.f === "albumId" && draft._isNew && !draft.typeId) { const al = getAlbum(el.value); if (al && albumTypes(al).length === 1) { pickType(albumTypes(al)[0]); return; } }
     if (el.hasAttribute("data-rerender")) {
       const y = $(".sheet").scrollTop;
       renderCoinForm();

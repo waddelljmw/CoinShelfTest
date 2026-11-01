@@ -249,26 +249,27 @@ function openMissingPicker(albumId) {
 function renderMissingPicker(preselect) {
   const a = getAlbum(missingPick.albumId);
   if (!a) return;
-  const t = TYPE_BY_ID[a.typeId];
   const st = albumStats(a);
   const missing = st.slots.filter((s) => !st.filled.has(slotKey(s)));
+  const spotWant = (s) => findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v);
   const lists = wantLists();
   openSheet(`<div class="sheet-head"><h2>Missing (${missing.length})</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     ${missing.length ? `<div class="card">${missing.map((s, i) => {
-      const fake = { year: s.y, mint: s.m, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", gradeMode: "raw" };
+      const t = TYPE_BY_ID[slotType(a, s)];
+      const fake = { typeId: t ? t.id : "", year: s.set ? "" : s.y, mint: s.m, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", gradeMode: "raw" };
       if (s.v) fake.label = autoLabel(fake) + " " + s.v;
-      const onAny = findWant(a.typeId, s.y, s.m, s.v);
+      const onAny = spotWant(s);
       const k = slotKey(s);
       return `<div class="rowline"><label style="display:flex;align-items:center;gap:10px;flex:1;cursor:${onAny ? "default" : "pointer"}">
           ${onAny ? "" : `<input type="checkbox" data-missck="${esc(k)}" ${missingPick.chosen.has(k) ? "checked" : ""} style="width:19px;height:19px;accent-color:var(--accent)">`}
-          <span>${esc(slotLabel(s))}${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}</span></label>
+          <span>${esc(slotLabel(s))}${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}${albumTypes(a).length > 1 && !s.set && t ? ` <span class="small muted">${esc(shortName(t))}</span>` : ""}</span></label>
         <span style="white-space:nowrap"><a class="small" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>
           ${onAny ? `<span class="small muted" style="margin-left:10px">On want list</span>` : ""}</span></div>`;
     }).join("")}</div>
-    ${missing.some((s) => !findWant(a.typeId, s.y, s.m, s.v)) ? `
+    ${missing.some((s) => !spotWant(s)) ? `
     <div class="small muted" style="display:flex;justify-content:space-between;margin:10px 2px"><span id="missCount">${missingPick.chosen.size} selected</span>
       <span><button type="button" class="link-btn" data-act="missAll">Select all</button> · <button type="button" class="link-btn" data-act="missNone">Clear</button></span></div>
-    <label class="f"><span>Add selected to</span><select id="missListPick">${lists.filter((l) => listAccepts(l, a.typeId)).map((l) => `<option value="${esc(l.id)}" ${preselect === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
+    <label class="f"><span>Add selected to</span><select id="missListPick">${lists.filter((l) => albumTypes(a).some((id) => listAccepts(l, id))).map((l) => `<option value="${esc(l.id)}" ${preselect === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
     <button class="btn primary block" data-act="missAdd" ${missingPick.chosen.size ? "" : "disabled"}>Add to want list</button>` : ""}`
     : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
 }
@@ -276,21 +277,23 @@ function renderMissingPicker(preselect) {
 function openSlotMenu(el) {
   const a = getAlbum(el.dataset.album);
   if (!a) return;
-  const y = +el.dataset.y, m = el.dataset.m || "", v = el.dataset.v || "";
-  const t = TYPE_BY_ID[a.typeId];
+  const s = spotFromEl(a, el);
+  const y = s.set ? "" : s.y, m = s.m || "", v = s.v || "";
+  const t = TYPE_BY_ID[slotType(a, s)];
   const coin = el.dataset.coin ? getCoin(el.dataset.coin) : null;
-  const fake = { typeId: a.typeId, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", year: y, mint: m, variety: v, gradeMode: "raw", grade: "" };
-  const label = [y + (m ? "-" + m : ""), fake.typeName, fake.denom].filter(Boolean).join(" ") + (v ? " · " + v : "");
+  const fake = { typeId: t ? t.id : "", typeName: t ? shortName(t) : "", denom: t ? t.denom : "", year: y, mint: m, variety: v, gradeMode: "raw", grade: "" };
+  const label = (s.set ? [t ? t.name : "Coin"] : [y + (m ? "-" + m : ""), fake.typeName, fake.denom]).filter(Boolean).join(" ") + (v ? " · " + v : "");
   if (v) fake.label = autoLabel(fake) + " " + v;
-  const w = findWant(a.typeId, y, m, v);
-  const mt = mintageInfo({ ...fake, grade: "VF-20" });
+  const w = findWant(fake.typeId, y, m, v);
+  const mt = s.set ? null : mintageInfo({ ...fake, grade: "VF-20" });
+  const sd = `data-album="${esc(a.id)}" data-sid="${esc(s.id || "")}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}"`;
   openSheet(`<div class="sheet-head"><h2>${esc(label)}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <div class="small muted" style="margin:-4px 0 12px">${coin ? "In this album · " + esc(gradeText(coin)) : "Not in this album yet"}${mt ? " · Mintage " + esc(mt.text) : ""}</div>
-    ${coin ? "" : `<button class="btn block btn-addcoin" data-act="slotHave" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}">＋ Add coin to this spot</button>`}
+    ${coin ? "" : `<button class="btn block btn-addcoin" data-act="slotHave" ${sd}>＋ Add coin to this spot</button>`}
     ${w
       ? `<div class="card small">★ On your want list${w.grade ? " · target " + esc(w.grade) : ""}${num(w.maxPrice) != null ? " · up to " + money(num(w.maxPrice)) : ""}</div>
          <div class="btn-row"><button class="btn" data-go="wants">View want list</button><button class="btn danger" data-act="slotUnwant" data-id="${esc(w.id)}">Remove from want list</button></div>`
-      : `<button class="btn block btn-want" data-act="slotWant" data-album="${esc(a.id)}" data-y="${y}" data-m="${esc(m)}" data-v="${esc(v)}">★ Add to want list${coin ? " (upgrade)" : ""}</button>
+      : `<button class="btn block btn-want" data-act="slotWant" ${sd}>★ Add to want list${coin ? " (upgrade)" : ""}</button>
          <div class="hint">Adds ${esc(label)} with no typing. You can set a target grade and price on the Want List later.</div>`}
     <div class="btn-row">
       ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button>` : ""}
@@ -298,17 +301,24 @@ function openSlotMenu(el) {
     </div>`);
 }
 // "Add to want list" from an album spot: pick which list (only lists that fit this coin type).
-function slotWant(el) { openSlotWantPicker({ album: el.dataset.album, y: el.dataset.y, m: el.dataset.m || "", v: el.dataset.v || "" }); }
+function slotWant(el) {
+  const a = getAlbum(el.dataset.album);
+  if (!a) return;
+  const s = spotFromEl(a, el);
+  openSlotWantPicker({ album: a.id, y: s.set ? "" : s.y, m: s.m || "", v: s.v || "", typeId: slotType(a, s) });
+}
 function openSlotWantPicker(d, preselect) {
   const a = getAlbum(d.album);
   if (!a) return;
   ensureDefaultList();
-  const t = TYPE_BY_ID[a.typeId];
-  const lists = wantLists().filter((l) => listAccepts(l, a.typeId));
+  const tid = d.typeId || slotType(a, { y: num(d.y), m: d.m });
+  d.typeId = tid;
+  const t = TYPE_BY_ID[tid];
+  const lists = wantLists().filter((l) => listAccepts(l, tid));
   const pre = preselect || (lists.some((l) => l.id === wantsView.listId) ? wantsView.listId : DEFAULT_LIST_ID);
   slotWantCtx = d;
   openSheet(`<div class="sheet-head"><h2>Add to want list</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
-    <p><b>${esc(d.y + (d.m ? "-" + d.m : "") + " " + (t ? shortName(t) : "") + (d.v ? " · " + d.v : ""))}</b></p>
+    <p><b>${esc((d.y ? d.y + (d.m ? "-" + d.m : "") + " " : "") + (t ? shortName(t) : "") + (d.v ? " · " + d.v : ""))}</b></p>
     <label class="f"><span>Which list</span><select id="slotListPick">${lists.map((l) => `<option value="${esc(l.id)}" ${pre === l.id ? "selected" : ""}>${esc(l.name)}${l.scope === "type-grade" ? " (" + esc(l.grade) + ")" : ""}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
     <div class="btn-row"><button class="btn primary" data-act="slotWantAdd">Add</button><button class="btn" data-act="closeSheet">Cancel</button></div>`);
 }
@@ -319,8 +329,10 @@ function slotWantAdd() {
   if (!a) return;
   const listId = ($("#slotListPick") || {}).value || DEFAULT_LIST_ID;
   const wl = getWantList(listId);
-  const y = +d.y;
-  if (!findWant(a.typeId, y, d.m, d.v, listId)) saveWant(newWant({ typeId: a.typeId, year: y, mint: d.m, variety: d.v, albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" }));
+  const y = d.y === "" ? "" : +d.y;
+  const tid = d.typeId || slotType(a, { y, m: d.m });
+  if (!listAccepts(wl, tid)) { toast("That list is for a different coin type."); return; }
+  if (!findWant(tid, y, d.m, d.v, listId)) saveWant(newWant({ typeId: tid, year: y, mint: d.m, variety: d.v, albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" }));
   closeSheet();
   toast("Added to " + ((wl && wl.name) || "your want list") + ".");
 }
@@ -328,21 +340,22 @@ function slotWantAdd() {
 function slotHave(el) {
   const a = getAlbum(el.dataset.album);
   if (!a) return;
-  const t = TYPE_BY_ID[a.typeId];
+  const aa = withSlotIds(a);
+  const s0 = spotFromEl(a, el);
+  const spot = (s0.id && (aa.slots || []).find((x) => x.id === s0.id)) || (aa.slots || []).find((x) => slotKey(x) === slotKey(s0));
+  const t = TYPE_BY_ID[slotType(aa, s0)];
   openCoinForm(null);
   if (t) { draft.typeId = t.id; draft.typeName = shortName(t); draft.family = t.family; draft.denom = t.denom; draft.metal = t.metal; draft.oz = t.oz || ""; }
-  draft.year = +el.dataset.y; draft.mint = el.dataset.m || ""; draft.albumId = a.id;
-  const v = el.dataset.v || "";
+  draft.year = s0.set ? "" : s0.y; draft.mint = s0.m || ""; draft.albumId = a.id;
+  const v = s0.v || "";
   // Remember the exact spot, so renaming or moving the spot never moves the coin.
-  const aa = withSlotIds(a);
-  const spot = (aa.slots || []).find((x) => x.y === draft.year && x.m === draft.mint && (x.v || "") === v);
   if (spot) draft.slotId = spot.id;
-  if (v) {
+  if (v && !s0.set) {
     // Use the Red Book variety only when exactly one matches the spot's label; otherwise leave it blank.
     const known = bookVarieties(draft).filter((x) => x && varietyFits(x, v));
     if (known.length === 1) draft.variety = known[0];
   }
-  const w = findWant(a.typeId, draft.year, draft.mint, v);
+  const w = findWant(draft.typeId, draft.year, draft.mint, v);
   if (w) draft._fromWant = w.id;
   draft._stay = true;   // after saving, stay on this album
   draft._short = true;  // three-quarter-height window over the album
@@ -385,7 +398,7 @@ Object.assign(actions, {
     toast("List deleted.");
     go("wants");
   },
-  missAll: () => { const a = getAlbum(missingPick.albumId); const st = albumStats(a); st.slots.filter((s) => !st.filled.has(slotKey(s)) && !findWant(a.typeId, s.y, s.m, s.v)).forEach((s) => missingPick.chosen.add(slotKey(s))); renderMissingPicker(); },
+  missAll: () => { const a = getAlbum(missingPick.albumId); const st = albumStats(a); st.slots.filter((s) => !st.filled.has(slotKey(s)) && !findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v)).forEach((s) => missingPick.chosen.add(slotKey(s))); renderMissingPicker(); },
   missNone: () => { missingPick.chosen.clear(); renderMissingPicker(); },
   missAdd: () => {
     const a = getAlbum(missingPick.albumId);
@@ -394,8 +407,8 @@ Object.assign(actions, {
     const st = albumStats(a);
     const slots = st.slots.filter((s) => missingPick.chosen.has(slotKey(s)));
     const wl = getWantList(listId);
-    if (!listAccepts(wl, a.typeId)) { toast("That list is for a different coin type."); return; }
-    slots.forEach((s) => { if (!findWant(a.typeId, s.y, s.m, s.v)) saveWant(newWant({ typeId: a.typeId, year: s.y, mint: s.m, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" })); });
+    if (slots.some((s) => !listAccepts(wl, slotType(a, s)))) { toast("That list is for a different coin type."); return; }
+    slots.forEach((s) => { const tid = slotType(a, s), y = s.set ? "" : s.y; if (!findWant(tid, y, s.m, s.v)) saveWant(newWant({ typeId: tid, year: y, mint: s.m, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" })); });
     wantsView.listId = listId;
     closeSheet();
     toast("Added " + slots.length + " coin" + (slots.length === 1 ? "" : "s") + " to " + (getWantList(listId) || {}).name + ".");
