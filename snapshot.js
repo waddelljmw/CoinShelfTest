@@ -81,6 +81,8 @@ async function saveSnapshot(form) {
   let html;
   try { html = await buildSnapshot(inc); } catch (e) { if (msg) msg.textContent = "Couldn't build the snapshot here. Open Coin Cabinet from Claude and try again."; return; }
   const name = "coin-cabinet-snapshot-" + today() + ".html";
+  // On the phone app: open the phone's Share menu (Messages, email, Drive...) when it can send files.
+  if (store.mode === "local" && await shareFile(name, html, "text/html", "My coin collection")) { closeSheet(); return; }
   if (downloadsApi) {
     try { await downloadsApi.save({ filename: name, data: html }); closeSheet(); toast("Snapshot saved. Send the file to anyone you like."); return; }
     catch (e) { if (e && e.code === "declined") { if (msg) msg.textContent = "Not saved."; return; } }

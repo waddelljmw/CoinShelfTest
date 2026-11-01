@@ -78,11 +78,10 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - **Saving files:** reports, CSV and snapshots save as normal phone downloads.
 - **Privacy:** the web address is public, but your coins are not. Each phone keeps its own data.
 
-**Step 1.3. Sharing with your partner. Model: Sonnet.**
-*Say this:* "Do Step 1.3 of the plan."
+**Step 1.3. Sharing with your partner. Model: Sonnet.** — DONE ✅ (merge pending)
 
-- Your partner opens the same web address and gets their own separate collection.
-- You show each other your collections with the view-only snapshot file.
+- [x] Options → **Share the app** sends the app's link through the phone's Share menu. Your partner installs it and gets their own separate collection.
+- [x] **Share a snapshot** opens the Share menu with the view-only file (Messages, email, Drive...).
 - A shared, live collection would need an online account service. That's its own project, to decide later.
 
 **Step 1.4. Review. Model: Opus.**
