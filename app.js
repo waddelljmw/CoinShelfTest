@@ -589,8 +589,13 @@ function viewCoin(r) {
 const albumTitle = (a) => a.name || [a.brand, a.number].filter(Boolean).join(" ") || "Album";
 // A slot is one spot in an album: year, mint mark, and optionally a variety (e.g. "8 Tail Feathers").
 // Type-set spots ("set") hold one coin of a type, any date. "tx" marks a date spot shared by two of the album's types.
-const slotKey = (s) => (s.set ? "set:" + s.t : s.y + "|" + s.m) + (s.v ? "|" + s.v : "") + (s.tx ? "#" + s.t : "");
-const slotLabel = (s) => (s.set ? (TYPE_BY_ID[s.t] ? shortName(TYPE_BY_ID[s.t]) : "Coin") : s.y + (s.m ? "-" + s.m : ""));
+// "pf" marks a proof spot (only a coin with a PR grade fills it).
+const slotKey = (s) => (s.set ? "set:" + s.t : s.y + "|" + s.m) + (s.v ? "|" + s.v : "") + (s.pf ? "|PF" : "") + (s.tx ? "#" + s.t : "");
+const slotLabel = (s) => (s.set ? (TYPE_BY_ID[s.t] ? shortName(TYPE_BY_ID[s.t]) : "Coin") : s.y + (s.m ? "-" + s.m : "") + (s.pf ? " Proof" : ""));
+// Years Red Book lists proofs for a type. US proofs moved from Philadelphia (no mint mark) to San Francisco in 1968.
+const proofYears = (typeId) => { const p = PRICE_BOOK.series[typeId] && PRICE_BOOK.series[typeId].proof; return p ? [...new Set(Object.keys(p.rows).map((k) => +k.split("|")[0].split("-")[0]))].sort((x, y) => x - y) : []; };
+const proofMint = (typeId, y) => { const p = PRICE_BOOK.series[typeId].proof.rows; const k = Object.keys(p).find((x) => x.split("|")[0].startsWith(y + "-")); return k ? normMint(k.split("|")[0].split("-")[1]) : y >= 1968 ? "S" : ""; };
+const hasProofs = (types) => types.some((id) => proofYears(id).length);
 // An album can hold several coin types (e.g. Washington silver 1932–1964 and clad 1965 on, or a type set).
 const albumTypes = (a) => (a && a.typeIds && a.typeIds.length ? a.typeIds : a && a.typeId ? [a.typeId] : []).filter((id) => TYPE_BY_ID[id]);
 const albumHasType = (a, typeId) => albumTypes(a).includes(typeId);
@@ -611,7 +616,7 @@ function spotFromEl(a, el) {
   return (d.sid && ss.find((x) => x.id === d.sid)) || ss.find((x) => String(x.y) === String(d.y) && (x.m || "") === (d.m || "") && (x.v || "") === (d.v || "")) || { y: num(d.y), m: d.m || "", v: d.v || "" };
 }
 // Every standard spot for these types: dates and mint marks inside the years, or one spot per type for a type set.
-function buildAlbumSlots(types, layout, start, end) {
+function buildAlbumSlots(types, layout, start, end, proofs) {
   if (layout === "set") return types.map((id) => ({ id: uid(), set: true, t: id, y: "", m: "" }));
   const out = [], seen = new Set();
   types.forEach((id) => {
@@ -621,6 +626,13 @@ function buildAlbumSlots(types, layout, start, end) {
       const k = s.y + "|" + s.m;
       out.push(seen.has(k) ? { ...s, t: id, tx: true } : { ...s, t: id });
       seen.add(k);
+    });
+    // Proof spots come after the regular spots for the same year.
+    // proofs: "s" = San Francisco proofs only (1968 on), "all" = every proof year.
+    if (proofs) proofYears(id).filter((y) => y >= Math.max(start, t.start) && y <= Math.min(end, typeLastYear(t))).forEach((y) => {
+      const m = proofMint(id, y);
+      if (proofs === "s" && m !== "S") return;
+      out.push({ id: uid(), y, m, pf: true, t: id });
     });
   });
   return sortSlots(out);
@@ -669,7 +681,8 @@ function albumStats(a) {
   const used = new Set();
   const multi = albumTypes(a).length > 1 || isSetAlbum(a);
   // Does this coin fit this spot? Type sets match by type; date spots by date (and type, if the album has several).
-  const sameDate = (c, s) => (s.set ? c.typeId === s.t : num(c.year) === s.y && normMint(c.mint) === s.m && (!multi || c.typeId === slotType(a, s)));
+  const pfOk = (c, s) => (s.pf ? isProofGrade(c.grade) : !(a.proofs && isProofGrade(c.grade)));
+  const sameDate = (c, s) => (s.set ? c.typeId === s.t : num(c.year) === s.y && normMint(c.mint) === s.m && (!multi || c.typeId === slotType(a, s)) && pfOk(c, s));
   // 1) Coins added to a specific spot stay in that spot, whatever it's renamed or moved to.
   slots.forEach((s) => {
     if (!s.id) return;
@@ -742,7 +755,7 @@ function viewAlbum(r) {
           ${canL || canR ? `<span class="slot-mv"><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="-1" ${canL ? "" : "disabled"} aria-label="Move earlier">◀</button><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="1" ${canR ? "" : "disabled"} aria-label="Move later">▶</button></span>` : ""}
         </div>`;
       }
-      const onList = findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v);
+      const onList = spotFindWant(a, s);
       const tag = onList ? `<span class="g" style="color:var(--accent)">★ wanted</span>` : "";
       return hit
         ? `<button class="slot have" data-act="slotMenu" ${data} data-coin="${esc(hit.id)}">${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${tag}</button>`
@@ -814,6 +827,7 @@ function openAddSpot(id) {
         <label class="f"><span>Year</span><input type="number" inputmode="numeric" name="y" id="spotY" required placeholder="${a.start}"></label>
         <label class="f"><span>Mint mark</span><select name="m" id="spotM">${MINTS.map((m) => `<option value="${m}">${m || "None (Philadelphia)"}</option>`).join("")}</select></label>
       </div>`}
+      ${isSetAlbum(a) ? "" : `<label class="switch"><span>Proof spot</span><input type="checkbox" name="pf"></label>`}
       <label class="f"><span>Variety or label (optional)</span><input type="text" name="v" id="spotV" list="spotVList" placeholder="e.g. 8 Tail Feathers" maxlength="60"></label>
       <datalist id="spotVList"></datalist>
       <div class="hint" id="spotHint"></div>
@@ -841,6 +855,7 @@ function saveSpot(form) {
     const y = num(fd.get("y"));
     if (!y || y < 1700 || y > thisYear()) { toast("Enter a year."); return; }
     spot = { id: uid(), y, m: normMint(fd.get("m") || ""), v: String(fd.get("v") || "").trim(), custom: true };
+    if (fd.get("pf")) spot.pf = true;
     if (albumTypes(a).length > 1) spot.t = slotType(a, spot);
   }
   if (!spot.v) delete spot.v;
@@ -1157,6 +1172,7 @@ async function saveDraft() {
   if (!c.labelEdited) c.label = autoLabel(c);
   if (c.slotId) {
     const sl = getAlbum(c.albumId) && (getAlbum(c.albumId).slots || []).find((x) => x.id === c.slotId);
+    if (sl && sl.pf && d._isNew && !isProofGrade(c.grade)) { toast("This is a proof spot. Pick a proof grade (PR-60 to PR-70)."); return; }
     // The spot is gone, or the coin's date/mint no longer matches it (so it can find its right spot).
     if (!sl || num(c.year) !== sl.y || normMint(c.mint) !== sl.m) delete c.slotId;
   }
@@ -1342,6 +1358,7 @@ function openNewAlbum() {
     <label class="f"><span>Kind of album</span><select name="layout" id="albumLayout">
       <option value="dates">Dates and mint marks (most albums)</option><option value="set">Type set (one coin of each type)</option></select></label>
     ${albumTypeRows([firstAlbumType().id])}
+    ${proofSelect("")}
     <div class="grid2">
       <label class="f"><span>From year</span><input type="number" name="start" id="albumStart" value="${firstAlbumType().start}"></label>
       <label class="f"><span>To year</span><input type="number" name="end" id="albumEnd" value="${typeLastYear(firstAlbumType())}"></label>
@@ -1355,6 +1372,11 @@ function albumTypeRows(ids) {
   const row = (id, i) => `<div class="type-row"><select name="typeId" data-albumtype>${typeOptions(id)}</select>${i ? `<button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button>` : ""}</div>`;
   return `<div class="f"><span>Coin types in this album</span><div id="albumTypes">${ids.map(row).join("")}</div>
     <button type="button" class="link-btn" data-act="albumAddType">+ Add another coin type</button></div>`;
+}
+function proofSelect(cur) {
+  cur = cur === true ? "all" : cur || "";
+  const o = (v, l) => `<option value="${v}" ${cur === v ? "selected" : ""}>${l}</option>`;
+  return `<label class="f"><span>Proof spots</span><select name="proofs">${o("", "None")}${o("s", "S proofs only (1968 on)")}${o("all", "All proofs")}</select></label>`;
 }
 function readAlbumTypes(form) { return [...new Set(new FormData(form).getAll("typeId").filter((id) => TYPE_BY_ID[id]))]; }
 // Check the album's types and years. Returns a message, or "" when it's fine.
@@ -1382,8 +1404,10 @@ function doNewAlbum(form) {
   if (start > end) [start, end] = [end, start];
   const prob = albumProblem(types, layout, start, end);
   if (prob) { toast(prob); return; }
-  const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: types[0], typeIds: types, layout, start, end, removed: [], createdAt: Date.now() };
-  a.slots = buildAlbumSlots(types, layout, start, end);
+  const proofs = (layout !== "set" && fd.get("proofs")) || "";
+  if (proofs && !hasProofs(types)) { toast("The app doesn't have proof dates for these coin types yet. Add proof spots with + Add a spot."); return; }
+  const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: types[0], typeIds: types, layout, start, end, proofs, removed: [], createdAt: Date.now() };
+  a.slots = buildAlbumSlots(types, layout, start, end, proofs);
   put("a_" + a.id, a);
   types.forEach(touchType);
   closeSheet();
@@ -1403,6 +1427,7 @@ function openEditAlbum(id) {
     <label class="f"><span>Name (optional)</span><input type="text" name="name" value="${esc(a.name || "")}"></label>
     <div class="small muted" style="margin-top:10px">${isSetAlbum(a) ? "Type set (one coin of each type)" : "Dates and mint marks"}</div>
     ${albumTypeRows(albumTypes(a).length ? albumTypes(a) : [COIN_TYPES[0].id])}
+    ${isSetAlbum(a) ? "" : proofSelect(a.proofs)}
     <div class="grid2">
       <label class="f"><span>From year</span><input type="number" name="start" value="${a.start}"></label>
       <label class="f"><span>To year</span><input type="number" name="end" value="${a.end}"></label>
@@ -1420,22 +1445,25 @@ function saveEditAlbum(form) {
   const layout = isSetAlbum(a) ? "set" : "dates";
   const set = layout === "set";
   const oldTypes = albumTypes(a), types = readAlbumTypes(form);
-  const unchanged = types.join() === oldTypes.join() && start === a.start && end === a.end;
+  const oldPf = a.proofs === true ? "all" : a.proofs || "";
+  const proofs = (!set && fd.get("proofs")) || "";
+  if (proofs && !oldPf && !hasProofs(types)) { toast("The app doesn't have proof dates for these coin types yet. Add proof spots with + Add a spot."); return; }
+  const unchanged = types.join() === oldTypes.join() && start === a.start && end === a.end && proofs === oldPf;
   // Years already allowed for an unchanged album, so older albums with odd ranges can still be renamed.
   const prob = unchanged ? "" : albumProblem(types, layout, start, end);
   if (prob) { toast(prob); return; }
   let slots = a.slots || [];
   if (!unchanged) {
-    const fits = (x, ts, s0, e0) => ts.includes(x.t) && (set || (x.y >= s0 && x.y <= e0));
+    const fits = (x, ts, s0, e0, pf) => ts.includes(x.t) && (set || (x.y >= s0 && x.y <= e0)) && (!x.pf || pf === "all" || (pf === "s" && x.m === "S"));
     // Keep your own spots, and standard spots that still fit (with their ids, names and order).
-    const kept = slots.map((x) => (x.t || x.custom ? x : { ...x, t: slotType(a, x) })).filter((x) => x.custom || fits(x, types, start, end));
+    const kept = slots.map((x) => (x.t || x.custom ? x : { ...x, t: slotType(a, x) })).filter((x) => x.custom || fits(x, types, start, end, proofs));
     const have = new Set(kept.map(slotKey));
     // Add standard spots for new types and new years only (spots you removed before stay removed).
-    const added = buildAlbumSlots(types, layout, start, end).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end));
+    const added = buildAlbumSlots(types, layout, start, end, proofs).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end, oldPf));
     slots = set ? [...kept, ...added] : sortSlots([...kept, ...added]);
   }
   const removed = a.removed || [];
-  put("a_" + a.id, { ...a, brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, slots, removed });
+  put("a_" + a.id, { ...a, brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, proofs, slots, removed });
   closeSheet();
   toast("Album saved.");
 }
