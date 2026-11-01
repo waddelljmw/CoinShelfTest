@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.13.0";
+const APP_VERSION = "0.14.1";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -132,6 +132,24 @@ function put(key, obj) {
   });
   writeChains.set(key, next);
   return next;
+}
+/* ---------- sharing ---------- */
+const APP_URL = "https://waddelljmw.github.io/CoinShelfTest/";
+// Opens the phone's Share menu with a file. Returns true if it was shared (or the person closed the menu).
+async function shareFile(name, data, type, title) {
+  try {
+    const file = new File([data], name, { type });
+    if (!navigator.canShare || !navigator.canShare({ files: [file] })) return false;
+    await navigator.share({ files: [file], title });
+    return true;
+  } catch (e) { return !!(e && e.name === "AbortError"); }
+}
+async function shareAppLink() {
+  const text = "Coin Cabinet: a free app for keeping track of a coin collection. Open this link in Chrome, then Menu → Add to Home screen. Your coins stay private on your own phone.";
+  try { if (navigator.share) { await navigator.share({ title: "Coin Cabinet", text, url: APP_URL }); return; } }
+  catch (e) { if (e && e.name === "AbortError") return; }
+  try { await navigator.clipboard.writeText(APP_URL); toast("Link copied: " + APP_URL); }
+  catch (e) { toast("The app's address is " + APP_URL); }
 }
 // Writes to the same record happen in order.
 function chainWrite(key, fn) {
@@ -1047,6 +1065,9 @@ function viewOptions() {
     <div class="card">${store.mode === "db" ? "Save everything, photos included, in one file. This is also how you move your coins into the Coin Cabinet app on your phone." : "Save everything, photos included, in one file, or bring coins in from a backup."}
       ${settings().lastBackup ? `<div class="small muted" style="margin-top:6px">Last backup: ${esc(settings().lastBackup)}</div>` : ""}
       <div class="btn-row"><button class="btn" data-act="openBackup">Backup and restore</button></div></div>
+    <h2>Share Coin Cabinet</h2>
+    <div class="card">Send someone the link so they can install Coin Cabinet. They get their own, separate collection: they can't see your coins, and you can't see theirs.
+      <div class="btn-row"><button class="btn" data-act="shareApp">Share the app</button></div></div>
     <h2>Share a snapshot</h2>
     <div class="card">Save a view-only copy of your collection as one file to send to friends. What you paid, sources, notes and buyers are left out unless you choose to include them.
       <div class="btn-row"><button class="btn" data-act="openSnapshot">Share a snapshot</button></div></div>
@@ -1755,6 +1776,7 @@ const actions = {
   missing: (el) => openMissing(el.dataset.id),
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
   addSpot: (el) => openAddSpot(el.dataset.id),
+  shareApp: () => shareAppLink(),
   reorderAlbums: () => { albumsView.reorder = !albumsView.reorder; render(); },
   moveAlbum: (el) => moveAlbum(el.dataset.id, +el.dataset.d, !!el.dataset.whole),
   albumAddType: () => {

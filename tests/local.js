@@ -44,9 +44,9 @@ const srv = http.createServer((q, r) => {
   ok("backup file has the coin, album, settings and photo", bk.kind === "coin-cabinet-backup" && bk.docs.some((d) => d.id === "a_al") && bk.docs.some((d) => d.id === "settings") && Object.keys(bk.photos).length === 1);
   ok("backup date remembered and reminder gone", await p.evaluate(() => { go("home"); return !!settings().lastBackup && !/haven't saved a backup/.test(document.querySelector("#view").textContent); }));
   // removing a photo from a coin frees it on the next start
-  await p.evaluate(() => { const c = ownedCoins()[0]; saveCoin({ ...c, photos: [] }); }); await p.waitForTimeout(150);
+  await p.evaluate(async () => { const c = ownedCoins()[0]; saveCoin({ ...c, photos: [] }); await idb("photos", "readwrite", (st) => st.put(new Blob(["x"]), "p" + (Date.now() - 3 * 86400000).toString(36) + "old")); }); await p.waitForTimeout(150);
   await p.reload(); await p.waitForTimeout(500);
-  ok("unused photo cleaned up", await p.evaluate(() => localPhotoUrls.size === 0));
+  ok("unused photos over a day old are cleaned up; today's are kept a day", await p.evaluate(() => localPhotoUrls.size === 1 && ![...localPhotoUrls.keys()].some((k) => k.endsWith("old"))));
   await ctx.close();
   // ---- A new phone: restore the backup ----
   const ctx2 = await b.newContext({ viewport: { width: 390, height: 844 } });

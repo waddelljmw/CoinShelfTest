@@ -89,7 +89,9 @@ function photoIdsInUse() {
 async function cleanUnusedPhotos() {
   try {
     const used = photoIdsInUse();
-    const gone = [...localPhotoUrls.keys()].filter((k) => !used.has(k));
+    // Only photos over a day old: a coin form open in another window may still be holding a newer one.
+    const age = (k) => Date.now() - parseInt(k.slice(1, 9), 36);
+    const gone = [...localPhotoUrls.keys()].filter((k) => !used.has(k) && age(k) > 86400000);
     for (const k of gone) {
       await idb("photos", "readwrite", (st) => st.delete(k));
       URL.revokeObjectURL(localPhotoUrls.get(k));
