@@ -102,37 +102,57 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - **COA:** a "COA included" checkbox, plus a note about the box and packaging.
 - **Speed:** quick-add remembers your last holder and source.
 
-**Step 2.2. Sets, rolls and groups. Model: Sonnet.**
+**Step 2.2. Coin record upgrade. Model: Opus** (new data fields), then **Sonnet** for screens.
+*Why it comes first:* the steps after it (rolls, sets, the new form) are built on these fields. Deciding how data is stored before building screens means nothing has to be redone.
+- **Status:** In collection, On the way (bought or won, not here yet), For sale, Sold, Gone (traded, gifted or lost; left out of totals). Plus an **Upgrade wanted** checkbox. Inherited coins can't be set to For sale. Coins you already have become "In collection" automatically.
+- **Purchase details:** date, seller (fills in from past entries), where (show, eBay, Whatnot, shop, inherited), price, tax, shipping and fees, then a **total cost** worked out for you. Plus payment method, receipt number and a receipt photo.
+- **Errors and problems:**
+  - **Known varieties** (e.g. 1955 doubled die, 1922 no D), including the **Statehood quarter varieties** (e.g. 2004-D Wisconsin extra leaf). Each is checked against real sources or your Red Book pages, never guessed.
+  - **Mint errors** picked from a list: off-center, clipped, double struck, broadstrike and others.
+  - **Problems:** cleaned, scratched, holed, bent and others. These show as "Details" next to the grade and lower the value.
+- **Catalog number** (PCGS or NGC), shown only for slabs and copied from the label. Phase 3 uses it to open that exact coin in the PCGS Photo Guide.
+
+**Step 2.3. A cleaner Add coin page. Model: Sonnet.**
+*Made for anyone, even people who aren't good with technology.*
+- The page asks **"What is it?"** first (US coin, set, roll, medal or token, foreign, bullion) and only shows the fields that matter.
+- Page one is just the basics: type, year, mint and grade.
+- Everything else is in closed sections you tap to open: Holder, Purchase, Errors and problems, Photos, Notes.
+- Sale details aren't on this page at all. They open from a **Mark as sold** button (see Phase 7).
+
+**Step 2.4. Sets and rolls. Model: Sonnet.**
 - **Proof and mint sets:** one entry with year, type and packaging (hard plastic or cellophane). Silver proof sets get melt automatically.
-- **Rolls:** coin type, number of coins, face value and roll value.
+- **Rolls:** pick the coin type (e.g. Kennedy half 90%, 40% or clad); the metal comes from the catalog.
+  - **Coin count and face value fill in for you:** cents 50 ($0.50), nickels 40 ($2), dimes 50 ($5), quarters 40 ($10), halves 20 ($10), dollars 25 ($25). You can change them.
+  - **Dates:** mixed dates, or one date and mint.
+  - **Roll condition:** Circulated, AU, UNC or BU, plus an "Original bank wrap" checkbox.
+  - **Value:** clad rolls count at face value. Silver rolls are coins × melt per coin. **Nicer rolls** (UNC, BU, bank-wrapped, key dates) can have your own value instead; "Check eBay sold" helps you find one.
+  - A roll is all one metal (no mixed silver and clad rolls).
 - **Cases with several coins** (e.g. 3 steel wheat cents): one case, with each coin still counted.
 
-**Step 2.3. Coins outside the catalog. Model: Sonnet.**
+**Step 2.5. Coins outside the catalog. Model: Sonnet.**
 - Commemoratives (like the 1993 James Madison), medals, casino tokens with a silver weight (like your .7 ozt tokens), and foreign coins.
 - Type the metal and weight once, and melt is worked out automatically.
-- The Add coin form asks "What is it?" first (US coin, set, roll, medal or token, foreign, bullion) and only shows the fields that matter.
 
-**Step 2.4. Groups you can include or leave out. Model: Sonnet.**
+**Step 2.6. Groups you can include or leave out. Model: Sonnet.**
 - Tag coins with a group, like *Inherited* (never for sale) or *My collection*.
 - Turn each group on or off in your totals. Value and melt update right away.
-- Inherited coins are "Not for sale" and can't be marked for sale by accident.
 
-**Step 2.5. My Silver Stack and other stacks. Model: Opus** (planning), then **Sonnet**.
+**Step 2.7. My Silver Stack and other stacks. Model: Opus** (planning), then **Sonnet**.
 - A "Stacks" section kept apart from coins, starting with My Silver Stack. My Gold Stack and others can be added later.
 - Bars, rounds and shapes, each with weight, purity, maker and serial number (like your 10 oz Engelhard bar).
 - Each stack shows total ounces and melt. You choose whether it counts in your overall total.
 - Silver Eagles can live in a stack or with your coins, whichever you prefer. Gold details are discussed before that part is built.
 
-**Step 2.6. The wheat penny box organizer. Model: Sonnet.**
+**Step 2.8. The wheat penny box organizer. Model: Sonnet.**
 - A "Box" works like an album. Name it (e.g. Black box 1), set rows and slots per row; each spot holds a 2x2.
 - See what's in each row, search for "1909-S", and get its row and slot number.
 - See which Lincoln dates you're still missing.
 
-**Step 2.7. More albums. Model: Sonnet.**
+**Step 2.9. More albums. Model: Sonnet.**
 - Add Littleton albums that couldn't be confirmed online (type sets, the Silver Eagle album, America the Beautiful Vol. 1). Send photos of their pages.
 - Add proof dates for more series (Lincoln, Kennedy, Roosevelt, Silver Eagles and others) from Red Book pages you send, so "with proofs" albums get their proof spots.
 
-**Step 2.8. Review. Model: Opus.**
+**Step 2.10. Review. Model: Opus.**
 
 ---
 
@@ -175,6 +195,8 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 
 - A "For sale" mark with an asking price, and a simple For Sale list.
 - Profit per sale (what you paid vs. what it sold for), including shipping and fees. This builds on what the app already has.
+- **Mark as sold** opens the sale details: date, buyer, where (eBay, Whatnot, show, private), price, shipping charged and shipping paid, platform fees, sales tax collected, payment method, order and tracking numbers, then **profit** worked out for you.
+- Ideas for status, purchase and sale details came from OpenNumismat (ideas only, no code copied).
 
 ---
 
