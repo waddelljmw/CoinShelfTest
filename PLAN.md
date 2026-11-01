@@ -145,11 +145,22 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - Tag coins with a group, like *Inherited* (never for sale) or *My collection*.
 - Turn each group on or off in your totals. Value and melt update right away.
 
-**Step 2.7. My Silver Stack and other stacks. Model: Opus** (planning), then **Sonnet**.
+**Step 2.7. My Silver Stack and other stacks. Model: Opus** (planning) — planned ✅, then **Sonnet** to build.
+*Say this (on Sonnet):* "Do Step 2.7 of the plan."
+- [x] Planned (Nov 1, 2026). Your choices: Silver Eagles stay with your coins; junk silver coins can join a stack; stacks count in your total, because the total should match your whole real shelf.
+- [ ] Merged
 - A "Stacks" section kept apart from coins, starting with My Silver Stack. My Gold Stack and others can be added later.
 - Bars, rounds and shapes, each with weight, purity, maker and serial number (like your 10 oz Engelhard bar).
-- Each stack shows total ounces and melt. You choose whether it counts in your overall total.
-- Silver Eagles can live in a stack or with your coins, whichever you prefer. Gold details are discussed before that part is built.
+- Each stack shows total ounces and melt, and counts in your overall total. A Home on/off chip per stack (like Inherited) lets you leave one out for a moment.
+- Gold details are discussed before that part is built.
+
+*How to build it (for Claude):*
+- **"What is it?" gets Bullion** (bar, round or shape). It is saved as a coin record with `item: "bullion"`, so purchase, status, Mark as sold, photos, backup, groups and Undo all keep working. Extend `itemOf`; old records convert on read.
+- **Bullion fields:** shape (bar/round/shape), metal (Silver for now), maker, weight in oz (grams helper from 2.5), purity (default .999), serial number, quantity. Pure ounces = weight × purity. Value = melt unless he types his own value (collectible bars). No year/mint/grade needed.
+- **`stack` field** (a name, like `group`): bullion defaults to "My Silver Stack". Raw coins graded **Junk** that have silver get an optional "Put in a stack" picker. Silver Eagles and other graded coins don't get the picker.
+- **Stacks page** (menu): each stack with item count, total pure oz and melt; tap to list its items.
+- **Totals:** a stacked item counts only if its group chip AND its stack chip are on (an inherited bar stays "Inherited" and in My Silver Stack). Stacks are on by default (new `hiddenStacks` setting). Value history keeps the full total.
+- Tests: bullion melt math, junk coin in a stack, chips, and old coins unchanged.
 
 **Step 2.8. The wheat penny box organizer. Model: Sonnet.**
 - A "Box" works like an album. Name it (e.g. Black box 1), set rows and slots per row; each spot holds a 2x2.
