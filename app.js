@@ -11,10 +11,12 @@ const money = (n, dash = "—") => (n == null || isNaN(n) ? dash : n.toLocaleStr
 const pct = (n) => (n == null || !isFinite(n) ? "—" : (n >= 0 ? "+" : "") + (n * 100).toFixed(1) + "%");
 const signCls = (n) => (n == null ? "" : n >= 0 ? "pos" : "neg");
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-const today = () => new Date().toISOString().slice(0, 10);
+// Dates use the phone's own time zone (toISOString would use London time and roll over early in the evening).
+const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.10.0";
+const APP_VERSION = "0.10.1";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 

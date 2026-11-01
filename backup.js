@@ -26,7 +26,7 @@ async function buildBackup(onProgress) {
   store.docs.forEach((data, id) => { if (data) docs.push({ id, data }); });
   const photos = await collectPhotos(onProgress);
   return {
-    kind: BACKUP_KIND, format: 1, appVersion: APP_VERSION, made: new Date().toISOString(),
+    kind: BACKUP_KIND, format: 1, appVersion: APP_VERSION, made: today(),
     counts: { coins: allCoins().filter((c) => c.status !== "deleted").length, albums: albums().length, photos: Object.keys(photos).length },
     docs, photos,
   };
