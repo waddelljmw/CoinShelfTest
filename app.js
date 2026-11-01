@@ -553,6 +553,7 @@ function yearProblem(typeId, year, kind) {
   if (y > cap) return kind === "want" ? "Wants can be at most " + cap + "." : "That year hasn't happened yet. The latest is " + cap + ".";
   if (y < 1) return "Enter a real year.";
   const last = t && (t.end >= 2026 ? cap : t.end); // a series still being made can run up to the cap
+  if (t && t.skipYears && t.skipYears.includes(y)) return t.name + " wasn't made in " + y + ".";
   if (t && (y < t.start || y > last)) {
     // Another type of the same coin covers this year (e.g. 2021 Morgan, 2009 cent): point to it.
     const alt = COIN_TYPES.find((o) => o.id !== t.id && o.family === t.family && y >= o.start && y <= (o.end >= 2026 ? cap : o.end));
@@ -1003,7 +1004,7 @@ function mintChoices(t, proof) {
 function renderCoinForm() {
   const d = draft;
   const t = TYPE_BY_ID[d.typeId];
-  if (isProofGrade(d.grade)) d._proof = true;
+  if (d.grade && d.grade !== "Other") d._proof = isProofGrade(d.grade); // a grade that's set decides the switch
   else if (d._proof === undefined) d._proof = false;
   const mints = mintChoices(t, d._proof).concat(d.mint && !mintChoices(t, d._proof).includes(d.mint) ? [d.mint] : []); // keep an older saved mint visible
   const grades = (d.gradeMode === "cert" ? CERT_GRADES : GRADES).filter((g) => isProofGrade(g) === !!d._proof);
@@ -1100,7 +1101,9 @@ function varietyField(d) {
   // Always offer a neutral first choice, so nothing gets tagged with a variety by accident.
   const choices = vs.includes("") ? vs : ["", ...vs];
   const blank = vs.includes("") ? "Regular (no variety)" : "Not sure / not listed";
-  return `<label class="f"><span>Variety</span><select data-f="variety" data-rerender>${choices.map((v) => `<option value="${esc(v)}" ${(d.variety || "") === v ? "selected" : ""}>${esc(v || blank)}</option>`).join("")}</select></label>`;
+  const tt = TYPE_BY_ID[d.typeId];
+  const needsDesign = tt && tt.varieties && tt.varieties[d.year + "|" + normMint(d.mint)] && !d.variety;
+  return `<label class="f"><span>Variety</span><select data-f="variety" data-rerender>${choices.map((v) => `<option value="${esc(v)}" ${(d.variety || "") === v ? "selected" : ""}>${esc(v || blank)}</option>`).join("")}</select></label>${needsDesign ? `<div class="hint">Pick the design so this coin fills its own spot in an album.</div>` : ""}`;
 }
 function bookHintText(d) {
   if (isJunk(d)) return "";
@@ -1204,7 +1207,7 @@ function showTypeList(q) {
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; delete c._replaces; delete c._proof; // working copies aren't saved
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
   const prev = !d._isNew && getCoin(c.id);
   if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
   const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);
@@ -1229,8 +1232,9 @@ async function saveDraft() {
   if (c.albumId === "__new") {
     const na = d._newAlbum;
     const t = TYPE_BY_ID[c.typeId];
-    const match = albums().find((a) => a.brand === na.brand && (a.number || "") === na.number.trim() && albumHasType(a, c.typeId));
     const info = typeof lookupAlbum === "function" ? lookupAlbum(na.brand, na.number) : null;
+    const numClean = info ? info.number : na.number.trim();
+    const match = albums().find((a) => a.brand === na.brand && (a.number || "") === numClean && albumHasType(a, c.typeId));
     if (match) c.albumId = match.id;
     else if (info && info.types.includes(c.typeId)) {
       const pf = lookupProofs(info);
@@ -1459,6 +1463,7 @@ function doNewAlbum(form) {
   const fd = new FormData(form);
   const types = readAlbumTypes(form);
   const layout = fd.get("layout") === "set" ? "set" : "dates";
+  const info0 = typeof lookupAlbum === "function" ? lookupAlbum(fd.get("brand"), fd.get("number")) : null;
   const t = TYPE_BY_ID[types[0]];
   let start = num(fd.get("start")) ?? (t ? t.start : 0), end = num(fd.get("end")) ?? (t ? t.end : 0);
   if (start > end) [start, end] = [end, start];
@@ -1466,7 +1471,7 @@ function doNewAlbum(form) {
   if (prob) { toast(prob); return; }
   const proofs = (layout !== "set" && fd.get("proofs")) || "";
   if (proofs && !hasProofs(types)) { toast("The app doesn't have proof dates for these coin types yet. Add proof spots with + Add a spot."); return; }
-  const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: types[0], typeIds: types, layout, start, end, proofs, removed: [], createdAt: Date.now() };
+  const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: info0 ? info0.number : (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: types[0], typeIds: types, layout, start, end, proofs, removed: [], createdAt: Date.now() };
   a.slots = buildAlbumSlots(types, layout, start, end, proofs);
   put("a_" + a.id, a);
   types.forEach(touchType);
@@ -1660,9 +1665,16 @@ const actions = {
   retype: () => retypeDraft(),
   toggleProof: (el) => {
     if (!draft) return;
+    const was = draft._proof;
     draft._proof = el.checked;
-    if (isProofGrade(draft.grade) !== draft._proof) draft.grade = "";
-    if (draft.mint && !mintChoices(TYPE_BY_ID[draft.typeId], draft._proof).includes(draft.mint)) draft.mint = "";
+    const t = TYPE_BY_ID[draft.typeId];
+    // Remember what was set before switching to proof, so switching back puts it back.
+    if (draft._proof && !was) draft._preProof = { grade: draft.grade, mint: draft.mint };
+    if (!draft._proof && draft._preProof && (!draft.grade || isProofGrade(draft.grade))) draft.grade = draft._preProof.grade; // switching back: put the old grade back
+    else if (isProofGrade(draft.grade) !== draft._proof) draft.grade = "";
+    if (!draft._proof && draft._preProof && !draft.mint && mintChoices(t, false).includes(draft._preProof.mint)) draft.mint = draft._preProof.mint; // switching back: put the old mint back
+    else if (draft.mint && !mintChoices(t, draft._proof).includes(draft.mint)) draft.mint = "";
+    if (!draft._proof) delete draft._preProof;
     const y = $(".sheet").scrollTop;
     renderCoinForm();
     $(".sheet").scrollTop = y;

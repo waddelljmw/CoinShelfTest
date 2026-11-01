@@ -45,7 +45,7 @@ function albumFormLookup(form) {
   const key = info.brand + "|" + info.number;
   if (form.dataset.shown === key) return;
   form.dataset.shown = key;
-  if (form.id === "albumForm") {
+  if (form.id === "albumForm" && !form.dataset.touched) {
     // New album: fill everything in right away.
     if (form.dataset.found !== info.brand + info.number) { applyAlbumInfo(form, info); form.dataset.found = info.brand + info.number; }
     hint.innerHTML = albumLookupMessage(info, true);
@@ -54,8 +54,14 @@ function albumFormLookup(form) {
     hint.innerHTML = albumLookupMessage(info, false) + ` <button type="button" class="link-btn" data-act="albumApplyDb">Use these coin types and years</button>`;
   }
 }
+// Once you change the types or years yourself, a new brand/number never overwrites them.
+document.addEventListener("change", (e) => {
+  const f = e.target.form;
+  if (f && f.id === "albumForm" && ["start", "end", "typeId", "proofs", "layout"].includes(e.target.name) && e.isTrusted) f.dataset.touched = "1";
+});
 document.addEventListener("input", (e) => {
   const f = e.target.form;
+  if (f && f.id === "albumForm" && ["start", "end"].includes(e.target.name) && e.isTrusted) f.dataset.touched = "1";
   if (f && (f.id === "albumForm" || f.id === "editAlbumForm") && e.target.name === "number") albumFormLookup(f);
 });
 document.addEventListener("change", (e) => {

@@ -57,7 +57,7 @@ function applyPhotoResult(r) {
     filled.push("type (typed, not matched)");
   }
   const y = parseInt(r.year, 10);
-  if (y >= 1700 && !yearProblem(draft.typeId, y, "coin")) { draft.year = y; filled.push("year"); }
+  if (y >= 1700 && !yearProblem(draft.typeId, y, "coin")) { draft.year = y; filled.push("year"); applyYearMetal(draft); }
   else if (y) filled.push("year skipped (" + (yearProblem(draft.typeId, y, "coin") || "not a real year") + ")");
   if (r.mint != null) {
     const m = String(r.mint).toUpperCase().trim();

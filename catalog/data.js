@@ -144,6 +144,66 @@ const EXACT_SLOTS = {
 };
 
 // Sheldon scale, lowest first. "Junk" sits before the lowest grade and is valued at melt.
+// More exact dates and mint marks (regular strikes only; proofs are separate). Mint "P" means no mint mark.
+(function () {
+  const yrs = (a, b, m) => Array.from({ length: b - a + 1 }, (_, i) => [a + i, m]);
+  const only = (list, skip) => list.filter(([y]) => !skip.includes(y));
+  Object.assign(EXACT_SLOTS, {
+    "flying-eagle-cent": [[1856, "P"], [1857, "P"], [1858, "P"]],
+    "indian-cent": [...yrs(1859, 1907, "P"), [1908, "P S"], [1909, "P S"]],
+    "liberty-nickel": [...yrs(1883, 1911, "P"), [1912, "P D S"]],
+    "buffalo-nickel": [[1913, "P D S"], ...yrs(1914, 1920, "P D S"), [1921, "P S"], [1923, "P S"], ...yrs(1924, 1929, "P D S"), [1930, "P S"], [1931, "S"], [1934, "P D"], ...yrs(1935, 1937, "P D S"), [1938, "D"]],
+    "jefferson-nickel": [...yrs(1938, 1942, "P D S"), ...yrs(1946, 1949, "P D S"), [1950, "P D"], ...yrs(1951, 1954, "P D S"), ...yrs(1955, 1964, "P D"), ...yrs(1965, 1967, "P"), ...yrs(1968, 1970, "D"), ...yrs(1971, 2026, "P D")],
+    "jefferson-war-nickel": [[1942, "P S"], [1943, "P D S"], [1944, "P D S"], [1945, "P D S"]],
+    "barber-dime": [...yrs(1892, 1903, "P O S"), [1904, "P S"], [1905, "P O S"], ...yrs(1906, 1909, "P D O S"), ...yrs(1910, 1912, "P D S"), [1913, "P S"], [1914, "P D S"], [1915, "P S"], [1916, "P S"]],
+    "barber-quarter": [...yrs(1892, 1903, "P O S"), [1904, "P O"], [1905, "P O S"], [1906, "P D O"], ...yrs(1907, 1909, "P D O S"), [1910, "P D"], [1911, "P D S"], [1912, "P S"], ...yrs(1913, 1915, "P D S"), [1916, "P D"]],
+    "barber-half": [...yrs(1892, 1905, "P O S"), ...yrs(1906, 1908, "P D O S"), [1909, "P O S"], [1910, "P S"], ...yrs(1911, 1913, "P D S"), [1914, "P S"], [1915, "P D S"]],
+    "standing-liberty-quarter": [[1916, "P"], [1917, "P D S"], [1918, "P D S"], [1919, "P D S"], [1920, "P D S"], [1921, "P"], [1923, "P S"], [1924, "P D S"], [1925, "P"], ...yrs(1926, 1929, "P D S"), [1930, "P S"]],
+    "roosevelt-silver": [...yrs(1946, 1955, "P D S"), ...yrs(1956, 1964, "P D")],
+    "roosevelt-clad": [...yrs(1965, 1967, "P"), ...yrs(1968, 1995, "P D"), [1996, "P D W"], ...yrs(1997, 2026, "P D")],
+    "kennedy-40": [[1965, "P"], [1966, "P"], [1967, "P"], [1968, "D"], [1969, "D"], [1970, "D"]],
+    "kennedy-clad": [...yrs(1971, 1974, "P D"), ...yrs(1976, 2026, "P D")],
+    "ike-clad": [...yrs(1971, 1974, "P D"), ...yrs(1976, 1978, "P D")],
+    "ike-40": [[1971, "S"], [1972, "S"], [1973, "S"], [1974, "S"], [1976, "S"]],
+    "sacagawea-dollar": yrs(2000, 2026, "P D"),
+    "state-quarter": yrs(1999, 2008, "P D"),
+    "atb-quarter": [...yrs(2010, 2018, "P D"), [2019, "P D W"], ...yrs(2020, 2021, "P D")],
+    "women-quarter": yrs(2022, 2025, "P D"),
+  });
+  // Spots that are one per design or variety (a year/mint key like "1999|D" lists the designs).
+  const designs = (type, byYear, mints, extraMints) => {
+    const t = COIN_TYPES.find((x) => x.id === type);
+    t.varieties = t.varieties || {};
+    Object.keys(byYear).forEach((y) => (extraMints && extraMints[y] || mints).forEach((m) => { t.varieties[y + "|" + (m === "P" ? "" : m)] = byYear[y]; }));
+  };
+  designs("state-quarter", {
+    1999: ["Delaware", "Pennsylvania", "New Jersey", "Georgia", "Connecticut"], 2000: ["Massachusetts", "Maryland", "South Carolina", "New Hampshire", "Virginia"],
+    2001: ["New York", "North Carolina", "Rhode Island", "Vermont", "Kentucky"], 2002: ["Tennessee", "Ohio", "Louisiana", "Indiana", "Mississippi"],
+    2003: ["Illinois", "Alabama", "Maine", "Missouri", "Arkansas"], 2004: ["Michigan", "Florida", "Texas", "Iowa", "Wisconsin"],
+    2005: ["California", "Minnesota", "Oregon", "Kansas", "West Virginia"], 2006: ["Nevada", "Nebraska", "Colorado", "North Dakota", "South Dakota"],
+    2007: ["Montana", "Washington", "Idaho", "Wyoming", "Utah"], 2008: ["Oklahoma", "New Mexico", "Arizona", "Alaska", "Hawaii"],
+  }, ["P", "D"]);
+  designs("atb-quarter", {
+    2010: ["Hot Springs", "Yellowstone", "Yosemite", "Grand Canyon", "Mount Hood"], 2011: ["Gettysburg", "Glacier", "Olympic", "Vicksburg", "Chickasaw"],
+    2012: ["El Yunque", "Chaco Culture", "Acadia", "Hawaii Volcanoes", "Denali"], 2013: ["White Mountain", "Perry's Victory", "Great Basin", "Fort McHenry", "Mount Rushmore"],
+    2014: ["Great Smoky Mountains", "Shenandoah", "Arches", "Great Sand Dunes", "Everglades"], 2015: ["Homestead", "Kisatchie", "Blue Ridge Parkway", "Bombay Hook", "Saratoga"],
+    2016: ["Shawnee", "Cumberland Gap", "Harpers Ferry", "Theodore Roosevelt", "Fort Moultrie"], 2017: ["Effigy Mounds", "Frederick Douglass", "Ozark Riverways", "Ellis Island", "George Rogers Clark"],
+    2018: ["Pictured Rocks", "Apostle Islands", "Voyageurs", "Cumberland Island", "Block Island"], 2019: ["Lowell", "American Memorial Park", "War in the Pacific", "San Antonio Missions", "Frank Church"],
+    2020: ["American Samoa", "Weir Farm", "Salt River Bay", "Marsh-Billings-Rockefeller", "Tallgrass Prairie"], 2021: ["Tuskegee Airmen"],
+  }, ["P", "D"], { 2019: ["P", "D", "W"] });
+  designs("women-quarter", {
+    2022: ["Maya Angelou", "Sally Ride", "Wilma Mankiller", "Nina Otero-Warren", "Anna May Wong"], 2023: ["Bessie Coleman", "Edith Kanaka'ole", "Eleanor Roosevelt", "Jovita Idar", "Maria Tallchief"],
+    2024: ["Patsy Takemoto Mink", "Mary Edwards Walker", "Celia Cruz", "Zitkala-Sa", "Pauli Murray"], 2025: ["Ida B. Wells", "Juliette Gordon Low", "Vera Rubin", "Stacey Park Milbern", "Althea Gibson"],
+  }, ["P", "D"]);
+  // Types with two kinds in one year (shown as separate spots).
+  const two = (type, key, list) => { const t = COIN_TYPES.find((x) => x.id === type); t.varieties = t.varieties || {}; t.varieties[key] = list; };
+  two("liberty-nickel", "1883|", ["Without CENTS", "With CENTS"]);
+  two("buffalo-nickel", "1913|", ["Type 1", "Type 2"]); two("buffalo-nickel", "1913|D", ["Type 1", "Type 2"]); two("buffalo-nickel", "1913|S", ["Type 1", "Type 2"]);
+  two("standing-liberty-quarter", "1917|", ["Type 1", "Type 2"]); two("standing-liberty-quarter", "1917|D", ["Type 1", "Type 2"]); two("standing-liberty-quarter", "1917|S", ["Type 1", "Type 2"]);
+  // Years the Mint made none of a type (even though they fall inside its dates).
+  ["morgan-modern", "peace-modern"].forEach((id) => { COIN_TYPES.find((x) => x.id === id).skipYears = [2022]; });
+})();
+
 const GRADES = [
   "Junk", "PO-1", "FR-2", "AG-3", "G-4", "G-6", "VG-8", "VG-10", "F-12", "F-15",
   "VF-20", "VF-25", "VF-30", "VF-35", "XF-40", "XF-45", "AU-50", "AU-53", "AU-55", "AU-58",
