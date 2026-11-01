@@ -39,7 +39,7 @@ function historyPoints() {
   const days = historyDays();
   let keys = Object.keys(days).sort();
   if (historyView.range !== "all") {
-    const from = new Date(Date.now() - (+historyView.range) * 86400000).toISOString().slice(0, 10);
+    const from = localDate(new Date(Date.now() - (+historyView.range) * 86400000));
     keys = keys.filter((k) => k >= from);
   }
   return keys.map((k) => ({ d: k, ...days[k] }));

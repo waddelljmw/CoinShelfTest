@@ -154,3 +154,7 @@ body.readonly [data-spot], body.readonly [data-setting], body.readonly [data-act
 .album-chip { margin: -2px 2px 10px; font-size: 15px; }
 .type-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; } .type-row select { flex: 1; }
 .type-del { border: 1px solid var(--line, #ccc); background: none; border-radius: 8px; width: 36px; height: 36px; font-size: 16px; color: inherit; }
+.coin-row .slot-mv { border-top: 0; gap: 6px; flex: 0 0 auto; } .coin-row .slot-mv button { width: 40px; height: 36px; border-radius: 8px; flex: 0 0 auto; }
+.series-box { border-left: 3px solid var(--accent); padding-left: 8px; margin-bottom: 12px; }
+.series-head { display: flex; justify-content: space-between; align-items: center; margin: 0 0 6px; font-size: 14px; }
+.series-head .slot-mv { border-top: 0; gap: 6px; flex: 0 0 auto; } .series-head .slot-mv button { width: 40px; height: 36px; border-radius: 8px; flex: 0 0 auto; }

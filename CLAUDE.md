@@ -22,12 +22,14 @@ Read this first, then `PLAN.md` for what's next.
 - Run one adversarial review (an Opus subagent) after each phase, and before anything that moves or reshapes stored data.
 
 ## How the code is laid out
-- `index.html`: page shell. Scripts load in this order: `catalog/data.js`, `catalog/pricebook.js`, `catalog/albums.js`, `app.js`, `sheets.js`, `photofill.js`, `history.js`, `wants.js`, `report.js`, `snapshot.js`, `albumdb.js`.
+- `index.html`: page shell. Scripts load in this order: `catalog/data.js`, `catalog/pricebook.js`, `catalog/albums.js`, `app.js`, `sheets.js`, `photofill.js`, `history.js`, `wants.js`, `report.js`, `snapshot.js`, `albumdb.js`, `local.js`, `backup.js`.
 - `catalog/`: what the app knows about coins. Swap this folder for a different collection (e.g. ancient coins).
   - `data.js`: coin types, metal content, grades, exact dates and mint marks (`EXACT_SLOTS`), designs and varieties.
   - `pricebook.js`: Red Book values, mintages and proof dates (typed in from the user's Red Book photos).
   - `albums.js`: the album lookup list (brand + number → types, years, proofs).
-- `app.js`: storage, coins, albums, forms, values. `wants.js`: want lists. `sheets.js`: CSV import and export. `photofill.js`: reading a coin from a photo. `history.js`: value over time. `report.js`: insurance report. `snapshot.js`: view-only share file. `albumdb.js`: album lookup on the album forms.
+- `app.js`: storage, coins, albums, forms, values. `wants.js`: want lists. `sheets.js`: CSV import and export. `photofill.js`: reading a coin from a photo. `history.js`: value over time. `report.js`: insurance report. `snapshot.js`: view-only share file. `albumdb.js`: album lookup on the album forms. `local.js`: saving on the device (IndexedDB) when the app runs outside Claude. `backup.js`: Backup and Restore.
+- Where coins are saved (`store.mode`): `local` = on the device (outside Claude), `db` = the user's Claude account, `snapshot` = view-only share file, `memory` = nothing saved.
+- Photos: `{lid}` = on the device, `{id}` = stored by Claude, `{url}` = temporary.
 - Saved records are kept by key: `c_<id>` coins, `a_<id>` albums, `w_<id>` wants, `wl_<id>` want lists, `settings`, `history`.
 
 ## Rules that protect the user's coins

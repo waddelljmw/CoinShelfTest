@@ -55,12 +55,13 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - [x] **Coin catalog in its own folder** (`catalog/`): coin types and dates, Red Book prices, and the album list. The ancient-coins app can swap in its own catalog later.
 - [x] Merged
 
-**Step 1.1. Save on your phone, not in Claude. Model: Opus** (it moves your data).
-*Say this:* "Do Step 1.1 of the plan."
+**Step 1.1. Save on your phone, not in Claude. Model: Opus** — DONE ✅
 
-- **Storage:** coins, photos, albums and lists are stored on the device, so the app works with no internet.
-- **Backup:** Backup and Restore buttons save everything, photos included, in one file. A reminder appears if you haven't backed up in 30 days, and before big updates.
-- **Moving your data:** a "Move my data out" button in the current Claude version. You back up from there and restore into the new app.
+- [x] **Storage:** when the app runs on its own, coins, photos, albums and lists are saved on the device, so it works with no internet.
+- [x] **Backup and Restore** (Options): one file with everything, photos included. Restore adds a backup without deleting anything. Home reminds you if your last backup is over 30 days old.
+- [x] **Moving your data:** in the Claude version, Options → Backup and restore saves the file you'll restore into the phone app in Step 1.2.
+- [ ] Merged
+- *The "Update ready" banner and the backup reminder before big updates come with Step 1.2.*
 
 **Step 1.2. Put it online and installable. Model: Sonnet.**
 *Say this:* "Do Step 1.2 of the plan."
