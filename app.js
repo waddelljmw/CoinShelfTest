@@ -191,10 +191,21 @@ function bookKey(c, kind) {
 }
 // Varieties the book lists for this date and strike ("" = the regular coin).
 function bookVarieties(c) {
+  const t = TYPE_BY_ID[c.typeId];
+  const own = (t && t.varieties && c.year && t.varieties[c.year + "|" + normMint(c.mint)]) || []; // design varieties we know (e.g. 2009 cents)
   const bt = bookTable(c);
-  if (!bt || !c.year) return [];
+  if (!bt || !c.year) return own;
   const base = bookBase(c, bt.kind);
-  return Object.keys(bt.t.rows).filter((k) => k === base || k.startsWith(base + "|")).map((k) => k.split("|")[1] || "");
+  const book = Object.keys(bt.t.rows).filter((k) => k === base || k.startsWith(base + "|")).map((k) => k.split("|")[1] || "");
+  return [...new Set([...book, ...own])];
+}
+// Some types change metal by year (1943 steel cents). Sets the draft's metal to match.
+function applyYearMetal(d) {
+  const t = TYPE_BY_ID[d.typeId];
+  if (!t || !t.metalByYear) return;
+  const mb = t.metalByYear[num(d.year)];
+  if (mb) { d.metal = mb[0]; d.oz = mb[1] || ""; }
+  else if (d.metal === "Steel") { d.metal = t.metal; d.oz = t.oz || ""; }
 }
 // Returns {price, grade, kind} for the highest listed grade at or below the coin's grade.
 function bookLookup(c) {
@@ -540,7 +551,11 @@ function yearProblem(typeId, year, kind) {
   if (y > cap) return kind === "want" ? "Wants can be at most " + cap + "." : "That year hasn't happened yet. The latest is " + cap + ".";
   if (y < 1) return "Enter a real year.";
   const last = t && (t.end >= 2026 ? cap : t.end); // a series still being made can run up to the cap
-  if (t && (y < t.start || y > last)) return t.name + " was made " + t.start + "–" + last + ".";
+  if (t && (y < t.start || y > last)) {
+    // Another type of the same coin covers this year (e.g. 2021 Morgan, 2009 cent): point to it.
+    const alt = COIN_TYPES.find((o) => o.id !== t.id && o.family === t.family && y >= o.start && y <= (o.end >= 2026 ? cap : o.end));
+    return t.name + " was made " + t.start + "–" + last + "." + (alt ? " For " + y + ", pick " + alt.name + "." : "");
+  }
   return "";
 }
 // The years an album of this type can cover.
@@ -670,7 +685,14 @@ function buildSlots(typeId, start, end) {
   if (!t) return [];
   const out = [];
   if (EXACT_SLOTS[typeId]) {
-    EXACT_SLOTS[typeId].forEach(([y, ms]) => { if (y >= start && y <= end) ms.split(" ").forEach((m) => out.push({ id: uid(), y, m: normMint(m) })); });
+    EXACT_SLOTS[typeId].forEach(([y, ms]) => {
+      if (y < start || y > end) return;
+      ms.split(" ").forEach((m) => {
+        // Some dates have a spot per variety (e.g. 1909 VDB, the four 2009 designs); "" is the plain spot.
+        const vs = (t.varieties && t.varieties[y + "|" + normMint(m)]) || [""];
+        vs.forEach((v) => out.push(v ? { id: uid(), y, m: normMint(m), v } : { id: uid(), y, m: normMint(m) }));
+      });
+    });
   } else {
     for (let y = start; y <= end; y++) t.mints.forEach((m) => out.push({ id: uid(), y, m: normMint(m) }));
   }
@@ -1111,6 +1133,7 @@ function pickType(id) {
   if (draft.mint && !t.mints.includes(draft.mint) && draft.mint !== "") draft.mint = "";
   const al = draft.albumId && getAlbum(draft.albumId);
   if (al && !albumHasType(al, t.id)) { draft.albumId = ""; delete draft.slotId; } // that album is for other types
+  applyYearMetal(draft);
   renderCoinForm();
 }
 
@@ -1663,6 +1686,11 @@ document.addEventListener("input", (e) => {
   draft[f] = el.value;
   if (f === "label") { draft.labelEdited = true; return; }
   if (f === "source") { const h = $("#inhHint"); if (h) h.hidden = !isInherited(draft); return; }
+  if (f === "year" && TYPE_BY_ID[draft.typeId] && TYPE_BY_ID[draft.typeId].metalByYear) {
+    const before = draft.metal;
+    applyYearMetal(draft);
+    if (draft.metal !== before) { const ms = $("[data-f=metal]"), oz = $("[data-f=oz]"); if (ms) ms.value = draft.metal; if (oz) oz.value = draft.oz; toast("Metal set to " + draft.metal + " for " + draft.year + "."); }
+  }
   if (f === "typeName") { draft.family = ""; if (TYPE_BY_ID[draft.typeId] && shortName(TYPE_BY_ID[draft.typeId]) !== el.value) draft.typeId = ""; }
   if (!draft.labelEdited) { const li = $("#labelInput"); if (li) li.value = autoLabel(draft); }
   if (f === "oz") { const h = $("#meltHint"); const m = meltEach(draft); if (h) h.textContent = m != null ? "Melt today: " + money(m) + " each" : ""; }

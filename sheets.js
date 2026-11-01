@@ -161,7 +161,7 @@ function rowToCoin(get) {
   const c = blankCoin();
   c.year = yr.year;
   c.mint = get("mint") != null && String(get("mint")).trim() !== "" ? parseMint(get("mint")) : yr.mint || "";
-  if (t) { c.typeId = t.id; c.typeName = shortName(t); c.family = t.family; c.denom = t.denom; c.metal = t.metal; c.oz = t.oz || ""; }
+  if (t) { c.typeId = t.id; c.typeName = shortName(t); c.family = t.family; c.denom = t.denom; c.metal = t.metal; c.oz = t.oz || ""; applyYearMetal(c); }
   else { c.typeName = typeText.trim(); c.family = typeText.trim() || "Other"; }
   if (String(get("denom") || "").trim()) c.denom = String(get("denom")).trim();
   const metal = String(get("metal") || "").trim();
