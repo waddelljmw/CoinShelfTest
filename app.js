@@ -13,6 +13,8 @@ const signCls = (n) => (n == null ? "" : n >= 0 ? "pos" : "neg");
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const today = () => new Date().toISOString().slice(0, 10);
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
+// The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
+const APP_VERSION = "0.9.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -945,6 +947,7 @@ function viewOptions() {
     <h2>Recently deleted</h2>
     ${del.length ? `<div class="list">${del.map((c) => `<div class="coin-row">${thumbHtml(c)}<span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(gradeText(c))}</span></span>
       <button class="btn" data-act="restore" data-id="${esc(c.id)}">Restore</button><button class="btn danger" data-act="purge" data-id="${esc(c.id)}" aria-label="Delete forever">✕</button></div>`).join("")}</div>` : `<div class="card empty">Nothing deleted.</div>`}
+    <p class="small muted">Coin Cabinet version ${APP_VERSION}</p>
     <p class="small muted">${store.mode === "db" ? "Your coins are saved to your Claude account and are private to you." : "Practice mode: nothing is saved."}</p>`;
 }
 
