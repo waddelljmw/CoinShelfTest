@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.11.0";
+const APP_VERSION = "0.12.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -161,8 +161,49 @@ const deletedCoins = () => allCoins().filter((c) => c.status === "deleted");
 const albums = () => {
   const order = settings().albumOrder || [];
   const pos = (a) => { const i = order.indexOf(a.id); return i < 0 ? Infinity : i; };
-  return [...store.docs.values()].filter((d) => d.kind === "album").sort((a, b) => pos(a) - pos(b) || albumTitle(a).localeCompare(albumTitle(b)));
+  const sorted = [...store.docs.values()].filter((d) => d.kind === "album").sort((a, b) => pos(a) - pos(b) || albumTitle(a).localeCompare(albumTitle(b)));
+  // Albums in the same series always sit together, where the first one of them is.
+  const key = albumSeriesKeys(sorted);
+  const out = [], done = new Set();
+  sorted.forEach((a) => {
+    if (done.has(a.id)) return;
+    const k = key.get(a.id);
+    (k ? sorted.filter((x) => key.get(x.id) === k) : [a]).forEach((x) => { done.add(x.id); out.push(x); });
+  });
+  return out;
 };
+/* --- Album series: albums that belong together (Vol. 1, Vol. 2, ...) --- */
+// Linked by you in Edit album (seriesId), or found automatically: same brand, back-to-back numbers
+// (9128, 9129 or LCA8, LCA9) and the same coin. "solo" means you unlinked it.
+const albumFamilies = (a) => new Set(albumTypes(a).map((id) => TYPE_BY_ID[id].family));
+const numParts = (n) => { const m = String(n || "").toUpperCase().match(/^([A-Z]*)(\d+)$/); return m ? { pre: m[1], n: +m[2] } : null; };
+function albumSeriesKeys(list) {
+  const key = new Map();
+  list.forEach((a) => { if (a.seriesId && a.seriesId !== "solo") key.set(a.id, a.seriesId); });
+  const free = list.filter((a) => !a.seriesId && numParts(a.number));
+  free.forEach((a) => {
+    const pa = numParts(a.number);
+    free.forEach((b) => {
+      if (a === b || a.brand !== b.brand) return;
+      const pb = numParts(b.number);
+      if (pb.pre !== pa.pre || Math.abs(pb.n - pa.n) !== 1) return;
+      const fa = albumFamilies(a);
+      if (![...albumFamilies(b)].some((f) => fa.has(f))) return;
+      const k = key.get(a.id) || key.get(b.id) || "auto:" + a.id;
+      [...key].forEach(([id, v]) => { if (v === key.get(b.id) && key.get(b.id)) key.set(id, k); }); // join two chains
+      key.set(a.id, k); key.set(b.id, k);
+    });
+  });
+  // A series of one is just an album.
+  const count = new Map(); key.forEach((v) => count.set(v, (count.get(v) || 0) + 1));
+  [...key].forEach(([id, v]) => { if (count.get(v) < 2) key.delete(id); });
+  return key;
+}
+const albumSeriesOf = (a) => albumSeriesKeys(albums()).get(a.id) || null;
+function seriesTitle(members) {
+  const fam = [...members.reduce((s, a) => { albumFamilies(a).forEach((f) => s.add(f)); return s; }, new Set())];
+  return (fam.length === 1 ? fam[0].replace(/^./, (c) => c.toUpperCase()) + " series" : "Series") + " · " + members.length + " albums";
+}
 const getCoin = (id) => store.docs.get("c_" + id);
 const getAlbum = (id) => store.docs.get("a_" + id);
 // Saving changes to an imported coin takes it out of its import batch,
@@ -754,33 +795,59 @@ function albumStats(a) {
   };
 }
 const albumsView = { reorder: false };
-function moveAlbum(id, d) {
-  const ids = albums().map((a) => a.id);
-  const i = ids.indexOf(id), j = i + d;
-  if (i < 0 || j < 0 || j >= ids.length) return;
-  [ids[i], ids[j]] = [ids[j], ids[i]];
-  saveSettings({ albumOrder: ids });
+// The albums list as units: a single album, or a whole series kept together.
+function albumUnits() {
+  const list = albums(), key = albumSeriesKeys(list), units = [];
+  list.forEach((a) => {
+    const k = key.get(a.id), last = units[units.length - 1];
+    if (k && last && last.key === k) last.items.push(a); else units.push({ key: k || null, items: [a] });
+  });
+  return units;
 }
+// Move one album (within its series) or a whole series (d = -1 up, 1 down).
+function moveAlbum(id, d, whole) {
+  const units = albumUnits();
+  const ui = units.findIndex((u) => u.items.some((a) => a.id === id));
+  if (ui < 0) return;
+  if (whole || units[ui].items.length === 1) {
+    const uj = ui + d;
+    if (uj < 0 || uj >= units.length) return;
+    [units[ui], units[uj]] = [units[uj], units[ui]];
+  } else {
+    const it = units[ui].items, i = it.findIndex((a) => a.id === id), j = i + d;
+    if (j < 0 || j >= it.length) return;
+    [it[i], it[j]] = [it[j], it[i]];
+  }
+  saveSettings({ albumOrder: units.flatMap((u) => u.items.map((a) => a.id)) });
+}
+const albumSub = (a) => [a.name ? [a.brand !== "Other" ? a.brand : "", a.number].filter(Boolean).join(" ") : "", isSetAlbum(a) ? "Type set" : albumTypeText(a)].filter(Boolean).join(" · ");
 function viewAlbums() {
   const list = albums();
+  const units = albumUnits();
+  const mv = (id, i, n, whole) => `<span class="slot-mv"><button data-act="moveAlbum" data-id="${esc(id)}" ${whole ? "data-whole=\"1\"" : ""} data-d="-1" ${i ? "" : "disabled"} aria-label="Move up">▲</button><button data-act="moveAlbum" data-id="${esc(id)}" ${whole ? "data-whole=\"1\"" : ""} data-d="1" ${i < n - 1 ? "" : "disabled"} aria-label="Move down">▼</button></span>`;
   if (albumsView.reorder && list.length) {
     return `<h1>Albums</h1>
-      <div class="banner" style="margin:0 0 10px">Use ▲ ▼ to put your albums in the order you want.</div>
-      <div class="list">${list.map((a, i) => `<div class="coin-row"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span><span class="coin-sub">${esc(isSetAlbum(a) ? "Type set" : albumTypeText(a))}</span></span>
-        <span class="slot-mv"><button data-act="moveAlbum" data-id="${esc(a.id)}" data-d="-1" ${i ? "" : "disabled"} aria-label="Move up">▲</button><button data-act="moveAlbum" data-id="${esc(a.id)}" data-d="1" ${i < list.length - 1 ? "" : "disabled"} aria-label="Move down">▼</button></span></div>`).join("")}</div>
+      <div class="banner" style="margin:0 0 10px">Use ▲ ▼ to put your albums in the order you want. Albums in a series move together; use the arrows inside a series to change its order.</div>
+      ${units.map((u, ui) => u.key
+        ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b>${mv(u.items[0].id, ui, units.length, true)}</div>
+            <div class="list">${u.items.map((a, i) => `<div class="coin-row"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span><span class="coin-sub">${esc(albumSub(a))}</span></span>${mv(a.id, i, u.items.length)}</div>`).join("")}</div></div>`
+        : `<div class="list" style="margin-bottom:10px"><div class="coin-row"><span class="coin-main"><span class="coin-label">${esc(albumTitle(u.items[0]))}</span><span class="coin-sub">${esc(albumSub(u.items[0]))}</span></span>${mv(u.items[0].id, ui, units.length, true)}</div></div>`).join("")}
       <button class="btn primary block" style="margin-top:12px" data-act="reorderAlbums">Done</button>`;
   }
+  const card = (a) => {
+    const st = albumStats(a);
+    const done = st.total && st.owned === st.total;
+    const numLine = a.name && (a.brand !== "Other" || a.number) ? [a.brand !== "Other" ? a.brand : "", a.number && "No. " + a.number].filter(Boolean).join(" ") : "";
+    return `<button class="card" style="display:block;width:100%;text-align:left" data-go="album-${esc(a.id)}">
+        <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(albumTitle(a))}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</b><span class="num">${st.owned}/${st.total}</span></div>
+        ${numLine ? `<div class="small">${esc(numLine)}</div>` : ""}
+        <div class="small muted">${esc(isSetAlbum(a) ? "Type set · " + albumTypes(a).length + " types" : albumTypeText(a))}${a.start ? " · " + a.start + "–" + a.end : ""} · ${money(st.value, "$0.00")}</div>
+        <div class="bar"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div></button>`;
+  };
   return `<h1>Albums</h1>
     <button class="btn primary block" data-act="newAlbum">+ New album</button>
     ${list.length > 1 ? `<div style="text-align:right;margin-top:8px"><button class="link-btn" data-act="reorderAlbums">Reorder albums</button></div>` : ""}
-    <div style="margin-top:12px">${list.length ? list.map((a) => {
-      const st = albumStats(a);
-      const done = st.total && st.owned === st.total;
-      return `<button class="card" style="display:block;width:100%;text-align:left" data-go="album-${esc(a.id)}">
-        <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(albumTitle(a))}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</b><span class="num">${st.owned}/${st.total}</span></div>
-        <div class="small muted">${esc(isSetAlbum(a) ? "Type set · " + albumTypes(a).length + " types" : albumTypeText(a))}${a.start ? " · " + a.start + "–" + a.end : ""} · ${money(st.value, "$0.00")}</div>
-        <div class="bar"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div></button>`;
-    }).join("") : `<div class="card empty">No albums yet. Make one here, or pick an album number when you add a coin.</div>`}</div>`;
+    <div style="margin-top:12px">${list.length ? units.map((u) => u.key ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b></div>${u.items.map(card).join("")}</div>` : card(u.items[0])).join("") : `<div class="card empty">No albums yet. Make one here, or pick an album number when you add a coin.</div>`}</div>`;
 }
 const albumEdit = { id: null };
 function viewAlbum(r) {
@@ -1522,6 +1589,36 @@ function doNewAlbum(form) {
   closeSheet();
   go("album-" + a.id);
 }
+// "Part of a series" in Edit album: link this album with another, or unlink it.
+function seriesField(a) {
+  const cur = albumSeriesOf(a);
+  const others = albums().filter((x) => x.id !== a.id);
+  if (!others.length) return "";
+  const withMe = cur ? others.filter((x) => albumSeriesOf(x) === cur) : [];
+  return `<label class="f"><span>Part of a series</span><select name="series">
+      <option value="" ${!cur ? "selected" : ""}>Not linked</option>
+      ${others.map((x) => `<option value="${esc(x.id)}" ${withMe[0] === x ? "selected" : ""}>Keep with ${esc(albumTitle(x))}</option>`).join("")}
+    </select></label>
+    <div class="hint">Albums in a series (like Morgan Vol. 1, 2 and 3) stay together on the Albums page and move together.${cur && !a.seriesId ? " This one was linked automatically because the album numbers follow each other." : ""}</div>`;
+}
+// The seriesId to save for this album; may also link the album it was joined to.
+function seriesFromForm(a, fd) {
+  if (!fd.has("series")) return {};
+  const pick = fd.get("series");
+  const cur = albumSeriesOf(a);
+  if (!pick) return cur ? { seriesId: "solo" } : (a.seriesId === "solo" ? { seriesId: "solo" } : {});
+  const other = getAlbum(pick);
+  if (!other) return {};
+  const theirs = albumSeriesOf(other);
+  if (theirs && theirs === cur) return {}; // already together
+  let sid = other.seriesId && other.seriesId !== "solo" ? other.seriesId : "s" + uid();
+  if (!other.seriesId || other.seriesId === "solo" || String(theirs || "").startsWith("auto:")) {
+    // Make the other album's series (including automatic links) a saved one.
+    const mates = theirs ? albums().filter((x) => albumSeriesOf(x) === theirs) : [other];
+    mates.forEach((m) => { if (m.id !== a.id) put("a_" + m.id, { ...m, seriesId: sid }); });
+  }
+  return { seriesId: sid };
+}
 // Edit an album's details. Changing the date range keeps your own spots, hidden spots,
 // order and spot names inside the range; it only adds or drops the standard dates.
 function openEditAlbum(id) {
@@ -1535,6 +1632,7 @@ function openEditAlbum(id) {
     </div>
     <div class="hint" id="albumLookupHint"></div>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" value="${esc(a.name || "")}"></label>
+    ${seriesField(a)}
     <div class="small muted" style="margin-top:10px">${isSetAlbum(a) ? "Type set (one coin of each type)" : "Dates and mint marks"}</div>
     ${albumTypeRows(albumTypes(a).length ? albumTypes(a) : [COIN_TYPES[0].id])}
     ${isSetAlbum(a) ? "" : proofSelect(a.proofs)}
@@ -1573,7 +1671,7 @@ function saveEditAlbum(form) {
     slots = set ? [...kept, ...added] : sortSlots([...kept, ...added]);
   }
   const removed = a.removed || [];
-  put("a_" + a.id, { ...a, brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, proofs, slots, removed });
+  put("a_" + a.id, { ...a, brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, proofs, slots, removed, ...seriesFromForm(a, fd) });
   closeSheet();
   toast("Album saved.");
 }
@@ -1658,7 +1756,7 @@ const actions = {
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
   addSpot: (el) => openAddSpot(el.dataset.id),
   reorderAlbums: () => { albumsView.reorder = !albumsView.reorder; render(); },
-  moveAlbum: (el) => moveAlbum(el.dataset.id, +el.dataset.d),
+  moveAlbum: (el) => moveAlbum(el.dataset.id, +el.dataset.d, !!el.dataset.whole),
   albumAddType: () => {
     const box = $("#albumTypes");
     if (!box) return;
