@@ -207,7 +207,13 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 
 ## Phase 4: The shelf look
 
-**Step 4.1. Design. Model: Opus.** You see a few mockups first and pick one.
+**Step 4.1. Design. Model: Opus.** — DONE ✅ (Nov 2, 2026)
+- [x] Picked: **two styles you can switch between** in Options → Shelf style: **Bookcase** (option A, wood with brass plaques) and **Safe** (option D, steel walls, bolts, dial and handle on a door bar, green display numbers).
+- [x] Bookcase follows the phone's night mode: **only the page background around the bookcase** (and the top bar, chips) goes dark; the bookcase itself stays the same. Safe has no night version (it's already dark).
+- Mockup to copy: `design/shelf-mockup.html` (open with `?v=A`, `?v=A&night=1`, `?v=D`). Shelves top to bottom: totals plaques + metal prices; albums (spines with title + years, green check when complete, series kept together in his order); stacks, My Coins, rolls; 2x2 boxes (filled/total) and sets. Sample numbers in it are made up.
+- No door-opening animation.
+
+*Say this (on Sonnet):* "Do Step 4.2 of the plan."
 - **Top shelf:** total value, melt value and live metal prices, shown like plaques.
 - **Middle shelves:** album spines for each album (generic designs, without copying brand logos), a stack of bars for My Silver Stack, a coin stack for My Coins, and boxes for your 2x2 boxes and sets.
 - **Tapping** an item opens that section. The graphics are original drawings, so there are no copyright issues and the app stays fast.
