@@ -233,15 +233,14 @@ Last updated November 2, 2026. This file is the plan and the progress checklist.
 
 *Two separate things for every coin:* **Holder** = what is right around the coin (flip, capsule, slab). **Kept in** = the container that holder sits in (album, storage box, display box, stack). Example: wheat cent · 2x2 cardboard flip · kept in Black box 1.
 
-- **Holder choices** (`HOLDERS` in `catalog/data.js`): Album, Slab, Hard case, Capsule, **2x2 cardboard flip**, **Plastic flip**, **Plastic holder**, Mint box, Envelope, **Bag / ziplock**, Roll, Loose, Other. Convert on read: old `"2x2"` shows as "2x2 cardboard flip", old `"Flip"` as "Plastic flip" (saved value only changes when the coin is edited). Flip sizes stay in `IDEAS.md`.
+- **Holder choices** (`HOLDERS` in `catalog/data.js`): Album, Slab, Hard case, Capsule, **2x2 cardboard flip**, **Plastic flip**, **Plastic holder**, Mint box, Envelope, Roll, Loose, Other. Convert on read: old `"2x2"` shows as "2x2 cardboard flip", old `"Flip"` as "Plastic flip" (saved value only changes when the coin is edited). Flip sizes stay in `IDEAS.md`.
 - **"Kept in" dropdown** (Holder section of Add coin, near the top): Nothing special · each album · each storage box · each display box · each stack (stacks only where they're allowed today: bullion and junk silver). **One place per coin:** picking one clears the others (`albumId`, `boxId`/`boxRow`/`boxSlot`, `stack`). Old coins that have two keep both until edited; their page shows both. Album choice still puts the coin in its album spot as today.
 - **Any holder can go in a box** (today only "2x2"; remove that limit in `boxCheck`). Capsules, flips and hard cases all allowed.
 - **Box record** (`b_`, `boxes.js`) gains, converted on read for old boxes:
   - `type`: `storage` (default) or `display`.
   - `look`: `black` (default, old boxes), `cardboard`, or `plastic`. Plastic gets `color`: **clear** (see-through, coins visible), white, red, dark blue, yellow, dark green, orange, dark brown (solid-looking). Changeable any time in Edit box.
   - `spots`: on = rows × slots like today (old boxes: on); off = no numbered spots, just a list of what's inside (good for capsule containers and display boxes).
-  - `inside`: optional **"What's inside"** note for things not worth entering one by one ("pill bottle of Bicentennial halves").
-- **Loose items** (ziplock of ~20 Bicentennial quarters): add as one coin entry with quantity 20, holder Bag / ziplock, kept in that box. No spot needed. So a box has both: entered coins and the note.
+  - `inside`: optional **"What's inside"** note, typed when adding or editing the box (e.g. "ziplock of Bicentennial quarters, pill bottle of halves"). Coins he enters are linked to the box only through Kept in; the note is just a description.
 - **Names:** "2x2 storage box" becomes **"Storage box"**; menu page "2x2 Storage Boxes" becomes **"Storage"**, listing storage boxes then display boxes. New box form asks: name, storage or display, look (and color), numbered spots on/off (then rows and slots), What's inside. Example name stays "Black box 1".
 - **Box page:** with spots, same grid as today; without spots, a list of its coins plus the What's inside note. Search and missing-wheat still work.
 - **Shelf drawings** (`shelf.js`, `styles.css`): black box as today; cardboard box (brown, tape strip); plastic box in its color; the clear one is see-through with coin shapes inside. **Display box:** a flat wood-framed glass case showing a few coin circles, on its own shelf.
