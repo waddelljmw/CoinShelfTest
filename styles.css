@@ -286,3 +286,27 @@ body.safe { --bg: #1c1e21; --card: #26292d; --ink: #e6e8ea; --muted: #9aa3ad; --
 .coin-row .selbox { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; border: 2px solid var(--line); border-radius: 6px; display: grid; place-items: center; font-size: 14px; font-weight: 700; background: var(--card); }
 .coin-row.sel.on { outline: 2px solid var(--accent); }
 .coin-row.sel.on .selbox { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+/* Step 4.4: wooden box, roll wrapper colors, shelf options */
+.sh-box.wooden { background: linear-gradient(#a9743c, #7c4f24); color: #fff3df; border-color: #55361a; }
+.sh-box.wooden::before { background: #c99a62; height: 4px; }
+.sh-case.solid { background: linear-gradient(#a9743c, #7c4f24); color: #fff3df; border-color: #4a2f16; }
+.sh-roll.rc-red { background: linear-gradient(90deg, #8f2b2b, #d65a5a 50%, #8f2b2b); }
+.sh-roll.rc-blue { background: linear-gradient(90deg, #284f8f, #5f8fd6 50%, #284f8f); }
+.sh-roll.rc-green { background: linear-gradient(90deg, #2c7a43, #62b87b 50%, #2c7a43); }
+.sh-roll.rc-orange { background: linear-gradient(90deg, #b86a1c, #f0a24d 50%, #b86a1c); }
+.sh-roll.rc-sand { background: linear-gradient(90deg, #a08560, #d9c29a 50%, #a08560); }
+.sh-roll.rc-gray { background: linear-gradient(90deg, #6d7075, #b5b8bd 50%, #6d7075); }
+.sh-roll.rc-beige { background: linear-gradient(90deg, #b8a98a, #e6dbc2 50%, #b8a98a); }
+.shelf-opt { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.shelf-opt:last-of-type { border-bottom: 0; }
+.shelf-opt .switch { border-bottom: 0; padding: 4px 0; }
+.shelf-opt .chip:disabled { opacity: .35; }
+.shelf-opt .chips { flex-wrap: wrap; }
+.eye-row { display: flex; justify-content: flex-end; margin: 0 0 6px; }
+.chip.eye.on { background: var(--accent); color: #fff; }
+h2.fold { margin: 14px 0 6px; }
+.fold-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: none; border: 0; padding: 4px 0; font: inherit; font-weight: 700; color: inherit; text-align: left; }
+.inline-pair { display: flex; gap: 8px; }
+.inline-pair input { flex: 1 1 50%; min-width: 0; }
+.inline-pair select { flex: 1 1 50%; min-width: 0; }

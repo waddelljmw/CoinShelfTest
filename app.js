@@ -7,8 +7,10 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ESC[c]);
 const num = (v) => (v === "" || v == null || isNaN(+v) ? null : +v);
-const money = (n, dash = "—") => (n == null || isNaN(n) ? dash : n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-const pct = (n) => (n == null || !isFinite(n) ? "—" : (n >= 0 ? "+" : "") + (n * 100).toFixed(1) + "%");
+let HIDE_NOW = false; // true only while Home or a coin page is being drawn with "hide values" on
+const HIDDEN_TEXT = "•••";
+const money = (n, dash = "—") => (n == null || isNaN(n) ? dash : HIDE_NOW ? HIDDEN_TEXT : n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const pct = (n) => (n == null || !isFinite(n) ? "—" : HIDE_NOW ? HIDDEN_TEXT : (n >= 0 ? "+" : "") + (n * 100).toFixed(1) + "%");
 const signCls = (n) => (n == null ? "" : n >= 0 ? "pos" : "neg");
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 // Dates use the phone's own time zone (toISOString would use London time and roll over early in the evening).
@@ -16,7 +18,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.27.1";
+const APP_VERSION = "0.28.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -34,12 +36,15 @@ const DEFAULT_SETTINGS = {
   spot: { gold: null, silver: null, platinum: null, copper: null },
   spotUpdated: null,
   hideSpot: {},
+  hideValues: false, // Step 4.4: the eye button hides every dollar amount on Home and coin pages
+  homeClosed: {}, // Home sections the user has folded shut
   hiddenGroups: [], // groups left out of the Home totals
   hiddenStacks: [], // stacks left out of the Home totals
   showSold: false,
   soldAutoDone: false,
   bookEdition: "",
   shelfStyle: "bookcase", // Home look: "bookcase" or "safe"
+  shelfLayout: { order: [], hidden: {}, hiddenItems: {}, pins: {} }, // Step 4.4: shelf order, hidden shelves/items, pins
 };
 
 function showBanner(text) {
@@ -474,7 +479,7 @@ function trackUrl(c) {
 const pastSellers = () => [...new Set(allCoins().map((c) => (c.seller || "").trim()).filter(Boolean))].sort();
 
 function gradeText(c) {
-  if (itemOf(c) === "bullion") return [shapeName(c.bShape), num(c.bWeight) ? num(c.bWeight) + " oz" : "", num(c.bPurity) ? String(num(c.bPurity)).replace(/^0/, "") : ""].filter(Boolean).join(" · ");
+  if (itemOf(c) === "bullion") return [shapeName(c.bShape), barWeightText(c), num(c.bPurity) ? String(num(c.bPurity)).replace(/^0/, "") : ""].filter(Boolean).join(" · ");
   if (itemOf(c) === "set") return holderText(c) || "Set";
   if (itemOf(c) === "roll") return ["Roll of " + rollCountOf(c), c.rollCond, c.bankWrap ? "bank wrap" : ""].filter(Boolean).join(" · ");
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade;
@@ -485,7 +490,7 @@ function gradeText(c) {
 }
 function autoLabel(c) {
   const date = c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : "";
-  if (itemOf(c) === "bullion") return [num(c.bWeight) ? num(c.bWeight) + " oz" : "", (c.bMaker || "").trim(), ...(c.bShape === "Other" || c.bShape === "Shape" ? ["Silver item"] : [c.metal || "Silver", c.bShape || "Bar"])].filter(Boolean).join(" ");
+  if (itemOf(c) === "bullion") return [barWeightText(c), (c.bMaker || "").trim(), ...(c.bShape === "Other" || c.bShape === "Shape" ? ["Silver item"] : [c.metal || "Silver", c.bShape || "Bar"])].filter(Boolean).join(" ");
   if (itemOf(c) === "set") return [c.year, c.typeName].filter(Boolean).join(" ");
   if (itemOf(c) === "roll") return [date, (TYPE_BY_ID[c.typeId] || {}).name || c.typeName, "roll (" + rollCountOf(c) + ")"].filter(Boolean).join(" ");
   return [date, c.typeName, c.denom].filter(Boolean).join(" ");
@@ -569,7 +574,8 @@ function render() {
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
   const keepSearch = active && active.id === "coinSearch" ? active.selectionStart : null;
-  main.innerHTML = fn(r);
+  HIDE_NOW = !!settings().hideValues && (r.view === "home" || r.view === "coin");
+  try { main.innerHTML = fn(r); } finally { HIDE_NOW = false; }
   if (keepSearch != null) { const s = $("#coinSearch"); if (s) { s.focus(); s.setSelectionRange(keepSearch, keepSearch); } }
 }
 
@@ -594,6 +600,12 @@ function coinRow(c, opts = {}) {
 }
 
 const leftOut = () => [...hiddenGroups().filter((g) => groupsPresent().includes(g)), ...hiddenStacks().filter((n) => stacksPresent().includes(n))];
+const eyeButton = () => { const on = !!settings().hideValues; return `<div class="eye-row"><button class="chip eye ${on ? "on" : ""}" data-act="hideValues" aria-pressed="${on}" aria-label="${on ? "Show values" : "Hide values"}">${on ? "👁 Show values" : "🙈 Hide values"}</button></div>`; };
+// A Home section with a heading you tap to fold shut or open. Each one is remembered.
+function homeSection(key, title, inner) {
+  const open = !(settings().homeClosed || {})[key];
+  return `<h2 class="fold"><button class="fold-btn" data-act="homeSec" data-v="${key}" aria-expanded="${open}"><span>${title}</span><i aria-hidden="true">${open ? "▾" : "▸"}</i></button></h2>${open ? inner : ""}`;
+}
 function viewHome() {
   const s = settings();
   const everything = ownedCoins();
@@ -614,6 +626,7 @@ function viewHome() {
     ...stacksPresent().map((n) => { const on = !hiddenStacks().includes(n); return `<button class="chip ${on ? "on" : ""}" data-act="toggleStack" data-v="${esc(n)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(n)} · ${sum(everything.filter((c) => stackOf(c) === n), qtyOf)}</button>`; }),
   ];
   let html = `${typeof backupReminder === "function" ? backupReminder() : ""}<h1 class="sr-only">Your cabinet</h1>
+  ${eyeButton()}
   ${chips.length ? `<div class="chips home-chips" aria-label="Count in the totals">${chips.join("")}</div>` : ""}
   ${typeof shelfHtml === "function" ? shelfHtml(owned, { total, melt, count }) : ""}
   ${fromBook || leftOut().length || noValue ? `<div class="small muted home-notes">${[
@@ -634,13 +647,12 @@ function viewHome() {
     const mv = sum(cs, (c) => (meltEach(c) || 0) * qtyOf(c));
     return `<div class="rowline"><span>${m.label}<div class="small muted">${sum(cs, qtyOf)} coins · ${oz.toFixed(m.key === "copper" ? 2 : 3)} oz</div></span><span class="num">${spotPerOz(m.key) == null ? `<span class="muted small">no spot price</span>` : money(mv)}</span></div>`;
   }).join("");
-  if (metalRows) html += `<h2>Melt Value by Metal</h2><div class="card">${metalRows}</div>`;
+  if (metalRows) html += homeSection("melt", "Melt Value by Metal", `<div class="card">${metalRows}</div>`);
 
   if (s.showSold) html += soldCard();
 
   const recent = everything.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
-  html += `<h2>Recently added</h2>`;
-  html += recent.length ? `<div class="list">${recent.map((c) => coinRow(c)).join("")}</div>` : `<div class="card empty">No coins yet. Tap <b>+</b> to add your first coin.</div>`;
+  html += homeSection("added", "Recently added", recent.length ? `<div class="list">${recent.map((c) => coinRow(c)).join("")}</div>` : `<div class="card empty">No coins yet. Tap <b>+</b> to add your first coin.</div>`);
 
   const sold = soldCoins().slice().sort((a, b) => {
     const da = (a.sold && a.sold.date) || "", db = (b.sold && b.sold.date) || "";
@@ -648,8 +660,7 @@ function viewHome() {
   }).slice(0, 5);
   // Only shown once at least one coin has been sold.
   if (sold.length) {
-    html += `<h2>Recently sold</h2><div class="list">${sold.map((c) => coinRow(c)).join("")}</div>`;
-    if (soldCoins().length > 5) html += `<div style="margin-top:8px"><button class="link-btn" data-act="seeSold">See all sold coins</button></div>`;
+    html += homeSection("sold", "Recently sold", `<div class="list">${sold.map((c) => coinRow(c)).join("")}</div>` + (soldCoins().length > 5 ? `<div style="margin-top:8px"><button class="link-btn" data-act="seeSold">See all sold coins</button></div>` : ""));
   }
   return html;
 }
@@ -832,7 +843,7 @@ function viewCoin(r) {
   const album = c.albumId ? getAlbum(c.albumId) : null;
   const row = (k, val) => (val == null || val === "" ? "" : `<div class="rowline"><span class="muted">${k}</span><span class="num" style="text-align:right">${val}</span></div>`);
   const sold = c.sold || {};
-  return `${coinBackLink()}
+  return `${coinBackLink()}${eyeButton()}
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}</h1>
     ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button></div>` : ""}
     ${mintageLine(c)}
@@ -841,7 +852,7 @@ function viewCoin(r) {
       ${row("Status", esc(STATUS_TEXT[statusKey(c)] || "") + (c.upgrade && c.status === "owned" ? " · Upgrade wanted" : ""))}
       ${itemOf(c) === "coin" ? row("Grade", esc(gradeText(c)) + cacBadge(c) + (photoGuideCode(c) ? ` <a class="small" href="${esc(photoGuideUrl(c))}" target="_blank" rel="noopener">PCGS photos ↗</a>` : "")) : ""}
       ${itemOf(c) === "set" ? row("Set", esc(c.typeName)) : ""}
-      ${itemOf(c) === "bullion" ? row("Type", esc(shapeName(c.bShape))) + row("Maker", esc(c.bMaker)) + row("Serial number", esc(c.bSerial)) + row("Weight", num(c.bWeight) ? esc(num(c.bWeight)) + " oz" : null) + row("Purity", esc(c.bPurity)) : ""}
+      ${itemOf(c) === "bullion" ? row("Type", esc(shapeName(c.bShape))) + row("Maker", esc(c.bMaker)) + row("Serial number", esc(c.bSerial)) + row("Weight", num(c.bWeight) ? esc(barWeightText(c)) : null) + row("Purity", esc(c.bPurity)) : ""}
       ${stackOf(c) ? row("Stack", esc(stackOf(c))) : ""}
       ${itemOf(c) === "roll" ? row("Coins in roll", rollCountOf(c)) + row("Face value", rollFace(c) == null ? null : money(rollFace(c))) + row("Condition", esc([c.rollCond, c.bankWrap ? "Original bank wrap" : ""].filter(Boolean).join(" · "))) : ""}
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
@@ -1079,6 +1090,7 @@ function viewAlbum(r) {
       <div class="stat"><div class="k">Album melt</div><div class="v">${money(st.melt, "$0.00")}</div></div>
     </div>
     <div class="bar" style="margin:12px 0 16px"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div>
+    ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(a.id) : ""}
     <div class="btn-row" style="margin:0 0 12px">
       <button class="btn" data-act="addSpot" data-id="${esc(a.id)}">+ Add a spot</button>
       <button class="btn ${editing ? "primary" : ""}" data-act="editSlots" data-id="${esc(a.id)}">${editing ? "Done editing" : "Edit spots"}</button>
@@ -1245,6 +1257,8 @@ function viewOptions() {
     <h2>Shelf style</h2>
     <div class="card"><div class="chips">${(typeof SHELF_STYLES !== "undefined" ? SHELF_STYLES : []).map(([k, n]) => { const on = shelfStyle() === k; return `<button class="chip ${on ? "on" : ""}" data-act="shelfStyle" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>
       <div class="hint">Bookcase: wood shelves; at night only the page around it goes dark. Safe: steel walls, dark all the time.</div></div>
+    <h2>Home shelf</h2>
+    <div class="card">${typeof shelfOptionsHtml === "function" ? shelfOptionsHtml() : ""}</div>
     <h2>Show on Home</h2>
     <div class="card">
       ${SPOT_METALS.map((m) => `<label class="switch"><span>${m.label} spot price</span><input type="checkbox" data-act="hideSpot" data-v="${m.key}" ${s.hideSpot[m.key] ? "" : "checked"}></label>`).join("")}
@@ -1554,14 +1568,14 @@ function rollFields(d) {
     <label class="switch"><span>Original bank wrap<div class="small muted">Never opened</div></span><input type="checkbox" data-fcheck="bankWrap" ${d.bankWrap ? "checked" : ""}></label>
     <div class="hint" id="rollHint">${esc(rollHint(d))}</div>`;
 }
-function bullionHint(d) { return bullionOz(d) ? "Pure silver: " + bullionOz(d) + " oz (weight × purity)." : "Pure silver ounces = weight × purity. Weight is in troy ounces (a kilo bar is 32.15 oz)."; }
+function bullionHint(d) { return bullionOz(d) ? "Pure silver: " + bullionOz(d) + " oz (weight × purity)." : "Pure silver ounces = weight × purity. Pick ounces (troy), grams or kilos; a kilo bar is 32.15 oz."; }
 function bullionTopHtml(d) {
   const makers = [...new Set(allCoins().filter((c) => itemOf(c) === "bullion").map((c) => (c.bMaker || "").trim()).filter(Boolean))];
   return `<div class="grid2">
       <label class="f"><span>What is it?</span><select data-f="bShape">${BULLION_SHAPES.map((x) => `<option value="${x}" ${(d.bShape === "Shape" ? "Other" : d.bShape || "Bar") === x ? "selected" : ""}>${esc(shapeName(x))}</option>`).join("")}</select></label>
       <label class="f"><span>Maker</span><input type="text" data-f="bMaker" list="makerList" value="${esc(d.bMaker || "")}" placeholder="e.g. Engelhard" maxlength="40"><datalist id="makerList">${makers.map((x) => `<option value="${esc(x)}">`).join("")}</datalist></label></div>
     <div class="grid2">
-      <label class="f"><span>Weight (oz)</span><input type="number" inputmode="decimal" step="0.001" min="0" data-f="bWeight" value="${esc(d.bWeight || "")}" placeholder="10"></label>
+      <label class="f"><span>Weight</span><span class="inline-pair"><input type="number" inputmode="decimal" step="0.001" min="0" data-f="_bAmt" value="${esc(barAmount(d))}" placeholder="10" aria-label="Weight"><select data-f="bUnit" data-rerender aria-label="Weight unit">${BAR_UNITS.map((u) => `<option value="${u[0]}" ${barUnit(d) === u[0] ? "selected" : ""}>${u[1]}</option>`).join("")}</select></span></label>
       <label class="f"><span>Purity</span><input type="number" inputmode="decimal" step="0.001" min="0" max="1" data-f="bPurity" value="${esc(d.bPurity || "")}" placeholder="0.999"></label></div>
     <div class="hint" id="bullionHint">${esc(bullionHint(d))}</div>
     <label class="f"><span>Serial number <span class="muted small">(optional)</span></span><input type="text" data-f="bSerial" value="${esc(d.bSerial || "")}" maxlength="40"></label>
@@ -1583,6 +1597,13 @@ function setOzText(d) {
 // Coins outside the catalog: kinds, remembered items, and a grams-to-ounces helper.
 const OTHER_KINDS = ["Commemorative", "Medal", "Token", "Foreign coin", "Other"];
 const GRAMS_PER_TROY_OZ = 31.1035;
+// Bar weight can be typed in ounces, grams or kilos. It is always stored in troy ounces (bWeight), so old bars don't change; bUnit is just how it is shown.
+const BAR_UNITS = [["oz", "Ounces (oz)", 1], ["g", "Grams (g)", GRAMS_PER_TROY_OZ], ["kg", "Kilos (kg)", GRAMS_PER_TROY_OZ / 1000]];
+const barUnit = (c) => (BAR_UNITS.some((u) => u[0] === c.bUnit) ? c.bUnit : "oz");
+const unitFactor = (u) => (BAR_UNITS.find((x) => x[0] === u) || BAR_UNITS[0])[2];
+const roundTo = (n, p) => Math.round(n * 10 ** p) / 10 ** p;
+function barAmount(c) { const w = num(c.bWeight); return w ? roundTo(w * unitFactor(barUnit(c)), 4) : ""; }
+const barWeightText = (c) => { const w = num(c.bWeight); return w ? roundTo(w * unitFactor(barUnit(c)), 3) + " " + barUnit(c) : ""; };
 // Things typed before (name, face value, kind, metal, weight), newest first, so metal and weight are typed once.
 function savedOthers() {
   const seen = new Map();
@@ -1783,14 +1804,15 @@ async function saveDraft() {
   const it = itemOf(c);
   if (it === "coin") { delete c.item; delete c.setKind; delete c.rollCount; delete c.rollCond; delete c.bankWrap; }
   if (it !== "coin" || !CASE_HOLDERS.includes(c.holder)) delete c.caseName; else if (c.caseName) c.caseName = c.caseName.trim();
-  if (it !== "bullion") { delete c.bShape; delete c.bMaker; delete c.bSerial; delete c.bWeight; delete c.bPurity; }
+  if (it !== "bullion") { delete c.bShape; delete c.bMaker; delete c.bSerial; delete c.bWeight; delete c.bPurity; delete c.bUnit; }
+  delete c._bAmt;
   if (it === "bullion") {
     const w = num(c.bWeight), p = num(c.bPurity);
-    if (!w || w <= 0) { toast("Enter the weight in ounces."); return; }
+    if (!w || w <= 0) { toast("Enter the weight."); return; }
     if (!p || p <= 0 || p > 1) { toast("Purity is a number up to 1, like 0.999."); return; }
     if (c.bShape === "Shape") c.bShape = "Other";
     if (!BULLION_SHAPES.includes(c.bShape)) c.bShape = "Bar";
-    c.bWeight = String(w); c.bPurity = String(p); c.bMaker = String(c.bMaker || "").trim(); c.bSerial = String(c.bSerial || "").trim();
+    c.bWeight = String(w); c.bUnit = barUnit(c); c.bPurity = String(p); c.bMaker = String(c.bMaker || "").trim(); c.bSerial = String(c.bSerial || "").trim();
     Object.assign(c, { typeId: "", denom: "", mint: "", year: "", gradeMode: "raw", grade: "", cac: "", albumId: "", metal: "Silver", family: "Bullion", typeName: "Bullion" });
     c.oz = String(bullionOz(c)); delete c.slotId; delete c.rollCount; delete c.rollCond; delete c.bankWrap; delete c.setKind;
   }
@@ -2282,6 +2304,13 @@ const actions = {
   hideSpot: (el) => { const s = settings(); saveSettings({ hideSpot: { ...s.hideSpot, [el.dataset.v]: !el.checked } }); },
   showSold: (el) => saveSettings({ showSold: el.checked, soldAutoDone: true }),
   shelfStyle: (el) => saveSettings({ shelfStyle: el.dataset.v === "safe" ? "safe" : "bookcase" }),
+  hideValues: () => saveSettings({ hideValues: !settings().hideValues }),
+  homeSec: (el) => { const c = { ...(settings().homeClosed || {}) }; if (c[el.dataset.v]) delete c[el.dataset.v]; else c[el.dataset.v] = true; saveSettings({ homeClosed: c }); },
+  shelfShow: (el) => { const L = shelfLayout(); saveLayout({ hidden: { ...L.hidden, [el.dataset.k]: !el.checked } }); },
+  shelfMove: (el) => moveShelf(el.dataset.k, +el.dataset.d),
+  shelfPin: (el) => { const L = shelfLayout(), pins = { ...L.pins }; if (el.dataset.v) pins[el.dataset.k] = el.dataset.v; else delete pins[el.dataset.k]; saveLayout({ pins }); },
+  shelfItem: (el) => { const L = shelfLayout(), h = { ...L.hiddenItems }; if (el.checked) delete h[el.dataset.id]; else h[el.dataset.id] = true; saveLayout({ hiddenItems: h }); },
+  shelfShowAll: () => saveLayout({ hiddenItems: {} }),
   newAlbum: openNewAlbum,
   missing: (el) => openMissing(el.dataset.id),
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
@@ -2378,7 +2407,7 @@ const actions = {
 
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
 const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
-  "hideSpot showSold shelfStyle slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
+  "hideSpot showSold shelfStyle shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const goEl = e.target.closest("[data-go]");
@@ -2437,7 +2466,8 @@ document.addEventListener("input", (e) => {
   if (f === "_grams" || f === "_purity") gramsToOz(draft);
   if (f === "typeName") { if (!OTHER_KINDS.includes(draft.family)) draft.family = ""; if (TYPE_BY_ID[draft.typeId] && shortName(TYPE_BY_ID[draft.typeId]) !== el.value) draft.typeId = ""; }
   if (!draft.labelEdited) { const li = $("#labelInput"); if (li) li.value = autoLabel(draft); }
-  if (itemOf(draft) === "bullion" && (f === "bWeight" || f === "bPurity")) draft.oz = bullionOz(draft) ? String(bullionOz(draft)) : "";
+  if (f === "_bAmt") draft.bWeight = num(el.value) ? String(roundTo(num(el.value) / unitFactor(barUnit(draft)), 6)) : "";
+  if (itemOf(draft) === "bullion" && (f === "_bAmt" || f === "bWeight" || f === "bPurity")) draft.oz = bullionOz(draft) ? String(bullionOz(draft)) : "";
   if (f === "oz" && itemOf(draft) === "set") draft._ozEdited = el.value !== "";
   if (f === "rollCount") draft._countEdited = true;
   if (itemOf(draft) === "set" && (f === "year" || f === "setKind")) { autoSetOz(draft); const oi = $("[data-f=oz]"); if (oi && !draft._ozEdited) oi.value = draft.oz; }
