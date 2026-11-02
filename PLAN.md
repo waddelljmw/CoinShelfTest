@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 5, Phase 5 live metal prices + Report a problem button + Fix list):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 6, plan Phase 7 selling details and the photo-fill choice):** switch to **Opus**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -14,7 +14,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 2 | Opus | Step 4.5 review of 4.3, fix what it finds | ✓ merged |
 | 3 | Sonnet | Step 4.3b filters, saved filters, select and move many | ✓ merged |
 | 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | ✓ merged |
-| 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | built v0.29.0, PR open, then merge |
+| 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | ✓ merged v0.29.0 |
 | 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | plan PR |
 | 7 | Sonnet | Phase 7 basic selling | PR |
 | 8 | Opus | Phase review (4.3b through 7), then merge | merge |
@@ -34,7 +34,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 - ✓ done v0.28.0 **Session 4:** **roll end colors** on the shelf. Checked against bank-wrapper (ABA) colors: cents red, nickels blue, dimes green, quarters orange, **halves sand/brown (not yellow)**, dollars gray (Sacagawea too); Morgan and Peace rolls worn beige.
 - ✓ done v0.28.0 **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
 - ✓ done v0.28.0 **Wooden box look.** Add "Wooden box" to the box Look choices (storage and display). On the shelf, a wooden display box gets a solid wood case (today every display box is drawn as a wood-framed glass case). Fits Session 4.
-- ✓ built v0.29.0 (PR open) **Session 5: ask before auto-filling a box spot.** When a box with numbered spots is picked, ask "Choose the spot yourself?" Yes: nothing filled in, you pick the real spot. No: the next free spot is filled in as today. Works for single coins now and for the add-many idea (IDEAS 10) later.
+- ✓ done v0.29.0 **Session 5: ask before auto-filling a box spot.** When a box with numbered spots is picked, ask "Choose the spot yourself?" Yes: nothing filled in, you pick the real spot. No: the next free spot is filled in as today. Works for single coins now and for the add-many idea (IDEAS 10) later.
 
 
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
