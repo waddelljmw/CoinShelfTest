@@ -106,7 +106,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.click("[data-act=selDone]");
   ok("select mode off", await p.evaluate(() => !listState.sel && !document.querySelector(".selbox")));
 
-  ok("version", await p.evaluate(() => APP_VERSION === "0.28.0"));
+  ok("version", await p.evaluate(() => APP_VERSION === "0.29.0"));
   console.log("errors", JSON.stringify(errors));
   await b.close();
 })();
