@@ -171,6 +171,13 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - Add Littleton albums that couldn't be confirmed online (type sets, the Silver Eagle album, America the Beautiful Vol. 1). Send photos of their pages.
 - Add proof dates for more series (Lincoln, Kennedy, Roosevelt, Silver Eagles and others) from Red Book pages you send, so "with proofs" albums get their proof spots.
 
+**Step 2.9b. Variety audit. Model: Opus** (research), then **Sonnet** (data entry). Best after 2.9, so your Red Book pages can confirm the splits.
+*Say this (on Opus):* "Do Step 2.9b of the plan."
+- Go series by series and find coins PCGS, NGC or the Red Book split into types or designs that the app doesn't have yet (like Standing Liberty's three types: 1916-1917, 1917-1924, and the 1925-1930 recessed date).
+- Give you a short list to approve before anything changes. Nothing is guessed: each split is checked against a source or your Red Book pages.
+- Saved coins must keep working. Opus plans how they map to new types or designs; Sonnet then enters the approved changes.
+- Also gives each type its exact PCGS Photo Guide link (Phase 3), including types that need one link per design.
+
 **Step 2.10. Review. Model: Opus.**
 
 ---
