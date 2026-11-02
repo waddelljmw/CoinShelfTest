@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.22.0";
+const APP_VERSION = "0.23.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -690,8 +690,8 @@ function viewValue() {
     <h2>By coin type</h2>
     <div class="card">${fams.map(([f, x]) => `<div class="rowline"><span>${esc(f)}<div class="small muted">${x.n} coin${x.n > 1 ? "s" : ""}${x.m ? " · melt " + money(x.m) : ""}</div></span><span class="num">${money(x.v)}</span></div>`).join("")}</div>
     <h2>Most valuable</h2>
-    <div class="list">${top.map((c) => coinRow(c)).join("")}</div>
-    ${premium.length ? `<h2>Highest premium over melt</h2><div class="card">${premium.map(({ c, p }) => `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="num ${signCls(p)}">${pct(p)}</span></div>`).join("")}</div>` : ""}
+    <div class="list">${top.map((c) => coinRow(c) + `<div class="small" style="text-align:right;margin:-4px 4px 6px"><a href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">eBay sold ↗</a></div>`).join("")}</div>
+    ${premium.length ? `<h2>Highest premium over melt</h2><div class="card">${premium.map(({ c, p }) => `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="num ${signCls(p)}">${pct(p)} · <a href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">eBay ↗</a></span></div>`).join("")}</div>` : ""}
     <p class="small muted">Values are the ones you enter, then Red Book values, then melt. Use <b>Check eBay sold</b> on any coin to see recent real sale prices.</p>`;
 }
 
@@ -1393,7 +1393,8 @@ function renderCoinForm() {
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
-      <div class="hint"><a href="https://www.pcgs.com/photograde" target="_blank" rel="noopener">Compare grades on PCGS Photograde ↗</a></div>
+      <div class="hint"><a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
+      ${it === "coin" && (d.typeName || d.year) ? `<div class="hint"><a id="ebayLink" href="${esc(ebayUrl(d))}" target="_blank" rel="noopener">Check eBay sold ↗</a></div>` : ""}
       ${PRICE_BOOK.series[d.typeId] && PRICE_BOOK.series[d.typeId].fbl && !isProofGrade(d.grade) ? `<label class="switch"><span>Full Bell Lines (FBL)<div class="small muted">All the lines on the Liberty Bell are complete.</div></span><input type="checkbox" data-fcheck="fbl" ${d.fbl ? "checked" : ""}></label>` : ""}
       <div id="smsBox">${smsField(d)}</div>
       <div id="varietyBox">${varietyField(d)}</div>
@@ -1631,7 +1632,12 @@ function bookHintText(d) {
   if (b.price != null && hasProblems(d)) return t + ". That price is for a coin without problems, so it isn't used for this one. Enter your own value (Check eBay sold helps)" + (meltEach(d) != null ? ", or melt is used." : ".");
   return b.price != null ? t + (num(d.value) == null ? ". Used as the value while Value each is empty." : "") : t;
 }
+// PCGS Photograde has no address we can build for each coin type, so this searches for that coin's guide page.
+const photoGuideText = (c) => (c.typeName && c.typeId ? "PCGS Photo Guide: " + c.typeName : "Compare grades on PCGS Photograde");
+const photoGuideUrl = (c) => (c.typeName && c.typeId ? "https://www.google.com/search?q=" + encodeURIComponent("PCGS Photograde " + c.typeName) : "https://www.pcgs.com/photograde");
 function refreshFormHints() {
+  const pl = $("#pcgsLink"); if (pl) { pl.href = photoGuideUrl(draft); pl.textContent = photoGuideText(draft) + " ↗"; }
+  const el = $("#ebayLink"); if (el) el.href = ebayUrl(draft);
   const yh = $("#yearHint"); if (yh) yh.textContent = itemOf(draft) === "set" ? setYearProblem(draft.setKind, draft.year) : yearProblem(draft.typeId, draft.year, "coin");
   const bh = $("#bullionHint"); if (bh) bh.textContent = bullionHint(draft);
   const rh = $("#rollHint"); if (rh) rh.textContent = rollHint(draft);
