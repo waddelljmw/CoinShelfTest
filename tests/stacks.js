@@ -51,7 +51,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("old coins unchanged", await p.evaluate(() => itemOf({}) === "coin" && stackOf({}) === ""));
   // CSV: bars are labeled Bar with a weight, and come back as bars
   const csv = await p.evaluate(() => toCsv());
-  ok("CSV has Bar and weight columns", /Weight \(oz\)/.test(csv) && /,Bar,,,,10,0\.999,Engelhard,A123,My Silver Stack,/.test(csv));
+  ok("CSV has Bar and weight columns", /Bar weight \(oz\)/.test(csv) && /,Bar,,,,10,0\.999,Engelhard,A123,My Silver Stack,/.test(csv));
   ok("CSV bar round trip", await p.evaluate(() => { const row = coinToRow(ownedCoins().find((c) => itemOf(c) === "bullion")); const c = (rowToCoin((k) => row[k]) || {}).coin; return c && c.item === "bullion" && c.oz === "9.99" && c.bWeight === "10" && c.stack === "My Silver Stack"; }));
   ok("Other silver item label and CSV", await p.evaluate(() => { const o = { ...blankCoin(), item: "bullion", bShape: "Other", bWeight: "2", bPurity: "0.999", bMaker: "Acme", metal: "Silver", oz: "1.998" }; const row = coinToRow(o); const c = (rowToCoin((k) => row[k]) || {}).coin; return autoLabel(o) === "2 oz Acme Silver item" && row.item === "Other silver item" && c && c.bShape === "Other"; }));
   ok("no page errors", errors.length === 0); if (errors.length) console.log(errors);

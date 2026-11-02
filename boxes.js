@@ -42,6 +42,16 @@ function boxCheck(c) {
   return "";
 }
 
+// A coin coming back (Undo, Restore, Move back) whose box spot was filled meanwhile leaves the box. Returns a note for the toast.
+function freeSpotOnReturn(c) {
+  if (!c.boxId || !getBox(c.boxId)) return "";
+  const other = spotCoin(c.boxId, c.boxRow, c.boxSlot, c.id);
+  if (!other) return "";
+  const where = boxText(c);
+  delete c.boxId; delete c.boxRow; delete c.boxSlot;
+  return " Its box spot (" + where + ") now holds " + labelOf(other) + ", so it's set to Not in a box.";
+}
+
 // --- pages ---
 const boxStats = (b) => { const n = boxCoins(b).length; return { filled: n, total: b.rows * b.perRow }; };
 function viewBoxes() {

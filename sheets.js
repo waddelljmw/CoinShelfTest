@@ -11,20 +11,22 @@ const SHEET_COLS = [
   { key: "rollCount", head: "Coins per roll", names: ["coinsperroll", "rollcount", "coinsinroll"] },
   { key: "rollCond", head: "Roll condition", names: ["rollcondition", "rollcond"] },
   { key: "bankWrap", head: "Original bank wrap", names: ["originalbankwrap", "bankwrap"] },
-  { key: "bWeight", head: "Weight (oz)", names: ["weightoz", "weight", "barweight"] },
+  { key: "bWeight", head: "Bar weight (oz)", names: ["barweightoz", "barweight"] },
   { key: "bPurity", head: "Purity", names: ["purity", "fineness"] },
   { key: "bMaker", head: "Maker", names: ["maker", "mintmaker", "refiner"] },
-  { key: "bSerial", head: "Serial number", names: ["serialnumber", "serial"] },
+  { key: "bSerial", head: "Serial number", names: ["serialnumber", "barserial", "barserialnumber"] },
   { key: "stack", head: "Stack", names: ["stack"] },
   { key: "status", head: "Status", names: ["status", "state"] },
   { key: "year", head: "Year", names: ["year", "date", "yr"] },
   { key: "mint", head: "Mint", names: ["mint", "mintmark", "mm"] },
-  { key: "typeName", head: "Coin type", names: ["cointype", "type", "series", "coin", "design", "kind"] },
+  { key: "typeName", head: "Coin type", names: ["cointype", "type", "series", "coin", "design"] },
+  { key: "kind", head: "Kind", names: ["kind"] },
+  { key: "group", head: "Group", names: ["group"] },
   { key: "denom", head: "Denomination", names: ["denomination", "denom", "facevalue", "face"] },
   { key: "variety", head: "Variety", names: ["variety", "var"] },
   { key: "knownVar", head: "Known variety", names: ["knownvariety", "dievariety"] },
-  { key: "mintErrors", head: "Mint errors", names: ["minterrors", "minterror", "error", "errors"] },
-  { key: "problems", head: "Problems", names: ["problems", "problem", "damage", "details"] },
+  { key: "mintErrors", head: "Mint errors", names: ["minterrors", "minterror"] },
+  { key: "problems", head: "Problems", names: ["problems", "problem"] },
   { key: "upgrade", head: "Upgrade wanted", names: ["upgradewanted", "upgrade"] },
   { key: "gradeMode", head: "Raw or certified", names: ["raworcertified", "rawcertified", "gradetype", "certified", "slabbed", "graded"] },
   { key: "grade", head: "Grade", names: ["grade", "condition", "estimatedgrade", "myestimatedgrade"] },
@@ -32,6 +34,10 @@ const SHEET_COLS = [
   { key: "cert", head: "Cert number", names: ["certnumber", "cert", "certno", "certification", "certificationnumber", "serial"] },
   { key: "catNo", head: "Catalog number", names: ["catalognumber", "pcgsnumber", "pcgscoinnumber", "coinnumber", "catno"] },
   { key: "cac", head: "CAC", names: ["cac", "cacsticker"] },
+  { key: "caseName", head: "Case name", names: ["casename", "case"] },
+  { key: "box", head: "Storage box", names: ["storagebox", "box", "2x2box"] },
+  { key: "boxRow", head: "Box row", names: ["boxrow"] },
+  { key: "boxSlot", head: "Box slot", names: ["boxslot"] },
   { key: "holder", head: "Holder", names: ["holder", "holdertype", "storage", "housing"] },
   { key: "coa", head: "COA", names: ["coa", "certificateofauthenticity"] },
   { key: "packaging", head: "Packaging", names: ["packaging", "boxpackaging", "packagingnotes"] },
@@ -51,11 +57,14 @@ const SHEET_COLS = [
   { key: "buyFees", head: "Purchase fees", names: ["purchasefees", "buyerspremium", "buyerfees"] },
   { key: "totalCost", head: "Total cost", names: ["totalcost"], exportOnly: true },
   { key: "payMethod", head: "Paid with", names: ["paidwith", "paymentmethod", "payment"] },
+  { key: "trackCarrier", head: "Carrier", names: ["carrier", "shippingcarrier"] },
   { key: "trackNo", head: "Tracking number", names: ["trackingnumber", "tracking", "trackingno"] },
   { key: "receiptNo", head: "Receipt number", names: ["receiptnumber", "receipt", "invoice", "invoicenumber", "ordernumber"] },
   { key: "acquired", head: "Date acquired", names: ["dateacquired", "acquired", "purchasedate", "datepurchased", "dateadded", "bought"] },
   { key: "album", head: "Album", names: ["album", "folder", "binder"] },
   { key: "notes", head: "Notes", names: ["notes", "note", "comments", "comment", "memo"] },
+  { key: "goneReason", head: "Gone reason", names: ["gonereason"] },
+  { key: "goneDate", head: "Gone date", names: ["gonedate"] },
   { key: "soldDate", head: "Sold date", names: ["solddate", "datesold"] },
   { key: "soldAmount", head: "Sold for", names: ["soldfor", "soldprice", "saleprice", "soldamount"] },
   { key: "shipping", head: "Shipping", names: ["shipping", "shippingcost"] },
@@ -77,7 +86,7 @@ function coinToRow(c) {
   const m = meltEach(c);
   const rb = bookPrice(c);
   return {
-    label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : itemOf(c) === "bullion" ? shapeName(c.bShape) : "Coin", bWeight: itemOf(c) === "bullion" ? c.bWeight || "" : "", bPurity: itemOf(c) === "bullion" ? c.bPurity || "" : "", bMaker: c.bMaker || "", bSerial: c.bSerial || "", stack: stackOf(c), rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
+    label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : itemOf(c) === "bullion" ? shapeName(c.bShape) : "Coin", bWeight: itemOf(c) === "bullion" ? c.bWeight || "" : "", bPurity: itemOf(c) === "bullion" ? c.bPurity || "" : "", bMaker: c.bMaker || "", bSerial: c.bSerial || "", stack: stackOf(c), kind: !c.typeId && itemOf(c) === "coin" && OTHER_KINDS.includes(c.family) ? c.family : "", group: String(c.group || "").trim(), caseName: c.caseName || "", box: c.boxId && typeof getBox === "function" && getBox(c.boxId) ? getBox(c.boxId).name : "", boxRow: c.boxId ? c.boxRow || "" : "", boxSlot: c.boxId ? c.boxSlot || "" : "", trackCarrier: c.trackCarrier || "", goneReason: c.status === "gone" && c.gone ? c.gone.reason || "" : "", goneDate: c.status === "gone" && c.gone ? c.gone.date || "" : "", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
     catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
@@ -222,8 +231,12 @@ function rowToCoin(get) {
   const st = squash(get("status"));
   if (/forsale/.test(st) && !/inherited/i.test(c.source)) c.stage = "forsale";
   else if (/ontheway|coming|ordered|intransit/.test(st)) c.stage = "coming";
-  else if (/^gone|traded|gifted|lost/.test(st)) { c.status = "gone"; c.gone = { reason: /trade/.test(st) ? "Traded" : /gift/.test(st) ? "Gifted" : /lost/.test(st) ? "Lost" : "", date: "" }; }
+  else if (/^gone|traded|gifted|lost/.test(st)) { c.status = "gone"; const gr = txt("goneReason"); c.gone = { reason: GONE_REASONS.find((x) => x.toLowerCase() === gr.toLowerCase()) || (gr ? "Other" : /trade/.test(st) ? "Traded" : /gift/.test(st) ? "Gifted" : /lost/.test(st) ? "Lost" : ""), date: normDate(get("goneDate")) }; }
   c.acquired = normDate(get("acquired"));
+  c.group = txt("group"); c.trackCarrier = CARRIERS.find((x) => x.toLowerCase() === txt("trackCarrier").toLowerCase()) || "";
+  if (!t) { const kd = OTHER_KINDS.find((x) => x.toLowerCase() === txt("kind").toLowerCase()); if (kd) c.family = kd; }
+  // A "Serial number" column on a slab row is its cert number.
+  if (certified && !c.cert && txt("bSerial")) c.cert = txt("bSerial");
   c.notes = String(get("notes") || "").trim();
   const itemT = String(get("item") || "").trim().toLowerCase();
   if (itemT === "set" || itemT === "roll") {
@@ -244,13 +257,15 @@ function rowToCoin(get) {
   }
   const shapeIn = ["bar", "round", "other silver item", "other", "shape"].includes(itemT) ? (itemT === "bar" || itemT === "round" ? itemT[0].toUpperCase() + itemT.slice(1) : "Other") : itemT === "bullion" ? "Bar" : "";
   if (shapeIn) {
-    const w = +money2(get("bWeight")), pu = +money2(get("bPurity")) || 0.999;
+    const w = +money2(get("bWeight")) || +money2(get("oz")), pu = +money2(get("bPurity")) || 0.999;
     if (w > 0 && pu <= 1) {
       Object.assign(c, { item: "bullion", bShape: shapeIn, bWeight: String(w), bPurity: String(pu), bMaker: txt("bMaker"), bSerial: txt("bSerial"),
         typeId: "", typeName: "Bullion", family: "Bullion", denom: "", mint: "", year: "", gradeMode: "raw", grade: "", cac: "", metal: "Silver", stack: txt("stack") || "My Silver Stack" });
       c.oz = String(bullionOz(c));
     }
   } else if (txt("stack") && c.gradeMode === "raw" && c.grade === "Junk" && c.metal === "Silver") c.stack = txt("stack");
+  if (itemOf(c) === "coin" && CASE_HOLDERS.includes(c.holder) && txt("caseName")) c.caseName = txt("caseName");
+  if (itemOf(c) === "coin" && c.holder === "2x2" && txt("box")) { c._boxName = txt("box"); c.boxRow = txt("boxRow"); c.boxSlot = txt("boxSlot"); }
   const lab = String(get("label") || "").trim();
   if (lab && lab !== autoLabel(c)) { c.label = lab; c.labelEdited = true; }
   if (statusSold) {
@@ -312,7 +327,9 @@ function loadImportText(text, fileName) {
   if (rows.length < 2) { const m = $("#importMsg"); if (m) m.textContent = "That file has no coin rows. Check it has a heading row and at least one coin."; return; }
   const headers = rows[0].map((h) => String(h).trim());
   const taken = new Set();
-  const map = headers.map((h) => { const k = guessField(h, taken); if (k) taken.add(k); return k; });
+  // Files exported by v0.21–0.23 call the bar weight "Weight (oz)" next to "Metal oz".
+  const oldBarWeight = headers.some((h) => squash(h) === "metaloz");
+  const map = headers.map((h) => { const k = oldBarWeight && squash(h) === "weightoz" && !taken.has("bWeight") ? "bWeight" : guessField(h, taken); if (k) taken.add(k); return k; });
   imp = { headers, rows: rows.slice(1), map, fileName, skip: new Set() };
   renderImport();
 }
@@ -321,7 +338,7 @@ function importCoins() {
   return imp.rows.map((r) => rowToCoin((key) => { const i = imp.map.indexOf(key); return i < 0 ? null : r[i]; }));
 }
 function isDuplicate(c) {
-  return allCoins().some((o) => o.status !== "deleted" && o.status === c.status && o.typeId === c.typeId && (o.typeId || o.typeName === c.typeName) && String(o.year) === String(c.year) && normMint(o.mint) === normMint(c.mint) && o.grade === c.grade && o.gradeMode === c.gradeMode && (c.gradeMode !== "cert" || !c.cert || o.cert === c.cert));
+  return allCoins().some((o) => o.status !== "deleted" && o.status === c.status && itemOf(o) === itemOf(c) && ["setKind", "bShape", "bWeight", "bSerial"].every((k) => String(o[k] ?? "") === String(c[k] ?? "")) && o.typeId === c.typeId && (o.typeId || o.typeName === c.typeName) && String(o.year) === String(c.year) && normMint(o.mint) === normMint(c.mint) && o.grade === c.grade && o.gradeMode === c.gradeMode && (c.gradeMode !== "cert" || !c.cert || o.cert === c.cert));
 }
 function renderImport() {
   const parsed = importCoins();
@@ -366,10 +383,16 @@ async function doImport() {
   closeSheet();
   toast("Importing " + chosen.length + " rows…");
   const ids = [];
+  let noSpot = 0;
   for (const c of chosen) {
     const an = c._albumName; delete c._albumName;
     // Only into an album made for this coin's type.
     if (an && albumByName.has(squash(an)) && albumHasType(getAlbum(albumByName.get(squash(an))), c.typeId)) c.albumId = albumByName.get(squash(an));
+    // Into a 2x2 storage box by name, only if that spot is free.
+    const bn = c._boxName; delete c._boxName;
+    const bx = bn && typeof allBoxes === "function" && allBoxes().find((b) => squash(b.name) === squash(bn));
+    if (bx) { c.boxId = bx.id; if (boxCheck(c)) { delete c.boxId; delete c.boxRow; delete c.boxSlot; noSpot++; } }
+    else { delete c.boxRow; delete c.boxSlot; }
     c.importBatch = batch;
     ids.push(c.id);
     if (c.typeId) touchType(c.typeId);
@@ -379,7 +402,7 @@ async function doImport() {
   const anySold = chosen.some((c) => c.status === "sold");
   if (anySold && !settings().soldAutoDone) saveSettings({ showSold: true, soldAutoDone: true });
   go("coins");
-  toast("Imported " + ids.length + " rows." + (dropped ? " Skipped " + dropped + " with a year that doesn't fit." : ""), { label: "Undo", fn: () => undoImport(true) });
+  toast("Imported " + ids.length + " rows." + (dropped ? " Skipped " + dropped + " with a year that doesn't fit." : "") + (noSpot ? " " + noSpot + " couldn't go in their box spot (taken or missing), so they're not in a box." : ""), { label: "Undo", fn: () => undoImport(true) });
 }
 // Imported rows you haven't changed since. Edited coins leave the batch (see saveCoin).
 const importLeft = (li) => li.ids.map(getCoin).filter((c) => c && c.importBatch === li.batch && c.status !== "deleted");
