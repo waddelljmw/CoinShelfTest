@@ -162,7 +162,7 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - **Totals:** a stacked item counts only if its group chip AND its stack chip are on (an inherited bar stays "Inherited" and in My Silver Stack). Stacks are on by default (new `hiddenStacks` setting). Value history keeps the full total.
 - Tests: bullion melt math, junk coin in a stack, chips, and old coins unchanged.
 
-**Step 2.8. The wheat penny box organizer. Model: Sonnet.**
+**Step 2.8. The 2x2 storage box organizer. Model: Sonnet.** — DONE ✅ (merged, v0.22.0)
 - A "Box" works like an album. Name it (e.g. Black box 1), set rows and slots per row; each spot holds a 2x2.
 - See what's in each row, search for "1909-S", and get its row and slot number.
 - See which Lincoln dates you're still missing.
