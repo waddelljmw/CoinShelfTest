@@ -1,10 +1,10 @@
 // Keeps a copy of the app on the phone so it opens with no internet, and fetches new versions.
 // CACHE must change with every release (it matches APP_VERSION in app.js); that's how phones notice an update.
-const CACHE = "coin-cabinet-0.23.2";
+const CACHE = "coin-cabinet-0.24.1";
 const FILES = [
   "./", "index.html", "styles.css", "manifest.webmanifest",
   "catalog/data.js", "catalog/pricebook.js", "catalog/albums.js", "catalog/varieties.js",
-  "app.js", "sheets.js", "photofill.js", "history.js", "wants.js", "boxes.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "pwa.js",
+  "app.js", "sheets.js", "photofill.js", "history.js", "wants.js", "boxes.js", "shelf.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "pwa.js",
   "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png",
 ];
 self.addEventListener("install", (e) => {
