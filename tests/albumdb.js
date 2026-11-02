@@ -55,7 +55,7 @@ const { chromium } = require("./_compat");
   console.log(await p.evaluate(() => JSON.stringify((({ typeIds, end, name, number, proofs }) => ({ typeIds, end, name, number, proofs }))(getAlbum("old"))))); ok("applied: both types and 1932–1990, name kept", await p.evaluate(() => { const a = getAlbum("old"); return a.typeIds.length === 2 && a.end === 1990 && a.name === "Mine" && a.number === "9122"; }));
   // album created from the Add coin form uses the lookup
   await p.evaluate(() => closeSheet()); await p.click("#fab"); await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0");
-  await p.fill("[data-f=year]", "1881"); await p.selectOption("[data-f=grade]", "VF-20"); await p.selectOption("[data-f=albumId]", "__new");
+  await p.fill("[data-f=year]", "1881"); await p.selectOption("[data-f=grade]", "VF-20"); await p.selectOption("[data-kept]", "__new");
   await p.selectOption("[data-na=brand]", "Whitman"); await p.fill("[data-na=number]", "9128"); await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(250);
   ok("new album from coin form: Morgan 1878–1891 from the lookup", await p.evaluate(() => { const a = albums().find((x) => x.number === "9128"); return a && a.name.startsWith("Morgan Dollars") && a.end === 1891 && !a.slots.some((s) => s.y > 1891); }));
   ok("no page errors", errors.length === 0); if (errors.length) console.log(errors);

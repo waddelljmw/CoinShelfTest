@@ -5,6 +5,11 @@
 // Which coins go in the report: all, or the ones you tick.
 const repSel = { mode: "all", ids: new Set(), q: "" };
 
+// Where an item is kept, in words: album, box (with row and slot), or stack.
+function keptText(c) {
+  const al = c.albumId && getAlbum(c.albumId);
+  return [al ? albumTitle(al) : "", c.boxId && getBox(c.boxId) ? boxText(c) : "", stackOf(c)].filter(Boolean).join(" · ");
+}
 function openReportForm() {
   const owned = ownedCoins();
   repSel.mode = "all"; repSel.ids = new Set(); repSel.q = "";
@@ -23,6 +28,7 @@ function openReportForm() {
     </div>
     <div class="card" style="margin-top:12px">
       <label class="switch"><span>Include what I paid<div class="small muted">Adds a Paid column and total.</div></span><input type="checkbox" id="repPaid"></label>
+      <label class="switch"><span>Include where it's kept<div class="small muted">Adds a Kept in column (album, box with row and slot, or stack).</div></span><input type="checkbox" id="repKept"></label>
       <label class="switch"><span>Include photos<div class="small muted">Adds a small picture of each coin. Makes the file larger.</div></span><input type="checkbox" id="repPhotos"></label>
     </div>
     <label class="f"><span>Name on the report (optional)</span><input type="text" id="repName" placeholder="Your name" maxlength="80"></label>
@@ -101,6 +107,7 @@ async function buildReport(opts) {
       <td class="r"><b>${m(v == null ? null : v * q)}</b></td>
       <td class="r">${m(mt == null ? null : mt * q)}</td>
       <td>${esc(SOURCE_TEXT[valueSource(c)] || "")}${valueSource(c) === "book" && ed ? " " + esc(ed) : ""}</td>
+      ${opts.kept ? `<td>${esc(keptText(c))}</td>` : ""}
       ${opts.paid ? `<td class="r">${num(c.paid) == null ? "—" : money(num(c.paid))}</td>` : ""}
     </tr>`;
   }).join("");
@@ -147,9 +154,9 @@ async function buildReport(opts) {
 </div>
 <h2>Itemized list</h2>
 <table>
-  <thead><tr><th>#</th>${opts.photos ? "<th>Photo</th>" : ""}<th>Coin</th><th>Grade</th><th class="r">Qty</th><th class="r">Value each</th><th class="r">Total</th><th class="r">Melt</th><th>Value basis</th>${opts.paid ? `<th class="r">Paid each</th>` : ""}</tr></thead>
+  <thead><tr><th>#</th>${opts.photos ? "<th>Photo</th>" : ""}<th>Coin</th><th>Grade</th><th class="r">Qty</th><th class="r">Value each</th><th class="r">Total</th><th class="r">Melt</th><th>Value basis</th>${opts.kept ? "<th>Kept in</th>" : ""}${opts.paid ? `<th class="r">Paid each</th>` : ""}</tr></thead>
   <tbody>${rows}</tbody>
-  <tfoot><tr><td></td>${opts.photos ? "<td></td>" : ""}<td>Total</td><td></td><td class="r">${totQty}</td><td></td><td class="r">${money(totVal)}</td><td class="r">${money(totMelt)}</td><td></td>${opts.paid ? `<td class="r">${money(totPaid)}</td>` : ""}</tr></tfoot>
+  <tfoot><tr><td></td>${opts.photos ? "<td></td>" : ""}<td>Total</td><td></td><td class="r">${totQty}</td><td></td><td class="r">${money(totVal)}</td><td class="r">${money(totMelt)}</td><td></td>${opts.kept ? "<td></td>" : ""}${opts.paid ? `<td class="r">${money(totPaid)}</td>` : ""}</tr></tfoot>
 </table>
 <h2>By coin type</h2>
 <table><thead><tr><th>Type</th><th class="r">Coins</th><th class="r">Value</th><th class="r">Melt</th></tr></thead><tbody>${famRows}</tbody></table>
@@ -162,7 +169,7 @@ ${metalRows ? `<h2>Precious metal content</h2><table><thead><tr><th>Metal</th><t
 }
 
 async function makeReport() {
-  const opts = { paid: !!($("#repPaid") || {}).checked, photos: !!($("#repPhotos") || {}).checked, name: ($("#repName") || {}).value || "" };
+  const opts = { kept: !!($("#repKept") || {}).checked, paid: !!($("#repPaid") || {}).checked, photos: !!($("#repPhotos") || {}).checked, name: ($("#repName") || {}).value || "" };
   const msg = $("#repMsg");
   if (repSel.mode === "pick") {
     const ids = new Set(ownedCoins().filter((c) => repSel.ids.has(c.id)).map((c) => c.id));

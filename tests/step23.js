@@ -18,14 +18,14 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0");
   await p.fill("[data-f=year]", "1921");
   // a section you open stays open when the form redraws (e.g. after choosing a holder)
-  await p.click("summary:has-text('Holder and album')"); await p.waitForTimeout(80);
-  await p.selectOption("[data-f=holder]", "Flip"); await p.waitForTimeout(150);
+  await p.click("summary:has-text('Holder and Kept in')"); await p.waitForTimeout(80);
+  await p.selectOption("[data-f=holder]", "Plastic flip"); await p.waitForTimeout(150);
   ok("opened section stays open after redraw", await p.isVisible("[data-f=holder]"));
-  ok("section title shows the holder", (await p.textContent("summary:has-text('Holder and album')")).includes("Flip"));
+  ok("section title shows the holder", (await p.textContent("summary:has-text('Holder and Kept in')")).includes("Plastic flip"));
   await p.click("summary:has-text('Purchase details')"); await p.fill("[data-f=paid]", "35");
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(250);
   const c = await p.evaluate(() => allCoins().find((x) => x.year == 1921 && x.status !== "deleted"));
-  ok("saved with section values", c && c.holder === "Flip" && c.paid == 35 && c.typeId);
+  ok("saved with section values", c && c.holder === "Plastic flip" && c.paid == 35 && c.typeId);
   ok("no working keys saved", c && c._what === undefined && c._open === undefined);
 
   // editing a coin that has purchase data opens that section

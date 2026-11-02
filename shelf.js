@@ -13,6 +13,14 @@ function spineText(a) {
   const yrs = a.start ? a.start + "–" + (a.end || "") : "";
   return yrs && !/\d{4}/.test(t) ? t + " " + yrs : t;
 }
+// Spine color follows the album's brand: Whitman blue, Littleton green, Dansco dark brown, H.E. Harris beige. "Other" uses the color picked for it (red if none).
+const LIGHT_COLORS = ["clear", "white", "yellow"];
+function brandSpine(a) {
+  const cls = { Whitman: "s1", Littleton: "s3", Dansco: "sd", "H.E. Harris": "sbg" }[a.brand];
+  if (cls) return { cls, style: "" };
+  const k = BOX_COLORS.some((x) => x[0] === a.color) && a.color !== "clear" ? a.color : "red", hex = colorHex(k, "red");
+  return { cls: "so", style: `style="background:linear-gradient(90deg,${hex},${hex} 50%,${hex});box-shadow:inset 0 0 0 99px rgba(0,0,0,.08);color:${LIGHT_COLORS.includes(k) ? "#2a2218" : "#e8d29a"}"` };
+}
 // Albums fill up to 2 shelves of 9 spines. If there are more, the last spot becomes a "+N more" spine that opens Albums.
 const SPINES_PER_SHELF = 9, ALBUM_SHELVES = 2, GROUPS_PER_SHELF = 5;
 function shelfAlbums() {
@@ -26,7 +34,8 @@ function shelfAlbums() {
     const st = albumStats(a);
     const done = st.total && st.owned === st.total;
     const h = st.total > 120 ? "tall" : st.total < 40 ? "short" : "";
-    return `<button class="sh-spine s${(i % 3) + 1} ${h}" data-go="album-${esc(a.id)}" aria-label="${esc(albumTitle(a))}, ${st.owned} of ${st.total}${done ? ", complete" : ""}">
+    const bc = brandSpine(a);
+    return `<button class="sh-spine ${bc.cls} ${h}" ${bc.style} data-go="album-${esc(a.id)}" aria-label="${esc(albumTitle(a))}, ${st.owned} of ${st.total}${done ? ", complete" : ""}">
       <span>${esc(spineText(a))}</span>${done ? `<i class="sh-ok" aria-hidden="true">✓</i>` : ""}</button>`;
   });
   if (more) spines.push(`<button class="sh-spine more" data-go="albums" aria-label="${more} more albums, open Albums"><span>+${more} more</span></button>`);
@@ -71,18 +80,30 @@ function shelfStacks(owned) {
   }
   return limitGroups(groups, "stacks", "Stacks").join("");
 }
+// One box drawn on the shelf, by its look: black, cardboard, plastic (any color, or clear with coins showing). Display boxes are a glass case.
+function boxDrawing(b) {
+  const st = boxStats(b), name = esc(b.name || "Box");
+  const cap = (b.type === "display" ? "Display" : "Storage") + " · " + (hasSpots(b) ? st.filled + "/" + st.total : st.filled + " item" + (st.filled === 1 ? "" : "s"));
+  let art;
+  if (b.type === "display") {
+    const coins = ["ag", "cu", "ni", "ag", "au"].slice(0, 5).map((k) => `<i class="sh-coin ${k}"></i>`).join("");
+    art = `<span class="sh-case"><span class="sh-case-coins">${coins}</span><b>${name}</b></span>`;
+  } else if (b.look === "plastic") {
+    const clear = b.color === "clear", hex = colorHex(b.color, "clear");
+    art = `<span class="sh-box plastic ${clear ? "clear" : ""}" ${clear ? "" : `style="background:${hex};color:${LIGHT_COLORS.includes(b.color) ? "#222" : "#eee"}"`}>${clear ? `<span class="sh-incoins"><i></i><i></i><i></i></span>` : ""}<b>${name}</b></span>`;
+  } else art = `<span class="sh-box ${b.look === "cardboard" ? "cardboard" : ""}"><b>${name}</b></span>`;
+  return `<button class="sh-group" data-go="box-${esc(b.id)}">${art}<span class="sh-cap">${cap}</span></button>`;
+}
 function shelfBoxes(owned) {
-  const out = (typeof allBoxes === "function" ? allBoxes() : []).map((b) => {
-    const st = boxStats(b);
-    return `<button class="sh-group" data-go="box-${esc(b.id)}"><span class="sh-box"><b>${esc(b.name || "2x2 box")}</b></span><span class="sh-cap">2x2 box · ${st.filled}/${st.total}</span></button>`;
-  });
+  const out = storageBoxes().map(boxDrawing);
   const sets = owned.filter((c) => itemOf(c) === "set");
   if (sets.length) {
     const cases = sets.slice(0, 2).map((c, i) => `<i class="sh-set ${i ? "r" : ""}">${esc(labelOf(c).slice(0, 18))}</i>`).join("");
     out.push(`<button class="sh-group" data-go="coins"><span class="sh-sets">${cases}</span><span class="sh-cap">Sets · ${sum(sets, qtyOf)}</span></button>`);
   }
-  return out.length ? limitGroups(out, "boxes", "2x2 Storage Boxes").join("") : `<button class="sh-ghost" data-go="boxes">No 2x2 boxes or sets yet<br>Tap to add a box</button>`;
+  return out.length ? limitGroups(out, "boxes", "Storage").join("") : `<button class="sh-ghost" data-go="boxes">No boxes or sets yet<br>Tap to add a box</button>`;
 }
+function shelfDisplay() { return limitGroups(displayBoxes().map(boxDrawing), "boxes", "Storage").join(""); }
 // The totals plaques and metal prices on the top shelf.
 function shelfTop(t) {
   const s = settings();
@@ -106,5 +127,6 @@ function shelfHtml(owned, t) {
     ${shelfAlbums().map((r, i) => row(i ? "" : "Albums", r, "albums")).join("")}
     ${row("Stacks and coins", shelfStacks(owned), "spread")}
     ${row("Boxes and sets", shelfBoxes(owned), "spread")}
+    ${displayBoxes().length ? row("Display boxes", shelfDisplay(), "spread") : ""}
   </div>`;
 }

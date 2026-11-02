@@ -32,7 +32,7 @@ const shots = process.argv.includes("--shots");
   ok("album spine", (await p.$$(".sh-spine")).length === 1);
   ok("stack shows a bar and ounces", !!(await p.$(".sh-bar.b")) && /My Silver Stack/.test(txt));
   ok("my coins stack has silver and gold", !!(await p.$(".sh-coin.ag")) && !!(await p.$(".sh-coin.au")));
-  ok("rolls, box and sets shown", !!(await p.$(".sh-roll")) && /2x2 box · 0\/100/.test(txt) && /Sets · 1/.test(txt));
+  ok("rolls, box and sets shown", !!(await p.$(".sh-roll")) && /Storage · 0\/100/.test(txt) && /Sets · 1/.test(txt));
   ok("cost and gain kept", /Cost/.test(txt) && /Gain/.test(txt));
   ok("stack chip above shelf", !!(await p.$(".home-chips [data-act=toggleStack]")));
   if (shots) await p.screenshot({ path: "/tmp/shelf-bookcase.png", fullPage: true });

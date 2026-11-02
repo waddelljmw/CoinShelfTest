@@ -10,7 +10,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // 1. Raw coin in a 2x2 from a coin show, with COA + packaging
   await add("morgan", "1921");
-  await p.selectOption('[data-f="holder"]', "2x2"); await p.waitForTimeout(80);
+  await p.selectOption('[data-f="holder"]', "2x2 cardboard flip"); await p.waitForTimeout(80);
   await p.selectOption('[data-f="_sourceKind"]', "Coin Show"); await p.waitForTimeout(80);
   ok("no packaging box before COA", !(await p.isVisible('[data-f="packaging"]')));
   await p.check('[data-fcheck="coa"]'); await p.waitForTimeout(80);
@@ -18,12 +18,12 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("no CAC on a raw coin", !(await p.isVisible('[data-f="cac"]')));
   await save();
   let c = await p.evaluate(() => ownedCoins().find((x) => x.year === 1921));
-  ok("saved holder/coa/packaging", c.holder === "2x2" && c.coa === true && c.packaging === "blue box" && !("_lastHolder" in c));
+  ok("saved holder/coa/packaging", c.holder === "2x2 cardboard flip" && c.coa === true && c.packaging === "blue box" && !("_lastHolder" in c));
   ok("coin page shows holder + COA", /2x2/.test(await p.textContent("main")) && /Included/.test(await p.textContent("main")));
 
   // 2. Quick-add remembers holder and source
   await add("peace", "1922");
-  ok("holder remembered", (await p.$eval('[data-f="holder"]', (e) => e.value)) === "2x2");
+  ok("holder remembered", (await p.$eval('[data-f="holder"]', (e) => e.value)) === "2x2 cardboard flip");
   ok("source remembered", (await p.$eval('[data-f="_sourceKind"]', (e) => e.value)) === "Coin Show");
   ok("COA not remembered", !(await p.isChecked('[data-fcheck="coa"]')));
 
@@ -35,7 +35,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   c = await p.evaluate(() => ownedCoins().find((x) => x.year === 1922));
   ok("saved slab + gold CAC", c.holder === "Slab" && c.cac === "Gold");
   ok("CAC badge on coin page", await p.isVisible(".cac.gold"));
-  ok("Slab not remembered as last holder", await p.evaluate(() => settings().lastHolder === "2x2"));
+  ok("Slab not remembered as last holder", await p.evaluate(() => settings().lastHolder === "2x2 cardboard flip"));
 
   // 4. Switching a coin to raw drops its CAC
   await p.click("[data-act=edit]"); await p.waitForTimeout(150);
@@ -50,7 +50,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // 6. CSV round trip keeps the new fields
   const csv = await p.evaluate(() => toCsv());
-  ok("CSV has holder columns", /Holder,COA,Packaging/.test(csv) && /2x2,Yes,blue box/.test(csv));
+  ok("CSV has holder columns", /Holder,COA,Packaging/.test(csv) && /2x2 cardboard flip,Yes,blue box/.test(csv));
 
   console.log("errors", errors);
   await b.close();

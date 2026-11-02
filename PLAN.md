@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here:** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 2):** switch to **Opus**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."* (It reviews the open Step 4.3 PR, fixes what it finds, then merges.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -29,7 +29,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 ## Fix list (small changes waiting for a session)
 
 Claude adds items here when they wait. Sessions 4 and 5 clear them.
-- (empty)
+- **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
 
 
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
@@ -256,7 +256,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 **Step 4.3. Holders, storage and display boxes. Model: Sonnet** (planned on Opus, Nov 2, 2026). Opus review (4.5) before merging, because it changes how boxes are saved.
 *Session 1.*
 - [x] Planned
-- [ ] Built
+- [x] Built (v0.25.0, branch `step-4.3-holders-storage`, PR open, **not merged** until the Opus review, session 2)
 - [ ] Merged
 
 *Two separate things for every coin:* **Holder** = what is right around the coin (flip, capsule, slab). **Kept in** = the container that holder sits in (album, storage box, display box, stack). Example: wheat cent · 2x2 cardboard flip · kept in Black box 1.

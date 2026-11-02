@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.24.3";
+const APP_VERSION = "0.25.2";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -391,8 +391,10 @@ const faceEach = (c) => { const t = itemOf(c) === "coin" && TYPE_BY_ID[c.typeId]
 const bestEach = (c) => valueEach(c) ?? meltEach(c) ?? faceEach(c);
 const qtyOf = (c) => Math.max(1, num(c.qty) || 1);
 // Holder: saved choice, or for older coins (saved before holders existed) worked out from the album / certified fields.
-const holderOf = (c) => c.holder || (c.albumId ? "Album" : c.gradeMode === "cert" ? "Slab" : "");
+const holderOf = (c) => normHolder(c.holder) || (c.albumId ? "Album" : c.gradeMode === "cert" ? "Slab" : "");
 const holderText = (c) => { const h = holderOf(c); return h === "Other" ? (c.packaging || "").trim() || "Other" : h; };
+// The name of where an item is kept (album, box or stack), for search and lists.
+const keptName = (c) => [c.albumId && getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "", c.boxId && typeof getBox === "function" && getBox(c.boxId) ? getBox(c.boxId).name : "", stackOf(c)].filter(Boolean).join(" ");
 const cacOf = (c) => (c.gradeMode === "cert" && (c.cac === "Green" || c.cac === "Gold") ? c.cac : "");
 const cacBadge = (c) => (cacOf(c) ? `<span class="cac ${cacOf(c).toLowerCase()}" title="CAC ${cacOf(c)} sticker">CAC${cacOf(c) === "Gold" ? " Gold" : ""}</span>` : "");
 // Groups: set on a coin, or worked out (Inherited from the source, otherwise My collection).
@@ -548,7 +550,7 @@ window.addEventListener("hashchange", (e) => {
 });
 function coinBackLink() {
   const h = coinBackTo || "coins";
-  let name = { home: "Home", value: "Coin Value", albums: "Albums", wants: "Want List", coins: "Your Coins", stacks: "Stacks", boxes: "2x2 Storage Boxes", guide: "PCGS Photo Guide", options: "Options" }[h];
+  let name = { home: "Home", value: "Coin Value", albums: "Albums", wants: "Want List", coins: "Your Coins", stacks: "Stacks", boxes: "Storage", guide: "PCGS Photo Guide", options: "Options" }[h];
   if (!name && h.startsWith("box-")) { const b = getBox(h.slice(4)); name = b ? b.name : "Boxes"; }
   if (!name && h.startsWith("album-")) { const a = getAlbum(h.slice(6)); name = a ? albumTitle(a) : "Albums"; }
   return `<button class="link-btn" data-go="${esc(name ? h : "coins")}">← ${esc(name || "Your Coins")}</button>`;
@@ -725,7 +727,7 @@ function viewCoins() {
     (!listState.metal || c.metal === listState.metal) &&
     (!listState.cert || c.gradeMode === listState.cert) &&
     (!listState.stage || (listState.stage === "upgrade" ? c.upgrade : stageOf(c) === listState.stage)) &&
-    (!listState.q || (labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.seller || "") + " " + (c.caseName || "")).toLowerCase().includes(listState.q.toLowerCase())));
+    (!listState.q || (labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.seller || "") + " " + (c.caseName || "") + " " + holderText(c) + " " + keptName(c)).toLowerCase().includes(listState.q.toLowerCase())));
   const key = {
     year: (c) => num(c.year) ?? 99999,
     value: (c) => (bestEach(c) || 0) * qtyOf(c),
@@ -849,7 +851,7 @@ function viewCoin(r) {
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
       ${c.gradeMode === "cert" ? row("Catalog number", esc(c.catNo)) : ""}
       ${row("Holder", esc(holderText(c)))}
-      ${row("2x2 storage box", typeof boxText === "function" ? esc(boxText(c)) : "")}
+      ${(() => { const bx = c.boxId && getBox(c.boxId); return bx ? row(bx.type === "display" ? "Display box" : "Storage box", esc(boxText(c))) : ""; })()}
       ${row("COA", c.coa ? "Included" : null)}
       ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
@@ -878,6 +880,8 @@ function viewCoin(r) {
 }
 
 /* --- Albums --- */
+// Spine color picker (used for "Other" brand albums; Whitman, Dansco, Harris and Littleton have their own colors).
+const albumColorField = (val) => `<label class="f"><span>Spine color <span class="muted small">(used when the brand is Other)</span></span><select name="color">${BOX_COLORS.filter((x) => x[0] !== "clear").map((x) => `<option value="${x[0]}" ${(val || "red") === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>`;
 const albumTitle = (a) => a.name || [a.brand, a.number].filter(Boolean).join(" ") || "Album";
 // A slot is one spot in an album: year, mint mark, and optionally a variety (e.g. "8 Tail Feathers").
 // Type-set spots ("set") hold one coin of a type, any date. "tx" marks a date spot shared by two of the album's types.
@@ -1429,11 +1433,12 @@ function renderCoinForm() {
 
     ${sec("status", "Status" + (d._status && d._status !== "owned" ? ` <span class="muted small">· ${esc(STATUS_TEXT[d._status] || "")}</span>` : ""), statusFields(d), (d._status && d._status !== "owned") || d.upgrade || d.status === "sold")}
 
-    ${sec("holder", (it === "coin" ? "Holder and album" : it === "set" ? "Packaging" : "Holder") + (h ? ` <span class="muted small">· ${esc(h)}</span>` : ""), `${it !== "coin" ? "" : `<label class="f"><span>Album</span><select data-f="albumId" data-rerender><option value="">Not in an album</option>${albumsForCoin(d).map((a) => `<option value="${esc(a.id)}" ${d.albumId === a.id ? "selected" : ""}>${esc(albumTitle(a))}</option>`).join("")}<option value="__new" ${d.albumId === "__new" ? "selected" : ""}>+ New album…</option></select></label>
+    ${sec("holder", (it === "set" ? "Packaging and Kept in" : "Holder and Kept in") + (h ? ` <span class="muted small">· ${esc(h)}</span>` : ""), `${keptInFields(d)}
     ${d.albumId === "__new" ? `<div class="grid2">
       <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
       <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
-      <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}`}
+      ${d._newAlbum.brand === "Other" ? `<label class="f"><span>Spine color</span><select data-na="color">${BOX_COLORS.filter((x) => x[0] !== "clear").map((x) => `<option value="${x[0]}" ${(d._newAlbum.color || "red") === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>` : ""}
+      <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}
     ${holderFields(d)}`, d.albumId || d.holder || d.coa || d.packaging || d.stack || d.boxId)}
 
     ${purchaseFields(d)}
@@ -1524,7 +1529,7 @@ function errorFields(d) {
 // The holder the form shows: what was picked, else Album / Slab when that fits, else (new coins) the last holder used.
 function formHolder(d) {
   if (itemOf(d) !== "coin") return d.holder || "";
-  return d.holder || (d.albumId ? "Album" : d.gradeMode === "cert" ? "Slab" : d._isNew ? d._lastHolder || "" : "");
+  return normHolder(d.holder) || (d.albumId ? "Album" : d.gradeMode === "cert" ? "Slab" : d._isNew ? normHolder(d._lastHolder) : "");
 }
 function holderFields(d) {
   const h = formHolder(d);
@@ -1535,7 +1540,6 @@ function holderFields(d) {
     </div>
     ${showPack ? `<label class="f"><span>${h === "Other" ? "Describe the holder / packaging" : "Box and packaging"}</span><input type="text" data-f="packaging" value="${esc(d.packaging || "")}" placeholder="${h === "Other" ? "e.g. velvet case" : "e.g. original blue box, outer sleeve"}"></label>` : ""}
     ${typeof boxFields === "function" ? boxFields(d) : ""}
-    ${itemOf(d) === "coin" && isJunk(d) && d.metal === "Silver" ? `<label class="f"><span>Put in a stack <span class="muted small">(optional)</span></span><input type="text" data-f="stack" list="stackList" value="${esc(d.stack || "")}" placeholder="Not in a stack"><datalist id="stackList">${stackNames().map((x) => `<option value="${esc(x)}">`).join("")}</datalist></label>` : ""}
     ${itemOf(d) === "coin" && CASE_HOLDERS.includes(h) ? `<label class="f"><span>Case name <span class="muted small">(several coins in one case)</span></span><input type="text" data-f="caseName" list="caseNames" value="${esc(d.caseName || "")}" placeholder="e.g. Steel cents case"><datalist id="caseNames">${[...new Set(ownedCoins().map((c) => (c.caseName || "").trim()).filter(Boolean))].map((x) => `<option value="${esc(x)}">`).join("")}</datalist></label>` : ""}`;
 }
 function holderList(d, h) {
@@ -1757,8 +1761,8 @@ async function saveDraft() {
   const d = draft;
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
-  delete c._grams; delete c._purity; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
-  c.holder = formHolder(d);
+  delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
+  c.holder = normHolder(formHolder(d));
   if (typeof boxCheck === "function") { const m = boxCheck(c); if (m) { toast(m); return; } }
   if (c.gradeMode !== "cert") { c.cac = ""; c.catNo = ""; }
   // Status: Sold (and deleted) are only changed from the coin's page.
@@ -1840,7 +1844,7 @@ async function saveDraft() {
       put("a_" + a.id, a);
       c.albumId = a.id;
     } else {
-      const a = { kind: "album", id: uid(), brand: na.brand, number: na.number.trim(), name: na.brand === "Other" ? na.number.trim() : "", typeId: c.typeId,
+      const a = { kind: "album", id: uid(), brand: na.brand, number: na.number.trim(), name: na.brand === "Other" ? na.number.trim() : "", ...(na.brand === "Other" ? { color: na.color || "red" } : {}), typeId: c.typeId,
         start: t ? t.start : num(c.year) || 1900, end: t ? t.end : num(c.year) || 1900, removed: [], createdAt: Date.now() };
       a.slots = t ? buildSlots(t.id, a.start, a.end) : [{ y: num(c.year), m: normMint(c.mint) }];
       put("a_" + a.id, a);
@@ -2025,6 +2029,7 @@ function openNewAlbum() {
     </div>
     <div class="hint" id="albumLookupHint"></div>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" placeholder="Grandpa's Morgans"></label>
+    ${albumColorField("red")}
     <label class="f"><span>Kind of album</span><select name="layout" id="albumLayout">
       <option value="dates">Dates and mint marks (most albums)</option><option value="set">Type set (one coin of each type)</option></select></label>
     ${albumTypeRows([firstAlbumType().id])}
@@ -2080,6 +2085,7 @@ function doNewAlbum(form) {
   const proofs = (layout !== "set" && fd.get("proofs")) || "";
   if (proofs && !hasProofs(types)) { toast("The app doesn't have proof dates for these coin types yet. Add proof spots with + Add a spot."); return; }
   const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: info0 ? info0.number : (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: types[0], typeIds: types, layout, start, end, proofs, removed: [], createdAt: Date.now() };
+  if (fd.get("brand") === "Other") a.color = String(fd.get("color") || "red");
   a.slots = buildAlbumSlots(types, layout, start, end, proofs);
   put("a_" + a.id, a);
   types.forEach(touchType);
@@ -2129,6 +2135,7 @@ function openEditAlbum(id) {
     </div>
     <div class="hint" id="albumLookupHint"></div>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" value="${esc(a.name || "")}"></label>
+    ${albumColorField(a.color)}
     ${seriesField(a)}
     <div class="small muted" style="margin-top:10px">${isSetAlbum(a) ? "Type set (one coin of each type)" : "Dates and mint marks"}</div>
     ${albumTypeRows(albumTypes(a).length ? albumTypes(a) : [COIN_TYPES[0].id])}
@@ -2168,7 +2175,7 @@ function saveEditAlbum(form) {
     slots = set ? [...kept, ...added] : sortSlots([...kept, ...added]);
   }
   const removed = a.removed || [];
-  put("a_" + a.id, { ...a, brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, proofs, slots, removed, ...seriesFromForm(a, fd) });
+  put("a_" + a.id, { ...a, color: String(fd.get("color") || a.color || "red"), brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, proofs, slots, removed, ...seriesFromForm(a, fd) });
   closeSheet();
   toast("Album saved.");
 }
@@ -2464,6 +2471,11 @@ document.addEventListener("change", (e) => {
     draft[el.dataset.fcheck] = el.checked;
     if (el.hasAttribute("data-rerender")) { const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; return; }
     refreshFormHints(); return;
+  }
+  if (el.hasAttribute("data-kept")) { // the "Kept in" dropdown: one place per item
+    applyKept(draft, el.value);
+    if (draft._isNew && !draft.typeId && el.value.startsWith("a:")) { const al = getAlbum(el.value.slice(2)); if (al && albumTypes(al).length === 1) { pickType(albumTypes(al)[0]); return; } }
+    const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; return;
   }
   if (el.dataset.f) {
     draft[el.dataset.f] = el.value;

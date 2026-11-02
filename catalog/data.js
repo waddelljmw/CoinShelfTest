@@ -246,7 +246,13 @@ const SPOT_METALS = [
   { key: "copper", label: "Copper", unit: "lb" },
 ];
 // How a coin is kept. "Album" and "Slab" are filled in on their own when a coin is in an album or certified.
-const HOLDERS = ["Album", "Slab", "Hard case", "Capsule", "Mint box", "2x2", "Flip", "Envelope", "Roll", "Loose", "Other"];
+const HOLDERS = ["Album", "Slab", "Hard case", "Capsule", "2x2 cardboard flip", "Plastic flip", "Plastic holder", "Mint box", "Envelope", "Roll", "Loose", "Other"];
+// Older coins saved "2x2" and "Flip"; they are shown under the new names (the saved value changes only when the coin is edited).
+const HOLDER_RENAMES = { "2x2": "2x2 cardboard flip", "Flip": "Plastic flip" };
+const normHolder = (h) => HOLDER_RENAMES[h] || h || "";
+// Colors for plastic storage boxes and for "Other" album spines: [key, label, color].
+const BOX_COLORS = [["clear", "Clear", "#dfe9ee"], ["white", "White", "#f4f4f0"], ["red", "Red", "#9a2a2a"], ["dark blue", "Dark blue", "#1f3a66"], ["yellow", "Yellow", "#d8b72a"], ["dark green", "Dark green", "#1f5a38"], ["orange", "Orange", "#d07a22"], ["dark brown", "Dark brown", "#4a2f1c"]];
+const colorHex = (k, dflt) => (BOX_COLORS.find((x) => x[0] === k) || BOX_COLORS.find((x) => x[0] === dflt) || BOX_COLORS[2])[2];
 // Holders offered for sets and rolls.
 const SET_HOLDERS = ["Hard plastic", "Cellophane", "Mint box", "Other"];
 const ROLL_HOLDERS = ["Paper wrap", "Plastic tube", "Mint-sealed", "Other"];
