@@ -28,6 +28,7 @@ const shots = process.argv.includes("--shots");
   await p.evaluate(() => go("home")); await p.waitForTimeout(200);
   const txt = await p.textContent("main");
   ok("plaques show value, melt and count", /Collection value/.test(txt) && /Melt value/.test(txt) && !!(await p.$(".sh-pl.big")));
+  ok("Home group chips wrap instead of sliding sideways", await p.evaluate(() => { const c = document.querySelector(".home-chips"); return !c || (getComputedStyle(c).flexWrap === "wrap" && c.scrollWidth <= c.clientWidth + 1); }));
   ok("Home has a Get live prices button", !!(await p.$(".sh-getp")));
   ok("metal prices on the top shelf", /Silver\s*\$30\.00/.test(await p.textContent(".sh-spot")) && /Prices updated .*2026/.test(await p.textContent(".sh-upd")));
   ok("album spine", (await p.$$(".sh-spine")).length === 1);
