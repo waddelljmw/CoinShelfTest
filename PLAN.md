@@ -1,8 +1,8 @@
 # Coin Cabinet: Master Plan
 
-Last updated November 1, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
+Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here:** send the missing PCGS links, then say *"Finish the PCGS links in Phase 3."* (Sonnet). Step 2.9 and the Red Book grading guide wait until you have your Red Book.
+**Next session starts here:** switch to **Sonnet**, then say *"Do Step 4.3 of the plan."* Still open from Phase 3: the missing PCGS links (Sonnet). Step 2.9 and the Red Book grading guide wait until you have your Red Book.
 
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
 
@@ -220,11 +220,48 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 
 **Step 4.2. Build it. Model: Sonnet.** Then you check it on your phone.
 - [x] Built in PR #52 (branch `step-4.2-shelf-home`, v0.24.0, not merged yet): shelf Home in `shelf.js`, Bookcase/Safe switch in Options, test `tests/shelf.js`.
+- [x] Merged (PR #52, then fixes in #53, v0.24.2)
 - [x] **Full-shelf fix (done in v0.24.1, PR #52; was: do this next, on the same branch/PR #52):** now a full shelf scrolls sideways with no sign there's more. Change to: album spines wrap onto **up to 2 album shelves** (about 18 spines, each row with its own wooden board); if there are more, the last spot is a **"+N more"** spine that opens the Albums page. Boxes and sets row: **1 shelf**, then "+N more" opening 2x2 Storage Boxes. Stacks row: same idea if it overflows. Series stay together in his order. Add checks to `tests/shelf.js` (e.g. 30 albums → 2 shelves + "+N more"), take one screenshot, bump to v0.24.1 in the three places.
 
 ---
 
-**Opus planning note (Nov 2, 2026; think about this at the next Opus planning session):** where each coin is kept. When adding a coin, offer "In a flip" (default 2x2), then a simple storage-location dropdown that lists his containers: an album, a stack, a 2x2 storage box (pick the box), and so on. Placing a coin in an album puts it in that album's spot. His real "black boxes" also hold loose items (a ziplock of Bicentennial quarters, a pill bottle of Bicentennial halves), so decide whether a box needs a "What's inside" note, loose-item containers, or both. Also plan: a **display box** (holds coins, gets a spot on the shelf, counts as a storage location); Options to **choose what shows on the main shelf, rearrange shelves, and pin a shelf in place** (new saved settings, so plan it with the storage containers). Different flip sizes are in `IDEAS.md` for later.
+**Step 4.3. Holders, storage and display boxes. Model: Sonnet** (planned on Opus, Nov 2, 2026). Opus review (4.5) before merging, because it changes how boxes are saved.
+*Say this (on Sonnet):* "Do Step 4.3 of the plan."
+- [x] Planned
+- [ ] Built
+- [ ] Merged
+
+*Two separate things for every coin:* **Holder** = what is right around the coin (flip, capsule, slab). **Kept in** = the container that holder sits in (album, storage box, display box, stack). Example: wheat cent · 2x2 cardboard flip · kept in Black box 1.
+
+- **Holder choices** (`HOLDERS` in `catalog/data.js`): Album, Slab, Hard case, Capsule, **2x2 cardboard flip**, **Plastic flip**, **Plastic holder**, Mint box, Envelope, **Bag / ziplock**, Roll, Loose, Other. Convert on read: old `"2x2"` shows as "2x2 cardboard flip", old `"Flip"` as "Plastic flip" (saved value only changes when the coin is edited). Flip sizes stay in `IDEAS.md`.
+- **"Kept in" dropdown** (Holder section of Add coin, near the top): Nothing special · each album · each storage box · each display box · each stack (stacks only where they're allowed today: bullion and junk silver). **One place per coin:** picking one clears the others (`albumId`, `boxId`/`boxRow`/`boxSlot`, `stack`). Old coins that have two keep both until edited; their page shows both. Album choice still puts the coin in its album spot as today.
+- **Any holder can go in a box** (today only "2x2"; remove that limit in `boxCheck`). Capsules, flips and hard cases all allowed.
+- **Box record** (`b_`, `boxes.js`) gains, converted on read for old boxes:
+  - `type`: `storage` (default) or `display`.
+  - `look`: `black` (default, old boxes), `cardboard`, or `clear`. Clear gets `color`: white, red, dark blue, yellow, dark green, orange, dark brown (an opaque-looking tinted box). Changeable any time in Edit box.
+  - `spots`: on = rows × slots like today (old boxes: on); off = no numbered spots, just a list of what's inside (good for capsule containers and display boxes).
+  - `inside`: optional **"What's inside"** note for things not worth entering one by one ("pill bottle of Bicentennial halves").
+- **Loose items** (ziplock of ~20 Bicentennial quarters): add as one coin entry with quantity 20, holder Bag / ziplock, kept in that box. No spot needed. So a box has both: entered coins and the note.
+- **Names:** "2x2 storage box" becomes **"Storage box"**; menu page "2x2 Storage Boxes" becomes **"Storage"**, listing storage boxes then display boxes. New box form asks: name, storage or display, look (and color), numbered spots on/off (then rows and slots), What's inside. Example name stays "Black box 1".
+- **Box page:** with spots, same grid as today; without spots, a list of its coins plus the What's inside note. Search and missing-wheat still work.
+- **Shelf drawings** (`shelf.js`, `styles.css`): black box as today; cardboard box (brown, tape strip); clear box in its color, slightly see-through with coin shapes inside. **Display box:** a flat wood-framed glass case showing a few coin circles, on its own shelf.
+- **Album spine colors by brand** (replace the blue/red/green cycle): Whitman blue (current blue), Littleton green (current green), Dansco dark brown, H.E. Harris beige (dark lettering). "Other" albums: pick a color when adding or editing the album (same color list as boxes, default red), saved as `color`.
+- **Backup, CSV, snapshot, insurance report:** carry the new box fields; CSV "Kept in" column; snapshot shows box names.
+- Tests: old box converts with spots on and black look; capsule coin in a box; picking a box clears an album; box without spots has no row/slot; old "2x2"/"Flip" labels; spine color per brand. Version → 0.25.0.
+
+**Step 4.4. Arrange the Home shelf. Model: Sonnet.** After 4.3 is merged.
+*Say this (on Sonnet):* "Do Step 4.4 of the plan."
+- [ ] Built
+- [ ] Merged
+- **Shelves:** top totals (always first, can't move or hide), Albums, Stacks and coins, Storage boxes, Display boxes, Sets (sets get their own shelf).
+- **Options → Home shelf:** each shelf has on/off, up/down arrows (no dragging, easier on a phone), and a pin choice: **None**, **Pin to top** (always right under the totals; several pinned shelves keep their order) or **Lock in place** (stays at its position number when others move).
+- **Hide single items:** a "Show on Home shelf" switch on each album page and box page. Hidden shelves and items still count in your totals; only the drawing hides. A small "N hidden" note in Options with "Show all".
+- **Saved in settings** as `shelfLayout`: `{ order, hidden, hiddenItems, pins }`. Missing or unknown entries fall back to the default order, so new shelves added later just appear.
+- Tests: reorder, pin to top, lock in place while moving another, hidden album still in totals, old settings without `shelfLayout`. Version → 0.26.0.
+
+**Step 4.5. Review. Model: Opus.** Before 4.3 merges (it reshapes saved boxes), then a short look at 4.4.
+*Say this (on Opus):* "Do Step 4.5 of the plan."
+- [ ] Done
 
 ## Phase 5: Features that need an outside service. Model: Sonnet.
 
