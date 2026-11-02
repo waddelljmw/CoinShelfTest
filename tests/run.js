@@ -28,12 +28,12 @@ const path = require("path");
     if (f.paid) await p.fill("[data-f=paid]", String(f.paid));
     if (f.value && f.grade !== "Junk") await p.fill("[data-f=value]", String(f.value));
     if (f.source) { await p.selectOption('[data-f="_sourceKind"]', f.source).catch(async () => { await p.selectOption('[data-f="_sourceKind"]', "Other"); await p.fill('[data-f="source"]', f.source); }); }
-    if (f.album) { await p.selectOption("[data-f=albumId]", f.album.sel); if (f.album.number) { await p.selectOption("[data-na=brand]", f.album.brand); await p.fill("[data-na=number]", f.album.number); } }
+    if (f.album) { await p.selectOption("[data-kept]", f.album.sel); if (f.album.number) { await p.selectOption("[data-na=brand]", f.album.brand); await p.fill("[data-na=number]", f.album.number); } }
     if (f.shot) await shot(f.shot);
     await p.click("#coinForm button[type=submit]");
     await p.waitForTimeout(150);
   }
-  await addCoin({ type: "morgan", year: 1921, mint: "D", grade: "VF-20", paid: 40, value: 55, source: "Coin Shop", album: { sel: "__new", brand: "Whitman", number: "9128" }, shot: "02-form" });
+  await addCoin({ type: "morgan", year: 1921, mint: "D", grade: "VF-20", paid: 40, value: 55, source: "Coin Shop", album: { sel: "a:__new", brand: "Whitman", number: "9128" }, shot: "02-form" });
   const albumId = await p.evaluate(() => [...document.querySelectorAll("[data-f]")].length); // noop
   await shot("03-coin-detail");
   // second morgan into same album
@@ -41,9 +41,9 @@ const path = require("path");
   await p.fill("[data-f=year]", "1881"); await p.selectOption("[data-f=mint]", "S");
   await p.click("[data-act=gmode][data-v=cert]"); await p.selectOption("[data-f=grade]", "MS-63");
   await p.fill("[data-f=value]", "120"); await p.fill("[data-f=paid]", "90");
-  const opts = await p.$$eval("[data-f=albumId] option", (o) => o.map((x) => x.textContent));
+  const opts = await p.$$eval("[data-kept] option", (o) => o.map((x) => x.textContent));
   console.log("album options", opts);
-  await p.selectOption("[data-f=albumId]", { index: 1 });
+  await p.selectOption("[data-kept]", { index: 1 });
   await p.click("#coinForm button[type=submit]");
   await addCoin({ type: "kennedy 40", year: 1967, mint: "", grade: "Junk", qty: 4, source: "Inherited" });
   await addCoin({ type: "wheat", year: 1944, mint: "D", grade: "F-12", qty: 20, value: 0.10, paid: 0.05 });

@@ -41,7 +41,7 @@ const { chromium } = require("./_compat");
   // 4. duplicate album from the Add coin form
   for (let n = 0; n < 2; n++) {
     await p.evaluate((n) => { closeSheet(); openCoinForm(); }, n); await p.fill("#typeSearch", "washington quarter (silver)"); await p.click("#typeList button[data-act=pickType] >> nth=0");
-    await p.fill("[data-f=year]", String(1940 + n)); await p.selectOption("[data-f=grade]", "VF-20"); await p.selectOption("[data-f=albumId]", "__new");
+    await p.fill("[data-f=year]", String(1940 + n)); await p.selectOption("[data-f=grade]", "VF-20"); await p.selectOption("[data-kept]", "a:__new");
     await p.selectOption("[data-na=brand]", "Littleton"); await p.fill("[data-na=number]", "4"); await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(200);
   }
   ok("typing '4' twice makes one Littleton LCA4 album", await p.evaluate(() => albums().filter((a) => a.brand === "Littleton" && a.number === "LCA4").length === 1));

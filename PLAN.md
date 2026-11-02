@@ -256,7 +256,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 **Step 4.3. Holders, storage and display boxes. Model: Sonnet** (planned on Opus, Nov 2, 2026). Opus review (4.5) before merging, because it changes how boxes are saved.
 *Session 1.*
 - [x] Planned
-- [ ] Built
+- [x] Built in PR #55 (branch `step-4.3-storage-holders`, v0.25.0, not merged yet; Opus review 4.5 comes next). "Kept in" shows only one place; the spine color picker is hidden unless the brand is Other; "clear" isn't offered for spines.
 - [ ] Merged
 
 *Two separate things for every coin:* **Holder** = what is right around the coin (flip, capsule, slab). **Kept in** = the container that holder sits in (album, storage box, display box, stack). Example: wheat cent · 2x2 cardboard flip · kept in Black box 1.

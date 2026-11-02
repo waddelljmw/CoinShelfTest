@@ -12,10 +12,10 @@ const { chromium } = require("./_compat");
   });
   await p.waitForTimeout(150);
   await p.click("[data-act=edit]"); await p.waitForTimeout(150);
-  const f = await p.evaluate(() => ({ search: !!document.querySelector("#typeSearch"), locked: (document.querySelector(".locked-type") || {}).textContent || "", albums: [...document.querySelectorAll("[data-f=albumId] option")].map((o) => o.value) }));
+  const f = await p.evaluate(() => ({ search: !!document.querySelector("#typeSearch"), locked: (document.querySelector(".locked-type") || {}).textContent || "", albums: [...document.querySelectorAll("[data-kept] option")].map((o) => o.value) }));
   ok("edit form hides type search", !f.search);
   ok("edit form shows locked type", /Morgan/.test(f.locked));
-  ok("album list only shows Morgan albums", f.albums.includes("am") && !f.albums.includes("ap"));
+  ok("album list only shows Morgan albums", f.albums.includes("a:am") && !f.albums.includes("a:ap"));
   // tamper: try to change type via DOM / draft and save
   await p.evaluate(() => { draft.typeId = "peace-dollar"; draft.typeName = "Peace Dollar"; pickType("peace-dollar"); });
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(200);
@@ -37,7 +37,7 @@ const { chromium } = require("./_compat");
   ok("Undo restores the original", await p.evaluate(() => ownedCoins().length === 1 && getCoin("k1").status === "owned" && getCoin("k1").typeId === "morgan-dollar"));
   // New coin: pick album first sets type; then picking another type clears album
   await p.evaluate(() => { closeSheet(); openCoinForm(); }); await p.waitForTimeout(100);
-  await p.selectOption("[data-f=albumId]", "ap"); await p.waitForTimeout(150);
+  await p.selectOption("[data-kept]", "a:ap"); await p.waitForTimeout(150);
   ok("picking album first sets its type", await p.evaluate(() => draft.typeId === "peace-dollar" && draft.albumId === "ap"));
   await p.evaluate(() => { draft._isNew = true; }); await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0"); await p.waitForTimeout(100);
   ok("changing type on a new coin clears mismatched album", await p.evaluate(() => draft.typeId === "morgan-dollar" && draft.albumId === ""));

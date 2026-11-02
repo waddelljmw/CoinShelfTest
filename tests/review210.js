@@ -20,7 +20,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
     const box = { kind: "box", id: "bx1", name: "Black box 1", rows: 2, perRow: 3, createdAt: 1 }; await put("b_bx1", box);
     const mk = (o) => ({ ...blankCoin(), ...o });
     const coins = [
-      mk({ typeId: "lincoln-wheat", typeName: "Lincoln Wheat", family: "Lincoln", denom: "1C", year: 1910, grade: "F-12", group: "Grandpa", holder: "2x2", boxId: "bx1", boxRow: "1", boxSlot: "2", trackCarrier: "UPS" }),
+      mk({ typeId: "lincoln-wheat", typeName: "Lincoln Wheat", family: "Lincoln", denom: "1C", year: 1910, grade: "F-12", group: "Grandpa", holder: "2x2 cardboard flip", boxId: "bx1", boxRow: "1", boxSlot: "2", trackCarrier: "UPS" }),
       mk({ typeId: "lincoln-wheat", typeName: "Lincoln Wheat", family: "Lincoln", denom: "1C", year: 1943, grade: "VF-20", holder: "Hard case", caseName: "Steel cents case" }),
       mk({ typeName: "Masonic token", family: "Token", year: 1980, status: "gone", gone: { reason: "Gifted", date: "2026-01-02" } }),
     ];
@@ -59,10 +59,10 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // 2. A coin coming back to a taken box spot leaves the box.
   const r2 = await p.evaluate(async () => {
-    const a = { ...blankCoin(), typeId: "lincoln-wheat", typeName: "Lincoln Wheat", year: 1911, holder: "2x2", boxId: "bx1", boxRow: "2", boxSlot: "1" };
+    const a = { ...blankCoin(), typeId: "lincoln-wheat", typeName: "Lincoln Wheat", year: 1911, holder: "2x2 cardboard flip", boxId: "bx1", boxRow: "2", boxSlot: "1" };
     await put("c_" + a.id, a);
     actions.delete({ dataset: { id: a.id } });
-    const bb = { ...blankCoin(), typeId: "lincoln-wheat", typeName: "Lincoln Wheat", year: 1912, holder: "2x2", boxId: "bx1", boxRow: "2", boxSlot: "1" };
+    const bb = { ...blankCoin(), typeId: "lincoln-wheat", typeName: "Lincoln Wheat", year: 1912, holder: "2x2 cardboard flip", boxId: "bx1", boxRow: "2", boxSlot: "1" };
     await put("c_" + bb.id, bb);
     actions.restore({ dataset: { id: a.id } });
     const back = getCoin(a.id);
@@ -70,7 +70,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   });
   ok("restored coin is owned", r2.owned);
   ok("restored coin leaves the taken spot", r2.out && r2.bStays);
-  ok("toast explains it", /Not in a box/.test(r2.msg));
+  ok("toast explains it", /Nothing special/.test(r2.msg));
 
   console.log("errors", errors);
   await b.close();

@@ -246,7 +246,12 @@ const SPOT_METALS = [
   { key: "copper", label: "Copper", unit: "lb" },
 ];
 // How a coin is kept. "Album" and "Slab" are filled in on their own when a coin is in an album or certified.
-const HOLDERS = ["Album", "Slab", "Hard case", "Capsule", "Mint box", "2x2", "Flip", "Envelope", "Roll", "Loose", "Other"];
+const HOLDERS = ["Album", "Slab", "Hard case", "Capsule", "2x2 cardboard flip", "Plastic flip", "Plastic holder", "Mint box", "Envelope", "Roll", "Loose", "Other"];
+// Old saved coins say "2x2" or "Flip"; they read as the new names (the saved word only changes when the coin is edited).
+const normHolder = (h) => (h === "2x2" ? "2x2 cardboard flip" : h === "Flip" ? "Plastic flip" : h || "");
+// Colors for boxes and (Other) album spines. "clear" is for plastic boxes only.
+const BOX_COLORS = [["clear", "Clear"], ["white", "White"], ["red", "Red"], ["darkblue", "Dark blue"], ["yellow", "Yellow"], ["darkgreen", "Dark green"], ["orange", "Orange"], ["darkbrown", "Dark brown"]];
+const BOX_LOOKS = [["black", "Black box"], ["cardboard", "Cardboard box"], ["plastic", "Plastic container"]];
 // Holders offered for sets and rolls.
 const SET_HOLDERS = ["Hard plastic", "Cellophane", "Mint box", "Other"];
 const ROLL_HOLDERS = ["Paper wrap", "Plastic tube", "Mint-sealed", "Other"];
