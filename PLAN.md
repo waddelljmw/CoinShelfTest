@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 4, Step 4.4 arrange the Home shelf + Fix list):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 5, Phase 5 live metal prices + Report a problem button + Fix list):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -13,7 +13,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 1 | Sonnet | Step 4.3 holders, Kept in, storage and display boxes, album colors | ✓ done |
 | 2 | Opus | Step 4.5 review of 4.3, fix what it finds | ✓ merged |
 | 3 | Sonnet | Step 4.3b filters, saved filters, select and move many | ✓ merged |
-| 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | merge |
+| 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | ✓ merged |
 | 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | merge |
 | 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | plan PR |
 | 7 | Sonnet | Phase 7 basic selling | PR |
@@ -302,7 +302,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 **Step 4.4. Arrange the Home shelf. Model: Sonnet.** After 4.3b is merged.
 *Say this (on Sonnet):* "Do Step 4.4 of the plan."
 - [x] Built (v0.28.0, branch `step-4.4-arrange-shelf`, test `tests/step44.js`; also did the Session 4 Fix list items)
-- [ ] Merged
+- [x] Merged (v0.28.0, Nov 2, 2026)
 - **Shelves:** top totals (always first, can't move or hide), Albums, Stacks and coins, Storage boxes, Display boxes, Sets (sets get their own shelf).
 - **Options → Home shelf:** each shelf has on/off, up/down arrows (no dragging, easier on a phone), and a pin choice: **None**, **Pin to top** (always right under the totals; several pinned shelves keep their order) or **Lock in place** (stays at its position number when others move).
 - **Hide single items:** a "Show on Home shelf" switch on each album page and box page. Hidden shelves and items still count in your totals; only the drawing hides. A small "N hidden" note in Options with "Show all".
