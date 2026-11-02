@@ -74,7 +74,7 @@ function shelfStacks(owned) {
 function shelfBoxes(owned) {
   const out = (typeof allBoxes === "function" ? allBoxes() : []).map((b) => {
     const st = boxStats(b);
-    return `<button class="sh-group" data-go="box-${esc(b.id)}"><span class="sh-box">${esc(b.name || "2x2 box")}</span><span class="sh-cap">2x2 box · ${st.filled}/${st.total}</span></button>`;
+    return `<button class="sh-group" data-go="box-${esc(b.id)}"><span class="sh-box"><b>${esc(b.name || "2x2 box")}</b></span><span class="sh-cap">2x2 box · ${st.filled}/${st.total}</span></button>`;
   });
   const sets = owned.filter((c) => itemOf(c) === "set");
   if (sets.length) {

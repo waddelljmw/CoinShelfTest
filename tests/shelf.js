@@ -56,6 +56,11 @@ const shots = process.argv.includes("--shots");
   await p.click(".sh-spine.more"); await p.waitForTimeout(150);
   ok("more spine opens Albums", (await p.evaluate(() => location.hash)) === "#albums");
   await p.evaluate(() => { for (let i = 0; i < 29; i++) remove("a_f" + i); for (let i = 0; i < 7; i++) remove("b_f" + i); go("home"); }); await p.waitForTimeout(150);
+  // A long box name stays below the lid line and inside the box
+  await p.evaluate(() => { put("b_long", { kind: "box", id: "long", name: "2x2 Flip Box Mixed Coins (long and very wordy name)", rows: 10, perRow: 10, createdAt: 99 }); go("home"); }); await p.waitForTimeout(200);
+  ok("long box name stays inside, under the lid line", await p.evaluate(() => { const bx = [...document.querySelectorAll(".sh-box")].pop(), t = bx.querySelector("b"), r = bx.getBoundingClientRect(), q = t.getBoundingClientRect(); return q.top >= r.top + 10 && q.bottom <= r.bottom; }));
+  if (shots) await p.screenshot({ path: "/tmp/shelf-box.png", clip: { x: 0, y: 700, width: 390, height: 300 } });
+  await p.evaluate(() => remove("b_long"));
   // Switch to Safe in Options
   await p.evaluate(() => go("options")); await p.waitForTimeout(150);
   await p.click("[data-act=shelfStyle][data-v=safe]"); await p.waitForTimeout(150);
