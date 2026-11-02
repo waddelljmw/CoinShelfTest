@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 2):** switch to **Opus**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."* (It reviews the open Step 4.3 PR, fixes what it finds, then merges.)
+**Next session starts here (session 3, Step 4.3b filters):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -10,8 +10,8 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 
 | # | Model | What | Ends with |
 |---|---|---|---|
-| 1 | Sonnet | Step 4.3 holders, Kept in, storage and display boxes, album colors | PR open, **not merged** |
-| 2 | Opus | Step 4.5 review of 4.3, fix what it finds | merge 4.3 |
+| 1 | Sonnet | Step 4.3 holders, Kept in, storage and display boxes, album colors | ✓ done |
+| 2 | Opus | Step 4.5 review of 4.3, fix what it finds | ✓ merged |
 | 3 | Sonnet | Step 4.3b filters, saved filters, select and move many | merge |
 | 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | merge |
 | 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | merge |
@@ -257,7 +257,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 *Session 1.*
 - [x] Planned
 - [x] Built (v0.25.0, branch `step-4.3-holders-storage`, PR open, **not merged** until the Opus review, session 2)
-- [ ] Merged
+- [x] Merged (v0.25.2, Nov 2, 2026, after the Opus review)
 
 *Two separate things for every coin:* **Holder** = what is right around the coin (flip, capsule, slab). **Kept in** = the container that holder sits in (album, storage box, display box, stack). Example: wheat cent · 2x2 cardboard flip · kept in Black box 1.
 
@@ -306,7 +306,8 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 
 **Step 4.5. Review. Model: Opus.** Before 4.3 merges (it reshapes saved boxes), then a short look at 4.4.
 *Say this (on Opus):* "Do Step 4.5 of the plan."
-- [ ] Done
+- [x] Review of 4.3 done (Nov 2, 2026)
+- [ ] Short look at 4.4
 
 ## Phase 5: Features that need an outside service. Model: Sonnet.
 
