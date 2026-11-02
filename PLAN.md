@@ -238,13 +238,13 @@ Last updated November 2, 2026. This file is the plan and the progress checklist.
 - **Any holder can go in a box** (today only "2x2"; remove that limit in `boxCheck`). Capsules, flips and hard cases all allowed.
 - **Box record** (`b_`, `boxes.js`) gains, converted on read for old boxes:
   - `type`: `storage` (default) or `display`.
-  - `look`: `black` (default, old boxes), `cardboard`, or `clear`. Clear gets `color`: white, red, dark blue, yellow, dark green, orange, dark brown (an opaque-looking tinted box). Changeable any time in Edit box.
+  - `look`: `black` (default, old boxes), `cardboard`, or `plastic`. Plastic gets `color`: **clear** (see-through, coins visible), white, red, dark blue, yellow, dark green, orange, dark brown (solid-looking). Changeable any time in Edit box.
   - `spots`: on = rows × slots like today (old boxes: on); off = no numbered spots, just a list of what's inside (good for capsule containers and display boxes).
   - `inside`: optional **"What's inside"** note for things not worth entering one by one ("pill bottle of Bicentennial halves").
 - **Loose items** (ziplock of ~20 Bicentennial quarters): add as one coin entry with quantity 20, holder Bag / ziplock, kept in that box. No spot needed. So a box has both: entered coins and the note.
 - **Names:** "2x2 storage box" becomes **"Storage box"**; menu page "2x2 Storage Boxes" becomes **"Storage"**, listing storage boxes then display boxes. New box form asks: name, storage or display, look (and color), numbered spots on/off (then rows and slots), What's inside. Example name stays "Black box 1".
 - **Box page:** with spots, same grid as today; without spots, a list of its coins plus the What's inside note. Search and missing-wheat still work.
-- **Shelf drawings** (`shelf.js`, `styles.css`): black box as today; cardboard box (brown, tape strip); clear box in its color, slightly see-through with coin shapes inside. **Display box:** a flat wood-framed glass case showing a few coin circles, on its own shelf.
+- **Shelf drawings** (`shelf.js`, `styles.css`): black box as today; cardboard box (brown, tape strip); plastic box in its color; the clear one is see-through with coin shapes inside. **Display box:** a flat wood-framed glass case showing a few coin circles, on its own shelf.
 - **Album spine colors by brand** (replace the blue/red/green cycle): Whitman blue (current blue), Littleton green (current green), Dansco dark brown, H.E. Harris beige (dark lettering). "Other" albums: pick a color when adding or editing the album (same color list as boxes, default red), saved as `color`.
 - **Backup, CSV, snapshot, insurance report:** carry the new box fields; CSV "Kept in" column; snapshot shows box names.
 - Tests: old box converts with spots on and black look; capsule coin in a box; picking a box clears an album; box without spots has no row/slot; old "2x2"/"Flip" labels; spine color per brand. Version → 0.25.0.
