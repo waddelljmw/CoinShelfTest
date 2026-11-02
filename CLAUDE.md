@@ -8,6 +8,7 @@ Read this, then `IDEAS.md` (short; just don't build from it unless asked), then 
 - Coin collector, **no app-building background**. Plain words.
 - **Token-conscious.** Short replies (aim for under 150 words). No recaps of steps already shown. Don't repeat merge/branch instructions he already knows beyond the two links.
 - **End every finished task with the exact next prompt to copy** (and the model). After each merge, update the "Next session starts here" line in `PLAN.md`; a weekly reminder reads it.
+- **When he says he's ending the session:** reply with only (1) anything unfinished (e.g. a PR not merged yet), (2) Sonnet or Opus for the next session, (3) the exact prompt to paste, taken from the Session plan in `PLAN.md`.
 - **Say which model to use before each next step.** Opus: planning, reviews, anything that reshapes stored data. Sonnet: building, routine fixes, data entry (album lists, coin dates).
 
 ## Doing a change (keep it cheap)
