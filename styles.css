@@ -177,3 +177,82 @@ summary .small { font-weight: normal; }
 .slot { position: relative; min-height: 46px; border: 1px dashed var(--line); background: var(--card); border-radius: 10px; padding: 14px 4px 4px; font-size: 13px; text-align: center; color: var(--muted); }
 .slot.full { border-style: solid; background: var(--accent-soft); color: var(--ink); font-weight: 600; }
 .slot .sn { position: absolute; top: 2px; left: 6px; font-size: 10px; font-weight: 400; color: var(--muted); }
+
+/* ---------- Step 4.2: Home shelf (Bookcase and Safe) ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* Safe style: steel colors everywhere, no night version. */
+body.safe { --bg: #1c1e21; --card: #26292d; --ink: #e6e8ea; --muted: #9aa3ad; --line: #3d4146;
+  --accent: #c9a04a; --accent-ink: #1b1508; --accent-soft: #3a3222; --chip: #2a2d31; --good: #5fbf85; --bad: #e57a66; --shadow: none; }
+.home-chips { margin-bottom: 8px; }
+.home-notes { margin: -8px 4px 12px; }
+.sh-cab { position: relative; margin: 0 -4px 18px; padding: 10px 10px 4px; border-radius: 10px; }
+.sh-cab button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.sh-lab { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; margin: 0 4px 2px; opacity: .75; }
+.sh-shelf { position: relative; padding: 12px 8px 0; min-height: 118px; display: flex; align-items: flex-end; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.sh-shelf::-webkit-scrollbar { display: none; }
+.sh-shelf.top { min-height: 0; padding-bottom: 8px; flex-direction: column; align-items: stretch; overflow: visible; }
+.sh-shelf.spread { justify-content: space-around; }
+.sh-shelf.albums { padding-top: 16px; }
+.sh-board { height: 14px; margin: 0 -10px 10px; border-radius: 2px; }
+.sh-plaques { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+.sh-cab .sh-pl { border-radius: 6px; padding: 6px 8px; text-align: center; display: block; }
+.sh-pl .k { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.sh-pl .v { display: block; font-size: 17px; font-weight: 700; }
+.sh-pl.big { grid-column: 1 / -1; } .sh-pl.big .v { font-size: 26px; }
+.sh-cab .sh-spot { display: flex; gap: 6px; width: 100%; margin-top: 6px; }
+.sh-spot span { flex: 1; font-size: 11px; text-align: center; border-radius: 5px; padding: 3px; }
+.sh-cab .sh-spine { flex: 0 0 33px; width: 33px; height: 112px; border-radius: 3px 3px 1px 1px; position: relative; display: flex; align-items: center; justify-content: center; overflow: visible; }
+.sh-spine span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 9px; font-weight: 600; white-space: nowrap; letter-spacing: .02em; max-height: 96px; overflow: hidden; text-overflow: ellipsis; }
+.sh-cab .sh-spine.tall { height: 118px; } .sh-cab .sh-spine.short { height: 104px; }
+.sh-spine::before, .sh-spine::after { content: ""; position: absolute; left: 3px; right: 3px; height: 2px; background: #c9a04a; }
+.sh-spine::before { top: 5px; } .sh-spine::after { bottom: 5px; }
+.sh-spine.s1 { background: linear-gradient(90deg, #1e3a5f, #2c5185 50%, #1e3a5f); color: #e8d29a; }
+.sh-spine.s2 { background: linear-gradient(90deg, #5c1a1a, #842626 50%, #5c1a1a); color: #e8d29a; }
+.sh-spine.s3 { background: linear-gradient(90deg, #1f4a2e, #2e6b43 50%, #1f4a2e); color: #e8d29a; }
+.sh-ok { position: absolute; top: -6px; right: -6px; width: 14px; height: 14px; border-radius: 50%; font-size: 9px; font-style: normal; display: grid; place-content: center; background: #2f7d4f; color: #fff; }
+.sh-cab .sh-group { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; min-width: 60px; }
+.sh-cap { font-size: 10px; text-align: center; line-height: 1.15; max-width: 90px; overflow-wrap: anywhere; }
+.sh-pile { display: flex; flex-direction: column-reverse; align-items: center; }
+.sh-bar { display: block; width: 64px; height: 13px; border-radius: 2px; margin-top: -1px; background: linear-gradient(#f2f2f2, #b9bcc0 60%, #8d9196); box-shadow: 0 1px 0 #555; }
+.sh-bar.s { width: 46px; height: 10px; } .sh-bar.b { width: 78px; height: 17px; }
+.sh-coin { display: block; width: 52px; height: 9px; border-radius: 50%; margin-top: -4px; box-shadow: 0 1px 0 rgba(0,0,0,.5); }
+.sh-coin.ag { background: linear-gradient(#f2f2f2, #9da1a6); } .sh-coin.au { background: linear-gradient(#f4d58d, #b8862b); }
+.sh-coin.cu { background: linear-gradient(#e7a273, #9a5a2e); } .sh-coin.ni { background: linear-gradient(#d8d9d6, #8b8d88); }
+.sh-coin.empty { background: none; border: 1px dashed rgba(255,255,255,.4); box-shadow: none; }
+.sh-rolls { display: flex; gap: 4px; align-items: flex-end; }
+.sh-roll { display: block; width: 16px; border-radius: 7px; background: linear-gradient(90deg, #9c6b30, #d6a45c 50%, #9c6b30); }
+.sh-roll.ag, .sh-roll.ni { background: linear-gradient(90deg, #7d8186, #e3e6ea 50%, #7d8186); }
+.sh-box { width: 72px; height: 48px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; position: relative; padding: 10px 4px 0; text-align: center; overflow: hidden;
+  background: linear-gradient(#262626, #111); color: #ddd; border: 1px solid #444; }
+.sh-box::before { content: ""; position: absolute; top: 6px; left: 6px; right: 6px; height: 3px; border-radius: 2px; background: #444; }
+.sh-sets { display: flex; }
+.sh-set { display: flex; width: 44px; height: 58px; border-radius: 3px; align-items: center; justify-content: center; font-size: 9px; font-style: normal; text-align: center; padding: 2px; overflow: hidden;
+  transform: rotate(-6deg); background: linear-gradient(135deg, #dfe6ee, #9fb0c2); color: #223; box-shadow: 0 2px 3px rgba(0,0,0,.5); }
+.sh-set.r { transform: rotate(4deg); margin-left: 4px; }
+.sh-cab .sh-ghost { flex: 1; align-self: center; font-size: 12px; padding: 14px 8px; border: 1px dashed rgba(255,255,255,.35); border-radius: 8px; opacity: .85; }
+
+/* Bookcase: warm wood (the same by day and night; only the page around it changes). */
+.sh-cab.wood { background: linear-gradient(#5a3a1e, #4a2f17); box-shadow: inset 0 0 0 6px #6e4824, inset 0 0 18px rgba(0,0,0,.6); color: #f2e3c8; }
+.wood .sh-shelf { background: linear-gradient(#2e1e0f, #3d2814 70%); }
+.wood .sh-board { background: linear-gradient(#a8743d, #7a5127 60%, #5c3b1b); box-shadow: 0 3px 4px rgba(0,0,0,.5); }
+.wood .sh-pl { background: linear-gradient(#e9c97a, #c9a04a 55%, #a77d2c); color: #3a2706; box-shadow: inset 0 0 0 1px #f7e2a8, 0 2px 3px rgba(0,0,0,.4); }
+.wood .sh-spot span { background: rgba(0,0,0,.35); color: #f2e3c8; }
+
+/* Safe: steel walls, bolts, dial and handle, green display numbers. */
+.sh-door { display: flex; align-items: center; justify-content: space-between; margin: 0 6px 8px; padding: 8px 12px; border-radius: 10px;
+  background: linear-gradient(135deg, #5d6268, #3c4045); box-shadow: inset 0 1px 0 #8a8f96, 0 2px 6px rgba(0,0,0,.5); font-size: 12px; color: #d6dade; letter-spacing: .08em; text-transform: uppercase; }
+.sh-dial { width: 34px; height: 34px; border-radius: 50%; background: repeating-conic-gradient(#2a2d31 0 4deg, #bfc4ca 4deg 8deg); display: grid; place-content: center; }
+.sh-dial::after { content: ""; width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #e3e6ea, #6b7077 75%); }
+.sh-handle { width: 46px; height: 8px; border-radius: 4px; background: linear-gradient(#e3e6ea, #7b8087); }
+.sh-cab.safe { margin: 0 6px 18px; background: linear-gradient(#3a3e44, #2b2e33); border: 10px solid #55595f; border-radius: 14px; padding: 12px 12px 4px; color: #b9c0c8;
+  box-shadow: inset 0 0 0 2px #1a1c1f, inset 0 8px 24px rgba(0,0,0,.7), 0 0 0 2px #2a2d31, 0 6px 16px rgba(0,0,0,.6);
+  border-image: linear-gradient(135deg, #8a8f96, #4a4e54 40%, #6d7279 60%, #3c4045) 1; }
+.sh-bolts { position: absolute; top: 0; bottom: 0; width: 10px; display: flex; flex-direction: column; justify-content: space-around; }
+.sh-bolts.l { left: -10px; } .sh-bolts.r { right: -10px; }
+.sh-bolts i { width: 7px; height: 7px; margin: 0 auto; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #e3e6ea, #7b8087 70%); box-shadow: 0 1px 1px #000; }
+.safe .sh-shelf { background: linear-gradient(#25282c, #30343a); }
+.safe .sh-board { background: linear-gradient(#a7acb3, #6b7077 50%, #4b4f55); height: 10px; box-shadow: 0 3px 5px rgba(0,0,0,.7); }
+.safe .sh-pl { background: linear-gradient(#1b1d20, #121315); border: 1px solid #6b7077; color: #7ee0a0; font-family: "Courier New", monospace; }
+.safe .sh-pl .k { color: #9aa3ad; font-family: -apple-system, Roboto, sans-serif; }
+.safe .sh-spot span { background: #1b1d20; color: #9aa3ad; border: 1px solid #444a51; }
+.safe .sh-ok { background: #2f9d5f; }

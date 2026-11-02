@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.23.2";
+const APP_VERSION = "0.24.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -39,6 +39,7 @@ const DEFAULT_SETTINGS = {
   showSold: false,
   soldAutoDone: false,
   bookEdition: "",
+  shelfStyle: "bookcase", // Home look: "bookcase" or "safe"
 };
 
 function showBanner(text) {
@@ -548,6 +549,7 @@ function render() {
   if (store.mode === "loading") { main.innerHTML = `<div class="empty">Opening your cabinet…</div>`; return; }
   const menuKey = r.view === "coin" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view;
   $$("#menu button").forEach((b) => b.classList.toggle("on", b.dataset.go === menuKey));
+  if (typeof applyShelfStyle === "function") applyShelfStyle();
   const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
@@ -591,20 +593,22 @@ function viewHome() {
   const noValue = owned.filter((c) => valueSource(c) === "melt" && !isJunk(c) && itemOf(c) !== "bullion").length;
   const fromBook = owned.filter((c) => valueSource(c) === "book").length;
 
-  let html = `${typeof backupReminder === "function" ? backupReminder() : ""}<h1>Your cabinet</h1>
+  // Chips first (what counts in the totals), then the shelf, then cost and gain.
+  const chips = [
+    ...(groupsPresent().length > 1 ? groupsPresent().map((g) => { const on = !hiddenGroups().includes(g); return `<button class="chip ${on ? "on" : ""}" data-act="toggleGroup" data-v="${esc(g)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(g)} · ${sum(everything.filter((c) => groupOf(c) === g), qtyOf)}</button>`; }) : []),
+    ...stacksPresent().map((n) => { const on = !hiddenStacks().includes(n); return `<button class="chip ${on ? "on" : ""}" data-act="toggleStack" data-v="${esc(n)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(n)} · ${sum(everything.filter((c) => stackOf(c) === n), qtyOf)}</button>`; }),
+  ];
+  let html = `${typeof backupReminder === "function" ? backupReminder() : ""}<h1 class="sr-only">Your cabinet</h1>
+  ${chips.length ? `<div class="chips home-chips" aria-label="Count in the totals">${chips.join("")}</div>` : ""}
+  ${typeof shelfHtml === "function" ? shelfHtml(owned, { total, melt, count }) : ""}
+  ${fromBook || leftOut().length || noValue ? `<div class="small muted home-notes">${[
+    fromBook ? `${fromBook} coin${fromBook > 1 ? "s" : ""} valued from the Red Book.` : "",
+    leftOut().length ? `Leaving out: ${leftOut().map(esc).join(", ")}.` : "",
+    noValue ? `${noValue} coin${noValue > 1 ? "s" : ""} without a value ${noValue > 1 ? "are" : "is"} counted at melt.` : ""].filter(Boolean).join(" ")}</div>` : ""}
   <div class="stats">
-    <div class="stat wide"><div class="k">Collection value</div><div class="v">${money(total, "$0.00")}</div>
-      ${fromBook ? `<div class="small muted">${fromBook} coin${fromBook > 1 ? "s" : ""} valued from the Red Book.</div>` : ""}
-      ${leftOut().length ? `<div class="small muted">Leaving out: ${leftOut().map(esc).join(", ")}.</div>` : ""}
-      ${noValue ? `<div class="small muted">${noValue} coin${noValue > 1 ? "s" : ""} without a value ${noValue > 1 ? "are" : "is"} counted at melt.</div>` : ""}</div>
-    <div class="stat"><div class="k">Coins</div><div class="v">${count}</div></div>
-    <div class="stat"><div class="k">Melt value</div><div class="v">${money(melt, "$0.00")}</div></div>
     <div class="stat"><div class="k">Cost</div><div class="v">${money(paid, "$0.00")}</div><div class="small muted">Paid, with tax, shipping and fees</div></div>
     <div class="stat"><div class="k">Gain</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Add prices paid" : pct(paid ? gain / paid : null) + " · inherited not counted"}</div></div>
   </div>`;
-
-  if (groupsPresent().length > 1) html += `<div class="card"><div class="small muted" style="margin-bottom:6px">Count in the totals above:</div><div class="chips">${groupsPresent().map((g) => { const on = !hiddenGroups().includes(g); return `<button class="chip ${on ? "on" : ""}" data-act="toggleGroup" data-v="${esc(g)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(g)} · ${sum(everything.filter((c) => groupOf(c) === g), qtyOf)}</button>`; }).join("")}</div></div>`;
-  if (stacksPresent().length) html += `<div class="card"><div class="small muted" style="margin-bottom:6px">Stacks counted in the totals above:</div><div class="chips">${stacksPresent().map((n) => { const on = !hiddenStacks().includes(n); return `<button class="chip ${on ? "on" : ""}" data-act="toggleStack" data-v="${esc(n)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(n)} · ${sum(everything.filter((c) => stackOf(c) === n), qtyOf)}</button>`; }).join("")}</div></div>`;
   if (typeof historyCard === "function") html += historyCard();
 
   // Melt Value by Metal, only for metals in the collection
@@ -618,14 +622,6 @@ function viewHome() {
   if (metalRows) html += `<h2>Melt Value by Metal</h2><div class="card">${metalRows}</div>`;
 
   if (s.showSold) html += soldCard();
-
-  // Spot prices
-  const shown = SPOT_METALS.filter((m) => !s.hideSpot[m.key]);
-  if (shown.length) {
-    html += `<h2>Spot prices</h2><div class="card">${shown.map((m) => `<div class="rowline"><span>${m.label}</span><span class="num">${num(s.spot[m.key]) == null ? `<button class="link-btn" data-go="options">Enter price</button>` : money(num(s.spot[m.key])) + ` <span class="muted small">/ ${m.unit}</span>`}</span></div>`).join("")}
-      <div class="small muted" style="margin-top:6px">${s.spotUpdated ? "Updated " + esc(s.spotUpdated) + " · " : ""}<button class="link-btn" data-go="options">Change</button></div></div>`;
-  }
-
 
   const recent = everything.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
   html += `<h2>Recently added</h2>`;
@@ -1233,6 +1229,9 @@ function viewOptions() {
       ${SPOT_METALS.map((m) => `<label class="f"><span>${m.label} ($ per ${m.unit})</span><input type="number" inputmode="decimal" step="0.01" min="0" data-spot="${m.key}" value="${esc(s.spot[m.key] ?? "")}" placeholder="0.00"></label>`).join("")}
       <div class="hint">Type today's prices. ${s.spotUpdated ? "Last updated " + esc(s.spotUpdated) + "." : ""} <a href="https://www.kitco.com/" target="_blank" rel="noopener">Look up current prices ↗</a></div>
     </div>
+    <h2>Shelf style</h2>
+    <div class="card"><div class="chips">${(typeof SHELF_STYLES !== "undefined" ? SHELF_STYLES : []).map(([k, n]) => { const on = shelfStyle() === k; return `<button class="chip ${on ? "on" : ""}" data-act="shelfStyle" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>
+      <div class="hint">Bookcase: wood shelves; at night only the page around it goes dark. Safe: steel walls, dark all the time.</div></div>
     <h2>Show on Home</h2>
     <div class="card">
       ${SPOT_METALS.map((m) => `<label class="switch"><span>${m.label} spot price</span><input type="checkbox" data-act="hideSpot" data-v="${m.key}" ${s.hideSpot[m.key] ? "" : "checked"}></label>`).join("")}
@@ -2262,6 +2261,7 @@ const actions = {
   toastAction: () => { const t = $("#toast"); t.hidden = true; if (t._action) t._action(); },
   hideSpot: (el) => { const s = settings(); saveSettings({ hideSpot: { ...s.hideSpot, [el.dataset.v]: !el.checked } }); },
   showSold: (el) => saveSettings({ showSold: el.checked, soldAutoDone: true }),
+  shelfStyle: (el) => saveSettings({ shelfStyle: el.dataset.v === "safe" ? "safe" : "bookcase" }),
   newAlbum: openNewAlbum,
   missing: (el) => openMissing(el.dataset.id),
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
@@ -2358,7 +2358,7 @@ const actions = {
 
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
 const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
-  "hideSpot showSold slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
+  "hideSpot showSold shelfStyle slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const goEl = e.target.closest("[data-go]");
