@@ -14,7 +14,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("box page shows 6 empty slots", (await p.$$(".slot")).length === 6);
   // add a coin into row 1 slot 2 from the box page
   await p.click('[data-act=boxAdd][data-row="1"][data-slot="2"]'); await p.waitForTimeout(150);
-  ok("form opens in a 2x2 with the spot filled", await p.evaluate(() => draft.holder === "2x2" && draft.boxRow === "1" && draft.boxSlot === "2"));
+  ok("form opens in a 2x2 with the spot filled", await p.evaluate(() => draft.holder === "2x2 cardboard flip" && draft.boxRow === "1" && draft.boxSlot === "2"));
   await p.evaluate(() => { pickType("lincoln-wheat"); draft.year = "1909"; draft.mint = "S"; draft.grade = "G-4"; renderCoinForm(); });
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(250);
   const c = await p.evaluate(() => ownedCoins().find((x) => x.boxId));
@@ -22,9 +22,9 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.evaluate((id) => go("box-" + id), box.id); await p.waitForTimeout(200);
   ok("slot shows the date", /1909-S/.test(await p.textContent(".slot.full")));
   // same spot refused
-  const refused = await p.evaluate(() => { const x = { ...blankCoin(), holder: "2x2", boxId: allBoxes()[0].id, boxRow: "1", boxSlot: "2" }; return boxCheck(x); });
+  const refused = await p.evaluate(() => { const x = { ...blankCoin(), holder: "2x2 cardboard flip", boxId: allBoxes()[0].id, boxRow: "1", boxSlot: "2" }; return boxCheck(x); });
   ok("taken spot is refused", /already holds/.test(refused));
-  ok("outside the box is refused", /Pick a row/.test(await p.evaluate(() => boxCheck({ ...blankCoin(), holder: "2x2", boxId: allBoxes()[0].id, boxRow: "3", boxSlot: "1" }))));
+  ok("outside the box is refused", /Pick a row/.test(await p.evaluate(() => boxCheck({ ...blankCoin(), holder: "2x2 cardboard flip", boxId: allBoxes()[0].id, boxRow: "3", boxSlot: "1" }))));
   ok("next free spot skips the full one", await p.evaluate(() => { const n = nextFreeSpot(allBoxes()[0]); return n.row === 1 && n.slot === 1; }));
   ok("non-2x2 coin loses box fields", await p.evaluate(() => { const x = { ...blankCoin(), holder: "Loose", boxId: "z", boxRow: "1", boxSlot: "1" }; boxCheck(x); return x.boxId === undefined; }));
   // search

@@ -36,6 +36,7 @@ const SHEET_COLS = [
   { key: "cac", head: "CAC", names: ["cac", "cacsticker"] },
   { key: "caseName", head: "Case name", names: ["casename", "case"] },
   { key: "box", head: "Storage box", names: ["storagebox", "box", "2x2box"] },
+  { key: "keptIn", head: "Kept in", exportOnly: true, names: [] },
   { key: "boxRow", head: "Box row", names: ["boxrow"] },
   { key: "boxSlot", head: "Box slot", names: ["boxslot"] },
   { key: "holder", head: "Holder", names: ["holder", "holdertype", "storage", "housing"] },
@@ -90,7 +91,7 @@ function coinToRow(c) {
     catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
-    cert: c.cert, cac: cacOf(c), holder: holderOf(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
+    cert: c.cert, cac: cacOf(c), holder: holderOf(c), keptIn: keptName(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
     redBook: rb ?? "", meltEach: m == null ? "" : m.toFixed(2), source: (c.source || "").trim(), acquired: c.acquired,
     album: a ? albumTitle(a) : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance, soldWhere: c.sold ? whereText(c.sold) : "", soldTo: s.to || "",
   };
@@ -211,7 +212,7 @@ function rowToCoin(get) {
   const cacT = String(get("cac") || "").trim();
   if (certified && cacT) c.cac = /gold/i.test(cacT) ? "Gold" : /green|yes|true|^y$|^x$|cac/i.test(cacT) ? "Green" : "";
   const holdT = String(get("holder") || "").trim();
-  if (holdT) { const hit = HOLDERS.find((h) => h.toLowerCase() === holdT.toLowerCase().replace(/^slabbed$/, "slab")); c.holder = hit || "Other"; if (!hit) c.packaging = holdT; }
+  if (holdT) { const hit = HOLDERS.find((h) => h.toLowerCase() === normHolder(holdT.replace(/^slabbed$/i, "slab")).toLowerCase()); c.holder = hit || "Other"; if (!hit) c.packaging = holdT; }
   c.coa = yesish(get("coa"));
   const packT = String(get("packaging") || "").trim();
   if (packT) c.packaging = c.packaging ? c.packaging + "; " + packT : packT;
@@ -265,7 +266,7 @@ function rowToCoin(get) {
     }
   } else if (txt("stack") && c.gradeMode === "raw" && c.grade === "Junk" && c.metal === "Silver") c.stack = txt("stack");
   if (itemOf(c) === "coin" && CASE_HOLDERS.includes(c.holder) && txt("caseName")) c.caseName = txt("caseName");
-  if (itemOf(c) === "coin" && c.holder === "2x2" && txt("box")) { c._boxName = txt("box"); c.boxRow = txt("boxRow"); c.boxSlot = txt("boxSlot"); }
+  if (txt("box")) { c._boxName = txt("box"); c.boxRow = txt("boxRow"); c.boxSlot = txt("boxSlot"); }
   const lab = String(get("label") || "").trim();
   if (lab && lab !== autoLabel(c)) { c.label = lab; c.labelEdited = true; }
   if (statusSold) {
