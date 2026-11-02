@@ -219,6 +219,8 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - **Tapping** an item opens that section. The graphics are original drawings, so there are no copyright issues and the app stays fast.
 
 **Step 4.2. Build it. Model: Sonnet.** Then you check it on your phone.
+- [x] Built in PR #52 (branch `step-4.2-shelf-home`, v0.24.0, not merged yet): shelf Home in `shelf.js`, Bookcase/Safe switch in Options, test `tests/shelf.js`.
+- [ ] **Full-shelf fix (do this next, on the same branch/PR #52):** now a full shelf scrolls sideways with no sign there's more. Change to: album spines wrap onto **up to 2 album shelves** (about 18 spines, each row with its own wooden board); if there are more, the last spot is a **"+N more"** spine that opens the Albums page. Boxes and sets row: **1 shelf**, then "+N more" opening 2x2 Storage Boxes. Stacks row: same idea if it overflows. Series stay together in his order. Add checks to `tests/shelf.js` (e.g. 30 albums → 2 shelves + "+N more"), take one screenshot, bump to v0.24.1 in the three places.
 
 ---
 
