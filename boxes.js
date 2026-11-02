@@ -1,12 +1,12 @@
 /* Steps 2.8 and 4.3: storage boxes and display boxes.
    A box is a record { kind: "box", id, name, rows, perRow, type, look, color, spots, inside }, saved under "b_<id>".
-   type: "storage" | "display". look: "black" | "cardboard" | "plastic" (plastic has a color, "clear" included).
+   type: "storage" | "display". look: "black" | "cardboard" | "plastic" | "wood" (plastic has a color, "clear" included).
    spots: true = numbered rows and slots; false = just a list of what's inside. Old boxes read as storage, black, with spots.
    An item sits in a box with boxId (and boxRow, boxSlot when the box has numbered spots). */
 function normBox(b) {
   if (b && b.kind === "box") {
     if (b.type !== "display") b.type = "storage";
-    if (!["black", "cardboard", "plastic"].includes(b.look)) b.look = "black";
+    if (!["black", "cardboard", "plastic", "wood"].includes(b.look)) b.look = "black";
     if (b.look === "plastic" && !BOX_COLORS.some((x) => x[0] === b.color)) b.color = "clear";
     if (b.spots !== false) b.spots = true;
   }
@@ -105,7 +105,7 @@ function freeSpotOnReturn(c) {
 
 // --- pages ---
 const boxStats = (b) => { const n = boxCoins(b).length; return { filled: n, total: hasSpots(b) ? b.rows * b.perRow : n }; };
-const boxLookText = (b) => (b.look === "plastic" ? (b.color === "clear" ? "Clear plastic" : "Plastic · " + b.color) : b.look === "cardboard" ? "Cardboard" : "Black");
+const boxLookText = (b) => (b.look === "plastic" ? (b.color === "clear" ? "Clear plastic" : "Plastic · " + b.color) : b.look === "cardboard" ? "Cardboard" : b.look === "wood" ? "Wooden" : "Black");
 function boxCard(b) {
   const st = boxStats(b);
   return `<button class="card" style="display:block;width:100%;text-align:left" data-go="box-${esc(b.id)}">
@@ -160,6 +160,7 @@ function viewBox(r) {
     <h1 style="margin-top:10px">${esc(b.name)}</h1>
     <div class="small muted" style="margin:-8px 0 12px">${b.type === "display" ? "Display box" : "Storage box"} · ${esc(boxLookText(b))} · ${hasSpots(b) ? st.filled + " of " + st.total + " slots filled · " + b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow : st.filled + " item" + (st.filled === 1 ? "" : "s")}</div>
     ${b.inside ? `<div class="card"><div class="muted small">What's inside</div><div style="white-space:pre-wrap">${esc(b.inside)}</div></div>` : ""}
+    ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(b.id) : ""}
     ${body}
     <div class="btn-row"><button class="btn" data-act="boxEdit" data-id="${esc(b.id)}">Edit box</button><button class="btn danger" data-act="boxDelete" data-id="${esc(b.id)}">Delete box</button></div>`;
 }
@@ -169,7 +170,7 @@ function boxForm(b) {
   <form id="boxForm" data-id="${b ? esc(b.id) : ""}" autocomplete="off">
     <label class="f"><span>Name</span><input type="text" name="name" value="${esc(b ? b.name : "")}" placeholder="e.g. Black box 1" maxlength="40" required></label>
     <div class="grid2"><label class="f"><span>Kind</span><select name="type"><option value="storage" ${cur.type === "storage" ? "selected" : ""}>Storage box</option><option value="display" ${cur.type === "display" ? "selected" : ""}>Display box</option></select></label>
-    <label class="f"><span>Look</span><select name="look" id="boxLook"><option value="black" ${cur.look === "black" ? "selected" : ""}>Black box</option><option value="cardboard" ${cur.look === "cardboard" ? "selected" : ""}>Cardboard box</option><option value="plastic" ${cur.look === "plastic" ? "selected" : ""}>Plastic container</option></select></label></div>
+    <label class="f"><span>Look</span><select name="look" id="boxLook"><option value="black" ${cur.look === "black" ? "selected" : ""}>Black box</option><option value="cardboard" ${cur.look === "cardboard" ? "selected" : ""}>Cardboard box</option><option value="plastic" ${cur.look === "plastic" ? "selected" : ""}>Plastic container</option><option value="wood" ${cur.look === "wood" ? "selected" : ""}>Wooden box</option></select></label></div>
     <label class="f"><span>Plastic color <span class="muted small">(plastic only)</span></span><select name="color">${BOX_COLORS.map((x) => `<option value="${x[0]}" ${cur.color === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>
     <label class="switch"><span>Numbered spots<div class="small muted">Rows and slots, one per coin. Turn off to just list what's inside.</div></span><input type="checkbox" name="spots" id="boxSpots" ${cur.spots !== false ? "checked" : ""}></label>
     <label class="f"><span>Spots run in</span><select name="dir"><option value="rows" ${!cur.cols ? "selected" : ""}>Rows (across)</option><option value="cols" ${cur.cols ? "selected" : ""}>Columns (front to back)</option></select></label>
@@ -196,7 +197,7 @@ function saveBoxForm(form) {
     coinsBefore.forEach((c) => { const x = { ...c }; delete x.boxRow; delete x.boxSlot; put("c_" + c.id, x); });
   }
   if (!old) id = uid();
-  const look = ["black", "cardboard", "plastic"].includes(f.get("look")) ? f.get("look") : "black";
+  const look = ["black", "cardboard", "plastic", "wood"].includes(f.get("look")) ? f.get("look") : "black";
   const rec = { ...(old || { kind: "box", id, createdAt: Date.now() }), name, rows, perRow, type: f.get("type") === "display" ? "display" : "storage", look, spots, inside: String(f.get("inside") || "").trim() };
   if (look === "plastic") rec.color = BOX_COLORS.some((x) => x[0] === f.get("color")) ? f.get("color") : "clear"; else delete rec.color;
   if (!rec.inside) delete rec.inside;

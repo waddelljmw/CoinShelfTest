@@ -8,7 +8,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.evaluate(() => { saveSettings({ spot: { gold: null, silver: 30, platinum: null, copper: null } }); });
   // fill the form the way a person would
   await p.evaluate(() => { openCoinForm(null); actions.what({ dataset: { v: "bullion" } }); });
-  await p.fill("[data-f=bMaker]", "Engelhard"); await p.fill("[data-f=bWeight]", "10"); await p.fill("[data-f=bSerial]", "A123");
+  await p.fill("[data-f=bMaker]", "Engelhard"); await p.fill("[data-f=_bAmt]", "10"); await p.fill("[data-f=bSerial]", "A123");
   await p.fill("[data-f=source]", "Inherited").catch(() => {});
   ok("hint shows pure oz", /9\.99 oz/.test(await p.textContent("#bullionHint")));
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(200);
