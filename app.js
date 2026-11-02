@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.26.0";
+const APP_VERSION = "0.27.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -707,7 +707,7 @@ function viewValue() {
 }
 
 /* --- Your Coins --- */
-const listState = { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", sort: "year", dir: "asc" };
+const listState = { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", sort: "year", dir: "asc", f: {}, sel: null }; // f = the extra filters from the Filter panel (filters.js); sel = items ticked in Select mode
 // "Show" choices inside In collection: only the ones that have coins.
 function stageChoices() {
   const o = ownedCoins();
@@ -727,6 +727,7 @@ function viewCoins() {
     (!listState.metal || c.metal === listState.metal) &&
     (!listState.cert || c.gradeMode === listState.cert) &&
     (!listState.stage || (listState.stage === "upgrade" ? c.upgrade : stageOf(c) === listState.stage)) &&
+    (typeof extraFilter !== "function" || extraFilter(c)) &&
     (!listState.q || (labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.seller || "") + " " + (c.caseName || "") + " " + holderText(c) + " " + keptName(c)).toLowerCase().includes(listState.q.toLowerCase())));
   const key = {
     year: (c) => num(c.year) ?? 99999,
@@ -736,7 +737,6 @@ function viewCoins() {
     type: (c) => familyOf(c) + " " + String(c.year || "").padStart(5, "0") + (c.mint || ""),
   }[listState.sort];
   list.sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * (listState.dir === "asc" ? 1 : -1); });
-  const metalsPresent = [...new Set(base.map((c) => c.metal).filter(Boolean))];
   return `<h1>Your Coins</h1>
     <div class="seg" style="margin-bottom:10px">
       <button data-act="status" data-v="owned" class="${listState.status === "owned" ? "on" : ""}">In collection (${sum(ownedCoins().filter((c) => itemOf(c) !== "bullion"), qtyOf)})</button>
@@ -752,16 +752,12 @@ function viewCoins() {
     <div class="toolbar">
       <input type="search" id="coinSearch" placeholder="Search" value="${esc(listState.q)}" data-list="q">
     </div>
-    ${listState.q.trim() ? searchLine(list) : ""}
-    <div class="toolbar">
-      <select data-list="metal" aria-label="Metal"><option value="">All metals</option>${metalsPresent.map((m) => `<option ${listState.metal === m ? "selected" : ""}>${esc(m)}</option>`).join("")}</select>
-      <select data-list="cert" aria-label="Raw or certified"><option value="">Raw + certified</option><option value="raw" ${listState.cert === "raw" ? "selected" : ""}>Raw</option><option value="cert" ${listState.cert === "cert" ? "selected" : ""}>Certified</option></select>
-    </div>
+    ${typeof coinsControls === "function" ? coinsControls(base, list) : (listState.q.trim() ? searchLine(list) : "")}
     <div class="toolbar">
       <select data-list="sort" aria-label="Sort by">${[["year", "Year"], ["value", "Value"], ["melt", "Melt value"], ["acquired", "Date acquired"], ["type", "Coin type"]].map(([k, l]) => `<option value="${k}" ${listState.sort === k ? "selected" : ""}>Sort: ${l}</option>`).join("")}</select>
       <button class="btn" data-act="dir" style="flex:0 0 auto">${listState.dir === "asc" ? "↑ Low to high" : "↓ High to low"}</button>
     </div>
-    ${list.length ? `<div class="list">${list.map((c) => coinRow(c)).join("")}</div>` : `<div class="card empty">${base.length ? "No coins match these filters." : listState.status === "sold" ? "No sold coins yet." : "No coins yet. Tap <b>+</b> to add one."}</div>`}`;
+    ${list.length ? `<div class="list">${list.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c))).join("")}</div>` : `<div class="card empty">${base.length ? "No coins match these filters." : listState.status === "sold" ? "No sold coins yet." : "No coins yet. Tap <b>+</b> to add one."}</div>`}`;
 }
 
 // One small line under the search box: count, value and melt of the coins found.
