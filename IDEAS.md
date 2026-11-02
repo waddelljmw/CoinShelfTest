@@ -9,4 +9,7 @@ Nothing here is promised or scheduled. When you mention a new idea, I'll ask if 
 5. **Different flip sizes.** When adding a coin, "In a flip" defaults to 2x2, with other flip sizes as options.
 6. **Inventory printout.** A printable copy of the whole collection, like the insurance report but made as a backup you can keep on paper. Decide later whether it sits with Import/Export and Backup in Options.
 7. **Reorganize the main menu.** Rearrange the top-right dropdown so related pages sit together.
-6. **Cabinet drawers on Home.** The sections below the shelf (melt by metal, recently added, recently sold) drawn as cabinet drawers you pull open. Builds on the collapsible sections from the Fix list. Goes with the shelf look (idea 4).
+6. **Demo mode.** A built-in sample collection (lots of coins, rolls, 1 oz and 10 oz bars, a black box of wheat cents in 2x2 flips, partly filled albums) so a friend can try the app without seeing your real coins. Built from your backup plus made-up fill-in, kept separate from your real data. Best done once the features exist.
+7. **Tablet layout.** Make the pages fit a tablet screen well.
+8. **Coin ID numbers.** An easy numbering/lettering system giving every coin a unique ID you can write on its flip, then search the ID to see where it is. Changes saved data, so plan it on Opus before selling (session 6).
+9. **Cabinet drawers on Home.** The sections below the shelf (melt by metal, recently added, recently sold) drawn as cabinet drawers you pull open. Builds on the collapsible sections from the Fix list. Goes with the shelf look (idea 4).

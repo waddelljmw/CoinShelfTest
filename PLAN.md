@@ -29,6 +29,10 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 ## Fix list (small changes waiting for a session)
 
 Claude adds items here when they wait. Sessions 4 and 5 clear them.
+- **Box columns (missed in session 2, needs Opus):** boxes with numbered spots can run in **columns** instead of rows (new box setting; clear containers). Touches how boxes are saved.
+- **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
+- **Session 4:** bar **weight in grams or kilos** as well as ounces (a unit dropdown; stored as ounces, so old bars don't change).
+- **Session 4:** **roll end colors** on the shelf drawing like real wrappers (cents red, nickels blue, dimes green, quarters orange, halves yellow, Morgan rolls worn beige). Check the colors, including Sacagawea, against a source first.
 - **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
 - **Wooden box look.** Add "Wooden box" to the box Look choices (storage and display). On the shelf, a wooden display box gets a solid wood case (today every display box is drawn as a wood-framed glass case). Fits Session 4.
 
