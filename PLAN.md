@@ -2,6 +2,8 @@
 
 Last updated November 1, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
+**Next session starts here:** send the missing PCGS links, then say *"Finish the PCGS links in Phase 3."* (Sonnet). Step 2.9 and the Red Book grading guide wait until you have your Red Book.
+
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
 
 ## What you want, in short
@@ -182,7 +184,16 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 
 ---
 
-## Phase 3: Research links. Model: Sonnet.
+## Phase 3: Research links. Model: Sonnet. — PARTLY DONE (v0.23.0)
+
+- [x] eBay sold links added to the Add coin form and the Coin Value page (the want list already had them).
+- [x] PCGS Photo Guide link in Add coin names the picked coin type, but it only opens a search for now.
+- [ ] **Exact PCGS Photo Guide links.** Waiting on the user's copied links. Pattern: `https://www.pcgs.com/photograde#/<Code>/Grades`. Codes are PCGS's own and can't be guessed.
+  - Already sent: Roosevelt, Mercury, Barber10, Washington, SLQ (1925-30), SLQT1 (1916-17), Barber25, Seated25, Lincoln, Indian, Flying, BraidedCent, CoronetCent, ClassicCent, DrapedBustCent, LibertyCapCent, WreathCent, ChainCent, Kennedy, Franklin, Walker, Barber50, Peace, Morgan, 2.5Ind.
+  - Still needed: Standing Liberty Type 2 (1917-1924), nickels (Shield, Liberty, Buffalo, Jefferson), Eisenhower, Susan B. Anthony, Sacagawea, other gold, anything else wanted. Re-check the Kennedy link (his label said "1946-Present").
+  - Build: keep the codes in one small list in `catalog/data.js`; show a small PCGS link next to the grade on the coin's page and in Add coin; one link can cover several app types (e.g. Lincoln, Roosevelt, Washington, Kennedy). Standing Liberty picks by year: 1916 Type 1; 1917 by design (Type 1 if none picked); 1918-1924 Type 2; 1925-1930 recessed. Types with no link open the general Photograde page.
+- [ ] Red Book grading guide: skipped for now (needs Red Book photos).
+
 
 - **Photo guide:** once a coin type is picked in Add coin, a "PCGS Photo Guide" button opens that coin's own guide page. The menu link stays as it is.
 - **eBay sold listings:** a button on want-list items, the Coin Value page and the Add coin form.
