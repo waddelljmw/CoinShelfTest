@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.21.0";
+const APP_VERSION = "0.22.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -507,12 +507,13 @@ function thumbHtml(c) {
 const photoSrc = (p) => (p.lid ? (typeof localPhotoUrls !== "undefined" && localPhotoUrls.get(p.lid)) || "" : p.id ? "/_blob/" + p.id : p.url || "");
 
 /* ---------- navigation ---------- */
-const VIEWS = ["home", "value", "albums", "wants", "coins", "stacks", "guide", "options"];
+const VIEWS = ["home", "value", "albums", "wants", "coins", "stacks", "boxes", "guide", "options"];
 function currentRoute() {
   const h = location.hash.replace(/^#/, "");
   if (VIEWS.includes(h)) return { view: h };
   if (h.startsWith("coin-")) return { view: "coin", id: h.slice(5) };
   if (h.startsWith("album-")) return { view: "album", id: h.slice(6) };
+  if (h.startsWith("box-")) return { view: "box", id: h.slice(4) };
   return { view: "home" };
 }
 function go(hash) {
@@ -533,7 +534,8 @@ window.addEventListener("hashchange", (e) => {
 });
 function coinBackLink() {
   const h = coinBackTo || "coins";
-  let name = { home: "Home", value: "Coin Value", albums: "Albums", wants: "Want List", coins: "Your Coins", stacks: "Stacks", guide: "PCGS Photo Guide", options: "Options" }[h];
+  let name = { home: "Home", value: "Coin Value", albums: "Albums", wants: "Want List", coins: "Your Coins", stacks: "Stacks", boxes: "2x2 Storage Boxes", guide: "PCGS Photo Guide", options: "Options" }[h];
+  if (!name && h.startsWith("box-")) { const b = getBox(h.slice(4)); name = b ? b.name : "Boxes"; }
   if (!name && h.startsWith("album-")) { const a = getAlbum(h.slice(6)); name = a ? albumTitle(a) : "Albums"; }
   return `<button class="link-btn" data-go="${esc(name ? h : "coins")}">← ${esc(name || "Your Coins")}</button>`;
 }
@@ -544,9 +546,9 @@ function render() {
   const r = currentRoute();
   const main = $("#view");
   if (store.mode === "loading") { main.innerHTML = `<div class="empty">Opening your cabinet…</div>`; return; }
-  const menuKey = r.view === "coin" ? "coins" : r.view === "album" ? "albums" : r.view;
+  const menuKey = r.view === "coin" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view;
   $$("#menu button").forEach((b) => b.classList.toggle("on", b.dataset.go === menuKey));
-  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, stacks: viewStacks, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
+  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
   const keepSearch = active && active.id === "coinSearch" ? active.selectionStart : null;
@@ -838,6 +840,7 @@ function viewCoin(r) {
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
       ${c.gradeMode === "cert" ? row("Catalog number", esc(c.catNo)) : ""}
       ${row("Holder", esc(holderText(c)))}
+      ${row("2x2 storage box", typeof boxText === "function" ? esc(boxText(c)) : "")}
       ${row("COA", c.coa ? "Included" : null)}
       ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
@@ -1415,7 +1418,7 @@ function renderCoinForm() {
       <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
       <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
       <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}`}
-    ${holderFields(d)}`, d.albumId || d.holder || d.coa || d.packaging || d.stack)}
+    ${holderFields(d)}`, d.albumId || d.holder || d.coa || d.packaging || d.stack || d.boxId)}
 
     ${purchaseFields(d)}
 
@@ -1514,6 +1517,7 @@ function holderFields(d) {
       <label class="switch" style="align-self:end"><span>COA included<div class="small muted">Certificate of authenticity</div></span><input type="checkbox" data-fcheck="coa" data-rerender ${d.coa ? "checked" : ""}></label>
     </div>
     ${showPack ? `<label class="f"><span>${h === "Other" ? "Describe the holder / packaging" : "Box and packaging"}</span><input type="text" data-f="packaging" value="${esc(d.packaging || "")}" placeholder="${h === "Other" ? "e.g. velvet case" : "e.g. original blue box, outer sleeve"}"></label>` : ""}
+    ${typeof boxFields === "function" ? boxFields(d) : ""}
     ${itemOf(d) === "coin" && isJunk(d) && d.metal === "Silver" ? `<label class="f"><span>Put in a stack <span class="muted small">(optional)</span></span><input type="text" data-f="stack" list="stackList" value="${esc(d.stack || "")}" placeholder="Not in a stack"><datalist id="stackList">${stackNames().map((x) => `<option value="${esc(x)}">`).join("")}</datalist></label>` : ""}
     ${itemOf(d) === "coin" && CASE_HOLDERS.includes(h) ? `<label class="f"><span>Case name <span class="muted small">(several coins in one case)</span></span><input type="text" data-f="caseName" list="caseNames" value="${esc(d.caseName || "")}" placeholder="e.g. Steel cents case"><datalist id="caseNames">${[...new Set(ownedCoins().map((c) => (c.caseName || "").trim()).filter(Boolean))].map((x) => `<option value="${esc(x)}">`).join("")}</datalist></label>` : ""}`;
 }
@@ -1732,6 +1736,7 @@ async function saveDraft() {
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
   delete c._grams; delete c._purity; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = formHolder(d);
+  if (typeof boxCheck === "function") { const m = boxCheck(c); if (m) { toast(m); return; } }
   if (c.gradeMode !== "cert") { c.cac = ""; c.catNo = ""; }
   // Status: Sold (and deleted) are only changed from the coin's page.
   if (c.status === "owned" || c.status === "gone") {
@@ -2342,7 +2347,7 @@ const actions = {
 };
 
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
-const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
+const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
   "hideSpot showSold slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
