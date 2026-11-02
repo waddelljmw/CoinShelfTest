@@ -245,11 +245,27 @@ Last updated November 2, 2026. This file is the plan and the progress checklist.
 - **Box page:** with spots, same grid as today; without spots, a list of its coins plus the What's inside note. Search and missing-wheat still work.
 - **Shelf drawings** (`shelf.js`, `styles.css`): black box as today; cardboard box (brown, tape strip); plastic box in its color; the clear one is see-through with coin shapes inside. **Display box:** a flat wood-framed glass case showing a few coin circles, on its own shelf.
 - **Album spine colors by brand** (replace the blue/red/green cycle): Whitman blue (current blue), Littleton green (current green), Dansco dark brown, H.E. Harris beige (dark lettering). "Other" albums: pick a color when adding or editing the album (same color list as boxes, default red), saved as `color`.
-- **Your Coins filters:** add a **Holder** filter (each choice, plus every custom "Other" text he typed, like "Ziplock bag", as its own entry) and a **Kept in** filter (each album, box, stack). Search also matches holder text and the Kept in name.
+- **Search** also matches holder text (including typed "Other" text like "Ziplock bag") and the Kept in name. The Holder and Kept in filters come in 4.3b.
 - **Backup, CSV, snapshot, insurance report:** carry the new box fields; CSV "Kept in" column; snapshot shows box names.
 - Tests: old box converts with spots on and black look; capsule coin in a box; picking a box clears an album; box without spots has no row/slot; old "2x2"/"Flip" labels; spine color per brand. Version → 0.25.0.
 
-**Step 4.4. Arrange the Home shelf. Model: Sonnet.** After 4.3 is merged.
+**Step 4.3b. Better filters for Your Coins. Model: Sonnet.** After 4.3 is merged (it needs Holder and Kept in).
+*Say this (on Sonnet):* "Do Step 4.3b of the plan."
+- [ ] Built
+- [ ] Merged
+- **One "Filter" button** opens a panel with every filter; the ones in use show as chips above the list (tap × to remove one, "Clear all" to reset). Search and sort stay where they are. The count shows "12 of 340 coins".
+- **Filters** (each one optional; they combine):
+  - Already there, moved into the panel: coin type, metal, raw or certified, status.
+  - **Group** (Inherited, My collection, your own) and **Stack**.
+  - **Holder** (each choice, plus every custom "Other" text typed, like "Ziplock bag") and **Kept in** (each album, box, display box, stack, or "Nothing special").
+  - **Year range** (from / to) and **mint mark** (P, D, S, W, CC, O, none).
+  - **Grade range** (e.g. VF-20 to MS-63; Junk and custom grades listed too) and **value range** ($ from / to).
+  - **Problems and errors:** Details coins, known varieties, mint errors, CAC sticker.
+- **Saved filters:** "Save this filter" with a name (e.g. "Inherited silver"); saved ones are one tap at the top of the panel; rename or delete (with Undo). Saved in settings as `savedFilters`.
+- Filters are remembered while the app is open. Totals on Home are not changed by these filters (Home has its own group/stack chips).
+- Tests: each filter, combined filters, custom holder text, saved filter round-trip, old settings without `savedFilters`. Version: middle number up.
+
+**Step 4.4. Arrange the Home shelf. Model: Sonnet.** After 4.3b is merged.
 *Say this (on Sonnet):* "Do Step 4.4 of the plan."
 - [ ] Built
 - [ ] Merged
