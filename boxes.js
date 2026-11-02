@@ -73,15 +73,21 @@ function keptInFields(d) {
 function boxFields(d) {
   const b = d.boxId && getBox(d.boxId);
   if (!b || !hasSpots(b)) return "";
-  if (d._boxFor === undefined) d._boxFor = d.boxId; else if (d._boxFor !== d.boxId) { d._boxFor = d.boxId; d.boxRow = ""; d.boxSlot = ""; } // a different box starts with a fresh spot
-  if (!d.boxRow && !d.boxSlot) { const n = nextFreeSpot(b, d.id); if (n) { d.boxRow = String(n.row); d.boxSlot = String(n.slot); } } // suggests the next empty spot
+  if (d._boxFor === undefined) d._boxFor = d.boxId; else if (d._boxFor !== d.boxId) { d._boxFor = d.boxId; d.boxRow = ""; d.boxSlot = ""; delete d._spotAsk; } // a different box starts with a fresh spot
+  const hasSpot = d.boxRow || d.boxSlot;
+  if (!hasSpot && d._spotAsk !== "yes" && d._spotAsk !== "no") { // ask first: his coins sit in a real order, so he may want to pick the spot
+    return `<div class="card" style="margin:8px 0"><b>Choose the spot yourself?</b>
+      <div class="hint">Yes: you type the real row and slot. No: the next empty spot is filled in for you.</div>
+      <div class="btn-row"><button class="btn" type="button" data-act="spotAsk" data-v="yes">Yes, I'll choose</button><button class="btn" type="button" data-act="spotAsk" data-v="no">No, fill it in</button></div></div>`;
+  }
+  if (!hasSpot && d._spotAsk === "no") { const n = nextFreeSpot(b, d.id); if (n) { d.boxRow = String(n.row); d.boxSlot = String(n.slot); } } // suggests the next empty spot
   return `<div class="grid2"><label class="f"><span>${lineWord(b)} (1–${b.rows})</span><input type="number" inputmode="numeric" min="1" max="${b.rows}" data-f="boxRow" value="${esc(d.boxRow || "")}"></label>
     <label class="f"><span>Slot (1–${b.perRow})</span><input type="number" inputmode="numeric" min="1" max="${b.perRow}" data-f="boxSlot" value="${esc(d.boxSlot || "")}"></label></div>
-    <div class="hint">The next empty spot is filled in for you. Change it if this goes elsewhere.</div>`;
+    <div class="hint">${d._spotAsk === "yes" && !hasSpot ? "Type the row and slot where this really sits." : "Change the spot if this goes elsewhere."}</div>`;
 }
 // Called when an item is saved: tidies the box fields, and returns a message if the spot can't be used.
 function boxCheck(c) {
-  delete c._boxFor;
+  delete c._boxFor; delete c._spotAsk;
   const b = c.boxId && getBox(c.boxId);
   if (!b) { delete c.boxId; delete c.boxRow; delete c.boxSlot; return ""; }
   if (!hasSpots(b)) { delete c.boxRow; delete c.boxSlot; return ""; }

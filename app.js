@@ -18,7 +18,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.28.0";
+const APP_VERSION = "0.29.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -69,6 +69,7 @@ async function initStore() {
     if (typeof initLocalStore === "function" && await initLocalStore()) {
       if (typeof scheduleHistory === "function") scheduleHistory();
       render();
+      fetchSpotPrices(true); // refreshes prices each time the app opens (when online)
       return;
     }
     store.mode = "memory";
@@ -1245,6 +1246,33 @@ function viewGuide() {
 }
 
 /* --- Options --- */
+// Live metal prices from a free source (gold-api.com, no account). Asked for each metal; any it can't give stay as typed.
+const SPOT_SYMBOLS = { gold: "XAU", silver: "XAG", platinum: "XPT", copper: "HG" };
+async function fetchSpotPrices(auto) {
+  if (store.mode === "snapshot" || store.mode === "memory") return;
+  if (auto && (navigator.onLine === false || !/^https?:/.test(location.protocol))) return; // not when opened as a plain file
+  const btn = $("#spotFetch"); if (btn) { btn.disabled = true; btn.textContent = "Getting prices…"; }
+  const got = {};
+  await Promise.all(SPOT_METALS.map(async (m) => {
+    try {
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 8000);
+      const r = await fetch("https://api.gold-api.com/price/" + SPOT_SYMBOLS[m.key], { signal: ctl.signal });
+      clearTimeout(t);
+      const j = await r.json(); const v = num(j && j.price);
+      if (r.ok && v != null && v > 0) got[m.key] = Math.round(v * 100) / 100;
+    } catch (e) { /* offline or blocked: keep the old price */ }
+  }));
+  const n = Object.keys(got).length;
+  if (n) {
+    const stamp = new Date().toISOString();
+    saveSettings({ spot: { ...settings().spot, ...got }, spotUpdated: stamp }, true);
+    $$("[data-spot]").forEach((i) => { if (got[i.dataset.spot] != null) i.value = got[i.dataset.spot]; });
+    const u = $("#spotStamp"); if (u) u.textContent = "Last updated " + stampText(stamp) + ".";
+    if (!draft && typeof render === "function" && !$(".sheet")) render();
+  }
+  if (btn) { btn.disabled = false; btn.textContent = "Get live prices"; }
+  if (!auto) toast(n === SPOT_METALS.length ? "Prices updated." : n ? "Some prices updated. The rest stay as you typed them." : "Couldn't get prices. Check your connection, or type them in.");
+}
 function viewOptions() {
   const s = settings();
   const del = deletedCoins().sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
@@ -1252,7 +1280,8 @@ function viewOptions() {
     <h2>Spot prices</h2>
     <div class="card">
       ${SPOT_METALS.map((m) => `<label class="f"><span>${m.label} ($ per ${m.unit})</span><input type="number" inputmode="decimal" step="0.01" min="0" data-spot="${m.key}" value="${esc(s.spot[m.key] ?? "")}" placeholder="0.00"></label>`).join("")}
-      <div class="hint">Type today's prices. <span id="spotStamp">${s.spotUpdated ? "Last updated " + esc(stampText(s.spotUpdated)) + "." : ""}</span> <a href="https://www.kitco.com/" target="_blank" rel="noopener">Look up current prices ↗</a></div>
+      <div class="btn-row"><button class="btn" id="spotFetch" data-act="fetchSpot">Get live prices</button></div>
+      <div class="hint">Filled in for you when the app opens, or tap the button. You can also type prices. <span id="spotStamp">${s.spotUpdated ? "Last updated " + esc(stampText(s.spotUpdated)) + "." : ""}</span> <a href="https://www.kitco.com/" target="_blank" rel="noopener">Look up current prices ↗</a></div>
     </div>
     <h2>Shelf style</h2>
     <div class="card"><div class="chips">${(typeof SHELF_STYLES !== "undefined" ? SHELF_STYLES : []).map(([k, n]) => { const on = shelfStyle() === k; return `<button class="chip ${on ? "on" : ""}" data-act="shelfStyle" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>
@@ -1285,6 +1314,9 @@ function viewOptions() {
     <h2>Insurance report</h2>
     <div class="card">A dated, itemized list of every coin you own with values and totals, ready to print or save as a PDF for your insurance agent.
       <div class="btn-row"><button class="btn" data-act="openReport">Create insurance report</button></div></div>
+    <h2>Report a problem</h2>
+    <div class="card">Something wrong or confusing? This opens a note on GitHub with your app version already filled in. Don't put anything private in it, because the page is public.
+      <div class="btn-row"><button class="btn" data-act="reportProblem">Report a problem</button></div></div>
     <h2>Recently deleted</h2>
     ${del.length ? `<div class="list">${del.map((c) => `<div class="coin-row">${thumbHtml(c)}<span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(gradeText(c))}</span></span>
       <button class="btn" data-act="restore" data-id="${esc(c.id)}">Restore</button><button class="btn danger" data-act="purge" data-id="${esc(c.id)}" aria-label="Delete forever">✕</button></div>`).join("")}</div>` : `<div class="card empty">Nothing deleted.</div>`}
@@ -2402,12 +2434,18 @@ const actions = {
     $(".sheet").scrollTop = y;
   },
   rmPhoto: (el) => { (draft[el.dataset.k || "photos"] || []).splice(+el.dataset.i, 1); const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; },
+  reportProblem: () => {
+    const body = "What were you doing?\n\n\nWhat went wrong?\n\n\n(Please don't include private details. This page is public.)\n\n---\nApp version: " + APP_VERSION + "\nMode: " + store.mode + "\nPhone/browser: " + navigator.userAgent;
+    window.open("https://github.com/waddelljmw/CoinShelfTest/issues/new?title=" + encodeURIComponent("Problem: ") + "&body=" + encodeURIComponent(body), "_blank", "noopener");
+  },
+  spotAsk: (el) => { draft._spotAsk = el.dataset.v; const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; },
+  fetchSpot: () => fetchSpotPrices(false),
   resetLabel: () => { draft.labelEdited = false; draft.label = ""; renderCoinForm(); },
 };
 
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
 const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
-  "hideSpot showSold shelfStyle shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
+  "fetchSpot hideSpot showSold shelfStyle shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const goEl = e.target.closest("[data-go]");
