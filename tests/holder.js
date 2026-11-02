@@ -50,7 +50,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // 6. CSV round trip keeps the new fields
   const csv = await p.evaluate(() => toCsv());
-  ok("CSV has holder columns", /CAC,Holder,COA,Packaging/.test(csv) && /2x2,Yes,blue box/.test(csv));
+  ok("CSV has holder columns", /Holder,COA,Packaging/.test(csv) && /2x2,Yes,blue box/.test(csv));
 
   console.log("errors", errors);
   await b.close();

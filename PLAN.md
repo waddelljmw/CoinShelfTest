@@ -180,7 +180,11 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 - Saved coins must keep working. Opus plans how they map to new types or designs; Sonnet then enters the approved changes.
 - Also gives each type its exact PCGS Photo Guide link (Phase 3), including types that need one link per design.
 
-**Step 2.10. Review. Model: Opus.**
+**Step 2.10. Review. Model: Opus.** — DONE ✅ (v0.23.2; covers 2.1–2.8, before 2.9 and 2.9b)
+- [x] Fixed: older spreadsheet columns ("Serial", "Weight oz", "Details") went to the wrong fields.
+- [x] Fixed: spreadsheet export lost group, case name, gone reason and date, kind, box spot and carrier.
+- [x] Fixed: import skipped bars and rolls as "duplicates" of different items.
+- [x] Fixed: a coin brought back (Undo, Restore, Move back) could share a box spot with another coin; now it leaves the box and says so.
 
 ---
 

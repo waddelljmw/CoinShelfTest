@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.23.1";
+const APP_VERSION = "0.23.2";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -2214,8 +2214,10 @@ const actions = {
     const n = { ...c, status: "owned" };
     delete n.sold;
     delete n.splitFrom;
+    const note = (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "");
     saveCoin(n);
     undo([c]);
+    if (note) toast("Back in your collection." + note, { label: "Undo", fn: () => { put("c_" + c.id, c); toast("Undone. The sale is back."); } });
   },
   delete: (el) => {
     const c = getCoin(el.dataset.id);
@@ -2223,7 +2225,7 @@ const actions = {
     const prevStatus = c.status;
     saveCoin({ ...c, status: "deleted", prevStatus, deletedAt: Date.now() });
     go("coins");
-    toast("Coin deleted.", { label: "Undo", fn: () => { const x = getCoin(c.id); if (x) { saveCoin({ ...x, status: prevStatus }); toast("Restored."); } } });
+    toast("Coin deleted.", { label: "Undo", fn: () => { const x = getCoin(c.id); if (x) { const n = { ...x, status: prevStatus }; const note = n.status === "owned" ? (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "") : ""; saveCoin(n); toast("Restored." + note); } } });
   },
   received: (el) => {
     const c = getCoin(el.dataset.id);
@@ -2246,10 +2248,11 @@ const actions = {
     const before = JSON.parse(JSON.stringify(c));
     const n = { ...c, status: "owned", stage: "" };
     delete n.gone;
+    const note = (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "");
     saveCoin(n);
-    toast("Back in your collection.", { label: "Undo", fn: () => { put("c_" + before.id, before); toast("Undone."); } });
+    toast("Back in your collection." + note, { label: "Undo", fn: () => { put("c_" + before.id, before); toast("Undone."); } });
   },
-  restore: (el) => { const c = getCoin(el.dataset.id); if (c) { saveCoin({ ...c, status: c.prevStatus || "owned" }); toast("Restored."); } },
+  restore: (el) => { const c = getCoin(el.dataset.id); if (c) { const n = { ...c, status: c.prevStatus || "owned" }; const note = n.status === "owned" ? (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "") : ""; saveCoin(n); toast("Restored." + note); } },
   purge: (el) => {
     const c = getCoin(el.dataset.id);
     if (!c) return;
