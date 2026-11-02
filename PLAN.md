@@ -34,6 +34,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 - **Session 4:** **roll end colors** on the shelf drawing like real wrappers (cents red, nickels blue, dimes green, quarters orange, halves yellow, Morgan rolls worn beige). Check the colors, including Sacagawea, against a source first.
 - **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
 - **Wooden box look.** Add "Wooden box" to the box Look choices (storage and display). On the shelf, a wooden display box gets a solid wood case (today every display box is drawn as a wood-framed glass case). Fits Session 4.
+- **Session 5: ask before auto-filling a box spot.** When a box with numbered spots is picked, ask "Choose the spot yourself?" Yes: nothing filled in, you pick the real spot. No: the next free spot is filled in as today. Works for single coins now and for the add-many idea (IDEAS 10) later.
 
 
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
