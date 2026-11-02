@@ -29,7 +29,6 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 ## Fix list (small changes waiting for a session)
 
 Claude adds items here when they wait. Sessions 4 and 5 clear them.
-- **Box columns (missed in session 2, needs Opus):** boxes with numbered spots can run in **columns** instead of rows (new box setting; clear containers). Touches how boxes are saved.
 - **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
 - **Session 4:** bar **weight in grams or kilos** as well as ounces (a unit dropdown; stored as ounces, so old bars don't change).
 - **Session 4:** **roll end colors** on the shelf drawing like real wrappers (cents red, nickels blue, dimes green, quarters orange, halves yellow, Morgan rolls worn beige). Check the colors, including Sacagawea, against a source first.
@@ -307,11 +306,12 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 - **Options → Home shelf:** each shelf has on/off, up/down arrows (no dragging, easier on a phone), and a pin choice: **None**, **Pin to top** (always right under the totals; several pinned shelves keep their order) or **Lock in place** (stays at its position number when others move).
 - **Hide single items:** a "Show on Home shelf" switch on each album page and box page. Hidden shelves and items still count in your totals; only the drawing hides. A small "N hidden" note in Options with "Show all".
 - **Saved in settings** as `shelfLayout`: `{ order, hidden, hiddenItems, pins }`. Missing or unknown entries fall back to the default order, so new shelves added later just appear.
-- Tests: reorder, pin to top, lock in place while moving another, hidden album still in totals, old settings without `shelfLayout`. Version → 0.26.0.
+- Tests: reorder, pin to top, lock in place while moving another, hidden album still in totals, old settings without `shelfLayout`. Version: middle number up.
 
 **Step 4.5. Review. Model: Opus.** Before 4.3 merges (it reshapes saved boxes), then a short look at 4.4.
 *Say this (on Opus):* "Do Step 4.5 of the plan."
 - [x] Review of 4.3 done (Nov 2, 2026)
+- [x] Box columns added (v0.26.0, Nov 2, 2026): Edit box → "Spots run in" Rows or Columns
 - [ ] Short look at 4.4
 
 ## Phase 5: Features that need an outside service. Model: Sonnet.

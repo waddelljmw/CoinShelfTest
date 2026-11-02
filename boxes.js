@@ -13,6 +13,8 @@ function normBox(b) {
   return b;
 }
 const hasSpots = (b) => !!b && b.spots !== false;
+// Spots can run in rows (default) or in columns ("cols": true). Saved items keep boxRow = the row or column number, boxSlot = the spot in it.
+const lineWord = (b) => (b && b.cols ? "Column" : "Row");
 const getBox = (id) => normBox(store.docs.get("b_" + id));
 const allBoxes = () => [...store.docs.values()].filter((d) => d.kind === "box").map(normBox).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 const storageBoxes = () => allBoxes().filter((b) => b.type !== "display");
@@ -28,7 +30,7 @@ function nextFreeSpot(b, exceptId) {
 function boxText(c) {
   const b = c.boxId && getBox(c.boxId);
   if (!b) return "";
-  return hasSpots(b) && c.boxRow && c.boxSlot ? b.name + " · Row " + c.boxRow + " · Slot " + c.boxSlot : b.name;
+  return hasSpots(b) && c.boxRow && c.boxSlot ? b.name + " · " + lineWord(b) + " " + c.boxRow + " · Slot " + c.boxSlot : b.name;
 }
 const slotDate = (c) => (c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : (c.label || "Coin").slice(0, 8));
 
@@ -73,7 +75,7 @@ function boxFields(d) {
   if (!b || !hasSpots(b)) return "";
   if (d._boxFor === undefined) d._boxFor = d.boxId; else if (d._boxFor !== d.boxId) { d._boxFor = d.boxId; d.boxRow = ""; d.boxSlot = ""; } // a different box starts with a fresh spot
   if (!d.boxRow && !d.boxSlot) { const n = nextFreeSpot(b, d.id); if (n) { d.boxRow = String(n.row); d.boxSlot = String(n.slot); } } // suggests the next empty spot
-  return `<div class="grid2"><label class="f"><span>Row (1–${b.rows})</span><input type="number" inputmode="numeric" min="1" max="${b.rows}" data-f="boxRow" value="${esc(d.boxRow || "")}"></label>
+  return `<div class="grid2"><label class="f"><span>${lineWord(b)} (1–${b.rows})</span><input type="number" inputmode="numeric" min="1" max="${b.rows}" data-f="boxRow" value="${esc(d.boxRow || "")}"></label>
     <label class="f"><span>Slot (1–${b.perRow})</span><input type="number" inputmode="numeric" min="1" max="${b.perRow}" data-f="boxSlot" value="${esc(d.boxSlot || "")}"></label></div>
     <div class="hint">The next empty spot is filled in for you. Change it if this goes elsewhere.</div>`;
 }
@@ -84,9 +86,9 @@ function boxCheck(c) {
   if (!b) { delete c.boxId; delete c.boxRow; delete c.boxSlot; return ""; }
   if (!hasSpots(b)) { delete c.boxRow; delete c.boxSlot; return ""; }
   const r = Math.round(+c.boxRow), s = Math.round(+c.boxSlot);
-  if (!(r >= 1 && r <= b.rows) || !(s >= 1 && s <= b.perRow)) return "Pick a row from 1 to " + b.rows + " and a slot from 1 to " + b.perRow + ", or choose Nothing special.";
+  if (!(r >= 1 && r <= b.rows) || !(s >= 1 && s <= b.perRow)) return "Pick a " + lineWord(b).toLowerCase() + " from 1 to " + b.rows + " and a slot from 1 to " + b.perRow + ", or choose Nothing special.";
   const other = spotCoin(b.id, r, s, c.id);
-  if (other) return "Row " + r + ", slot " + s + " already holds " + labelOf(other) + ". Pick another spot.";
+  if (other) return lineWord(b) + " " + r + ", slot " + s + " already holds " + labelOf(other) + ". Pick another spot.";
   c.boxRow = String(r); c.boxSlot = String(s);
   return "";
 }
@@ -108,7 +110,7 @@ function boxCard(b) {
   const st = boxStats(b);
   return `<button class="card" style="display:block;width:100%;text-align:left" data-go="box-${esc(b.id)}">
     <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(b.name)}</b><span class="num">${hasSpots(b) ? st.filled + "/" + st.total : st.filled + " item" + (st.filled === 1 ? "" : "s")}</span></div>
-    <div class="small muted">${hasSpots(b) ? b.rows + " rows of " + b.perRow + " slots · " : ""}${esc(boxLookText(b))}</div>${hasSpots(b) ? `<div class="bar"><i style="width:${st.total ? (st.filled / st.total) * 100 : 0}%"></i></div>` : ""}</button>`;
+    <div class="small muted">${hasSpots(b) ? b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow + " slots · " : ""}${esc(boxLookText(b))}</div>${hasSpots(b) ? `<div class="bar"><i style="width:${st.total ? (st.filled / st.total) * 100 : 0}%"></i></div>` : ""}</button>`;
 }
 function viewBoxes() {
   const bs = allBoxes(), sb = storageBoxes(), db = displayBoxes();
@@ -130,7 +132,15 @@ function viewBox(r) {
   const st = boxStats(b), inBox = boxCoins(b);
   const itemRow = (c) => `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(holderText(c) || "")}</span></span></button>`;
   let body;
-  if (hasSpots(b)) {
+  const cell = (row, slot) => { const c = spotCoin(b.id, row, slot);
+    return c ? `<button class="slot full" data-go="coin-${esc(c.id)}" title="${esc(labelOf(c))}"><span class="sn">${slot}</span>${esc(slotDate(c))}</button>`
+      : `<button class="slot" data-act="boxAdd" data-box="${esc(b.id)}" data-row="${row}" data-slot="${slot}" aria-label="Add a coin to ${lineWord(b).toLowerCase()} ${row}, slot ${slot}"><span class="sn">${slot}</span>+</button>`; };
+  if (hasSpots(b) && b.cols) { // columns side by side, like the real box seen from above; scrolls sideways when there are many
+    const heads = Array.from({ length: b.rows }, (_, i) => `<div class="col-head">Col ${i + 1}<span class="muted small"> · ${inBox.filter((c) => +c.boxRow === i + 1).length}/${b.perRow}</span></div>`).join("");
+    const cells = Array.from({ length: b.perRow }, (_, j) => Array.from({ length: b.rows }, (_, i) => cell(i + 1, j + 1)).join("")).join("");
+    const loose = inBox.filter((c) => !spotCoin(b.id, c.boxRow, c.boxSlot) || spotCoin(b.id, c.boxRow, c.boxSlot).id !== c.id);
+    body = `<div class="slots-scroll"><div class="slots cols" style="grid-template-columns:repeat(${b.rows},minmax(64px,1fr))">${heads}${cells}</div></div>` + (loose.length ? `<h2 style="margin:14px 0 6px">No numbered spot</h2><div class="card">${loose.map(itemRow).join("")}</div>` : "");
+  } else if (hasSpots(b)) {
     const rowsHtml = Array.from({ length: b.rows }, (_, i) => {
       const row = i + 1;
       const cells = Array.from({ length: b.perRow }, (_, j) => {
@@ -148,7 +158,7 @@ function viewBox(r) {
   }
   return `<button class="link-btn" data-go="boxes">← Storage</button>
     <h1 style="margin-top:10px">${esc(b.name)}</h1>
-    <div class="small muted" style="margin:-8px 0 12px">${b.type === "display" ? "Display box" : "Storage box"} · ${esc(boxLookText(b))} · ${hasSpots(b) ? st.filled + " of " + st.total + " slots filled · " + b.rows + " rows of " + b.perRow : st.filled + " item" + (st.filled === 1 ? "" : "s")}</div>
+    <div class="small muted" style="margin:-8px 0 12px">${b.type === "display" ? "Display box" : "Storage box"} · ${esc(boxLookText(b))} · ${hasSpots(b) ? st.filled + " of " + st.total + " slots filled · " + b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow : st.filled + " item" + (st.filled === 1 ? "" : "s")}</div>
     ${b.inside ? `<div class="card"><div class="muted small">What's inside</div><div style="white-space:pre-wrap">${esc(b.inside)}</div></div>` : ""}
     ${body}
     <div class="btn-row"><button class="btn" data-act="boxEdit" data-id="${esc(b.id)}">Edit box</button><button class="btn danger" data-act="boxDelete" data-id="${esc(b.id)}">Delete box</button></div>`;
@@ -162,8 +172,9 @@ function boxForm(b) {
     <label class="f"><span>Look</span><select name="look" id="boxLook"><option value="black" ${cur.look === "black" ? "selected" : ""}>Black box</option><option value="cardboard" ${cur.look === "cardboard" ? "selected" : ""}>Cardboard box</option><option value="plastic" ${cur.look === "plastic" ? "selected" : ""}>Plastic container</option></select></label></div>
     <label class="f"><span>Plastic color <span class="muted small">(plastic only)</span></span><select name="color">${BOX_COLORS.map((x) => `<option value="${x[0]}" ${cur.color === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>
     <label class="switch"><span>Numbered spots<div class="small muted">Rows and slots, one per coin. Turn off to just list what's inside.</div></span><input type="checkbox" name="spots" id="boxSpots" ${cur.spots !== false ? "checked" : ""}></label>
-    <div class="grid2" id="boxGrid"><label class="f"><span>Rows</span><input type="number" inputmode="numeric" name="rows" min="1" max="50" value="${b && hasSpots(b) ? b.rows : ""}" placeholder="e.g. 5"></label>
-    <label class="f"><span>Slots per row</span><input type="number" inputmode="numeric" name="perRow" min="1" max="100" value="${b && hasSpots(b) ? b.perRow : ""}" placeholder="e.g. 20"></label></div>
+    <label class="f"><span>Spots run in</span><select name="dir"><option value="rows" ${!cur.cols ? "selected" : ""}>Rows (across)</option><option value="cols" ${cur.cols ? "selected" : ""}>Columns (front to back)</option></select></label>
+    <div class="grid2" id="boxGrid"><label class="f"><span>Rows or columns</span><input type="number" inputmode="numeric" name="rows" min="1" max="50" value="${b && hasSpots(b) ? b.rows : ""}" placeholder="e.g. 5"></label>
+    <label class="f"><span>Slots in each</span><input type="number" inputmode="numeric" name="perRow" min="1" max="100" value="${b && hasSpots(b) ? b.perRow : ""}" placeholder="e.g. 20"></label></div>
     <label class="f"><span>What's inside <span class="muted small">(optional)</span></span><textarea name="inside" rows="3" maxlength="500" placeholder="e.g. ziplock of Bicentennial quarters, pill bottle of halves">${esc(b ? b.inside || "" : "")}</textarea></label>
     <div class="btn-row"><button type="submit" class="btn primary">${b ? "Save" : "Add box"}</button><button type="button" class="btn" data-act="closeSheet">Cancel</button></div></form>`, "sheet-75");
 }
@@ -172,13 +183,13 @@ function saveBoxForm(form) {
   const name = String(f.get("name") || "").trim();
   const spots = f.get("spots") === "on";
   const rows = spots ? Math.round(+f.get("rows")) : 0, perRow = spots ? Math.round(+f.get("perRow")) : 0;
-  if (!name || (spots && (!(rows >= 1 && rows <= 50) || !(perRow >= 1 && perRow <= 100)))) { toast(spots ? "Add a name, 1–50 rows and 1–100 slots per row." : "Add a name."); return; }
+  if (!name || (spots && (!(rows >= 1 && rows <= 50) || !(perRow >= 1 && perRow <= 100)))) { toast(spots ? "Add a name, 1–50 rows or columns and 1–100 slots in each." : "Add a name."); return; }
   const old = id && getBox(id);
   const before = old ? JSON.parse(JSON.stringify(old)) : null;
   let coinsBefore = [];
   if (old && spots) {
     const stuck = boxCoins(old).filter((c) => +c.boxRow > rows || +c.boxSlot > perRow);
-    if (stuck.length) { toast("That box would be too small. " + stuck.length + " item" + (stuck.length > 1 ? "s sit" : " sits") + " beyond row " + rows + " / slot " + perRow + ". Move " + (stuck.length > 1 ? "them" : "it") + " first."); return; }
+    if (stuck.length) { toast("That box would be too small. " + stuck.length + " item" + (stuck.length > 1 ? "s sit" : " sits") + " beyond " + lineWord(old).toLowerCase() + " " + rows + " / slot " + perRow + ". Move " + (stuck.length > 1 ? "them" : "it") + " first."); return; }
   }
   if (old && !spots && hasSpots(old)) { // turning numbered spots off: items stay in the box and just lose their row and slot (Undo brings them back)
     coinsBefore = boxCoins(old).map((c) => JSON.parse(JSON.stringify(c)));
@@ -189,6 +200,7 @@ function saveBoxForm(form) {
   const rec = { ...(old || { kind: "box", id, createdAt: Date.now() }), name, rows, perRow, type: f.get("type") === "display" ? "display" : "storage", look, spots, inside: String(f.get("inside") || "").trim() };
   if (look === "plastic") rec.color = BOX_COLORS.some((x) => x[0] === f.get("color")) ? f.get("color") : "clear"; else delete rec.color;
   if (!rec.inside) delete rec.inside;
+  if (f.get("dir") === "cols") rec.cols = true; else delete rec.cols; // switching only relabels: items keep their numbers
   put("b_" + rec.id, rec);
   closeSheet();
   toast(old ? "Box saved." : "Box added.", old ? { label: "Undo", fn: () => { put("b_" + before.id, before); coinsBefore.forEach((c) => put("c_" + c.id, c)); } } : undefined);
