@@ -317,7 +317,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 
 ## Phase 5: Features that need an outside service. Model: Sonnet.
 
-- **Photo fill** (reading a coin from a photo) needs an AI service. **Decided (session 6): off for now, with a place ready for it.** In the phone app the "Fill in from photos" button shows **grayed out with a 🔒 and "Coming soon"**. Options gets a closed **Photo fill (API key)** spot, also marked Coming soon, so once you have an Anthropic key it can be switched on without redesigning. Costs a few cents per coin when on; explained step by step then. Built with Step 7.2 (session 7), since it's small. It's featured in the demo (IDEAS 6) and the AI test-user review (IDEAS 11).
+- **Photo fill** (reading a coin from a photo) needs an AI service. **Decided (session 6): off for now, with a place ready for it.** In the phone app the "Fill in from photos" button shows **grayed out with a 🔒 and "Coming soon"**. Options gets a closed **Photo fill (API key)** spot, also marked Coming soon, so once you have a key it can be switched on without redesigning. Later option: a free Google Gemini key could work here too (decide then). Costs a few cents per coin when on; explained step by step then. Built with Step 7.2 (session 7), since it's small. It's featured in the demo (IDEAS 6) and the AI test-user review (IDEAS 11).
 - **Live metal prices:** fetched from a free price source when you're online, with the last prices kept for offline use. You can still type them in. Add: refresh the prices automatically each time the app is opened (when online), plus a button to fetch them on demand. Show when they were last updated.
 
 ---
