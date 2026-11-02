@@ -30,6 +30,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 
 Claude adds items here when they wait. Sessions 4 and 5 clear them.
 - **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
+- **Wooden box look.** Add "Wooden box" to the box Look choices (storage and display). On the shelf, a wooden display box gets a solid wood case (today every display box is drawn as a wood-framed glass case). Fits Session 4.
 
 
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
