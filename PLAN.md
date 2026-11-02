@@ -29,7 +29,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 ## Fix list (small changes waiting for a session)
 
 Claude adds items here when they wait. Sessions 4 and 5 clear them.
-- (empty)
+- **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
 
 
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*

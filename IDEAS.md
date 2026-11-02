@@ -9,3 +9,4 @@ Nothing here is promised or scheduled. When you mention a new idea, I'll ask if 
 5. **Different flip sizes.** When adding a coin, "In a flip" defaults to 2x2, with other flip sizes as options.
 6. **Inventory printout.** A printable copy of the whole collection, like the insurance report but made as a backup you can keep on paper. Decide later whether it sits with Import/Export and Backup in Options.
 7. **Reorganize the main menu.** Rearrange the top-right dropdown so related pages sit together.
+6. **Cabinet drawers on Home.** The sections below the shelf (melt by metal, recently added, recently sold) drawn as cabinet drawers you pull open. Builds on the collapsible sections from the Fix list. Goes with the shelf look (idea 4).
