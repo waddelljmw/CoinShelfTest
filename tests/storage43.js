@@ -54,6 +54,11 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   // turning spots off keeps the item in the box; Undo restores the spot
   ok("csv has a Kept in column", await p.evaluate(() => /Kept in/.test(toCsv())));
 
+  // the insurance report: Kept in column is optional
+  const rep = await p.evaluate(async () => { const a = await buildReport({}); const b = await buildReport({ kept: true }); return [String(a.html || a), String(b.html || b)]; });
+  ok("report has no Kept in by default", !/Kept in/.test(rep[0]));
+  ok("report shows Kept in when chosen", /Kept in/.test(rep[1]) && /Display 1/.test(rep[1]));
+
   // spine colors by brand
   ok("spine colors", await p.evaluate(() => brandSpine({ brand: "Whitman" }).cls === "s1" && brandSpine({ brand: "Littleton" }).cls === "s3" && brandSpine({ brand: "Dansco" }).cls === "sd" && brandSpine({ brand: "H.E. Harris" }).cls === "sbg" && brandSpine({ brand: "Other", color: "dark green" }).style.includes("#1f5a38") && brandSpine({ brand: "Other" }).style.includes("#9a2a2a")));
 
