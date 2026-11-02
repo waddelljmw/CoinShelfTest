@@ -234,7 +234,7 @@ Last updated November 2, 2026. This file is the plan and the progress checklist.
 *Two separate things for every coin:* **Holder** = what is right around the coin (flip, capsule, slab). **Kept in** = the container that holder sits in (album, storage box, display box, stack). Example: wheat cent · 2x2 cardboard flip · kept in Black box 1.
 
 - **Holder choices** (`HOLDERS` in `catalog/data.js`): Album, Slab, Hard case, Capsule, **2x2 cardboard flip**, **Plastic flip**, **Plastic holder**, Mint box, Envelope, Roll, Loose, Other. Convert on read: old `"2x2"` shows as "2x2 cardboard flip", old `"Flip"` as "Plastic flip" (saved value only changes when the coin is edited). Flip sizes stay in `IDEAS.md`.
-- **"Kept in" dropdown** (Holder section of Add coin, near the top): Nothing special · each album · each storage box · each display box · each stack (stacks only where they're allowed today: bullion and junk silver). **One place per coin:** picking one clears the others (`albumId`, `boxId`/`boxRow`/`boxSlot`, `stack`). Old coins that have two keep both until edited; their page shows both. Album choice still puts the coin in its album spot as today.
+- **"Kept in" dropdown** (Holder section of Add coin, near the top): Nothing special · each album · each storage box · each display box · each stack (stacks only where they're allowed today: bullion and junk silver). **Every kind of item gets Kept in:** coins, sets, rolls, bullion, medals, tokens and foreign coins (albums only list coins that fit them, as today). **One place per coin:** picking one clears the others (`albumId`, `boxId`/`boxRow`/`boxSlot`, `stack`). Old coins that have two keep both until edited; their page shows both. Album choice still puts the coin in its album spot as today.
 - **Any holder can go in a box** (today only "2x2"; remove that limit in `boxCheck`). Capsules, flips and hard cases all allowed.
 - **Box record** (`b_`, `boxes.js`) gains, converted on read for old boxes:
   - `type`: `storage` (default) or `display`.
@@ -261,9 +261,10 @@ Last updated November 2, 2026. This file is the plan and the progress checklist.
   - **Year range** (from / to) and **mint mark** (P, D, S, W, CC, O, none).
   - **Grade range** (e.g. VF-20 to MS-63; Junk and custom grades listed too) and **value range** ($ from / to).
   - **Problems and errors:** Details coins, known varieties, mint errors, CAC sticker.
+- **Select and move many at once:** a "Select" button on Your Coins; tick items (or "Select all shown", which works with filters, e.g. all wheat cents), then **Move to…** (pick an album, box, display box or stack; boxes with numbered spots fill the next free spots, and it says if there aren't enough) or **Set holder…**. One Undo puts everything back. Items that can't go there (e.g. a Morgan into a Lincoln album, a coin into a stack it can't join) are skipped and listed.
 - **Saved filters:** "Save this filter" with a name (e.g. "Inherited silver"); saved ones are one tap at the top of the panel; rename or delete (with Undo). Saved in settings as `savedFilters`.
 - Filters are remembered while the app is open. Totals on Home are not changed by these filters (Home has its own group/stack chips).
-- Tests: each filter, combined filters, custom holder text, saved filter round-trip, old settings without `savedFilters`. Version: middle number up.
+- Tests: bulk move into a box with spots (and too few spots), bulk move Undo, skipped items; each filter, combined filters, custom holder text, saved filter round-trip, old settings without `savedFilters`. Version: middle number up.
 
 **Step 4.4. Arrange the Home shelf. Model: Sonnet.** After 4.3b is merged.
 *Say this (on Sonnet):* "Do Step 4.4 of the plan."
