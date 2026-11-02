@@ -2,7 +2,35 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here:** switch to **Sonnet**, then say *"Do Step 4.3 of the plan."* Still open from Phase 3: the missing PCGS links (Sonnet). Step 2.9 and the Red Book grading guide wait until you have your Red Book.
+**Next session starts here:** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+
+## Session plan (one chat per session, done in order)
+
+Each session is one new chat that ends with a PR (or a merge). Red Book work is parked until you have the book.
+
+| # | Model | What | Ends with |
+|---|---|---|---|
+| 1 | Sonnet | Step 4.3 holders, Kept in, storage and display boxes, album colors | PR open, **not merged** |
+| 2 | Opus | Step 4.5 review of 4.3, fix what it finds | merge 4.3 |
+| 3 | Sonnet | Step 4.3b filters, saved filters, select and move many | merge |
+| 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | merge |
+| 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | merge |
+| 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | plan PR |
+| 7 | Sonnet | Phase 7 basic selling | PR |
+| 8 | Opus | Phase review (4.3b through 7), then merge | merge |
+| later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. Phase 8 Seller Mode planning on Opus. | |
+
+**Rules for a session:**
+- Stay in the chat while it works. Coming back after more than ~5 minutes makes the next message cost more (the chat has to be re-read at full price), so finish or say "stop here" before stepping away.
+- Send your small changes **together in one message**. Claude says if a change fits now or goes on the Fix list.
+- Fits now: small, and in the same part of the app being worked on. Waits: new screens, anything that changes saved data, or anything that would need a second review.
+- Start a new chat for each session. Long chats cost more per message.
+
+## Fix list (small changes waiting for a session)
+
+Claude adds items here when they wait. Sessions 4 and 5 clear them.
+- (empty)
+
 
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
 
@@ -226,7 +254,7 @@ Last updated November 2, 2026. This file is the plan and the progress checklist.
 ---
 
 **Step 4.3. Holders, storage and display boxes. Model: Sonnet** (planned on Opus, Nov 2, 2026). Opus review (4.5) before merging, because it changes how boxes are saved.
-*Say this (on Sonnet):* "Do Step 4.3 of the plan."
+*Session 1.*
 - [x] Planned
 - [ ] Built
 - [ ] Merged
