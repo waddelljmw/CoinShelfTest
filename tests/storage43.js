@@ -66,6 +66,10 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.evaluate(() => go("home")); await p.waitForTimeout(250);
   const html = await p.evaluate(() => document.querySelector(".sh-cab").innerHTML);
   ok("shelf shows display case and clear box", /sh-case/.test(html) && /plastic clear/.test(html) && /Display boxes/.test(html));
+  // review fixes: no stray "+ New album" text outside the dropdown; junk silver can start a new stack
+  ok("no stray album text in form", await p.evaluate(() => { openCoinForm(null); draft.typeId = COIN_TYPES[0].id; renderCoinForm(); const s = document.querySelector(".sheet").cloneNode(true); s.querySelectorAll("select").forEach((x) => x.remove()); return !s.textContent.includes("New album"); }));
+  ok("new stack from Kept in", await p.evaluate(() => { const d = { itemKind: "coin", stack: "", albumId: "", boxId: "" }; applyKept(d, "s:__new"); const a = keptValue(d) === "s:__new"; d.stack = "Junk tub"; const b2 = keptValue(d) === "s:Junk tub"; applyKept(d, ""); return a && b2 && !d.stack && !d._newStack; }));
+  await p.evaluate(() => closeSheet());
   ok("no page errors", errors.length === 0);
   if (errors.length) console.log(errors);
   await b.close();

@@ -70,7 +70,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   });
   ok("restored coin is owned", r2.owned);
   ok("restored coin leaves the taken spot", r2.out && r2.bStays);
-  ok("toast explains it", /Not in a box/.test(r2.msg));
+  ok("toast explains it", /Nothing special/.test(r2.msg));
 
   console.log("errors", errors);
   await b.close();

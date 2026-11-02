@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.25.1";
+const APP_VERSION = "0.25.2";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -1434,7 +1434,6 @@ function renderCoinForm() {
     ${sec("status", "Status" + (d._status && d._status !== "owned" ? ` <span class="muted small">· ${esc(STATUS_TEXT[d._status] || "")}</span>` : ""), statusFields(d), (d._status && d._status !== "owned") || d.upgrade || d.status === "sold")}
 
     ${sec("holder", (it === "set" ? "Packaging and Kept in" : "Holder and Kept in") + (h ? ` <span class="muted small">· ${esc(h)}</span>` : ""), `${keptInFields(d)}
-    ${d.albumId === "__new" ? "selected" : ""}>+ New album…</option></select></label>
     ${d.albumId === "__new" ? `<div class="grid2">
       <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
       <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
@@ -1762,7 +1761,7 @@ async function saveDraft() {
   const d = draft;
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
-  delete c._grams; delete c._purity; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
+  delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = normHolder(formHolder(d));
   if (typeof boxCheck === "function") { const m = boxCheck(c); if (m) { toast(m); return; } }
   if (c.gradeMode !== "cert") { c.cac = ""; c.catNo = ""; }

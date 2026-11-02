@@ -39,6 +39,7 @@ function keptValue(d) {
   if (d.albumId && itemOf(d) === "coin" && getAlbum(d.albumId)) return "a:" + d.albumId;
   if (d.boxId && getBox(d.boxId)) return "b:" + d.boxId;
   if (itemOf(d) !== "bullion" && String(d.stack || "").trim()) return "s:" + String(d.stack).trim();
+  if (d._newStack) return "s:__new";
   return "";
 }
 function applyKept(d, v) {
@@ -46,10 +47,12 @@ function applyKept(d, v) {
   if (v === was) return;
   if (itemOf(d) !== "bullion") d.stack = ""; // bullion always belongs to a stack
   if (d.albumId) delete d.slotId;
+  delete d._newStack;
   d.albumId = ""; d.boxId = ""; d.boxRow = ""; d.boxSlot = ""; delete d._boxFor;
   if (v === "__new") d.albumId = "__new";
   else if (v.startsWith("a:")) d.albumId = v.slice(2);
   else if (v.startsWith("b:")) d.boxId = v.slice(2);
+  else if (v === "s:__new") d._newStack = true; // typed in the box below
   else if (v.startsWith("s:")) d.stack = v.slice(2);
 }
 function keptInFields(d) {
@@ -58,8 +61,11 @@ function keptInFields(d) {
   const albumOpts = it === "coin" ? albumsForCoin(d).map((a) => opt("a:" + a.id, "Album: " + albumTitle(a))).join("") + opt("__new", "+ New album…") : "";
   const sb = storageBoxes().map((x) => opt("b:" + x.id, "Storage box: " + x.name)).join("");
   const db = displayBoxes().map((x) => opt("b:" + x.id, "Display box: " + x.name)).join("");
-  const stacks = it === "coin" && isJunk(d) && d.metal === "Silver" ? stackNames().map((x) => opt("s:" + x, "Stack: " + x)).join("") : "";
+  const canStack = it === "coin" && isJunk(d) && d.metal === "Silver";
+  const names = [...new Set([...stackNames(), String(d.stack || "").trim()].filter(Boolean))];
+  const stacks = canStack ? names.map((x) => opt("s:" + x, "Stack: " + x)).join("") + opt("s:__new", "+ New stack…") : "";
   return `<label class="f"><span>Kept in</span><select data-kept data-rerender><option value="">Nothing special</option>${albumOpts}${sb}${db}${stacks}</select></label>
+    ${canStack && d._newStack ? `<label class="f"><span>New stack name</span><input type="text" data-f="stack" value="${esc(d.stack || "")}" placeholder="e.g. Junk silver stack"></label>` : ""}
     ${!allBoxes().length ? `<div class="hint">Want to say which box this is in? Add one on the <b>Storage</b> page first.</div>` : ""}`;
 }
 function boxFields(d) {
