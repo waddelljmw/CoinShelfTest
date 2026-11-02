@@ -201,7 +201,10 @@ body.safe { --bg: #1c1e21; --card: #26292d; --ink: #e6e8ea; --muted: #9aa3ad; --
 .sh-pl .v { display: block; font-size: 17px; font-weight: 700; }
 .sh-pl.big { grid-column: 1 / -1; } .sh-pl.big .v { font-size: 26px; }
 .sh-cab .sh-spot { display: flex; gap: 6px; width: 100%; margin-top: 6px; }
-.sh-upd { font-size: 9px; text-align: center; opacity: .6; margin-top: 3px; }
+.sh-spot span b, .sh-spot span i { display: block; font-style: normal; font-weight: inherit; }
+.sh-updrow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 10px; margin-top: 6px; }
+.sh-cab .sh-getp { font: inherit; font-size: 11px; padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: rgba(0,0,0,.35); color: #f2e3c8; cursor: pointer; }
+.sh-upd { font-size: 9px; text-align: center; opacity: .6; }
 .sh-spot span { flex: 1; font-size: 11px; text-align: center; border-radius: 5px; padding: 3px; }
 .sh-cab .sh-spine { flex: 0 0 30px; width: 30px; height: 112px; border-radius: 3px 3px 1px 1px; position: relative; display: flex; align-items: center; justify-content: center; overflow: visible; }
 .sh-spine span { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 9px; font-weight: 600; white-space: nowrap; letter-spacing: .02em; max-height: 96px; overflow: hidden; text-overflow: ellipsis; }
