@@ -211,6 +211,30 @@ const GRADES = [
   "PR-60", "PR-62", "PR-63", "PR-64", "PR-65", "PR-66", "PR-67", "PR-68", "PR-69", "PR-70",
 ];
 const CERT_GRADES = GRADES.filter((g) => g !== "Junk");
+// PCGS Photograde page codes (https://www.pcgs.com/photograde#/<Code>/Grades). Codes are PCGS's own; copied from the real pages.
+// One code can cover several app types. Types not listed open the general Photograde page.
+const PCGS_CODES = {
+  "flying-eagle-cent": "Flying", "indian-cent": "Indian",
+  "lincoln-wheat": "Lincoln", "lincoln-memorial-copper": "Lincoln", "lincoln-memorial-zinc": "Lincoln", "lincoln-bicentennial": "Lincoln", "lincoln-shield": "Lincoln",
+  "shield-nickel": "ShieldNic", "liberty-nickel": "LibNic", "buffalo-nickel": "Buffalo", "jefferson-nickel": "Jefferson", "jefferson-war-nickel": "Jefferson",
+  "barber-dime": "Barber10", "mercury-dime": "Mercury", "roosevelt-silver": "Roosevelt", "roosevelt-clad": "Roosevelt",
+  "barber-quarter": "Barber25", "washington-silver": "Washington", "washington-clad": "Washington", "state-quarter": "Washington", "atb-quarter": "Washington", "women-quarter": "Washington",
+  "barber-half": "Barber50", "walking-liberty-half": "Walker", "franklin-half": "Franklin", "kennedy-90": "Kennedy", "kennedy-40": "Kennedy", "kennedy-clad": "Kennedy",
+  "morgan-dollar": "Morgan", "morgan-modern": "Morgan", "peace-dollar": "Peace", "peace-modern": "Peace",
+  "ike-clad": "Ike", "ike-40": "Ike", "sba-dollar": "SBA", "sacagawea-dollar": "SAC",
+  "indian-2-5": "2.5Ind",
+};
+// Standing Liberty has three PCGS pages, picked by year: 1916 Type 1; 1917 by design (Type 1 if none picked); 1918-1924 Type 2; 1925-1930 recessed date.
+function pcgsCodeFor(typeId, year, variety) {
+  if (typeId === "standing-liberty-quarter") {
+    const y = Number(year);
+    if (!y) return "SLQT1";
+    if (y <= 1916) return "SLQT1";
+    if (y === 1917) return variety === "Type 2" ? "SLQe" : "SLQT1";
+    return y <= 1924 ? "SLQe" : "SLQ";
+  }
+  return PCGS_CODES[typeId] || "";
+}
 const SERVICES = ["PCGS", "NGC", "ANACS", "ICG", "CACG", "Other"];
 const MINTS = ["", "P", "D", "S", "O", "CC", "W", "C"];
 const METALS = ["Silver", "Gold", "Platinum", "Copper", "Copper-nickel", "Clad", "Zinc", "Steel", "Other"];

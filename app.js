@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.23.0";
+const APP_VERSION = "0.23.1";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -832,7 +832,7 @@ function viewCoin(r) {
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
       ${row("Status", esc(STATUS_TEXT[statusKey(c)] || "") + (c.upgrade && c.status === "owned" ? " · Upgrade wanted" : ""))}
-      ${itemOf(c) === "coin" ? row("Grade", esc(gradeText(c)) + cacBadge(c)) : ""}
+      ${itemOf(c) === "coin" ? row("Grade", esc(gradeText(c)) + cacBadge(c) + (photoGuideCode(c) ? ` <a class="small" href="${esc(photoGuideUrl(c))}" target="_blank" rel="noopener">PCGS photos ↗</a>` : "")) : ""}
       ${itemOf(c) === "set" ? row("Set", esc(c.typeName)) : ""}
       ${itemOf(c) === "bullion" ? row("Type", esc(shapeName(c.bShape))) + row("Maker", esc(c.bMaker)) + row("Serial number", esc(c.bSerial)) + row("Weight", num(c.bWeight) ? esc(num(c.bWeight)) + " oz" : null) + row("Purity", esc(c.bPurity)) : ""}
       ${stackOf(c) ? row("Stack", esc(stackOf(c))) : ""}
@@ -1632,9 +1632,10 @@ function bookHintText(d) {
   if (b.price != null && hasProblems(d)) return t + ". That price is for a coin without problems, so it isn't used for this one. Enter your own value (Check eBay sold helps)" + (meltEach(d) != null ? ", or melt is used." : ".");
   return b.price != null ? t + (num(d.value) == null ? ". Used as the value while Value each is empty." : "") : t;
 }
-// PCGS Photograde has no address we can build for each coin type, so this searches for that coin's guide page.
+// Link to the coin type's own PCGS Photograde page; types without a saved code open the general page.
+const photoGuideCode = (c) => (c.typeId ? pcgsCodeFor(c.typeId, c.year, c.variety) : "");
 const photoGuideText = (c) => (c.typeName && c.typeId ? "PCGS Photo Guide: " + c.typeName : "Compare grades on PCGS Photograde");
-const photoGuideUrl = (c) => (c.typeName && c.typeId ? "https://www.google.com/search?q=" + encodeURIComponent("PCGS Photograde " + c.typeName) : "https://www.pcgs.com/photograde");
+const photoGuideUrl = (c) => { const k = photoGuideCode(c); return k ? "https://www.pcgs.com/photograde#/" + k + "/Grades" : "https://www.pcgs.com/photograde"; };
 function refreshFormHints() {
   const pl = $("#pcgsLink"); if (pl) { pl.href = photoGuideUrl(draft); pl.textContent = photoGuideText(draft) + " ↗"; }
   const el = $("#ebayLink"); if (el) el.href = ebayUrl(draft);
