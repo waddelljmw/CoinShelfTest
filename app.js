@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.27.0";
+const APP_VERSION = "0.27.1";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -550,10 +550,10 @@ window.addEventListener("hashchange", (e) => {
 });
 function coinBackLink() {
   const h = coinBackTo || "coins";
-  let name = { home: "Home", value: "Coin Value", albums: "Albums", wants: "Want List", coins: "Your Coins", stacks: "Stacks", boxes: "Storage", guide: "PCGS Photo Guide", options: "Options" }[h];
+  let name = { home: "Home", value: "Coin Value", albums: "Albums", wants: "Want List", coins: "My Coins", stacks: "Stacks", boxes: "Storage", guide: "PCGS Photo Guide", options: "Options" }[h];
   if (!name && h.startsWith("box-")) { const b = getBox(h.slice(4)); name = b ? b.name : "Boxes"; }
   if (!name && h.startsWith("album-")) { const a = getAlbum(h.slice(6)); name = a ? albumTitle(a) : "Albums"; }
-  return `<button class="link-btn" data-go="${esc(name ? h : "coins")}">← ${esc(name || "Your Coins")}</button>`;
+  return `<button class="link-btn" data-go="${esc(name ? h : "coins")}">← ${esc(name || "My Coins")}</button>`;
 }
 function closeMenu() { $("#menu").hidden = true; $("#menuBtn").setAttribute("aria-expanded", "false"); }
 
@@ -737,7 +737,7 @@ function viewCoins() {
     type: (c) => familyOf(c) + " " + String(c.year || "").padStart(5, "0") + (c.mint || ""),
   }[listState.sort];
   list.sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * (listState.dir === "asc" ? 1 : -1); });
-  return `<h1>Your Coins</h1>
+  return `<h1>My Coins</h1>
     <div class="seg" style="margin-bottom:10px">
       <button data-act="status" data-v="owned" class="${listState.status === "owned" ? "on" : ""}">In collection (${sum(ownedCoins().filter((c) => itemOf(c) !== "bullion"), qtyOf)})</button>
       <button data-act="status" data-v="sold" class="${listState.status === "sold" ? "on" : ""}">Sold (${sum(soldCoins(), qtyOf)})</button>
@@ -825,7 +825,7 @@ function errorsCard(c, row) {
 }
 function viewCoin(r) {
   const c = getCoin(r.id);
-  if (!c || c.status === "deleted") return `<div class="card empty">That coin isn't here. <button class="link-btn" data-go="coins">Back to Your Coins</button></div>`;
+  if (!c || c.status === "deleted") return `<div class="card empty">That coin isn't here. <button class="link-btn" data-go="coins">Back to My Coins</button></div>`;
   const q = qtyOf(c);
   const v = valueEach(c);
   const m = meltEach(c);
