@@ -28,8 +28,11 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 
 ## Fix list (small changes waiting for a session)
 
-Claude adds items here when they wait. Sessions 4 and 5 clear them.
-- (empty)
+Claude adds items here when they wait. Sessions 4 and 5 clear them (items marked "session 2" go into the Opus review of 4.3).
+- **Session 2:** boxes with numbered spots can run in **columns** instead of rows (new box setting; clear containers). Touches how boxes are saved, so do it with the 4.3 review.
+- **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
+- **Session 4:** bar **weight in grams or kilos** as well as ounces (a unit dropdown; stored as ounces, so old bars don't change).
+- **Session 4:** **roll end colors** on the shelf drawing like real wrappers (cents red, nickels blue, dimes green, quarters orange, halves yellow, Morgan rolls worn beige). Check the colors, including Sacagawea, against a source first.
 
 
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
