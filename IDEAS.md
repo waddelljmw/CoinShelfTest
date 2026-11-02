@@ -13,3 +13,4 @@ Nothing here is promised or scheduled. When you mention a new idea, I'll ask if 
 7. **Tablet layout.** Make the pages fit a tablet screen well.
 8. **Coin ID numbers.** An easy numbering/lettering system giving every coin a unique ID you can write on its flip, then search the ID to see where it is. Changes saved data, so plan it on Opus before selling (session 6).
 9. **Cabinet drawers on Home.** The sections below the shelf (melt by metal, recently added, recently sold) drawn as cabinet drawers you pull open. Builds on the collapsible sections from the Fix list. Goes with the shelf look (idea 4).
+10. **Add many identical coins to a container at once.** Add a "How many?" count, pick the container once, then tap each coin's real spot on the container's grid (coins sit in a certain order in real life). Each saves as its own coin. Plan it on Opus after Step 4.4.
