@@ -283,7 +283,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 
 **Step 4.3b. Better filters for Your Coins. Model: Sonnet.** After 4.3 is merged (it needs Holder and Kept in).
 *Say this (on Sonnet):* "Do Step 4.3b of the plan."
-- [ ] Built
+- [x] Built (v0.27.0, branch `step-4.3b-filters`, new file `filters.js`; coin type and Show also stay as the chips and tabs above the list)
 - [ ] Merged
 - **One "Filter" button** opens a panel with every filter; the ones in use show as chips above the list (tap × to remove one, "Clear all" to reset). Search and sort stay where they are. The count shows "12 of 340 coins".
 - **Filters** (each one optional; they combine):
