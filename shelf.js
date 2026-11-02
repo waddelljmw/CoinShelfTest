@@ -89,13 +89,13 @@ function shelfTop(t) {
   const shown = SPOT_METALS.filter((m) => !s.hideSpot[m.key] && num(s.spot[m.key]) != null);
   const anyShown = SPOT_METALS.some((m) => !s.hideSpot[m.key]);
   const spot = shown.length
-    ? shown.map((m) => `<span>${m.label} ${money(num(s.spot[m.key]))}</span>`).join("") + (s.spotUpdated ? `<span>Updated ${esc(s.spotUpdated)}</span>` : "")
+    ? shown.map((m) => `<span>${m.label} ${money(num(s.spot[m.key]))}</span>`).join("")
     : anyShown ? `<span>Tap to enter metal prices</span>` : "";
   return `<div class="sh-plaques">
       <button class="sh-pl big" data-go="value"><span class="k">Collection value</span><span class="v">${money(t.total, "$0.00")}</span></button>
       <button class="sh-pl" data-go="value"><span class="k">Melt value</span><span class="v">${money(t.melt, "$0.00")}</span></button>
       <button class="sh-pl" data-go="coins"><span class="k">Coins</span><span class="v">${t.count}</span></button>
-    </div>${spot ? `<button class="sh-spot" data-go="options">${spot}</button>` : ""}`;
+    </div>${spot ? `<button class="sh-spot" data-go="options">${spot}</button>` : ""}${spot && s.spotUpdated ? `<div class="sh-upd">Prices updated ${esc(stampText(s.spotUpdated))}</div>` : ""}`;
 }
 function shelfHtml(owned, t) {
   const safe = shelfStyle() === "safe";

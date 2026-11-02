@@ -11,7 +11,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   // 1. Raw coin in a 2x2 from a coin show, with COA + packaging
   await add("morgan", "1921");
   await p.selectOption('[data-f="holder"]', "2x2"); await p.waitForTimeout(80);
-  await p.selectOption('[data-f="_sourceKind"]', "Coin show"); await p.waitForTimeout(80);
+  await p.selectOption('[data-f="_sourceKind"]', "Coin Show"); await p.waitForTimeout(80);
   ok("no packaging box before COA", !(await p.isVisible('[data-f="packaging"]')));
   await p.check('[data-fcheck="coa"]'); await p.waitForTimeout(80);
   await p.fill('[data-f="packaging"]', "blue box");
@@ -24,7 +24,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   // 2. Quick-add remembers holder and source
   await add("peace", "1922");
   ok("holder remembered", (await p.$eval('[data-f="holder"]', (e) => e.value)) === "2x2");
-  ok("source remembered", (await p.$eval('[data-f="_sourceKind"]', (e) => e.value)) === "Coin show");
+  ok("source remembered", (await p.$eval('[data-f="_sourceKind"]', (e) => e.value)) === "Coin Show");
   ok("COA not remembered", !(await p.isChecked('[data-fcheck="coa"]')));
 
   // 3. Certified -> Slab by itself, CAC gold badge

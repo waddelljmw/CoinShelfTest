@@ -227,7 +227,7 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 ## Phase 5: Features that need an outside service. Model: Sonnet.
 
 - **Photo fill** (reading a coin from a photo) needs an AI service. Choose between: (a) leaving it off in the standalone app, or (b) using your own Anthropic API key, which costs a few cents per coin. It's explained step by step when we get there.
-- **Live metal prices:** fetched from a free price source when you're online, with the last prices kept for offline use. You can still type them in.
+- **Live metal prices:** fetched from a free price source when you're online, with the last prices kept for offline use. You can still type them in. Add: refresh the prices automatically each time the app is opened (when online), plus a button to fetch them on demand. Show when they were last updated.
 
 ---
 

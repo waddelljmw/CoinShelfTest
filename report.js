@@ -155,7 +155,7 @@ async function buildReport(opts) {
 <table><thead><tr><th>Type</th><th class="r">Coins</th><th class="r">Value</th><th class="r">Melt</th></tr></thead><tbody>${famRows}</tbody></table>
 ${metalRows ? `<h2>Precious metal content</h2><table><thead><tr><th>Metal</th><th class="r">Coins</th><th class="r">Fine weight</th><th class="r">Melt value</th></tr></thead><tbody>${metalRows}</tbody></table>` : ""}
 <div class="note">
-  <p><b>How values were set.</b> Each coin uses the owner's own value where one was entered; otherwise the Red Book${ed ? " " + esc(ed) : ""} retail value for its grade; otherwise its melt value. Melt values use spot prices of ${spots ? esc(spots) : "(none entered)"}${s.spotUpdated ? ", as of " + esc(s.spotUpdated) : ""}.</p>
+  <p><b>How values were set.</b> Each coin uses the owner's own value where one was entered; otherwise the Red Book${ed ? " " + esc(ed) : ""} retail value for its grade; otherwise its melt value. Melt values use spot prices of ${spots ? esc(spots) : "(none entered)"}${s.spotUpdated ? ", as of " + esc(stampText(s.spotUpdated)) : ""}.</p>
   <p>These values are the owner's estimates for record keeping. This is not a professional appraisal. Some insurers require an appraisal for high-value coins.</p>
 </div>
 </body></html>`;

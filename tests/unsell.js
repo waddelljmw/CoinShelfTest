@@ -8,7 +8,7 @@ const { chromium } = require("./_compat");
   for (const [y, qty] of [[1881, 1], [1921, 5]]) {
     await p.click("#fab"); await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0");
     await p.fill("[data-f=year]", String(y)); await p.selectOption("[data-f=grade]", "MS-63"); await p.fill("[data-f=qty]", String(qty));
-    await p.fill("[data-f=paid]", "40"); await p.fill("[data-f=value]", "60"); await p.selectOption('[data-f="_sourceKind"]', "Coin show"); await p.fill("[data-f=notes]", "nice toning");
+    await p.fill("[data-f=paid]", "40"); await p.fill("[data-f=value]", "60"); await p.selectOption('[data-f="_sourceKind"]', "Coin Show"); await p.fill("[data-f=notes]", "nice toning");
     await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(200);
     await p.click("[data-act=sell]"); if (qty > 1) await p.fill("#sellForm [name=n]", "2");
     await p.fill("#sellForm [name=amount]", "150"); await p.click("#sellForm button[type=submit]"); await p.waitForTimeout(200);
