@@ -8,7 +8,14 @@ Nothing here is promised or scheduled. When you mention a new idea, I'll ask if 
 4. **Shelf look on every page.** Make the other pages match the Home shelf, so it feels like real life. Keep a toggle between that and the current basic view (the basic view stays useful for long lists).
 5. **Different flip sizes.** When adding a coin, "In a flip" defaults to 2x2, with other flip sizes as options.
 6. **Inventory printout.** A printable copy of the whole collection, like the insurance report but made as a backup you can keep on paper. Decide later whether it sits with Import/Export and Backup in Options.
-7. **Reorganize the main menu.** Rearrange the top-right dropdown so related pages sit together.
+7. **Reorganize the main menu.** Rearrange the top-right dropdown so related pages sit together. Your rough layout to start from (wording must make sense to a non-technical person *and* a collector or dealer):
+    - **My Cabinet** (today's Home shelf)
+    - **My Coins**, with **My Albums** and **Storage** tucked under it
+    - **Wants List**
+    - **Coin Value**: the value dropdowns live here; the Insurance Report may move here
+    - **My Stacks**
+    - **PCGS Photograde**
+    - Options stays last. Plan it on Opus; it only moves buttons, so it can be built on Sonnet after.
 6. **Demo mode.** A built-in sample collection (lots of coins, rolls, 1 oz and 10 oz bars, a black box of wheat cents in 2x2 flips, partly filled albums) so a friend can try the app without seeing your real coins. Built from your backup plus made-up fill-in, kept separate from your real data. Best done once the features exist.
 7. **Tablet layout.** Make the pages fit a tablet screen well.
 8. **Coin ID numbers.** An easy numbering/lettering system giving every coin a unique ID you can write on its flip, then search the ID to see where it is. Changes saved data, so plan it on Opus before selling (session 6).
