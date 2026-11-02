@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 3, Step 4.3b filters):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 4, Step 4.4 arrange the Home shelf + Fix list):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -12,7 +12,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 |---|---|---|---|
 | 1 | Sonnet | Step 4.3 holders, Kept in, storage and display boxes, album colors | ✓ done |
 | 2 | Opus | Step 4.5 review of 4.3, fix what it finds | ✓ merged |
-| 3 | Sonnet | Step 4.3b filters, saved filters, select and move many | merge |
+| 3 | Sonnet | Step 4.3b filters, saved filters, select and move many | ✓ merged |
 | 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | merge |
 | 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | merge |
 | 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | plan PR |
@@ -284,7 +284,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 **Step 4.3b. Better filters for Your Coins. Model: Sonnet.** After 4.3 is merged (it needs Holder and Kept in).
 *Say this (on Sonnet):* "Do Step 4.3b of the plan."
 - [x] Built (v0.27.0, branch `step-4.3b-filters`, new file `filters.js`; coin type and Show also stay as the chips and tabs above the list)
-- [ ] Merged
+- [x] Merged (v0.27.0, Nov 2, 2026)
 - **One "Filter" button** opens a panel with every filter; the ones in use show as chips above the list (tap × to remove one, "Clear all" to reset). Search and sort stay where they are. The count shows "12 of 340 coins".
 - **Filters** (each one optional; they combine):
   - Already there, moved into the panel: coin type, metal, raw or certified, status.
