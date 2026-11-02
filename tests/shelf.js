@@ -15,7 +15,7 @@ const shots = process.argv.includes("--shots");
   ok("empty shelf drawn", !!(await p.$(".sh-cab.wood")) && (await p.$$(".sh-ghost")).length === 2);
   ok("bookcase by default, no safe class", !(await p.evaluate(() => document.body.classList.contains("safe"))));
   await p.evaluate(() => {
-    saveSettings({ spot: { gold: 2680, silver: 30, platinum: null, copper: null }, spotUpdated: "9:40" });
+    saveSettings({ spot: { gold: 2680, silver: 30, platinum: null, copper: null }, spotUpdated: "2026-11-02T16:11:00Z" });
     const mk = (id, o) => put("c_" + id, { ...blankCoin(), id, typeName: "Test", year: "1990", value: "10", qty: 1, status: "owned", ...o });
     mk("m1", { metal: "Silver", oz: "0.77344", value: "50" });
     mk("g1", { metal: "Gold", oz: "0.12094", value: "400" });
@@ -28,7 +28,7 @@ const shots = process.argv.includes("--shots");
   await p.evaluate(() => go("home")); await p.waitForTimeout(200);
   const txt = await p.textContent("main");
   ok("plaques show value, melt and count", /Collection value/.test(txt) && /Melt value/.test(txt) && !!(await p.$(".sh-pl.big")));
-  ok("metal prices on the top shelf", /Silver \$30\.00/.test(await p.textContent(".sh-spot")) && /Updated 9:40/.test(await p.textContent(".sh-spot")));
+  ok("metal prices on the top shelf", /Silver \$30\.00/.test(await p.textContent(".sh-spot")) && /Prices updated .*2026/.test(await p.textContent(".sh-upd")));
   ok("album spine", (await p.$$(".sh-spine")).length === 1);
   ok("stack shows a bar and ounces", !!(await p.$(".sh-bar.b")) && /My Silver Stack/.test(txt));
   ok("my coins stack has silver and gold", !!(await p.$(".sh-coin.ag")) && !!(await p.$(".sh-coin.au")));
@@ -56,6 +56,11 @@ const shots = process.argv.includes("--shots");
   await p.click(".sh-spine.more"); await p.waitForTimeout(150);
   ok("more spine opens Albums", (await p.evaluate(() => location.hash)) === "#albums");
   await p.evaluate(() => { for (let i = 0; i < 29; i++) remove("a_f" + i); for (let i = 0; i < 7; i++) remove("b_f" + i); go("home"); }); await p.waitForTimeout(150);
+  // A long box name stays below the lid line and inside the box
+  await p.evaluate(() => { put("b_long", { kind: "box", id: "long", name: "2x2 Flip Box Mixed Coins (long and very wordy name)", rows: 10, perRow: 10, createdAt: 99 }); go("home"); }); await p.waitForTimeout(200);
+  ok("long box name stays inside, under the lid line", await p.evaluate(() => { const bx = [...document.querySelectorAll(".sh-box")].pop(), t = bx.querySelector("b"), r = bx.getBoundingClientRect(), q = t.getBoundingClientRect(); return q.top >= r.top + 10 && q.bottom <= r.bottom; }));
+  if (shots) await p.screenshot({ path: "/tmp/shelf-box.png", clip: { x: 0, y: 700, width: 390, height: 300 } });
+  await p.evaluate(() => remove("b_long"));
   // Switch to Safe in Options
   await p.evaluate(() => go("options")); await p.waitForTimeout(150);
   await p.click("[data-act=shelfStyle][data-v=safe]"); await p.waitForTimeout(150);

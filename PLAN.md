@@ -224,10 +224,12 @@ Last updated November 1, 2026. This file is the plan and the progress checklist.
 
 ---
 
+**Opus planning note (Nov 2, 2026; think about this at the next Opus planning session):** where each coin is kept. When adding a coin, offer "In a flip" (default 2x2), then a simple storage-location dropdown that lists his containers: an album, a stack, a 2x2 storage box (pick the box), and so on. Placing a coin in an album puts it in that album's spot. His real "black boxes" also hold loose items (a ziplock of Bicentennial quarters, a pill bottle of Bicentennial halves), so decide whether a box needs a "What's inside" note, loose-item containers, or both. Also plan: a **display box** (holds coins, gets a spot on the shelf, counts as a storage location); Options to **choose what shows on the main shelf, rearrange shelves, and pin a shelf in place** (new saved settings, so plan it with the storage containers). Different flip sizes are in `IDEAS.md` for later.
+
 ## Phase 5: Features that need an outside service. Model: Sonnet.
 
 - **Photo fill** (reading a coin from a photo) needs an AI service. Choose between: (a) leaving it off in the standalone app, or (b) using your own Anthropic API key, which costs a few cents per coin. It's explained step by step when we get there.
-- **Live metal prices:** fetched from a free price source when you're online, with the last prices kept for offline use. You can still type them in.
+- **Live metal prices:** fetched from a free price source when you're online, with the last prices kept for offline use. You can still type them in. Add: refresh the prices automatically each time the app is opened (when online), plus a button to fetch them on demand. Show when they were last updated.
 
 ---
 

@@ -33,7 +33,7 @@ const path = require("path");
     await p.click("#coinForm button[type=submit]");
     await p.waitForTimeout(150);
   }
-  await addCoin({ type: "morgan", year: 1921, mint: "D", grade: "VF-20", paid: 40, value: 55, source: "Coin shop", album: { sel: "__new", brand: "Whitman", number: "9128" }, shot: "02-form" });
+  await addCoin({ type: "morgan", year: 1921, mint: "D", grade: "VF-20", paid: 40, value: 55, source: "Coin Shop", album: { sel: "__new", brand: "Whitman", number: "9128" }, shot: "02-form" });
   const albumId = await p.evaluate(() => [...document.querySelectorAll("[data-f]")].length); // noop
   await shot("03-coin-detail");
   // second morgan into same album

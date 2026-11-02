@@ -8,7 +8,7 @@ const { chromium } = require("./_compat");
   console.log("options:", await p.$$eval('[data-f="_sourceKind"] option', (o) => o.map((x) => x.textContent)));
   console.log("other field hidden at first:", !(await p.isVisible('[data-f="source"]')));
   // pick Pawn shop directly
-  await p.selectOption('[data-f="_sourceKind"]', "Pawn shop");
+  await p.selectOption('[data-f="_sourceKind"]', "Coin Shop");
   console.log("still no text field:", !(await p.isVisible('[data-f="source"]')));
   await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0");
   await p.fill("[data-f=year]", "1921");

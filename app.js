@@ -16,7 +16,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.24.1";
+const APP_VERSION = "0.24.3";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -122,11 +122,11 @@ async function claudeExtras() {
   } catch (e) { sampleApi = null; }
 }
 
-function put(key, obj) {
+function put(key, obj, quiet) {
   const body = JSON.parse(JSON.stringify(obj));
   store.docs.set(key, body);
   if (key !== "history" && typeof scheduleHistory === "function") scheduleHistory(); // value over time
-  render();
+  if (!quiet) render();
   if (store.mode === "local") return chainWrite(key, () => localPut(key, body));
   if (store.mode !== "db" || !store.coll) return Promise.resolve();
   const prev = writeChains.get(key) || Promise.resolve();
@@ -173,7 +173,20 @@ function remove(key) {
 }
 
 const settings = () => ({ ...DEFAULT_SETTINGS, ...(store.docs.get("settings") || {}), spot: { ...DEFAULT_SETTINGS.spot, ...((store.docs.get("settings") || {}).spot || {}) } });
-const saveSettings = (patch) => put("settings", { ...settings(), ...patch });
+const saveSettings = (patch, quiet) => put("settings", { ...settings(), ...patch }, quiet);
+// "Mon, Nov. 2, 2026 @ 11:11am EST". Older saved values (a plain date, or odd text) still show.
+const MONTHS_AP = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];
+function stampText(v) {
+  if (!v) return "";
+  const dateOnly = /^\d{4}-\d\d-\d\d$/.test(v);
+  const d = new Date(dateOnly ? v + "T12:00:00" : v);
+  if (isNaN(d)) return String(v);
+  const day = d.toLocaleDateString("en-US", { weekday: "short" }) + ", " + MONTHS_AP[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+  if (dateOnly) return day;
+  const h = d.getHours() % 12 || 12, m = String(d.getMinutes()).padStart(2, "0");
+  const tz = (new Intl.DateTimeFormat("en-US", { timeZoneName: "short" }).formatToParts(d).find((p) => p.type === "timeZoneName") || {}).value || "";
+  return day + " @ " + h + ":" + m + (d.getHours() < 12 ? "am" : "pm") + (tz ? " " + tz : "");
+}
 const allCoins = () => [...store.docs.values()].filter((d) => d.kind === "coin");
 const ownedCoins = () => allCoins().filter((c) => c.status === "owned");
 const soldCoins = () => allCoins().filter((c) => c.status === "sold");
@@ -1227,7 +1240,7 @@ function viewOptions() {
     <h2>Spot prices</h2>
     <div class="card">
       ${SPOT_METALS.map((m) => `<label class="f"><span>${m.label} ($ per ${m.unit})</span><input type="number" inputmode="decimal" step="0.01" min="0" data-spot="${m.key}" value="${esc(s.spot[m.key] ?? "")}" placeholder="0.00"></label>`).join("")}
-      <div class="hint">Type today's prices. ${s.spotUpdated ? "Last updated " + esc(s.spotUpdated) + "." : ""} <a href="https://www.kitco.com/" target="_blank" rel="noopener">Look up current prices ↗</a></div>
+      <div class="hint">Type today's prices. <span id="spotStamp">${s.spotUpdated ? "Last updated " + esc(stampText(s.spotUpdated)) + "." : ""}</span> <a href="https://www.kitco.com/" target="_blank" rel="noopener">Look up current prices ↗</a></div>
     </div>
     <h2>Shelf style</h2>
     <div class="card"><div class="chips">${(typeof SHELF_STYLES !== "undefined" ? SHELF_STYLES : []).map(([k, n]) => { const on = shelfStyle() === k; return `<button class="chip ${on ? "on" : ""}" data-act="shelfStyle" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>
@@ -1304,11 +1317,14 @@ function openCoinForm(id) {
   renderCoinForm();
 }
 function sourceOptions() {
-  return [...new Set([...SOURCE_DEFAULTS, ...allCoins().map((c) => (c.source || "").trim()).filter(Boolean)])];
+  const known = new Set(SOURCE_DEFAULTS.map((x) => x.toLowerCase()));
+  return [...new Set([...SOURCE_DEFAULTS, ...allCoins().map((c) => (c.source || "").trim()).filter((x) => x && !known.has(x.toLowerCase()))])];
 }
 // First render of a coin: figure out whether its saved source is a known choice or custom text.
 function initSourceKind(d) {
   if (d._sourceKind !== undefined) return;
+  const canon = SOURCE_DEFAULTS.find((x) => x.toLowerCase() === (d.source || "").trim().toLowerCase()); // "Coin shop" saved before → "Coin Shop"
+  if (canon) d.source = canon;
   d._sourceKind = !d.source ? "" : sourceOptions().includes(d.source) ? d.source : "Other";
 }
 // Mint marks offered for a type. Proofs have their own list: e.g. West Point (W) proofs of Silver Eagles.
@@ -1468,10 +1484,11 @@ function purchaseFields(d) {
       <label class="f"><span>Date acquired</span><input type="date" data-f="acquired" value="${esc(d.acquired)}"></label>
     </div>
     <label class="f"><span>Source</span><select data-f="_sourceKind" data-rerender><option value="">Choose…</option>${sourceOptions().map((s) => `<option value="${esc(s)}" ${d._sourceKind === s ? "selected" : ""}>${esc(s)}</option>`).join("")}<option value="Other" ${d._sourceKind === "Other" ? "selected" : ""}>Other…</option></select></label>
+    ${d._sourceKind === "Coin Shop" ? `<label class="f"><span>Shop or dealer name (optional)</span><input type="text" data-f="seller" list="sellerList" value="${esc(d.seller || "")}" placeholder="e.g. Main Street Coins" maxlength="60"></label>` : ""}
     ${d._sourceKind === "Other" ? `<label class="f"><span>Where did you get it?</span><input type="text" data-f="source" value="${esc(d.source)}" placeholder="e.g. Grandpa's collection, flea market"></label>` : ""}
     <div class="hint" id="inhHint" ${isInherited(d) ? "" : "hidden"}><span class="dns">Do not sell</span> Inherited coins are marked do-not-sell and aren't counted in gains.</div>
       <div class="grid2">
-        <label class="f"><span>Seller</span><input type="text" data-f="seller" list="sellerList" value="${esc(d.seller || "")}" placeholder="Person or shop" maxlength="60"></label>
+        ${d._sourceKind === "Coin Shop" ? "" : `<label class="f"><span>Seller</span><input type="text" data-f="seller" list="sellerList" value="${esc(d.seller || "")}" placeholder="Person or shop" maxlength="60"></label>`}
         <label class="f"><span>Paid with</span><select data-f="payMethod"><option value="">Choose…</option>${PAY_METHODS.concat(d.payMethod && !PAY_METHODS.includes(d.payMethod) ? [d.payMethod] : []).map((x) => `<option ${d.payMethod === x ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
       </div>
       <datalist id="sellerList">${pastSellers().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
@@ -2388,7 +2405,7 @@ document.addEventListener("input", (e) => {
   if (el.dataset.list === "q") { listState.q = el.value; render(); return; }
   if (el.dataset.setting) {
     clearTimeout(spotTimer);
-    spotTimer = setTimeout(() => saveSettings({ [el.dataset.setting]: el.value.trim() }), 700);
+    spotTimer = setTimeout(() => saveSettings({ [el.dataset.setting]: el.value.trim() }, true), 700);
     return;
   }
   if (el.dataset.spot) {
@@ -2396,7 +2413,9 @@ document.addEventListener("input", (e) => {
     spotTimer = setTimeout(() => {
       const spot = {};
       $$("[data-spot]").forEach((i) => { spot[i.dataset.spot] = num(i.value); });
-      saveSettings({ spot, spotUpdated: today() });
+      const stamp = new Date().toISOString();
+      saveSettings({ spot, spotUpdated: stamp }, true); // quiet: a redraw here would close the box you're typing in
+      const u = $("#spotStamp"); if (u) u.textContent = "Last updated " + stampText(stamp) + ".";
     }, 700);
     return;
   }

@@ -1,6 +1,8 @@
 # Working on Coin Cabinet
 
-Read this, then only the **next unchecked step** in `PLAN.md` (don't read the whole plan).
+Read this, then `IDEAS.md` (short; just don't build from it unless asked), then only the **next unchecked step** in `PLAN.md` (don't read the whole plan).
+
+**Ideas:** when he mentions a new idea, ask if it should go on `IDEAS.md`. Add it only if he says yes.
 
 ## The person
 - Coin collector, **no app-building background**. Plain words.
