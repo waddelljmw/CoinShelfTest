@@ -42,6 +42,20 @@ const shots = process.argv.includes("--shots");
   await p.evaluate(() => go("home")); await p.waitForTimeout(150);
   await p.click(".sh-box"); await p.waitForTimeout(150);
   ok("box opens box", (await p.evaluate(() => location.hash)) === "#box-bx1");
+  // Full shelf: 30 albums -> 2 shelves (17 spines + "+N more"); 8 boxes -> 1 shelf + "+N more"
+  await p.evaluate(() => {
+    for (let i = 0; i < 29; i++) put("a_f" + i, { kind: "album", id: "f" + i, name: "Franklin " + i, typeId: "franklin", start: 1948, end: 1963 });
+    for (let i = 0; i < 7; i++) put("b_f" + i, { kind: "box", id: "f" + i, name: "Box " + i, rows: 10, perRow: 10, createdAt: 10 + i });
+  });
+  await p.evaluate(() => go("home")); await p.waitForTimeout(200);
+  ok("30 albums: 2 album shelves", (await p.$$(".sh-shelf.albums")).length === 2);
+  ok("30 albums: 17 spines + more", (await p.$$(".sh-spine:not(.more)")).length === 17 && /\+13 more/.test(await p.textContent(".sh-spine.more")));
+  ok("no sideways scroll on shelves", await p.evaluate(() => [...document.querySelectorAll(".sh-shelf")].every((e) => e.scrollWidth <= e.clientWidth + 1)));
+  ok("boxes: 1 shelf with +N more", (await p.$$(".sh-group.more")).length === 1 && /\+/.test(await p.textContent(".sh-group.more")));
+  if (shots) await p.screenshot({ path: "/tmp/shelf-full.png", fullPage: true });
+  await p.click(".sh-spine.more"); await p.waitForTimeout(150);
+  ok("more spine opens Albums", (await p.evaluate(() => location.hash)) === "#albums");
+  await p.evaluate(() => { for (let i = 0; i < 29; i++) remove("a_f" + i); for (let i = 0; i < 7; i++) remove("b_f" + i); go("home"); }); await p.waitForTimeout(150);
   // Switch to Safe in Options
   await p.evaluate(() => go("options")); await p.waitForTimeout(150);
   await p.click("[data-act=shelfStyle][data-v=safe]"); await p.waitForTimeout(150);
