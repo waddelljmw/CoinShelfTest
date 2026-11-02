@@ -245,6 +245,7 @@ Last updated November 2, 2026. This file is the plan and the progress checklist.
 - **Box page:** with spots, same grid as today; without spots, a list of its coins plus the What's inside note. Search and missing-wheat still work.
 - **Shelf drawings** (`shelf.js`, `styles.css`): black box as today; cardboard box (brown, tape strip); plastic box in its color; the clear one is see-through with coin shapes inside. **Display box:** a flat wood-framed glass case showing a few coin circles, on its own shelf.
 - **Album spine colors by brand** (replace the blue/red/green cycle): Whitman blue (current blue), Littleton green (current green), Dansco dark brown, H.E. Harris beige (dark lettering). "Other" albums: pick a color when adding or editing the album (same color list as boxes, default red), saved as `color`.
+- **Your Coins filters:** add a **Holder** filter (each choice, plus every custom "Other" text he typed, like "Ziplock bag", as its own entry) and a **Kept in** filter (each album, box, stack). Search also matches holder text and the Kept in name.
 - **Backup, CSV, snapshot, insurance report:** carry the new box fields; CSV "Kept in" column; snapshot shows box names.
 - Tests: old box converts with spots on and black look; capsule coin in a box; picking a box clears an album; box without spots has no row/slot; old "2x2"/"Flip" labels; spine color per brand. Version → 0.25.0.
 
