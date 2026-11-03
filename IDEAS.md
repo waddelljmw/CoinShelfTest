@@ -15,7 +15,7 @@ Nothing here is promised or scheduled. When you mention a new idea, I'll ask if 
     - **Coin Value**: the value dropdowns live here; the Insurance Report may move here
     - **My Stacks**
     - **PCGS Photograde**
-    - Options stays last. Plan it on Opus; it only moves buttons, so it can be built on Sonnet after.
+    - Options stays last. **Planned in PLAN.md Step 9.0.**
 8. **Demo mode.** A built-in sample collection (lots of coins, rolls, 1 oz and 10 oz bars, a black box of wheat cents in 2x2 flips, partly filled albums) so a friend can try the app without seeing your real coins. Show off **photo fill** here (e.g. a ready-made example of a coin filled in from its photos), even while it's locked in the real app. Built from your backup plus made-up fill-in, kept separate from your real data. Best done once the features exist. Also make a one-page **infographic** of the app's key features, shown in the demo (and maybe the walkthrough, idea 3).
 9. **Tablet layout.** Make the pages fit a tablet screen well.
 10. **Coin ID numbers.** An easy numbering/lettering system giving every coin a unique ID you can write on its flip, then search the ID to see where it is. **Planned in PLAN.md Step 7.0** (type code + number, e.g. MD-012).
