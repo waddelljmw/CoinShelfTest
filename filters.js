@@ -49,6 +49,7 @@ function extraFilter(c) {
     if (vT != null && v > vT) return false;
   }
   if ((f.probs || []).length && !f.probs.some((k) => fltProb(c, k))) return false;
+  if (f.inc && !isIncomplete(c)) return false;
   return true;
 }
 
@@ -68,10 +69,11 @@ function fltChips() {
   if (f.gCustom) add("grade", "Grade: " + f.gCustom);
   else if (f.gFrom || f.gTo) add("grade", "Grade " + (f.gFrom || "any") + " to " + (f.gTo || "any"));
   if (f.vFrom || f.vTo) add("value", "Value " + (f.vFrom ? "$" + f.vFrom : "…") + "–" + (f.vTo ? "$" + f.vTo : "…"));
+  if (f.inc) add("inc", "Missing grade or cost");
   if ((f.probs || []).length) add("probs", FLT_PROBS.filter(([k]) => f.probs.includes(k)).map(([, l]) => l).join(" or "));
   return out;
 }
-const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"], value: ["vFrom", "vTo"], probs: ["probs"] };
+const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"], value: ["vFrom", "vTo"], probs: ["probs"], inc: ["inc"] };
 
 // Everything between the search box and the sort line: Filter / Select buttons, chips, the count, and the Select bar.
 function coinsControls(base, list) {
@@ -135,6 +137,7 @@ function openFilterPanel() {
     <div class="grid2">${field("Grade from", sel("gFrom", "Any", GRADES, f.gFrom || ""))}${field("Grade to", sel("gTo", "Any", GRADES, f.gTo || ""))}</div>
     ${customGrades.length ? field("Custom grade", sel("gCustom", "Any", customGrades, f.gCustom || "")) : ""}
     <div class="grid2">${field("Value from ($)", `<input type="number" inputmode="decimal" data-flt="vFrom" value="${esc(f.vFrom || "")}">`)}${field("Value to ($)", `<input type="number" inputmode="decimal" data-flt="vTo" value="${esc(f.vTo || "")}">`)}</div>
+    ${field("Missing information", sel("inc", "Any", [["1", "Missing grade or cost"]], f.inc || ""))}
     <div class="f"><span>Problems and errors <span class="muted small">(any of the ticked)</span></span>${FLT_PROBS.map(([k, l]) => `<label class="chk"><input type="checkbox" data-flt-prob="${k}" ${(f.probs || []).includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div>
     <div class="btn-row" style="margin-top:10px"><button class="btn primary" data-act="fltApply">Show results</button><button class="btn" data-act="fltClear">Clear all</button></div>
     <div class="card" style="margin-top:12px"><b>Save this filter</b><div class="rowline" style="gap:8px"><input type="text" data-flt-name placeholder="e.g. Inherited silver" maxlength="40"><button class="btn" data-act="fltSave">Save</button></div></div>`);
@@ -147,7 +150,7 @@ function fltRead() {
   if (v("metal") !== undefined) listState.metal = v("metal");
   if (v("cert") !== undefined) listState.cert = v("cert");
   const f = {};
-  ["group", "stack", "biz", "holder", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "vFrom", "vTo"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
+  ["group", "stack", "biz", "holder", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "vFrom", "vTo", "inc"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
   const probs = [...document.querySelectorAll("#sheet [data-flt-prob]:checked")].map((e) => e.dataset.fltProb);
   if (probs.length) f.probs = probs;
   listState.f = f;
