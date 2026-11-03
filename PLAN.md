@@ -1,8 +1,8 @@
 # Coin Cabinet: Master Plan
 
-Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
+Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 15, Step 8.4 review of Phase 8):** switch to **Opus**, start a new chat, paste the start prompt from the **Starting a new chat** line below
+**Next session starts here (session 15, Step 8.3b shipping defaults, Going as, Was kept in):** switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below
 
 ## Session plan (one chat per session, done in order)
 
@@ -10,21 +10,23 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 
 | # | Model | What | Ends with |
 |---|---|---|---|
-| 1 | Sonnet | Step 4.3 holders, Kept in, storage and display boxes, album colors | ✓ done |
-| 2 | Opus | Step 4.5 review of 4.3, fix what it finds | ✓ merged |
-| 3 | Sonnet | Step 4.3b filters, saved filters, select and move many | ✓ merged |
-| 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | ✓ merged |
-| 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | ✓ merged v0.29.0 |
-| 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | ✓ plan PR |
-| 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | ✓ merged v0.30.0 (PR #71) |
-| 8 | Opus | Phase review (4.3b through 7), then merge | ✓ reviewed, 6 fixes, merged |
-| 9 | Sonnet | Step 4.6 add many identical coins at once | ✓ merged v0.31.0 (PR #72) |
-| 10 | Opus | Step 8.0 plan Seller Mode (business info, reports, tax documents) | ✓ plan PR |
-| 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | ✓ merged v0.31.1 (PR #74) |
-| 12 | Sonnet | Step 8.1 Seller Mode switch, Business stock, business profile | ✓ merged v0.32.0 (PR #76) |
-| 13 | Sonnet | Step 8.2 dealer display case and shows | ✓ merged v0.33.0 (PR #79) |
-| 14 | Sonnet | Step 8.3 pricing help and reports | ✓ merged v0.34.0 (PR #82) |
-| 15 | Opus | Step 8.4 review of Phase 8, then merge | |
+| 1 | Sonnet | Step 4.3 holders, Kept in, storage and display boxes, album colors | ✅ done |
+| 2 | Opus | Step 4.5 review of 4.3, fix what it finds | ✅ merged |
+| 3 | Sonnet | Step 4.3b filters, saved filters, select and move many | ✅ merged |
+| 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | ✅ merged |
+| 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | ✅ merged v0.29.0 |
+| 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | ✅ plan PR |
+| 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | ✅ merged v0.30.0 (PR #71) |
+| 8 | Opus | Phase review (4.3b through 7), then merge | ✅ reviewed, 6 fixes, merged |
+| 9 | Sonnet | Step 4.6 add many identical coins at once | ✅ merged v0.31.0 (PR #72) |
+| 10 | Opus | Step 8.0 plan Seller Mode (business info, reports, tax documents) | ✅ plan PR |
+| 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | ✅ merged v0.31.1 (PR #74) |
+| 12 | Sonnet | Step 8.1 Seller Mode switch, Business stock, business profile | ✅ merged v0.32.0 (PR #76) |
+| 13 | Sonnet | Step 8.2 dealer display case and shows | ✅ merged v0.33.0 (PR #79) |
+| 14 | Sonnet | Step 8.3 pricing help and reports | ✅ merged v0.34.0 (PR #82) |
+| 15 | Sonnet | Step 8.3b saved shipping costs, "Going as" on shows, "Was kept in" on sold coins | |
+| 16 | Opus | Step 8.4 review of Phase 8, then merge | |
+| 17 | Sonnet | Tidy batch (see **After Phase 8** below): hide values keeps melt prices, Options tidy, Home toggles, junk silver default | |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
@@ -36,19 +38,25 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 ## Fix list (small changes waiting for a session)
 
 Claude adds items here when they wait. Session 11 cleared the open ones.
-- ✓ done v0.28.0 **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
-- ✓ done v0.28.0 **Session 4:** bar **weight in grams or kilos** as well as ounces (a unit dropdown; stored as ounces, so old bars don't change).
-- ✓ done v0.28.0 **Session 4:** **roll end colors** on the shelf. Checked against bank-wrapper (ABA) colors: cents red, nickels blue, dimes green, quarters orange, **halves sand/brown (not yellow)**, dollars gray (Sacagawea too); Morgan and Peace rolls worn beige.
-- ✓ done v0.28.0 **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
-- ✓ done v0.28.0 **Wooden box look.** Add "Wooden box" to the box Look choices (storage and display). On the shelf, a wooden display box gets a solid wood case (today every display box is drawn as a wood-framed glass case). Fits Session 4.
-- ✓ done v0.29.0 **Session 5: ask before auto-filling a box spot.** When a box with numbered spots is picked, ask "Choose the spot yourself?" Yes: nothing filled in, you pick the real spot. No: the next free spot is filled in as today. Works for single coins now and for the add-many idea (IDEAS 12) later.
-- ✓ done v0.31.1 **Session 11: albums by date.** A **"Sort by date"** button where albums are reordered. Series stay together; each series (or single album) is placed by its first coin type's first year (e.g. Morgan 1878 before Lincoln 1909; Washington 1932, Franklin 1948, Kennedy 1964). You can still move any album after.
-- ✓ done v0.31.1 **Session 11: Notes above Purchase** on a coin's page.
-- ✓ done v0.31.1 **Session 11: proof with no value.** A 1962 Franklin proof showed blank (melt used). The Red Book table starts at PR-63, so a proof with no grade or below PR-63 gets nothing. Show the lowest listed proof value marked "at least" (like the circulated "below" case), or a short note "Red Book starts at PR-63"; check the no-grade case too.
-- ✓ done v0.31.1 **Session 11: smaller Home chips.** My collection, Inherited, My Silver Stack become thin pills in **one row you swipe left/right**; turned-off ones look gray. Must still be easy to spot.
+- ✅ done v0.28.0 **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
+- ✅ done v0.28.0 **Session 4:** bar **weight in grams or kilos** as well as ounces (a unit dropdown; stored as ounces, so old bars don't change).
+- ✅ done v0.28.0 **Session 4:** **roll end colors** on the shelf. Checked against bank-wrapper (ABA) colors: cents red, nickels blue, dimes green, quarters orange, **halves sand/brown (not yellow)**, dollars gray (Sacagawea too); Morgan and Peace rolls worn beige.
+- ✅ done v0.28.0 **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
+- ✅ done v0.28.0 **Wooden box look.** Add "Wooden box" to the box Look choices (storage and display). On the shelf, a wooden display box gets a solid wood case (today every display box is drawn as a wood-framed glass case). Fits Session 4.
+- ✅ done v0.29.0 **Session 5: ask before auto-filling a box spot.** When a box with numbered spots is picked, ask "Choose the spot yourself?" Yes: nothing filled in, you pick the real spot. No: the next free spot is filled in as today. Works for single coins now and for the add-many idea (IDEAS 12) later.
+- ✅ done v0.31.1 **Session 11: albums by date.** A **"Sort by date"** button where albums are reordered. Series stay together; each series (or single album) is placed by its first coin type's first year (e.g. Morgan 1878 before Lincoln 1909; Washington 1932, Franklin 1948, Kennedy 1964). You can still move any album after.
+- ✅ done v0.31.1 **Session 11: Notes above Purchase** on a coin's page.
+- ✅ done v0.31.1 **Session 11: proof with no value.** A 1962 Franklin proof showed blank (melt used). The Red Book table starts at PR-63, so a proof with no grade or below PR-63 gets nothing. Show the lowest listed proof value marked "at least" (like the circulated "below" case), or a short note "Red Book starts at PR-63"; check the no-grade case too.
+- ✅ done v0.31.1 **Session 11: smaller Home chips.** My collection, Inherited, My Silver Stack become thin pills in **one row you swipe left/right**; turned-off ones look gray. Must still be easy to spot.
 
 
-**Starting a new chat** (fast version, no whole-plan read, no test run): paste *"Open my repo waddelljmw/CoinShelfTest. Read CLAUDE.md and IDEAS.md. From PLAN.md read only the "Next session starts here" line, the session table and the next unchecked step, not the whole file. Do a quick check with no test run: last PR merged, checklist ticked, Fix list empty. Fix any gap. Tell me which model the next session needs and which model you are (if they differ, tell me to switch and stop). Then say in 1–2 lines what the session will do and wait for my go."*
+**Starting a new chat** (fast version, no whole-plan read, no test run): paste *"Open my repo waddelljmw/CoinShelfTest. Read CLAUDE.md and IDEAS.md. From PLAN.md read only the "Next session starts here" line, the session table and the next unchecked step, not the whole file. Do a quick check with no test run: last PR merged, checklist ticked, Fix list empty, no open "Problem:" bug reports on GitHub. Fix any gap. Tell me which model the next session needs and which model you are (if they differ, tell me to switch and stop). Then say in 1–2 lines what the session will do and wait for my go."*
+
+## After Phase 8 (session 17, Sonnet; kept here so the Fix list stays empty for the start check)
+- **Hide values keeps melt prices.** The eye button should not hide current spot/melt prices (they aren't your coin values).
+- **Options tidy.** Put Options in collapsible sections that look cleaner; make **Red Book values** its own collapsible section.
+- **More Home toggles.** Turn on and off more Home sections: Recently added, Recently sold, value over time, melt value (as well as melt and sale info today).
+- **Junk silver in My Silver Stack by default** for new coins, with a switch in Options. Stored coins don't change.
 
 ## What you want, in short
 
@@ -72,19 +80,19 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 
 ## Phase 0: Review fixes — DONE ✅
 
-- [x] **0.1** Review leftovers (album years keep your spots, coins re-link after date edits, snapshot hides "Most I'd pay", melt message, New list sheet)
-- [x] **0.2** Coin type is locked once saved, with "Wrong type? Re-add it"
-- [x] **0.3** Date limits (no coins from the future; wants up to 5 years ahead)
-- [x] **0.4** Safety review and fixes
+- [x] ✅ **0.1** Review leftovers (album years keep your spots, coins re-link after date edits, snapshot hides "Most I'd pay", melt message, New list sheet)
+- [x] ✅ **0.2** Coin type is locked once saved, with "Wrong type? Re-add it"
+- [x] ✅ **0.3** Date limits (no coins from the future; wants up to 5 years ahead)
+- [x] ✅ **0.4** Safety review and fixes
 
 **Added along the way (also done):**
-- [x] Album name shows on a coin's page
-- [x] Albums with several coin types (e.g. Washington silver + clad), and type-set albums
-- [x] Proof spots in albums (None / S proofs only / All proofs)
-- [x] Proof switch on coins, with proof-only mint marks (e.g. West Point W)
-- [x] Every Lincoln cent type through 2026 (VDB, 1922-D, 1943 steel, 2009 designs) and modern Morgan and Peace dollars
-- [x] Album lookup: type a brand and number and it fills in the album (74 albums from Whitman, Dansco, Littleton and H.E. Harris), with exact dates and designs for every coin series in it
-- [x] Second safety review and fixes
+- [x] ✅ Album name shows on a coin's page
+- [x] ✅ Albums with several coin types (e.g. Washington silver + clad), and type-set albums
+- [x] ✅ Proof spots in albums (None / S proofs only / All proofs)
+- [x] ✅ Proof switch on coins, with proof-only mint marks (e.g. West Point W)
+- [x] ✅ Every Lincoln cent type through 2026 (VDB, 1922-D, 1943 steel, 2009 designs) and modern Morgan and Peace dollars
+- [x] ✅ Album lookup: type a brand and number and it fills in the album (74 albums from Whitman, Dansco, Littleton and H.E. Harris), with exact dates and designs for every coin series in it
+- [x] ✅ Second safety review and fixes
 
 ---
 
@@ -93,30 +101,30 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 **Step 1.0. Foundation. Model: Opus** — DONE ✅
 *Say this:* "Do Step 1.0 of the plan."
 
-- [x] **PLAN.md** (this file): the plan plus a checklist Claude ticks off.
-- [x] **CLAUDE.md:** your working rules, read automatically by every new Claude session (short replies, model advice, test before publishing, merge and branch links).
-- [x] **Tests saved in the repo:** all 42 tests now live in the `tests` folder, with one command to run them all (`node tests/run-all.js`). Any future session can check that nothing broke.
-- [x] **Version number:** shown at the bottom of Options and raised with each merge, so you can tell which version your phone has.
-- [x] **README** in plain words, for you and your partner.
-- [x] **Coin catalog in its own folder** (`catalog/`): coin types and dates, Red Book prices, and the album list. The ancient-coins app can swap in its own catalog later.
-- [x] Merged
+- [x] ✅ **PLAN.md** (this file): the plan plus a checklist Claude ticks off.
+- [x] ✅ **CLAUDE.md:** your working rules, read automatically by every new Claude session (short replies, model advice, test before publishing, merge and branch links).
+- [x] ✅ **Tests saved in the repo:** all 42 tests now live in the `tests` folder, with one command to run them all (`node tests/run-all.js`). Any future session can check that nothing broke.
+- [x] ✅ **Version number:** shown at the bottom of Options and raised with each merge, so you can tell which version your phone has.
+- [x] ✅ **README** in plain words, for you and your partner.
+- [x] ✅ **Coin catalog in its own folder** (`catalog/`): coin types and dates, Red Book prices, and the album list. The ancient-coins app can swap in its own catalog later.
+- [x] ✅ Merged
 
 **Step 1.1. Save on your phone, not in Claude. Model: Opus** — DONE ✅
 
-- [x] **Storage:** when the app runs on its own, coins, photos, albums and lists are saved on the device, so it works with no internet.
-- [x] **Backup and Restore** (Options): one file with everything, photos included. Restore adds a backup without deleting anything. Home reminds you if your last backup is over 30 days old.
-- [x] **Moving your data:** in the Claude version, Options → Backup and restore saves the file you'll restore into the phone app in Step 1.2.
-- [x] Merged
+- [x] ✅ **Storage:** when the app runs on its own, coins, photos, albums and lists are saved on the device, so it works with no internet.
+- [x] ✅ **Backup and Restore** (Options): one file with everything, photos included. Restore adds a backup without deleting anything. Home reminds you if your last backup is over 30 days old.
+- [x] ✅ **Moving your data:** in the Claude version, Options → Backup and restore saves the file you'll restore into the phone app in Step 1.2.
+- [x] ✅ Merged
 - *The "Update ready" banner and the backup reminder before big updates come with Step 1.2.*
 
 **Step 1.2. Put it online and installable. Model: Sonnet.** — DONE ✅ (live at https://waddelljmw.github.io/CoinShelfTest/)
 
-- [x] App icon, install files and offline copy (works with no internet).
-- [x] "A new version is ready" bar with Update now, suggesting a backup first.
-- [x] Files save as normal phone downloads.
-- [x] Merged
-- [x] GitHub Pages turned on (repo made public; coins stay on the phone)
-- [x] Installed on your phone and coins restored from a backup
+- [x] ✅ App icon, install files and offline copy (works with no internet).
+- [x] ✅ "A new version is ready" bar with Update now, suggesting a backup first.
+- [x] ✅ Files save as normal phone downloads.
+- [x] ✅ Merged
+- [x] ✅ GitHub Pages turned on (repo made public; coins stay on the phone)
+- [x] ✅ Installed on your phone and coins restored from a backup
 
 - **Hosting:** free hosting on GitHub Pages from your repo, at a web address like `waddelljmw.github.io/CoinShelfTest`.
 - **Install:** "Add to Home screen" on Android installs it like a normal app: icon, full screen, works offline.
@@ -126,15 +134,15 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 
 **Step 1.3. Sharing with your partner. Model: Sonnet.** — DONE ✅
 
-- [x] Options → **Share the app** sends the app's link through the phone's Share menu. Your partner installs it and gets their own separate collection.
-- [x] **Share a snapshot** opens the Share menu with the view-only file (Messages, email, Drive...).
+- [x] ✅ Options → **Share the app** sends the app's link through the phone's Share menu. Your partner installs it and gets their own separate collection.
+- [x] ✅ **Share a snapshot** opens the Share menu with the view-only file (Messages, email, Drive...).
 - A shared, live collection would need an online account service. That's its own project, to decide later.
 
 **Step 1.4. Review. Model: Opus.** — DONE ✅
 
-- [x] Fixed: a photo on a coin you hadn't saved yet could be deleted if the app was open in another window.
-- [x] Fixed: restoring a backup replaced your value history and settings; now they're combined.
-- [x] Fixed: "Update now" could throw away a coin you were halfway through typing.
+- [x] ✅ Fixed: a photo on a coin you hadn't saved yet could be deleted if the app was open in another window.
+- [x] ✅ Fixed: restoring a backup replaced your value history and settings; now they're combined.
+- [x] ✅ Fixed: "Update now" could throw away a coin you were halfway through typing.
 - Still open: snapshot photos show blank (your paused item, Phase 6). Very large backups (about 1,000+ photos) may get too big for one file; to handle when it matters.
 
 ---
@@ -142,14 +150,14 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 ## Phase 2: Track everything you own
 
 **Step 2.1. How a coin is held. Model: Opus** (new data fields), then **Sonnet** for screens. — DONE ✅
-- [x] Merged (v0.15.0)
+- [x] ✅ Merged (v0.15.0)
 - **Holder:** album, slab, hard case, capsule, mint box with COA, 2x2, flip, envelope, roll, loose, or other.
 - **Slab extras:** a CAC sticker checkbox (green or gold) with a CAC badge on the coin.
 - **COA:** a "COA included" checkbox, plus a note about the box and packaging.
 - **Speed:** quick-add remembers your last holder and source.
 
 **Step 2.2. Coin record upgrade. Model: Opus** (new data fields), then **Sonnet** for screens. — DONE ✅
-- [x] Merged (v0.16.0), plus tracking number with a Track package link and Mark as received for coins on the way
+- [x] ✅ Merged (v0.16.0), plus tracking number with a Track package link and Mark as received for coins on the way
 *Why it comes first:* the steps after it (rolls, sets, the new form) are built on these fields. Deciding how data is stored before building screens means nothing has to be redone.
 - **Status:** In collection, On the way (bought or won, not here yet), For sale, Sold, Gone (traded, gifted or lost; left out of totals). Plus an **Upgrade wanted** checkbox. Inherited coins can't be set to For sale. Coins you already have become "In collection" automatically.
 - **Purchase details:** date, seller (fills in from past entries), where (show, eBay, Whatnot, shop, inherited), price, tax, shipping and fees, then a **total cost** worked out for you. Plus payment method, receipt number and a receipt photo.
@@ -160,7 +168,7 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - **Catalog number** (PCGS or NGC), shown only for slabs and copied from the label. Phase 3 uses it to open that exact coin in the PCGS Photo Guide.
 
 **Step 2.3. A cleaner Add coin page. Model: Sonnet.** — DONE ✅ (merged, v0.17.0). Done: "What is it?" (US coin, or medal/token/foreign); sets, rolls and bullion choices come with 2.4 and 2.7.
-- [x] Merged
+- [x] ✅ Merged
 *Made for anyone, even people who aren't good with technology.*
 - The page asks **"What is it?"** first (US coin, set, roll, medal or token, foreign, bullion) and only shows the fields that matter.
 - Page one is just the basics: type, year, mint and grade.
@@ -168,7 +176,7 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - Sale details aren't on this page at all. They open from a **Mark as sold** button (see Phase 7).
 
 **Step 2.4. Sets and rolls. Model: Sonnet.** — DONE ✅ (merged, v0.18.0; also single coins with no value, price or melt count at face value)
-- [x] Merged
+- [x] ✅ Merged
 *Start from PR #29 (branch `step-2.2-sets-rolls`, built before this plan changed): reuse its good parts, add what's new here, then close #29.*
 - **Proof and mint sets:** one entry with year, type and packaging (hard plastic or cellophane). Silver proof sets get melt automatically.
 - **Rolls:** pick the coin type (e.g. Kennedy half 90%, 40% or clad); the metal comes from the catalog.
@@ -180,21 +188,21 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - **Cases with several coins** (e.g. 3 steel wheat cents): one case, with each coin still counted.
 
 **Step 2.5. Coins outside the catalog. Model: Sonnet.** — DONE ✅ (merged, v0.19.0)
-- [x] Merged
+- [x] ✅ Merged
 - Done: **Kind** (Commemorative, Medal, Token, Foreign coin, Other) so they group on Your Coins; **Used before** list so metal and weight are typed once; **grams + purity** helper that works out ounces.
 - Commemoratives (like the 1993 James Madison), medals, casino tokens with a silver weight (like your .7 ozt tokens), and foreign coins.
 - Type the metal and weight once, and melt is worked out automatically.
 
 **Step 2.6. Groups you can include or leave out. Model: Sonnet.** — DONE ✅ (merged, v0.20.0)
-- [x] Merged
+- [x] ✅ Merged
 - Done: optional **Group** on each coin (Inherited and My collection work themselves out); Home has on/off chips that update value, melt, cost and gain at once. Value history keeps the full total.
 - Tag coins with a group, like *Inherited* (never for sale) or *My collection*.
 - Turn each group on or off in your totals. Value and melt update right away.
 
 **Step 2.7. My Silver Stack and other stacks. Model: Opus** (planning) — DONE ✅ (merged, v0.21.0)
 *Say this (on Sonnet):* "Do Step 2.7 of the plan."
-- [x] Planned (Nov 1, 2026). Your choices: Silver Eagles stay with your coins; junk silver coins can join a stack; stacks count in your total, because the total should match your whole real shelf.
-- [x] Merged
+- [x] ✅ Planned (Nov 1, 2026). Your choices: Silver Eagles stay with your coins; junk silver coins can join a stack; stacks count in your total, because the total should match your whole real shelf.
+- [x] ✅ Merged
 - A "Stacks" section kept apart from coins, starting with My Silver Stack. My Gold Stack and others can be added later.
 - Bars, rounds and other silver items, each with weight, purity, maker and serial number (like your 10 oz Engelhard bar).
 - Each stack shows total ounces and melt, and counts in your overall total. A Home on/off chip per stack (like Inherited) lets you leave one out for a moment.
@@ -225,18 +233,18 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - Also gives each type its exact PCGS Photo Guide link (Phase 3), including types that need one link per design.
 
 **Step 2.10. Review. Model: Opus.** — DONE ✅ (v0.23.2; covers 2.1–2.8, before 2.9 and 2.9b)
-- [x] Fixed: older spreadsheet columns ("Serial", "Weight oz", "Details") went to the wrong fields.
-- [x] Fixed: spreadsheet export lost group, case name, gone reason and date, kind, box spot and carrier.
-- [x] Fixed: import skipped bars and rolls as "duplicates" of different items.
-- [x] Fixed: a coin brought back (Undo, Restore, Move back) could share a box spot with another coin; now it leaves the box and says so.
+- [x] ✅ Fixed: older spreadsheet columns ("Serial", "Weight oz", "Details") went to the wrong fields.
+- [x] ✅ Fixed: spreadsheet export lost group, case name, gone reason and date, kind, box spot and carrier.
+- [x] ✅ Fixed: import skipped bars and rolls as "duplicates" of different items.
+- [x] ✅ Fixed: a coin brought back (Undo, Restore, Move back) could share a box spot with another coin; now it leaves the box and says so.
 
 ---
 
 ## Phase 3: Research links. Model: Sonnet. — PARTLY DONE (v0.23.0)
 
-- [x] eBay sold links added to the Add coin form and the Coin Value page (the want list already had them).
-- [x] PCGS Photo Guide link in Add coin names the picked coin type, but it only opens a search for now.
-- [x] **Exact PCGS Photo Guide links.** Built (v0.23.1), awaiting merge. Added SLQe, ShieldNic, LibNic, Buffalo, Jefferson, Ike, SBA, SAC; Kennedy is 1964-present. Still without a link: Presidential dollars, Gold Eagles, other classic gold, Silver Eagles, commemoratives (they open the general page). Pattern: `https://www.pcgs.com/photograde#/<Code>/Grades`. Codes are PCGS's own and can't be guessed.
+- [x] ✅ eBay sold links added to the Add coin form and the Coin Value page (the want list already had them).
+- [x] ✅ PCGS Photo Guide link in Add coin names the picked coin type, but it only opens a search for now.
+- [x] ✅ **Exact PCGS Photo Guide links.** Built (v0.23.1), awaiting merge. Added SLQe, ShieldNic, LibNic, Buffalo, Jefferson, Ike, SBA, SAC; Kennedy is 1964-present. Still without a link: Presidential dollars, Gold Eagles, other classic gold, Silver Eagles, commemoratives (they open the general page). Pattern: `https://www.pcgs.com/photograde#/<Code>/Grades`. Codes are PCGS's own and can't be guessed.
   - Already sent: Roosevelt, Mercury, Barber10, Washington, SLQ (1925-30), SLQT1 (1916-17), Barber25, Seated25, Lincoln, Indian, Flying, BraidedCent, CoronetCent, ClassicCent, DrapedBustCent, LibertyCapCent, WreathCent, ChainCent, Kennedy, Franklin, Walker, Barber50, Peace, Morgan, 2.5Ind.
   - Still needed: Standing Liberty Type 2 (1917-1924), nickels (Shield, Liberty, Buffalo, Jefferson), Eisenhower, Susan B. Anthony, Sacagawea, other gold, anything else wanted. Re-check the Kennedy link (his label said "1946-Present").
   - Build: keep the codes in one small list in `catalog/data.js`; show a small PCGS link next to the grade on the coin's page and in Add coin; one link can cover several app types (e.g. Lincoln, Roosevelt, Washington, Kennedy). Standing Liberty picks by year: 1916 Type 1; 1917 by design (Type 1 if none picked); 1918-1924 Type 2; 1925-1930 recessed. Types with no link open the general Photograde page.
@@ -252,8 +260,8 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 ## Phase 4: The shelf look
 
 **Step 4.1. Design. Model: Opus.** — DONE ✅ (Nov 2, 2026)
-- [x] Picked: **two styles you can switch between** in Options → Shelf style: **Bookcase** (option A, wood with brass plaques) and **Safe** (option D, steel walls, bolts, dial and handle on a door bar, green display numbers).
-- [x] Bookcase follows the phone's night mode: **only the page background around the bookcase** (and the top bar, chips) goes dark; the bookcase itself stays the same. Safe has no night version (it's already dark).
+- [x] ✅ Picked: **two styles you can switch between** in Options → Shelf style: **Bookcase** (option A, wood with brass plaques) and **Safe** (option D, steel walls, bolts, dial and handle on a door bar, green display numbers).
+- [x] ✅ Bookcase follows the phone's night mode: **only the page background around the bookcase** (and the top bar, chips) goes dark; the bookcase itself stays the same. Safe has no night version (it's already dark).
 - Mockup to copy: `design/shelf-mockup.html` (open with `?v=A`, `?v=A&night=1`, `?v=D`). Shelves top to bottom: totals plaques + metal prices; albums (spines with title + years, green check when complete, series kept together in his order); stacks, My Coins, rolls; 2x2 boxes (filled/total) and sets. Sample numbers in it are made up.
 - No door-opening animation.
 
@@ -263,17 +271,17 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - **Tapping** an item opens that section. The graphics are original drawings, so there are no copyright issues and the app stays fast.
 
 **Step 4.2. Build it. Model: Sonnet.** Then you check it on your phone.
-- [x] Built in PR #52 (branch `step-4.2-shelf-home`, v0.24.0, not merged yet): shelf Home in `shelf.js`, Bookcase/Safe switch in Options, test `tests/shelf.js`.
-- [x] Merged (PR #52, then fixes in #53, v0.24.2)
-- [x] **Full-shelf fix (done in v0.24.1, PR #52; was: do this next, on the same branch/PR #52):** now a full shelf scrolls sideways with no sign there's more. Change to: album spines wrap onto **up to 2 album shelves** (about 18 spines, each row with its own wooden board); if there are more, the last spot is a **"+N more"** spine that opens the Albums page. Boxes and sets row: **1 shelf**, then "+N more" opening 2x2 Storage Boxes. Stacks row: same idea if it overflows. Series stay together in his order. Add checks to `tests/shelf.js` (e.g. 30 albums → 2 shelves + "+N more"), take one screenshot, bump to v0.24.1 in the three places.
+- [x] ✅ Built in PR #52 (branch `step-4.2-shelf-home`, v0.24.0, not merged yet): shelf Home in `shelf.js`, Bookcase/Safe switch in Options, test `tests/shelf.js`.
+- [x] ✅ Merged (PR #52, then fixes in #53, v0.24.2)
+- [x] ✅ **Full-shelf fix (done in v0.24.1, PR #52; was: do this next, on the same branch/PR #52):** now a full shelf scrolls sideways with no sign there's more. Change to: album spines wrap onto **up to 2 album shelves** (about 18 spines, each row with its own wooden board); if there are more, the last spot is a **"+N more"** spine that opens the Albums page. Boxes and sets row: **1 shelf**, then "+N more" opening 2x2 Storage Boxes. Stacks row: same idea if it overflows. Series stay together in his order. Add checks to `tests/shelf.js` (e.g. 30 albums → 2 shelves + "+N more"), take one screenshot, bump to v0.24.1 in the three places.
 
 ---
 
 **Step 4.3. Holders, storage and display boxes. Model: Sonnet** (planned on Opus, Nov 2, 2026). Opus review (4.5) before merging, because it changes how boxes are saved.
 *Session 1.*
-- [x] Planned
-- [x] Built (v0.25.0, branch `step-4.3-holders-storage`, PR open, **not merged** until the Opus review, session 2)
-- [x] Merged (v0.25.2, Nov 2, 2026, after the Opus review)
+- [x] ✅ Planned
+- [x] ✅ Built (v0.25.0, branch `step-4.3-holders-storage`, PR open, **not merged** until the Opus review, session 2)
+- [x] ✅ Merged (v0.25.2, Nov 2, 2026, after the Opus review)
 
 *Two separate things for every coin:* **Holder** = what is right around the coin (flip, capsule, slab). **Kept in** = the container that holder sits in (album, storage box, display box, stack). Example: wheat cent · 2x2 cardboard flip · kept in Black box 1.
 
@@ -295,8 +303,8 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 
 **Step 4.3b. Better filters for Your Coins. Model: Sonnet.** After 4.3 is merged (it needs Holder and Kept in).
 *Say this (on Sonnet):* "Do Step 4.3b of the plan."
-- [x] Built (v0.27.0, branch `step-4.3b-filters`, new file `filters.js`; coin type and Show also stay as the chips and tabs above the list)
-- [x] Merged (v0.27.0, Nov 2, 2026)
+- [x] ✅ Built (v0.27.0, branch `step-4.3b-filters`, new file `filters.js`; coin type and Show also stay as the chips and tabs above the list)
+- [x] ✅ Merged (v0.27.0, Nov 2, 2026)
 - **One "Filter" button** opens a panel with every filter; the ones in use show as chips above the list (tap × to remove one, "Clear all" to reset). Search and sort stay where they are. The count shows "12 of 340 coins".
 - **Filters** (each one optional; they combine):
   - Already there, moved into the panel: coin type, metal, raw or certified, status.
@@ -312,8 +320,8 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 
 **Step 4.4. Arrange the Home shelf. Model: Sonnet.** After 4.3b is merged.
 *Say this (on Sonnet):* "Do Step 4.4 of the plan."
-- [x] Built (v0.28.0, branch `step-4.4-arrange-shelf`, test `tests/step44.js`; also did the Session 4 Fix list items)
-- [x] Merged (v0.28.0, Nov 2, 2026)
+- [x] ✅ Built (v0.28.0, branch `step-4.4-arrange-shelf`, test `tests/step44.js`; also did the Session 4 Fix list items)
+- [x] ✅ Merged (v0.28.0, Nov 2, 2026)
 - **Shelves:** top totals (always first, can't move or hide), Albums, Stacks and coins, Storage boxes, Display boxes, Sets (sets get their own shelf).
 - **Options → Home shelf:** each shelf has on/off, up/down arrows (no dragging, easier on a phone), and a pin choice: **None**, **Pin to top** (always right under the totals; several pinned shelves keep their order) or **Lock in place** (stays at its position number when others move).
 - **Hide single items:** a "Show on Home shelf" switch on each album page and box page. Hidden shelves and items still count in your totals; only the drawing hides. A small "N hidden" note in Options with "Show all".
@@ -322,13 +330,13 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 
 **Step 4.5. Review. Model: Opus.** Before 4.3 merges (it reshapes saved boxes), then a short look at 4.4.
 *Say this (on Opus):* "Do Step 4.5 of the plan."
-- [x] Review of 4.3 done (Nov 2, 2026)
-- [x] Box columns added (v0.26.0, Nov 2, 2026): Edit box → "Spots run in" Rows or Columns
-- [x] Short look at 4.4 (session 8: odd old shelf settings cause no errors)
+- [x] ✅ Review of 4.3 done (Nov 2, 2026)
+- [x] ✅ Box columns added (v0.26.0, Nov 2, 2026): Edit box → "Spots run in" Rows or Columns
+- [x] ✅ Short look at 4.4 (session 8: odd old shelf settings cause no errors)
 
 **Step 4.6. Add many identical coins at once (IDEAS 12). Model: Sonnet. Planned on Opus (session 6).**
-- [x] Built (v0.31.0, branch `step-4.6-add-many`, file `many.js`, test `tests/many46.js`). Tax, shipping and fees are split across the coins the same way as a group price. Quantity stays 1 on each coin. Not offered when an album is picked.
-- [x] Merged (v0.31.0, Nov 2, 2026, PR #72)
+- [x] ✅ Built (v0.31.0, branch `step-4.6-add-many`, file `many.js`, test `tests/many46.js`). Tax, shipping and fees are split across the coins the same way as a group price. Quantity stays 1 on each coin. Not offered when an album is picked.
+- [x] ✅ Merged (v0.31.0, Nov 2, 2026, PR #72)
 - On Add coin, a **How many?** box (default 1, up to 100). Everything you fill in (type, year, mint, grade, holder, notes) is copied to each coin. **Each saves as its own coin with its own ID** (e.g. MD-013 to MD-024).
 - **Price:** each time you choose **per coin** or **total for the group** (split evenly; any leftover cent goes on the first coin).
 - **Photos:** one photo shared by all. You can change any single coin's photo later. Deleting one coin must **never** delete a photo another coin still uses.
@@ -356,7 +364,7 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 *Planned in session 6 (Opus). The app already has: a For sale status, and **Mark as sold** with date, price, shipping, insurance, where, buyer, and sold results on Home.*
 
 **Step 7.0. Coin ID numbers (IDEAS 10). Built first in session 7, checked by the session 8 Opus review before merge.**
-- [x] Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
+- [x] ✅ Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
 - Every item gets an ID you can write on its flip: a **type code + number**, e.g. **MD-012** (Morgan dollar #12). Numbers count up separately for each type (MD-001, MD-002…; PD-001 for Peace dollars). 3 digits, growing to 4 if a type passes 999.
 - Codes come from a short list in `catalog/idcodes.js` (one per coin type; also bars, rounds, sets, rolls, medals/tokens, foreign). Look up the type names already in the catalog; don't invent new types. Show him the code list in the PR so he can change any code.
 - **Existing coins all get IDs now**, in the order they were added. Done on read, so old backups still restore and get numbered too.
@@ -365,13 +373,13 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - **Shown:** on the coin page (near the label), in My Coins search (type "MD-012"), in CSV export, Backup and the insurance report, and on the sale record when sold.
 
 **Step 7.1. For sale and asking price.**
-- [x] Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
+- [x] ✅ Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
 - An **Asking price** field shows when status is For sale (inherited coins still can't be For sale).
 - A **For Sale list**: one tap from Home (and the For sale filter on My Coins) showing each coin, its asking price, what you paid, and the profit if it sells at that price.
 - The asking price fills in "Sold for" when you tap Mark as sold (you can change it).
 
 **Step 7.2. A fuller Mark as sold form.**
-- [x] Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
+- [x] ✅ Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
 - Always shown: how many (for rolls/quantities), date, **sold for**, where.
 - **More details** (closed until tapped): shipping you charged the buyer, shipping you paid (label), insurance, **platform fees**, sales tax collected, payment method (same list as buying), buyer, order number, tracking number (with the Track package link).
 - **Where sold** choices: Whatnot, eBay, eBay Live, Coin show, **Coin shop**, **Private sale**, **Facebook / social**, **Auction house**, **Pawn shop**, Other. Old sales keep their saved "where" (convert on read).
@@ -379,7 +387,7 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - Sales tax collected is **not** profit (it's passed to the state); shown but left out of profit.
 
 **Step 7.3. Profit.**
-- [x] Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
+- [x] ✅ Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
 - Worked out as you type in the form: **sold for + shipping charged − what you paid (total cost) − fees − shipping paid − insurance**.
 - Shown on the sold coin's page and in Sold results on Home (total profit and margin %). Inherited coins stay out of sold results, as today.
 - Selling part of a roll or quantity splits the cost the same way the coin is split today.
@@ -393,11 +401,11 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 ## Phase 8: Seller Mode (priority 2)
 
 **Step 8.0. Plan it together. Model: Opus.**
-- [x] Planned (session 10, Nov 2, 2026). Your choices are below.
+- [x] ✅ Planned (session 10, Nov 2, 2026). Your choices are below.
 - **A note on taxes:** Claude isn't a tax advisor. The app organizes your records; a tax professional should review them before you file.
 
 **Step 8.1. Seller Mode switch, Business stock, business profile. Model: Sonnet.** (session 12)
-- [x] Merged (v0.32.0, Nov 2, 2026, PR #76; file `seller.js`, test `tests/seller81.js`)
+- [x] ✅ Merged (v0.32.0, Nov 2, 2026, PR #76; file `seller.js`, test `tests/seller81.js`)
 - **Options → Seller Mode** on/off. Off: nothing about selling business shows (Business stock, dealer cases, shows, reports hide; data is kept, never deleted).
 - **Business stock tag:** every item is Personal (default) or Business (`biz: true`; missing = Personal, convert on read). Add coin gets a Personal/Business choice when Seller Mode is on; Add many (4.6) copies it to each coin.
 - **Separate totals:** Business stock never counts in your collection value. Home shows a small Business plaque (stock value, cost, count) only when Seller Mode is on. My Coins filter gets Personal/Business.
@@ -405,7 +413,7 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 - **Business profile** (Options): business name, EIN or tax ID, address, state sales-tax permit number. Saved in `settings.seller.profile`, stays on the phone, goes into Backup.
 
 **Step 8.2. Dealer display case and shows. Model: Sonnet.** (session 13)
-- [x] Merged (v0.33.0, Nov 2, 2026, PR #79; file `dealer.js`, test `tests/seller82.js`). Inherited coins can't go in a for-sale case; picking a show also fills in "Where".
+- [x] ✅ Merged (v0.33.0, Nov 2, 2026, PR #79; file `dealer.js`, test `tests/seller82.js`). Inherited coins can't go in a for-sale case; picking a show also fills in "Where".
 - **Dealer case:** a new box type next to storage and display boxes (`type: "dealer"`), drawn on the shelf like a glass-top show case. Spots on or off, like other boxes. It can be a permanent home or used just for shows.
 - **Moving in:** each dealer case has a **"For sale case"** switch (on by default; Edit case, `forSale`). On: coins moved in switch to **For sale** (inherited coins are skipped and listed). Off: coins keep their status (a display-only case). Turning the switch off later doesn't change coins already inside. The app remembers each coin's earlier place and status (`caseFrom`: album/box/spot/stack plus status/stage).
 - **Moving out:** "Take out" on one coin, or **"Return unsold coins"** on the case, puts each coin back in its old spot and old status. A coin that was already For sale stays For sale. If its old spot is taken now, it goes to "Nothing special" and the app lists it. One Undo.
@@ -413,12 +421,17 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 - **Show page:** coins sold, sales, coin cost, fees, show costs and **profit for the show** (sales − coin cost − fees − show costs). Selling at a show uses the Phase 7 sale form and fee estimates.
 
 **Step 8.3. Pricing help and reports. Model: Sonnet.** (session 14)
-- [x] Merged (v0.34.0, Nov 3, 2026, PR #82). Built (files `pricing.js`, `salesreport.js`, test `tests/pricing83.js`); tick when merged. Reports sit in the menu as **Sales Reports** (Seller Mode only). Business stock is shown at cost for the end of the period plus its value today (no stock history is kept).
+- [x] ✅ Merged (v0.34.0, Nov 3, 2026, PR #82). Built (files `pricing.js`, `salesreport.js`, test `tests/pricing83.js`); tick when merged. Reports sit in the menu as **Sales Reports** (Seller Mode only). Business stock is shown at cost for the end of the period plus its value today (no stock history is kept).
 - **Suggested asking price:** on a coin's page and in the dealer case, shows both **Red Book × your %** and **melt + your markup %**; tap one to use it as the asking price. Percentages set in Options → Selling (start at 90% and 10%, changeable). Coins with no Red Book value show only the melt choice.
 - **Reports page** (Seller Mode): pick month, quarter or year. Sales, cost of coins sold, fees, shipping, show costs, profit, sales tax collected (kept apart), and Business stock value at the end of the period. Per-platform totals to check against **1099-K** forms, and a **Schedule C style summary**. Personal sales are listed apart, not mixed in.
 - **Printable page** (save as PDF from the phone) **and a spreadsheet (CSV)** for an accountant.
 
-**Step 8.4. Review. Model: Opus.** (session 15) Checks Business totals, the dealer case return (old spot taken, Undo), show profit math, reports against sample sales, and old backups.
+**Step 8.3b. Shipping defaults, Going as, Was kept in. Model: Sonnet.** (session 15, added Nov 3 before the review so the review covers it)
+- **Saved shipping costs:** in Options → Selling, a **default shipping cost** plus **per coin type** amounts (e.g. Morgan dollar $4.50). The Mark as sold form fills in "Shipping paid" from them; you can still change it. Saved in settings, goes into Backup.
+- **Going as:** each show gets **Seller** or **Attendee**. Attendee shows skip table fee and profit math. Add a **Find shows** link (a web search for coin shows near you); the app can't keep its own show list up to date offline.
+- **Was kept in:** when a coin is marked sold from a dealer case, its old place is saved on the sale and shown on the sold coin's page, so you know where it lived before the show. Check that it also shows for coins sold from other places.
+
+**Step 8.4. Review. Model: Opus.** (session 16) Checks Business totals, the dealer case return (old spot taken, Undo), show profit math, reports against sample sales, and old backups.
 
 ---
 
