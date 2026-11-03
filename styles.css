@@ -185,7 +185,9 @@ summary .small { font-weight: normal; }
 /* Safe style: steel colors everywhere, no night version. */
 body.safe { --bg: #1c1e21; --card: #26292d; --ink: #e6e8ea; --muted: #9aa3ad; --line: #3d4146;
   --accent: #c9a04a; --accent-ink: #1b1508; --accent-soft: #3a3222; --chip: #2a2d31; --good: #5fbf85; --bad: #e57a66; --shadow: none; }
-.home-chips { margin-bottom: 8px; flex-wrap: wrap; overflow-x: visible; }
+.home-chips { margin-bottom: 8px; flex-wrap: nowrap; overflow-x: auto; gap: 6px; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+.home-chips .chip { padding: 3px 10px; font-size: 12.5px; line-height: 1.3; }
+.home-chips .chip:not(.on) { background: transparent; color: var(--muted, #888); border-style: dashed; opacity: .75; }
 .home-notes { margin: -8px 4px 12px; }
 .sh-cab { position: relative; margin: 0 -4px 18px; padding: 10px 10px 4px; border-radius: 10px; }
 .sh-cab button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
