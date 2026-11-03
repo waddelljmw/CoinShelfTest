@@ -405,7 +405,7 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 
 **Step 8.2. Dealer display case and shows. Model: Sonnet.** (session 13)
 - **Dealer case:** a new box type next to storage and display boxes (`type: "dealer"`), drawn on the shelf like a glass-top show case. Spots on or off, like other boxes. It can be a permanent home or used just for shows.
-- **Moving in:** coins moved into a dealer case switch to **For sale** (inherited coins are skipped and listed). The app remembers each coin's earlier place and status (`caseFrom`: album/box/spot/stack plus status/stage).
+- **Moving in:** each dealer case has a **"For sale case"** switch (on by default; Edit case, `forSale`). On: coins moved in switch to **For sale** (inherited coins are skipped and listed). Off: coins keep their status (a display-only case). Turning the switch off later doesn't change coins already inside. The app remembers each coin's earlier place and status (`caseFrom`: album/box/spot/stack plus status/stage).
 - **Moving out:** "Take out" on one coin, or **"Return unsold coins"** on the case, puts each coin back in its old spot and old status. A coin that was already For sale stays For sale. If its old spot is taken now, it goes to "Nothing special" and the app lists it. One Undo.
 - **Show records** (new `sh_` records): name, date(s), place, kind (coin show, Whatnot live, eBay Live, other), and costs: table fee, gas/mileage, hotel, food, other. Mark as sold gets a **Show** picker that defaults to a show happening today.
 - **Show page:** coins sold, sales, coin cost, fees, show costs and **profit for the show** (sales − coin cost − fees − show costs). Selling at a show uses the Phase 7 sale form and fee estimates.
