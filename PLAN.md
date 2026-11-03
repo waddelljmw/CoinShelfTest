@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 6, plan Phase 7 selling details and the photo-fill choice):** switch to **Opus**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 7, build Phase 7 basic selling):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -15,9 +15,10 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 3 | Sonnet | Step 4.3b filters, saved filters, select and move many | ✓ merged |
 | 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | ✓ merged |
 | 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | ✓ merged v0.29.0 |
-| 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | plan PR |
-| 7 | Sonnet | Phase 7 basic selling | PR |
+| 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | ✓ plan PR |
+| 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | PR |
 | 8 | Opus | Phase review (4.3b through 7), then merge | merge |
+| later | Opus | Plan IDEAS 10 (add many identical coins to a container at once) | plan PR |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. Phase 8 Seller Mode planning on Opus. | |
 
 **Rules for a session:**
@@ -317,7 +318,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 
 ## Phase 5: Features that need an outside service. Model: Sonnet.
 
-- **Photo fill** (reading a coin from a photo) needs an AI service. Choose between: (a) leaving it off in the standalone app, or (b) using your own Anthropic API key, which costs a few cents per coin. It's explained step by step when we get there.
+- **Photo fill** (reading a coin from a photo) needs an AI service. **Decided (session 6): off for now, with a place ready for it.** In the phone app the "Fill in from photos" button shows **grayed out with a 🔒 and "Coming soon"**. Options gets a closed **Photo fill (API key)** spot, also marked Coming soon, so once you have a key it can be switched on without redesigning. Later option: a free Google Gemini key could work here too (decide then). Costs a few cents per coin when on; explained step by step then. Built with Step 7.2 (session 7), since it's small. It's featured in the demo (IDEAS 6) and the AI test-user review (IDEAS 11).
 - **Live metal prices:** fetched from a free price source when you're online, with the last prices kept for offline use. You can still type them in. Add: refresh the prices automatically each time the app is opened (when online), plus a button to fetch them on demand. Show when they were last updated.
 
 ---
@@ -333,10 +334,40 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 
 ## Phase 7: Basic selling (part of priority 1). Model: Sonnet.
 
-- A "For sale" mark with an asking price, and a simple For Sale list.
-- Profit per sale (what you paid vs. what it sold for), including shipping and fees. This builds on what the app already has.
-- **Mark as sold** opens the sale details: date, buyer, where (eBay, Whatnot, show, private), price, shipping charged and shipping paid, platform fees, sales tax collected, payment method, order and tracking numbers, then **profit** worked out for you.
-- Ideas for status, purchase and sale details came from OpenNumismat (ideas only, no code copied).
+*Planned in session 6 (Opus). The app already has: a For sale status, and **Mark as sold** with date, price, shipping, insurance, where, buyer, and sold results on Home.*
+
+**Step 7.0. Coin ID numbers (IDEAS 8). Built first in session 7, checked by the session 8 Opus review before merge.**
+- [ ] Merged
+- Every item gets an ID you can write on its flip: a **type code + number**, e.g. **MD-012** (Morgan dollar #12). Numbers count up separately for each type (MD-001, MD-002…; PD-001 for Peace dollars). 3 digits, growing to 4 if a type passes 999.
+- Codes come from a short list in `catalog/data.js` (one per coin type; also bars, rounds, sets, rolls, medals/tokens, foreign). Look up the type names already in the catalog; don't invent new types. Show him the code list in the PR so he can change any code.
+- **Existing coins all get IDs now**, in the order they were added. Done on read, so old backups still restore and get numbered too.
+- An ID is **never reused**, even after a coin is sold, gone or deleted. A coin's type never changes, so its code never changes.
+- **You can edit an ID.** The app refuses a duplicate and says which coin already has it.
+- **Shown:** on the coin page (near the label), in My Coins search (type "MD-012"), in CSV export, Backup and the insurance report, and on the sale record when sold.
+
+**Step 7.1. For sale and asking price.**
+- [ ] Merged
+- An **Asking price** field shows when status is For sale (inherited coins still can't be For sale).
+- A **For Sale list**: one tap from Home (and the For sale filter on My Coins) showing each coin, its asking price, what you paid, and the profit if it sells at that price.
+- The asking price fills in "Sold for" when you tap Mark as sold (you can change it).
+
+**Step 7.2. A fuller Mark as sold form.**
+- [ ] Merged
+- Always shown: how many (for rolls/quantities), date, **sold for**, where.
+- **More details** (closed until tapped): shipping you charged the buyer, shipping you paid (label), insurance, **platform fees**, sales tax collected, payment method (same list as buying), buyer, order number, tracking number (with the Track package link).
+- **Where sold** choices: Whatnot, eBay, eBay Live, Coin show, **Coin shop**, **Private sale**, **Facebook / social**, **Auction house**, **Pawn shop**, Other. Old sales keep their saved "where" (convert on read).
+- **Fees fill in as an estimate** for Whatnot, eBay and eBay Live; you can change the number to match your receipt. The rates live in **Options → Selling → Fee rates** so you can edit them when platforms change prices. Before building, check Whatnot's and eBay's own fee pages for the coin category (sources disagree: Whatnot coins may be 4% or 8%, plus 2.9% + 30¢ processing). Never auto-change a fee you typed.
+- Sales tax collected is **not** profit (it's passed to the state); shown but left out of profit.
+
+**Step 7.3. Profit.**
+- [ ] Merged
+- Worked out as you type in the form: **sold for + shipping charged − what you paid (total cost) − fees − shipping paid − insurance**.
+- Shown on the sold coin's page and in Sold results on Home (total profit and margin %). Inherited coins stay out of sold results, as today.
+- Selling part of a roll or quantity splits the cost the same way the coin is split today.
+- Sold details go into CSV export and Backup.
+- *Stored data:* new fields only added to `sold` (old sales keep working with blanks). Review in session 8 checks this.
+
+Ideas for status, purchase and sale details came from OpenNumismat (ideas only, no code copied).
 
 ---
 
