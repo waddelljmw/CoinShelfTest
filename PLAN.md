@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 10, Step 8.0 plan Seller Mode):** switch to **Opus**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 11, Fix list):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -19,8 +19,13 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | ✓ merged v0.30.0 (PR #71) |
 | 8 | Opus | Phase review (4.3b through 7), then merge | ✓ reviewed, 6 fixes, merged |
 | 9 | Sonnet | Step 4.6 add many identical coins at once | ✓ merged v0.31.0 (PR #72) |
-| 10 | Opus | Step 8.0 plan Seller Mode (business info, reports, tax documents) | |
-| later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. Phase 8 Seller Mode planning on Opus. | |
+| 10 | Opus | Step 8.0 plan Seller Mode (business info, reports, tax documents) | ✓ plan PR |
+| 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | |
+| 12 | Sonnet | Step 8.1 Seller Mode switch, Business stock, business profile | |
+| 13 | Sonnet | Step 8.2 dealer display case and shows | |
+| 14 | Sonnet | Step 8.3 pricing help and reports | |
+| 15 | Opus | Step 8.4 review of Phase 8, then merge | |
+| later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
 - Stay in the chat while it works. Coming back after more than ~5 minutes makes the next message cost more (the chat has to be re-read at full price), so finish or say "stop here" before stepping away.
@@ -30,16 +35,20 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 
 ## Fix list (small changes waiting for a session)
 
-Claude adds items here when they wait. Sessions 4 and 5 clear them.
+Claude adds items here when they wait. Session 11 clears the open ones.
 - ✓ done v0.28.0 **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
 - ✓ done v0.28.0 **Session 4:** bar **weight in grams or kilos** as well as ounces (a unit dropdown; stored as ounces, so old bars don't change).
 - ✓ done v0.28.0 **Session 4:** **roll end colors** on the shelf. Checked against bank-wrapper (ABA) colors: cents red, nickels blue, dimes green, quarters orange, **halves sand/brown (not yellow)**, dollars gray (Sacagawea too); Morgan and Peace rolls worn beige.
 - ✓ done v0.28.0 **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
 - ✓ done v0.28.0 **Wooden box look.** Add "Wooden box" to the box Look choices (storage and display). On the shelf, a wooden display box gets a solid wood case (today every display box is drawn as a wood-framed glass case). Fits Session 4.
-- ✓ done v0.29.0 **Session 5: ask before auto-filling a box spot.** When a box with numbered spots is picked, ask "Choose the spot yourself?" Yes: nothing filled in, you pick the real spot. No: the next free spot is filled in as today. Works for single coins now and for the add-many idea (IDEAS 10) later.
+- ✓ done v0.29.0 **Session 5: ask before auto-filling a box spot.** When a box with numbered spots is picked, ask "Choose the spot yourself?" Yes: nothing filled in, you pick the real spot. No: the next free spot is filled in as today. Works for single coins now and for the add-many idea (IDEAS 12) later.
+- **Session 11: albums by date.** A **"Sort by date"** button where albums are reordered. Series stay together; each series (or single album) is placed by its first coin type's first year (e.g. Morgan 1878 before Lincoln 1909; Washington 1932, Franklin 1948, Kennedy 1964). You can still move any album after.
+- **Session 11: Notes above Purchase** on a coin's page.
+- **Session 11: proof with no value.** A 1962 Franklin proof showed blank (melt used). The Red Book table starts at PR-63, so a proof with no grade or below PR-63 gets nothing. Show the lowest listed proof value marked "at least" (like the circulated "below" case), or a short note "Red Book starts at PR-63"; check the no-grade case too.
+- **Session 11: smaller Home chips.** My collection, Inherited, My Silver Stack become thin pills in **one row you swipe left/right**; turned-off ones look gray. Must still be easy to spot.
 
 
-**Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read PLAN.md, and do the next step."*
+**Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## What you want, in short
 
@@ -317,7 +326,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 - [x] Box columns added (v0.26.0, Nov 2, 2026): Edit box → "Spots run in" Rows or Columns
 - [x] Short look at 4.4 (session 8: odd old shelf settings cause no errors)
 
-**Step 4.6. Add many identical coins at once (IDEAS 10). Model: Sonnet. Planned on Opus (session 6).**
+**Step 4.6. Add many identical coins at once (IDEAS 12). Model: Sonnet. Planned on Opus (session 6).**
 - [x] Built (v0.31.0, branch `step-4.6-add-many`, file `many.js`, test `tests/many46.js`). Tax, shipping and fees are split across the coins the same way as a group price. Quantity stays 1 on each coin. Not offered when an album is picked.
 - [x] Merged (v0.31.0, Nov 2, 2026, PR #72)
 - On Add coin, a **How many?** box (default 1, up to 100). Everything you fill in (type, year, mint, grade, holder, notes) is copied to each coin. **Each saves as its own coin with its own ID** (e.g. MD-013 to MD-024).
@@ -328,7 +337,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 
 ## Phase 5: Features that need an outside service. Model: Sonnet.
 
-- **Photo fill** (reading a coin from a photo) needs an AI service. **Decided (session 6): off for now, with a place ready for it.** In the phone app the "Fill in from photos" button shows **grayed out with a 🔒 and "Coming soon"**. Options gets a closed **Photo fill (API key)** spot, also marked Coming soon, so once you have a key it can be switched on without redesigning. Later option: a free Google Gemini key could work here too (decide then). Costs a few cents per coin when on; explained step by step then. Built with Step 7.2 (session 7), since it's small. It's featured in the demo (IDEAS 6) and the AI test-user review (IDEAS 11).
+- **Photo fill** (reading a coin from a photo) needs an AI service. **Decided (session 6): off for now, with a place ready for it.** In the phone app the "Fill in from photos" button shows **grayed out with a 🔒 and "Coming soon"**. Options gets a closed **Photo fill (API key)** spot, also marked Coming soon, so once you have a key it can be switched on without redesigning. Later option: a free Google Gemini key could work here too (decide then). Costs a few cents per coin when on; explained step by step then. Built with Step 7.2 (session 7), since it's small. It's featured in the demo (IDEAS 8) and the AI test-user review (IDEAS 13).
 - **Live metal prices:** fetched from a free price source when you're online, with the last prices kept for offline use. You can still type them in. Add: refresh the prices automatically each time the app is opened (when online), plus a button to fetch them on demand. Show when they were last updated.
 
 ---
@@ -346,7 +355,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 
 *Planned in session 6 (Opus). The app already has: a For sale status, and **Mark as sold** with date, price, shipping, insurance, where, buyer, and sold results on Home.*
 
-**Step 7.0. Coin ID numbers (IDEAS 8). Built first in session 7, checked by the session 8 Opus review before merge.**
+**Step 7.0. Coin ID numbers (IDEAS 10). Built first in session 7, checked by the session 8 Opus review before merge.**
 - [x] Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
 - Every item gets an ID you can write on its flip: a **type code + number**, e.g. **MD-012** (Morgan dollar #12). Numbers count up separately for each type (MD-001, MD-002…; PD-001 for Peace dollars). 3 digits, growing to 4 if a type passes 999.
 - Codes come from a short list in `catalog/idcodes.js` (one per coin type; also bars, rounds, sets, rolls, medals/tokens, foreign). Look up the type names already in the catalog; don't invent new types. Show him the code list in the PR so he can change any code.
@@ -381,16 +390,32 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 
 ---
 
-## Phase 8: Seller Mode (priority 2, details planned later)
+## Phase 8: Seller Mode (priority 2)
 
 **Step 8.0. Plan it together. Model: Opus.**
-- **Your choice to show:** a switch in Options turns Seller Mode on. When it's off, nothing about selling shows.
-- **Separate inventory:** your personal collection stays separate from your business inventory.
-- **Whatnot tools:** fast bulk entry, show-day lists, Whatnot fee math and sales per show.
-- **For first-timers:** pricing help at a coin show, such as Red Book value, melt and a suggested asking price.
-- **Business profile:** name, EIN or tax ID, address and sales-tax info.
-- **Reports:** sales, costs, profit and inventory value by month, quarter or year, ready for an accountant, with totals that line up with 1099-K forms and a Schedule C style summary.
-- **A note on taxes:** Claude isn't a tax advisor. The app organizes your records, and a tax professional should review them before you file.
+- [x] Planned (session 10, Nov 2, 2026). Your choices are below.
+- **A note on taxes:** Claude isn't a tax advisor. The app organizes your records; a tax professional should review them before you file.
+
+**Step 8.1. Seller Mode switch, Business stock, business profile. Model: Sonnet.** (session 12)
+- **Options → Seller Mode** on/off. Off: nothing about selling business shows (Business stock, dealer cases, shows, reports hide; data is kept, never deleted).
+- **Business stock tag:** every item is Personal (default) or Business (`biz: true`; missing = Personal, convert on read). Add coin gets a Personal/Business choice when Seller Mode is on; Add many (4.6) copies it to each coin.
+- **Separate totals:** Business stock never counts in your collection value. Home shows a small Business plaque (stock value, cost, count) only when Seller Mode is on. My Coins filter gets Personal/Business.
+- **Move to Business:** a personal coin keeps **what you paid** as its cost. Inherited coins can't be moved to Business. One Undo; Select-many (4.3b) gets "Move to Business".
+- **Business profile** (Options): business name, EIN or tax ID, address, state sales-tax permit number. Saved in `settings.seller.profile`, stays on the phone, goes into Backup.
+
+**Step 8.2. Dealer display case and shows. Model: Sonnet.** (session 13)
+- **Dealer case:** a new box type next to storage and display boxes (`type: "dealer"`), drawn on the shelf like a glass-top show case. Spots on or off, like other boxes. It can be a permanent home or used just for shows.
+- **Moving in:** coins moved into a dealer case switch to **For sale** (inherited coins are skipped and listed). The app remembers each coin's earlier place and status (`caseFrom`: album/box/spot/stack plus status/stage).
+- **Moving out:** "Take out" on one coin, or **"Return unsold coins"** on the case, puts each coin back in its old spot and old status. A coin that was already For sale stays For sale. If its old spot is taken now, it goes to "Nothing special" and the app lists it. One Undo.
+- **Show records** (new `sh_` records): name, date(s), place, kind (coin show, Whatnot live, eBay Live, other), and costs: table fee, gas/mileage, hotel, food, other. Mark as sold gets a **Show** picker that defaults to a show happening today.
+- **Show page:** coins sold, sales, coin cost, fees, show costs and **profit for the show** (sales − coin cost − fees − show costs). Selling at a show uses the Phase 7 sale form and fee estimates.
+
+**Step 8.3. Pricing help and reports. Model: Sonnet.** (session 14)
+- **Suggested asking price:** on a coin's page and in the dealer case, shows both **Red Book × your %** and **melt + your markup %**; tap one to use it as the asking price. Percentages set in Options → Selling (start at 90% and 10%, changeable). Coins with no Red Book value show only the melt choice.
+- **Reports page** (Seller Mode): pick month, quarter or year. Sales, cost of coins sold, fees, shipping, show costs, profit, sales tax collected (kept apart), and Business stock value at the end of the period. Per-platform totals to check against **1099-K** forms, and a **Schedule C style summary**. Personal sales are listed apart, not mixed in.
+- **Printable page** (save as PDF from the phone) **and a spreadsheet (CSV)** for an accountant.
+
+**Step 8.4. Review. Model: Opus.** (session 15) Checks Business totals, the dealer case return (old spot taken, Undo), show profit math, reports against sample sales, and old backups.
 
 ---
 
