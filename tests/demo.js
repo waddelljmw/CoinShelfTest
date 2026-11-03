@@ -62,6 +62,14 @@ const srv = http.createServer((q, r) => {
   await p.evaluate(() => go("home")); await p.waitForTimeout(200);
   ok("the Home page draws without errors", await p.evaluate(() => document.querySelector("main").textContent.length > 200));
 
+  // ---- the shelf's Rolls opens just the rolls ----
+  await p.evaluate(() => go("home")); await p.waitForTimeout(200);
+  await p.click("[data-act=seeItems][data-v=roll]"); await p.waitForTimeout(300);
+  ok("Rolls on the shelf shows only the 3 rolls", await p.evaluate(() => document.querySelectorAll("#main .list > *, main .list > *").length === 3 && /Rolls only/.test(document.querySelector("main").textContent)));
+  await p.click("[data-act=fltDrop][data-k=item]"); await p.waitForTimeout(200);
+  ok("removing the Rolls chip shows all coins again", await p.evaluate(() => document.querySelectorAll("main .list > *").length > 20));
+  await p.evaluate(() => go("home")); await p.waitForTimeout(200);
+
   // ---- photo fill showcase ----
   await p.click("#fab"); await p.waitForSelector("[data-act=demoFill]");
   ok("Add coin offers See photo fill in action", true);
