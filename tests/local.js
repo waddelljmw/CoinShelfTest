@@ -14,7 +14,7 @@ const srv = http.createServer((q, r) => {
   const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
   const errors = [];
   // ---- A phone running the app on its own ----
-  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true });
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true }); await ctx.route("**/api.gold-api.com/**", (r) => r.abort()); // no live prices in tests
   const p = await ctx.newPage(); p.on("pageerror", (e) => errors.push(e.message));
   await p.goto("http://localhost:8771/"); await p.waitForFunction(() => store.mode === "local", null, { timeout: 15000 });
   ok("starts in local mode with no practice banner", await p.evaluate(() => store.mode === "local" && document.querySelector("#banner").hidden));
@@ -49,7 +49,7 @@ const srv = http.createServer((q, r) => {
   ok("unused photos over a day old are cleaned up; today's are kept a day", await p.evaluate(() => localPhotoUrls.size === 1 && ![...localPhotoUrls.keys()].some((k) => k.endsWith("old"))));
   await ctx.close();
   // ---- A new phone: restore the backup ----
-  const ctx2 = await b.newContext({ viewport: { width: 390, height: 844 } });
+  const ctx2 = await b.newContext({ viewport: { width: 390, height: 844 } }); await ctx2.route("**/api.gold-api.com/**", (r) => r.abort()); // no live prices in tests
   const q = await ctx2.newPage(); q.on("pageerror", (e) => errors.push(e.message));
   await q.goto("http://localhost:8771/"); await q.waitForFunction(() => store.mode === "local", null, { timeout: 15000 });
   await q.evaluate(() => { saveCoin({ ...blankCoin(), id: "keep", typeId: "peace-dollar", typeName: "Peace Dollar", year: 1922, grade: "VF-20" }); go("options"); });
@@ -68,7 +68,7 @@ const srv = http.createServer((q, r) => {
   ok("a wrong file is refused", /isn't a Coin Cabinet backup/.test(await q.textContent("#restoreMsg")));
   await ctx2.close();
   // ---- The Claude version: "move my data out" with photos stored by Claude ----
-  const ctx3 = await b.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true });
+  const ctx3 = await b.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true }); await ctx3.route("**/api.gold-api.com/**", (r) => r.abort()); // no live prices in tests
   const c = await ctx3.newPage(); c.on("pageerror", (e) => errors.push(e.message));
   await c.addInitScript(() => {
     const docs = new Map();
@@ -86,7 +86,7 @@ const srv = http.createServer((q, r) => {
   ok("Claude backup includes the Claude-stored photo", cb && cb.photos["id:abc"] && cb.docs.some((d) => d.id === "c_cl"));
   fs.writeFileSync("/tmp/cc-claude.json", JSON.stringify(cb));
   await ctx3.close();
-  const ctx4 = await b.newContext({ viewport: { width: 390, height: 844 } });
+  const ctx4 = await b.newContext({ viewport: { width: 390, height: 844 } }); await ctx4.route("**/api.gold-api.com/**", (r) => r.abort()); // no live prices in tests
   const d = await ctx4.newPage(); d.on("pageerror", (e) => errors.push(e.message));
   await d.goto("http://localhost:8771/"); await d.waitForTimeout(400);
   await d.evaluate(() => go("options")); await d.waitForTimeout(80); await d.click("[data-act=openBackup]");
