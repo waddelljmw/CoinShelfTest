@@ -12,6 +12,18 @@ function photoFillButton(d) {
     <div class="hint" id="photoFillMsg" style="margin-bottom:6px">${n ? n + " photo" + (n > 1 ? "s" : "") + " read." : "Take or pick the front and back (and the holder label if it has one). You can pick both at once, or add one side, then the other."}</div>`;
 }
 
+// Photo fill is switched off for now: a grayed button with a lock, nothing happens on tap.
+function photoFillLocked() {
+  return `<button type="button" class="btn block" id="photoFillLocked" disabled aria-disabled="true" style="display:block;width:100%;text-align:center;margin-bottom:4px;opacity:.5">🔒 Fill in from photos</button>
+    <div class="hint" style="margin-bottom:6px">Coming soon. Fill in from photos will read your coin's photos for you.</div>`;
+}
+
+// The closed Options spot, ready for an API key once photo fill is switched on.
+function photoFillOptionsHtml() {
+  return `<h2>Photo fill (API key)</h2>
+    <div class="card"><div class="small muted">🔒 Coming soon. This is where a key will go to switch on "Fill in from photos".</div></div>`;
+}
+
 function photoPrompt() {
   const types = COIN_TYPES.map((t) => `${t.id} | ${t.name} | ${t.start}-${t.end} | mints ${t.mints.join(",")}`).join("\n");
   return `You are reading one or more photos of the SAME United States coin, loose or in a grading holder (slab), to fill in a coin inventory form. The photos may show the front (obverse), the back (reverse) and/or the holder label. Combine what all of them show.
