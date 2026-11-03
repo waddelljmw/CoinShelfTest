@@ -22,7 +22,7 @@ function saleProfit(c) {
 const saleMoneyIn = (c) => (num(c.sold && c.sold.amount) || 0) + (num(c.sold && c.sold.shipCharged) || 0);
 
 /* ---- Asking price field (shown when status is For sale) ---- */
-const askField = (d) => `<label class="f"><span>Asking price (total, optional)</span><input type="number" inputmode="decimal" step="0.01" min="0" data-f="ask" value="${esc(d.ask || "")}" placeholder="$"></label>`;
+const askField = (d) => `<label class="f"><span>Asking price (total, optional)</span><input type="number" inputmode="decimal" step="0.01" min="0" data-f="ask" value="${esc(d.ask || "")}" placeholder="$"></label>${typeof askHelp === "function" ? askHelp(d) : ""}`;
 
 /* ---- For Sale list ---- */
 function viewForSale() {
@@ -159,7 +159,7 @@ function sellingOptionsHtml() {
     <div class="hint">Used to fill in fees when you mark a coin sold. Change them when a platform changes its prices. A fee you type yourself is never replaced.</div>
     <b class="small">Whatnot (coins)</b><div class="grid3">${inp("whatnotPct", "Commission %")}${inp("whatnotProcPct", "Processing %")}${inp("whatnotProcFlat", "Processing $")}</div>
     <b class="small">eBay and eBay Live (coins)</b><div class="grid3">${inp("ebayPct", "Fee %")}${inp("ebayFlat", "Per order $")}${inp("ebayFlatSmall", "Order ≤ $10")}</div>
-    <div class="btn-row"><button class="btn" data-act="feeReset">Put back the usual rates</button></div></details></div>`;
+    <div class="btn-row"><button class="btn" data-act="feeReset">Put back the usual rates</button></div></details>${typeof pricingOptionsHtml === "function" ? pricingOptionsHtml() : ""}</div>`;
 }
 document.addEventListener("input", (e) => {
   if (!e.target.dataset || !e.target.dataset.fee) return;

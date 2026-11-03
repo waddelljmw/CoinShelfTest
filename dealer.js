@@ -71,7 +71,7 @@ function dealerPanel(b) {
   const on = caseOn(b);
   const rows = inCase.map((c) => {
     const ask = num(c.ask);
-    return `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="muted small">${ask == null ? (stageOf(c) === "forsale" ? "No price" : "") : money(ask)}</span><button class="btn" data-act="caseOut" data-id="${esc(c.id)}">Take out</button></div>`;
+    return `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="muted small">${ask == null ? (stageOf(c) === "forsale" ? "No price" : "") : money(ask)}</span><button class="btn" data-act="caseOut" data-id="${esc(c.id)}">Take out</button></div>${stageOf(c) === "forsale" && typeof askRowHelp === "function" ? askRowHelp(c) : ""}`;
   }).join("");
   return `<div class="card"><div class="rowline"><b>For sale case</b><span class="muted small">${on ? "On" : "Off"}</span></div>
     <div class="small muted">${on ? "Coins you move in switch to For sale. Take them out and each goes back to where it was." : "Display only: coins keep their status. Take them out and each goes back to where it was."}</div>
@@ -223,4 +223,4 @@ Object.assign(actions, {
 if (typeof SNAPSHOT_BLOCK !== "undefined") ["caseOut", "caseReturnAll", "caseUndo", "showNew", "showEdit", "showDelete"].forEach((a) => SNAPSHOT_BLOCK.add(a));
 
 // The Shows item in the main menu only appears with Seller Mode on.
-function syncShowsMenu() { const m = $("#menuShows"); if (m) m.hidden = !sellerOn(); }
+function syncShowsMenu() { const m = $("#menuShows"); if (m) m.hidden = !sellerOn(); const r = $("#menuReports"); if (r) r.hidden = !sellerOn(); }

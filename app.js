@@ -18,7 +18,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.33.0";
+const APP_VERSION = "0.34.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -534,7 +534,7 @@ function thumbHtml(c) {
 const photoSrc = (p) => (p.lid ? (typeof localPhotoUrls !== "undefined" && localPhotoUrls.get(p.lid)) || "" : p.id ? "/_blob/" + p.id : p.url || "");
 
 /* ---------- navigation ---------- */
-const VIEWS = ["home", "value", "albums", "wants", "coins", "forsale", "stacks", "boxes", "shows", "guide", "options"];
+const VIEWS = ["home", "value", "albums", "wants", "coins", "forsale", "stacks", "boxes", "shows", "reports", "guide", "options"];
 function currentRoute() {
   const h = location.hash.replace(/^#/, "");
   if (VIEWS.includes(h)) return { view: h };
@@ -579,7 +579,7 @@ function render() {
   $$("#menu button").forEach((b) => b.classList.toggle("on", b.dataset.go === menuKey));
   if (typeof applyShelfStyle === "function") applyShelfStyle();
   if (typeof syncShowsMenu === "function") syncShowsMenu();
-  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, shows: typeof viewShows === "function" ? viewShows : viewHome, show: typeof viewShow === "function" ? viewShow : viewHome, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
+  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, shows: typeof viewShows === "function" ? viewShows : viewHome, show: typeof viewShow === "function" ? viewShow : viewHome, reports: typeof viewReports === "function" ? viewReports : viewHome, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
   const keepSearch = active && active.id === "coinSearch" ? active.selectionStart : null;
@@ -887,6 +887,7 @@ function viewCoin(r) {
     ${c.status === "gone" ? `<div class="card"><b>Gone</b>${row("Why", esc((c.gone && c.gone.reason) || ""))}${row("Date", esc((c.gone && c.gone.date) || ""))}<div class="small muted">Not counted in your totals.</div></div>` : ""}
     ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("ID", esc(c.cid))}${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping charged", num(sold.shipCharged) == null ? null : money(num(sold.shipCharged)))}${row("Platform fees", num(sold.fees) == null ? null : money(num(sold.fees)))}${row("Shipping paid", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Sales tax collected", num(sold.salesTax) == null ? null : money(num(sold.salesTax)))}${row("Paid with", esc(sold.payMethod))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}${row("Order number", esc(sold.orderNo))}${row("Tracking", sold.trackNo ? `<a href="${esc(trackUrl({ trackNo: sold.trackNo, trackCarrier: sold.carrier }))}" target="_blank" rel="noopener">${esc(sold.trackNo)} ↗</a>` : "")}${isInherited(c) ? "" : row("What you paid", costOf(c) == null ? null : money(costOf(c))) + row("Profit", typeof saleProfit === "function" ? `<b class="${signCls(saleProfit(c))}">${money(saleProfit(c))}</b>` : null)}</div>` : ""}
     ${caseCard(c)}
+    ${typeof askCard === "function" ? askCard(c) : ""}
     ${certUrl(c) ? `<a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-bottom:8px" href="${esc(certUrl(c))}" target="_blank" rel="noopener">Verify cert on ${esc(c.service)} ↗</a>` : ""}
     <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>
     <div class="btn-row">
