@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 12, Step 8.1 Seller Mode switch, Business stock, business profile):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 13, Step 8.2 dealer display case and shows):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -21,7 +21,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 9 | Sonnet | Step 4.6 add many identical coins at once | ✓ merged v0.31.0 (PR #72) |
 | 10 | Opus | Step 8.0 plan Seller Mode (business info, reports, tax documents) | ✓ plan PR |
 | 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | ✓ merged v0.31.1 (PR #74) |
-| 12 | Sonnet | Step 8.1 Seller Mode switch, Business stock, business profile | |
+| 12 | Sonnet | Step 8.1 Seller Mode switch, Business stock, business profile | ✓ merged v0.32.0 (PR #76) |
 | 13 | Sonnet | Step 8.2 dealer display case and shows | |
 | 14 | Sonnet | Step 8.3 pricing help and reports | |
 | 15 | Opus | Step 8.4 review of Phase 8, then merge | |
@@ -397,7 +397,7 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 - **A note on taxes:** Claude isn't a tax advisor. The app organizes your records; a tax professional should review them before you file.
 
 **Step 8.1. Seller Mode switch, Business stock, business profile. Model: Sonnet.** (session 12)
-- [x] Built (v0.32.0, branch `step-8.1-seller-mode`, file `seller.js`, test `tests/seller81.js`), PR open, not merged yet
+- [x] Merged (v0.32.0, Nov 2, 2026, PR #76; file `seller.js`, test `tests/seller81.js`)
 - **Options → Seller Mode** on/off. Off: nothing about selling business shows (Business stock, dealer cases, shows, reports hide; data is kept, never deleted).
 - **Business stock tag:** every item is Personal (default) or Business (`biz: true`; missing = Personal, convert on read). Add coin gets a Personal/Business choice when Seller Mode is on; Add many (4.6) copies it to each coin.
 - **Separate totals:** Business stock never counts in your collection value. Home shows a small Business plaque (stock value, cost, count) only when Seller Mode is on. My Coins filter gets Personal/Business.
