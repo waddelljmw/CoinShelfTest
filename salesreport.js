@@ -66,7 +66,7 @@ const REP_NOTES = ["Figures come from the sales you recorded in Coin Cabinet. Th
 
 /* ---- in the app ---- */
 function viewReports() {
-  if (!sellerOn()) return `<h1>Reports</h1><div class="card empty">Reports are part of Seller Mode. Turn it on in <button class="link-btn" data-go="options">Options</button>.</div>`;
+  if (!sellerOn()) return `<h1>Reports</h1><div class="card empty">Reports are part of Seller Mode. Turn it on in <button class="link-btn" data-go="options" data-open="seller-mode">Options</button>.</div>`;
   const d = repData(repPeriod), p = repPeriod;
   const sec = ([title, rows]) => `<div class="card"><b>${esc(title)}</b>${rows.map(([k, v, b]) => `<div class="rowline"><span>${esc(k)}</span><span class="num">${b ? `<b>${v}</b>` : v}</span></div>`).join("")}</div>`;
   const kinds = [["month", "Month"], ["quarter", "Quarter"], ["year", "Year"]];
