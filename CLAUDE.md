@@ -7,6 +7,7 @@ Read this, then `IDEAS.md` (short; just don't build from it unless asked), then 
 ## The person
 - Coin collector, **no app-building background**. Plain words.
 - **Token-conscious.** Short replies (aim for under 150 words). No recaps of steps already shown. Don't repeat merge/branch instructions he already knows beyond the two links.
+- **Start prompt (fast):** at the start of a session read only CLAUDE.md, IDEAS.md, and from PLAN.md the "Next session starts here" line, the session table and the next unchecked step. The check is quick git/gh looks (PR merged, checklist ticked, Fix list empty), **no test run**. The exact prompt is on the "Starting a new chat" line in PLAN.md; give that one.
 - **End every finished task with the exact next prompt to copy** (and the model), plus 1–2 plain lines on **what that next step will do** (from `PLAN.md`), so he knows before he says go. After each merge, update the "Next session starts here" line in `PLAN.md`; a weekly reminder reads it.
 - **When he says he's ending the session:** reply with only (1) anything unfinished (e.g. a PR not merged yet), (2) Sonnet or Opus for the next session, (3) the exact prompt to paste, taken from the Session plan in `PLAN.md`. (4) 1–2 lines on what that session will do.
 - **Say which model to use before each next step.** Opus: planning, reviews, anything that reshapes stored data. Sonnet: building, routine fixes, data entry (album lists, coin dates).
