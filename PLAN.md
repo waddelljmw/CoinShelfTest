@@ -23,7 +23,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | ✓ merged v0.31.1 (PR #74) |
 | 12 | Sonnet | Step 8.1 Seller Mode switch, Business stock, business profile | ✓ merged v0.32.0 (PR #76) |
 | 13 | Sonnet | Step 8.2 dealer display case and shows | ✓ merged v0.33.0 (PR #79) |
-| 14 | Sonnet | Step 8.3 pricing help and reports | |
+| 14 | Sonnet | Step 8.3 pricing help and reports | ✓ built v0.34.0 (PR open) |
 | 15 | Opus | Step 8.4 review of Phase 8, then merge | |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
@@ -413,6 +413,7 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 - **Show page:** coins sold, sales, coin cost, fees, show costs and **profit for the show** (sales − coin cost − fees − show costs). Selling at a show uses the Phase 7 sale form and fee estimates.
 
 **Step 8.3. Pricing help and reports. Model: Sonnet.** (session 14)
+- [ ] Built v0.34.0 (files `pricing.js`, `salesreport.js`, test `tests/pricing83.js`); tick when merged. Reports sit in the menu as **Sales Reports** (Seller Mode only). Business stock is shown at cost for the end of the period plus its value today (no stock history is kept).
 - **Suggested asking price:** on a coin's page and in the dealer case, shows both **Red Book × your %** and **melt + your markup %**; tap one to use it as the asking price. Percentages set in Options → Selling (start at 90% and 10%, changeable). Coins with no Red Book value show only the melt choice.
 - **Reports page** (Seller Mode): pick month, quarter or year. Sales, cost of coins sold, fees, shipping, show costs, profit, sales tax collected (kept apart), and Business stock value at the end of the period. Per-platform totals to check against **1099-K** forms, and a **Schedule C style summary**. Personal sales are listed apart, not mixed in.
 - **Printable page** (save as PDF from the phone) **and a spreadsheet (CSV)** for an accountant.
