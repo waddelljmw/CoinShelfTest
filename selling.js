@@ -55,8 +55,9 @@ function openSell(id, edit) {
   const sv = (edit && c.sold) || {};
   const ask = num(c.ask);
   const amount = edit ? sv.amount : ask != null ? r2(ask) : null; // asking price fills in "Sold for"
-  const moreOpen = edit && ["shipCharged", "fees", "salesTax", "payMethod", "orderNo", "trackNo", "shipping", "insurance", "to"].some((k) => sv[k] != null && sv[k] !== "");
-  const mon = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" name="${k}" placeholder="$" value="${fv(sv[k])}"></label>`;
+  const sf = !edit && sv.shipping == null ? shipFor(c) : null; // saved shipping cost for this coin type
+  const moreOpen = edit && ["shipCharged", "fees", "salesTax", "payMethod", "orderNo", "trackNo", "shipping", "insurance", "to"].some((k) => sv[k] != null && sv[k] !== "") || sf != null;
+  const mon = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" name="${k}" placeholder="$" value="${fv(k === "shipping" && sf != null ? sf : sv[k])}"></label>`;
   openSheet(`<div class="sheet-head"><h2>${edit ? "Edit sale" : "Mark as sold"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <p><b>${esc(labelOf(c))}</b>${c.cid ? ` <span class="muted small">${esc(c.cid)}</span>` : ""}</p>
   ${isInherited(c) ? `<div class="banner" style="margin:0 0 8px"><span class="dns">Do not sell</span> This coin is inherited. It won't be counted in sold results.</div>` : ""}
@@ -67,7 +68,7 @@ function openSell(id, edit) {
     ${typeof showPicker === "function" ? showPicker(c, sv, edit) : ""}
     ${whereFields(!edit && typeof showSaleDefault === "function" && showSaleDefault(c) ? { ...sv, ...showSaleDefault(c) } : sv)}
     <details class="more" ${moreOpen ? "open" : ""}><summary>More details</summary>
-      <div class="grid2">${mon("shipCharged", "Shipping you charged")}${mon("shipping", "Shipping you paid (label)")}</div>
+      <div class="grid2">${mon("shipCharged", "Shipping you charged")}${mon("shipping", "Shipping you paid (label)")}</div>${sf != null ? `<div class="hint">Shipping paid is filled in from your saved shipping costs. Change it if this one was different.</div>` : ""}
       <div class="grid2">${mon("insurance", "Insurance")}${mon("salesTax", "Sales tax collected")}</div>
       ${mon("fees", "Platform fees")}<div class="hint" id="feeHint"></div>
       <label class="f"><span>Payment method</span><select name="payMethod"><option value="">Choose…</option>${PAY_METHODS.map((x) => `<option ${sv.payMethod === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
@@ -122,6 +123,7 @@ function doSell(form) {
     shipCharged: m("shipCharged"), fees: m("fees"), salesTax: m("salesTax"), payMethod: String(fd.get("payMethod") || ""),
     orderNo: String(fd.get("orderNo") || "").trim(), trackNo: String(fd.get("trackNo") || "").replace(/\s+/g, ""),
     ...readWhere(fd), to: String(fd.get("soldTo") || "").trim() };
+  if (!form.dataset.edit) { const was = wasKeptIn(c); if (was) sold.keptIn = was; } // where it lived before the sale
   const showId = String(fd.get("showId") || "");
   if (showId && typeof getShow === "function" && getShow(showId)) { // sold at a show: remember which, and suggest "Where" if it was left blank
     sold.showId = showId;
@@ -159,10 +161,49 @@ function sellingOptionsHtml() {
     <div class="hint">Used to fill in fees when you mark a coin sold. Change them when a platform changes its prices. A fee you type yourself is never replaced.</div>
     <b class="small">Whatnot (coins)</b><div class="grid3">${inp("whatnotPct", "Commission %")}${inp("whatnotProcPct", "Processing %")}${inp("whatnotProcFlat", "Processing $")}</div>
     <b class="small">eBay and eBay Live (coins)</b><div class="grid3">${inp("ebayPct", "Fee %")}${inp("ebayFlat", "Per order $")}${inp("ebayFlatSmall", "Order ≤ $10")}</div>
-    <div class="btn-row"><button class="btn" data-act="feeReset">Put back the usual rates</button></div></details>${typeof pricingOptionsHtml === "function" ? pricingOptionsHtml() : ""}</div>`;
+    <div class="btn-row"><button class="btn" data-act="feeReset">Put back the usual rates</button></div></details>${typeof pricingOptionsHtml === "function" ? pricingOptionsHtml() : ""}${shippingOptionsHtml()}</div>`;
 }
 document.addEventListener("input", (e) => {
   if (!e.target.dataset || !e.target.dataset.fee) return;
   const v = num(e.target.value);
   if (v != null && v >= 0) saveSettings({ feeRates: { ...(settings().feeRates || {}), [e.target.dataset.fee]: v } }, true);
 });
+
+/* ---- Was kept in: where a coin lived before it was sold (from a dealer case, its place before the case) ---- */
+function wasKeptIn(c) {
+  const f = c.caseFrom, box = c.boxId && getBox(c.boxId);
+  if (box && box.type === "dealer" && !f) return ""; // a coin first added straight to a case has no old place
+  const place = box && box.type === "dealer" ? { ...c, albumId: f.albumId || "", boxId: f.boxId || "", boxRow: f.boxRow || "", boxSlot: f.boxSlot || "", stack: f.stack || "" } : c;
+  return typeof keptText === "function" ? keptText(place) : "";
+}
+
+/* ---- Options → Selling → Saved shipping costs (settings.shipping = { def, byType: { typeId: amount } }) ---- */
+const shipRates = () => { const s = settings().shipping || {}; return { def: num(s.def), byType: s.byType || {} }; };
+function shipFor(c) { const r = shipRates(), t = num(r.byType[c.typeId]); return t != null ? t : r.def; }
+function shippingOptionsHtml() {
+  const r = shipRates(), ids = Object.keys(r.byType).filter((id) => TYPE_BY_ID[id]);
+  const rows = ids.map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id].name)}</span><span><input type="number" inputmode="decimal" step="0.01" min="0" data-shiptype="${esc(id)}" value="${esc(r.byType[id])}" style="width:90px"> <button class="btn" data-act="shipTypeDel" data-id="${esc(id)}" aria-label="Remove">✕</button></span></div>`).join("");
+  return `<details class="more" ${ids.length ? "open" : ""}><summary>Shipping costs</summary>
+    <div class="hint">Fills in "Shipping you paid" when you mark a coin sold. You can always change it for one sale.</div>
+    <label class="f"><span>Usual shipping cost</span><input type="number" inputmode="decimal" step="0.01" min="0" data-shipdef value="${esc(r.def == null ? "" : r.def)}" placeholder="$"></label>
+    <b class="small">Different for some coin types</b>${rows || `<div class="small muted">None yet.</div>`}
+    <label class="f"><span>Add a coin type</span><select data-shipadd><option value="">Choose…</option>${COIN_TYPES.filter((t) => !(t.id in r.byType)).map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("")}</select></label></details>`;
+}
+const saveShip = (patch) => saveSettings({ shipping: { ...(settings().shipping || {}), ...patch } }, true);
+document.addEventListener("input", (e) => {
+  const d = e.target.dataset;
+  if (!d) return;
+  const v = num(e.target.value);
+  if ("shipdef" in d) saveShip({ def: v != null && v >= 0 ? v : null });
+  else if (d.shiptype && v != null && v >= 0) saveShip({ byType: { ...shipRates().byType, [d.shiptype]: v } });
+});
+document.addEventListener("change", (e) => {
+  if (!e.target.dataset || !("shipadd" in e.target.dataset) || !e.target.value) return;
+  const r = shipRates();
+  saveShip({ byType: { ...r.byType, [e.target.value]: r.def != null ? r.def : 0 } });
+  render();
+});
+Object.assign(actions, {
+  shipTypeDel: (el) => { const bt = { ...shipRates().byType }; delete bt[el.dataset.id]; saveShip({ byType: bt }); render(); },
+});
+if (typeof SNAPSHOT_BLOCK !== "undefined") SNAPSHOT_BLOCK.add("shipTypeDel");
