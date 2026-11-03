@@ -14,9 +14,9 @@ const srv = http.createServer((q, r) => {
   const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
   const errors = [];
   // ---- A phone running the app on its own ----
-  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true });
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true }); await ctx.route("**/api.gold-api.com/**", (r) => r.abort()); // no live prices in tests
   const p = await ctx.newPage(); p.on("pageerror", (e) => errors.push(e.message));
-  await p.goto("http://localhost:8771/"); await p.waitForTimeout(400);
+  await p.goto("http://localhost:8771/"); await p.waitForFunction(() => store.mode === "local", null, { timeout: 15000 });
   ok("starts in local mode with no practice banner", await p.evaluate(() => store.mode === "local" && document.querySelector("#banner").hidden));
   // add a coin with a photo through the form
   await p.click("#fab"); await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0");
@@ -27,7 +27,7 @@ const srv = http.createServer((q, r) => {
   await p.evaluate(() => { const a = { kind: "album", id: "al", brand: "Whitman", number: "9128", name: "", typeId: "morgan-dollar", typeIds: ["morgan-dollar"], layout: "dates", start: 1878, end: 1891, removed: [], createdAt: 1 }; a.slots = buildAlbumSlots(a.typeIds, "dates", 1878, 1891); put("a_al", a); saveSettings({ spot: { silver: 30, gold: null, platinum: null, copper: null } }); });
   await p.waitForTimeout(200);
   // reload: everything is still there
-  await p.reload(); await p.waitForTimeout(500);
+  await p.reload(); await p.waitForFunction(() => store.mode === "local", null, { timeout: 15000 }); await p.waitForTimeout(300);
   const after = await p.evaluate(() => ({ mode: store.mode, coins: ownedCoins().length, albums: albums().length, silver: settings().spot.silver, img: (() => { const c = ownedCoins()[0]; return c && !!photoSrc(c.photos[0]); })() }));
   ok("after reload: coin, album, settings and photo are still there", after.mode === "local" && after.coins === 1 && after.albums === 1 && after.silver === 30 && after.img);
   await p.evaluate(() => go("coin-" + ownedCoins()[0].id)); await p.waitForTimeout(150);
@@ -45,18 +45,18 @@ const srv = http.createServer((q, r) => {
   ok("backup date remembered and reminder gone", await p.evaluate(() => { go("home"); return !!settings().lastBackup && !/haven't saved a backup/.test(document.querySelector("#view").textContent); }));
   // removing a photo from a coin frees it on the next start
   await p.evaluate(async () => { const c = ownedCoins()[0]; saveCoin({ ...c, photos: [] }); await idb("photos", "readwrite", (st) => st.put(new Blob(["x"]), "p" + (Date.now() - 3 * 86400000).toString(36) + "old")); }); await p.waitForTimeout(150);
-  await p.reload(); await p.waitForTimeout(500);
+  await p.reload(); await p.waitForFunction(() => store.mode === "local", null, { timeout: 15000 }); await p.waitForTimeout(300);
   ok("unused photos over a day old are cleaned up; today's are kept a day", await p.evaluate(() => localPhotoUrls.size === 1 && ![...localPhotoUrls.keys()].some((k) => k.endsWith("old"))));
   await ctx.close();
   // ---- A new phone: restore the backup ----
-  const ctx2 = await b.newContext({ viewport: { width: 390, height: 844 } });
+  const ctx2 = await b.newContext({ viewport: { width: 390, height: 844 } }); await ctx2.route("**/api.gold-api.com/**", (r) => r.abort()); // no live prices in tests
   const q = await ctx2.newPage(); q.on("pageerror", (e) => errors.push(e.message));
-  await q.goto("http://localhost:8771/"); await q.waitForTimeout(400);
+  await q.goto("http://localhost:8771/"); await q.waitForFunction(() => store.mode === "local", null, { timeout: 15000 });
   await q.evaluate(() => { saveCoin({ ...blankCoin(), id: "keep", typeId: "peace-dollar", typeName: "Peace Dollar", year: 1922, grade: "VF-20" }); go("options"); });
   await q.waitForTimeout(150); await q.click("[data-act=openBackup]");
   await q.setInputFiles("#restoreFile", file); await q.waitForTimeout(300);
   ok("asks before restoring", /Restore this backup/.test(await q.textContent("#sheet")));
-  await q.click("[data-act=confirmOk]"); await q.waitForTimeout(800);
+  await q.click("[data-act=confirmOk]"); await q.waitForFunction(() => ownedCoins().length === 2, null, { timeout: 15000 }).catch(() => {}); await q.waitForTimeout(300);
   const r = await q.evaluate(() => ({ coins: ownedCoins().length, kept: !!getCoin("keep"), album: !!getAlbum("al"), photo: (() => { const c = ownedCoins().find((x) => x.id !== "keep"); return c && c.photos[0] && !!c.photos[0].lid && !!photoSrc(c.photos[0]); })(), silver: settings().spot.silver }));
   ok("restore adds the backup and keeps what was here", r.coins === 2 && r.kept && r.album && r.silver === 30);
   ok("restored photo works on the new phone", r.photo);
@@ -68,7 +68,7 @@ const srv = http.createServer((q, r) => {
   ok("a wrong file is refused", /isn't a Coin Cabinet backup/.test(await q.textContent("#restoreMsg")));
   await ctx2.close();
   // ---- The Claude version: "move my data out" with photos stored by Claude ----
-  const ctx3 = await b.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true });
+  const ctx3 = await b.newContext({ viewport: { width: 390, height: 844 }, acceptDownloads: true }); await ctx3.route("**/api.gold-api.com/**", (r) => r.abort()); // no live prices in tests
   const c = await ctx3.newPage(); c.on("pageerror", (e) => errors.push(e.message));
   await c.addInitScript(() => {
     const docs = new Map();
@@ -86,7 +86,7 @@ const srv = http.createServer((q, r) => {
   ok("Claude backup includes the Claude-stored photo", cb && cb.photos["id:abc"] && cb.docs.some((d) => d.id === "c_cl"));
   fs.writeFileSync("/tmp/cc-claude.json", JSON.stringify(cb));
   await ctx3.close();
-  const ctx4 = await b.newContext({ viewport: { width: 390, height: 844 } });
+  const ctx4 = await b.newContext({ viewport: { width: 390, height: 844 } }); await ctx4.route("**/api.gold-api.com/**", (r) => r.abort()); // no live prices in tests
   const d = await ctx4.newPage(); d.on("pageerror", (e) => errors.push(e.message));
   await d.goto("http://localhost:8771/"); await d.waitForTimeout(400);
   await d.evaluate(() => go("options")); await d.waitForTimeout(80); await d.click("[data-act=openBackup]");
