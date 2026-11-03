@@ -18,7 +18,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.31.0";
+const APP_VERSION = "0.31.1";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -338,7 +338,10 @@ function bookLookup(c) {
     return { none: true, kind: bt.kind };
   }
   const best = priceIn(row);
-  return best ? { ...best, asked: c.grade } : { below: true, lowest: bt.t.grades[0], kind: bt.kind };
+  if (best) return { ...best, asked: c.grade };
+  // A proof graded under the book's lowest column (PR-63): show that lowest listed price as "at least".
+  if (bt.kind === "proof") { const i = bt.t.grades.findIndex((g, k) => row[k] != null); if (i >= 0) return { price: row[i], grade: bt.t.grades[i], kind: "proof", asked: c.grade, atLeast: true, lowest: bt.t.grades[0] }; }
+  return { below: true, lowest: bt.t.grades[0], kind: bt.kind };
 }
 // Mintage from the same Red Book rows. "*" means the variety is counted in the date's total.
 function mintageInfo(c) {
@@ -370,6 +373,7 @@ function bookText(b) {
   const edName = settings().bookEdition || PRICE_BOOK.edition; const ed = edName ? " " + edName : "";
   if (b.none) return "Red Book" + ed + " has no listing for this date" + (b.kind === "proof" ? " and variety." : ".");
   if (b.below) return "Red Book" + ed + " prices start at " + b.lowest + ". Below that it's worth about melt.";
+  if (b.atLeast) return "Red Book" + ed + " starts at " + b.grade.replace(/^PR/, "PF") + ": at least " + money(b.price) + " for a proof (yours is " + b.asked.replace(/^PR/, "PF") + ")";
   return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " FBL" : b.kind === "sms" ? " SMS" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "")
     + (b.guess ? ". No variety picked, so this is the lowest-priced variety for this date. Pick the variety for an exact value" : "");
 }
@@ -865,12 +869,13 @@ function viewCoin(r) {
       ${row("COA", c.coa ? "Included" : null)}
       ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
-      ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? "Value each (Red Book)" : valueSource(c) === "face" ? "Value each (face value)" : "Value" + eachWord(c), money(v))}
+      ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, Red Book)" : "Value each (Red Book)") : valueSource(c) === "face" ? "Value each (face value)" : "Value" + eachWord(c), money(v))}
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row("Red Book", money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
       ${row("Melt" + eachWord(c), m == null ? (meltKey(c) ? "Enter spot price" : null) : money(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
       ${row("Metal", esc([c.metal, num(c.oz) ? num(c.oz) + " oz" + (itemOf(c) === "roll" ? " per coin" : itemOf(c) === "set" ? " in the set" : itemOf(c) === "bullion" ? " pure" : "") : ""].filter(Boolean).join(" · ")))}
     </div>
+    ${c.notes ? `<div class="card"><div class="muted small">Notes</div><div style="white-space:pre-wrap">${esc(c.notes)}</div></div>` : ""}
     ${purchaseCard(c, row)}
     ${errorsCard(c, row)}
     ${c.trackNo ? `<div class="card"><b>${stageOf(c) === "coming" ? "On the way" : "Shipping"}</b>${row("Tracking", esc(c.trackNo))}${row("Carrier", esc(carrierOf(c) || "Not sure"))}${row("Received", esc(c.receivedDate || ""))}
@@ -879,7 +884,6 @@ function viewCoin(r) {
     ${c.status === "gone" ? `<div class="card"><b>Gone</b>${row("Why", esc((c.gone && c.gone.reason) || ""))}${row("Date", esc((c.gone && c.gone.date) || ""))}<div class="small muted">Not counted in your totals.</div></div>` : ""}
     ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("ID", esc(c.cid))}${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping charged", num(sold.shipCharged) == null ? null : money(num(sold.shipCharged)))}${row("Platform fees", num(sold.fees) == null ? null : money(num(sold.fees)))}${row("Shipping paid", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Sales tax collected", num(sold.salesTax) == null ? null : money(num(sold.salesTax)))}${row("Paid with", esc(sold.payMethod))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}${row("Order number", esc(sold.orderNo))}${row("Tracking", sold.trackNo ? `<a href="${esc(trackUrl({ trackNo: sold.trackNo, trackCarrier: sold.carrier }))}" target="_blank" rel="noopener">${esc(sold.trackNo)} ↗</a>` : "")}${isInherited(c) ? "" : row("What you paid", costOf(c) == null ? null : money(costOf(c))) + row("Profit", typeof saleProfit === "function" ? `<b class="${signCls(saleProfit(c))}">${money(saleProfit(c))}</b>` : null)}</div>` : ""}
     ${caseCard(c)}
-    ${c.notes ? `<div class="card"><div class="muted small">Notes</div><div style="white-space:pre-wrap">${esc(c.notes)}</div></div>` : ""}
     ${certUrl(c) ? `<a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-bottom:8px" href="${esc(certUrl(c))}" target="_blank" rel="noopener">Verify cert on ${esc(c.service)} ↗</a>` : ""}
     <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>
     <div class="btn-row">
@@ -1030,6 +1034,16 @@ function albumUnits() {
   });
   return units;
 }
+// Sort albums by date: each series (or single album) goes by its first coin's first year. Series stay together.
+const albumFirstYear = (a) => { const t = TYPE_BY_ID[albumTypes(a)[0]]; const y = isSetAlbum(a) ? (t && t.start) : num(a.start) || (t && t.start); return y || 9999; };
+function sortAlbumsByDate() {
+  const units = albumUnits();
+  const yr = (u) => Math.min(...u.items.map(albumFirstYear));
+  units.forEach((u) => { if (u.key) u.items.sort((a, b) => albumFirstYear(a) - albumFirstYear(b)); });
+  units.sort((x, y) => yr(x) - yr(y));
+  saveSettings({ albumOrder: units.flatMap((u) => u.items.map((a) => a.id)) });
+  toast("Albums sorted by date. Move any you like.");
+}
 // Move one album (within its series) or a whole series (d = -1 up, 1 down).
 function moveAlbum(id, d, whole) {
   const units = albumUnits();
@@ -1058,6 +1072,7 @@ function viewAlbums() {
         ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b>${mv(u.items[0].id, ui, units.length, true)}</div>
             <div class="list">${u.items.map((a, i) => `<div class="coin-row"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span><span class="coin-sub">${esc(albumSub(a))}</span></span>${mv(a.id, i, u.items.length)}</div>`).join("")}</div></div>`
         : `<div class="list" style="margin-bottom:10px"><div class="coin-row"><span class="coin-main"><span class="coin-label">${esc(albumTitle(u.items[0]))}</span><span class="coin-sub">${esc(albumSub(u.items[0]))}</span></span>${mv(u.items[0].id, ui, units.length, true)}</div></div>`).join("")}
+      <button class="btn block" data-act="sortAlbumsDate">Sort by date</button>
       <button class="btn primary block" style="margin-top:12px" data-act="reorderAlbums">Done</button>`;
   }
   const card = (a) => {
@@ -2320,6 +2335,7 @@ const actions = {
   editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
   addSpot: (el) => openAddSpot(el.dataset.id),
   shareApp: () => shareAppLink(),
+  sortAlbumsDate: () => { sortAlbumsByDate(); },
   reorderAlbums: () => { albumsView.reorder = !albumsView.reorder; render(); },
   moveAlbum: (el) => moveAlbum(el.dataset.id, +el.dataset.d, !!el.dataset.whole),
   albumAddType: () => {
@@ -2418,7 +2434,7 @@ const actions = {
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
 const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
   "fetchSpot hideSpot showSold shelfStyle shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove wlNew wlDelete " +
-  "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums moveAlbum").split(" "));
+  "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums sortAlbumsDate moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const goEl = e.target.closest("[data-go]");
   if (goEl) { e.preventDefault(); go(goEl.dataset.go); return; }

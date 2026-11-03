@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 11, Fix list):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 12, Step 8.1 Seller Mode switch, Business stock, business profile):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -20,7 +20,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 8 | Opus | Phase review (4.3b through 7), then merge | ✓ reviewed, 6 fixes, merged |
 | 9 | Sonnet | Step 4.6 add many identical coins at once | ✓ merged v0.31.0 (PR #72) |
 | 10 | Opus | Step 8.0 plan Seller Mode (business info, reports, tax documents) | ✓ plan PR |
-| 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | |
+| 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | ✓ v0.31.1 (PR pending merge) |
 | 12 | Sonnet | Step 8.1 Seller Mode switch, Business stock, business profile | |
 | 13 | Sonnet | Step 8.2 dealer display case and shows | |
 | 14 | Sonnet | Step 8.3 pricing help and reports | |
@@ -35,17 +35,17 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 
 ## Fix list (small changes waiting for a session)
 
-Claude adds items here when they wait. Session 11 clears the open ones.
+Claude adds items here when they wait. Session 11 cleared the open ones.
 - ✓ done v0.28.0 **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
 - ✓ done v0.28.0 **Session 4:** bar **weight in grams or kilos** as well as ounces (a unit dropdown; stored as ounces, so old bars don't change).
 - ✓ done v0.28.0 **Session 4:** **roll end colors** on the shelf. Checked against bank-wrapper (ABA) colors: cents red, nickels blue, dimes green, quarters orange, **halves sand/brown (not yellow)**, dollars gray (Sacagawea too); Morgan and Peace rolls worn beige.
 - ✓ done v0.28.0 **Home: collapsible sections below the shelf** (Melt Value by Metal, Recently added, Recently sold). Tap a heading to open or close it; the app remembers each one. Fits Session 4 (Home shelf).
 - ✓ done v0.28.0 **Wooden box look.** Add "Wooden box" to the box Look choices (storage and display). On the shelf, a wooden display box gets a solid wood case (today every display box is drawn as a wood-framed glass case). Fits Session 4.
 - ✓ done v0.29.0 **Session 5: ask before auto-filling a box spot.** When a box with numbered spots is picked, ask "Choose the spot yourself?" Yes: nothing filled in, you pick the real spot. No: the next free spot is filled in as today. Works for single coins now and for the add-many idea (IDEAS 12) later.
-- **Session 11: albums by date.** A **"Sort by date"** button where albums are reordered. Series stay together; each series (or single album) is placed by its first coin type's first year (e.g. Morgan 1878 before Lincoln 1909; Washington 1932, Franklin 1948, Kennedy 1964). You can still move any album after.
-- **Session 11: Notes above Purchase** on a coin's page.
-- **Session 11: proof with no value.** A 1962 Franklin proof showed blank (melt used). The Red Book table starts at PR-63, so a proof with no grade or below PR-63 gets nothing. Show the lowest listed proof value marked "at least" (like the circulated "below" case), or a short note "Red Book starts at PR-63"; check the no-grade case too.
-- **Session 11: smaller Home chips.** My collection, Inherited, My Silver Stack become thin pills in **one row you swipe left/right**; turned-off ones look gray. Must still be easy to spot.
+- ✓ done v0.31.1 **Session 11: albums by date.** A **"Sort by date"** button where albums are reordered. Series stay together; each series (or single album) is placed by its first coin type's first year (e.g. Morgan 1878 before Lincoln 1909; Washington 1932, Franklin 1948, Kennedy 1964). You can still move any album after.
+- ✓ done v0.31.1 **Session 11: Notes above Purchase** on a coin's page.
+- ✓ done v0.31.1 **Session 11: proof with no value.** A 1962 Franklin proof showed blank (melt used). The Red Book table starts at PR-63, so a proof with no grade or below PR-63 gets nothing. Show the lowest listed proof value marked "at least" (like the circulated "below" case), or a short note "Red Book starts at PR-63"; check the no-grade case too.
+- ✓ done v0.31.1 **Session 11: smaller Home chips.** My collection, Inherited, My Silver Stack become thin pills in **one row you swipe left/right**; turned-off ones look gray. Must still be easy to spot.
 
 
 **Starting a new chat:** say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
