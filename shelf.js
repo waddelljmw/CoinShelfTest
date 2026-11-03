@@ -116,7 +116,7 @@ function shelfStacks(owned) {
   const rolls = owned.filter((c) => itemOf(c) === "roll");
   if (rolls.length) {
     const tubes = rolls.slice(0, 3).map((c, i) => `<i class="sh-roll ${rollColor(c) ? "rc-" + rollColor(c) : discCls(c)}" style="height:${[64, 56, 70][i]}px"></i>`).join("");
-    groups.push(`<button class="sh-group" data-go="coins"><span class="sh-rolls">${tubes}</span><span class="sh-cap">Rolls<br>${sum(rolls, qtyOf)}</span></button>`);
+    groups.push(`<button class="sh-group" data-act="seeItems" data-v="roll"><span class="sh-rolls">${tubes}</span><span class="sh-cap">Rolls<br>${sum(rolls, qtyOf)}</span></button>`);
   }
   return limitGroups(groups, "stacks", "Stacks").join("");
 }
@@ -149,7 +149,7 @@ function shelfSets(owned) {
   const sets = owned.filter((c) => itemOf(c) === "set");
   if (!sets.length) return "";
   const cases = sets.slice(0, 2).map((c, i) => `<i class="sh-set ${i ? "r" : ""}">${esc(labelOf(c).slice(0, 18))}</i>`).join("");
-  return `<button class="sh-group" data-go="coins"><span class="sh-sets">${cases}</span><span class="sh-cap">Sets · ${sum(sets, qtyOf)}</span></button>`;
+  return `<button class="sh-group" data-act="seeItems" data-v="set"><span class="sh-sets">${cases}</span><span class="sh-cap">Sets · ${sum(sets, qtyOf)}</span></button>`;
 }
 // The totals plaques and metal prices on the top shelf.
 function shelfTop(t) {

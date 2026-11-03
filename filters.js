@@ -28,6 +28,7 @@ function extraFilter(c) {
   if (f.stack && stackOf(c) !== f.stack) return false;
   if (f.biz === "business" && !c.biz) return false;
   if (f.biz === "personal" && c.biz) return false;
+  if (f.item && itemOf(c) !== f.item) return false;
   if (f.holder && holderText(c) !== f.holder) return false;
   if (f.kept && !fltKept(c, f.kept)) return false;
   const y = num(c.year), yF = fltNum(f.yFrom), yT = fltNum(f.yTo);
@@ -62,6 +63,7 @@ function fltChips() {
   if (f.group) add("group", "Group: " + f.group);
   if (f.stack) add("stack", "Stack: " + f.stack);
   if (f.biz) add("biz", f.biz === "business" ? "Business stock" : "Personal");
+  if (f.item) add("item", f.item === "roll" ? "Rolls only" : "Sets only");
   if (f.holder) add("holder", "Holder: " + f.holder);
   if (f.kept) add("kept", "Kept in: " + fltKeptName(f.kept));
   if (f.yFrom || f.yTo) add("year", "Year " + (f.yFrom || "…") + "–" + (f.yTo || "…"));
@@ -218,6 +220,7 @@ function bulkApply(label, fn) {
 /* ---------- actions ---------- */
 Object.assign(actions, {
   fltOpen: () => openFilterPanel(),
+  seeItems: (el) => { Object.assign(listState, { family: null, status: "owned", metal: "", cert: "", stage: "", q: "", f: { item: el.dataset.v } }); go("coins"); }, // the shelf's Rolls and Sets open just those
   fltApply: () => { fltRead(); closeSheet(); render(); },
   fltClear: () => { listState.metal = ""; listState.cert = ""; listState.f = {}; closeSheet(); render(); },
   fltDrop: (el) => {
