@@ -73,6 +73,7 @@ function keptInFields(d) {
 function boxFields(d) {
   const b = d.boxId && getBox(d.boxId);
   if (!b || !hasSpots(b)) return "";
+  if (typeof manyOn === "function" && manyOn(d)) return manySpots(d, b); // several coins: tap their spots
   if (d._boxFor === undefined) d._boxFor = d.boxId; else if (d._boxFor !== d.boxId) { d._boxFor = d.boxId; d.boxRow = ""; d.boxSlot = ""; delete d._spotAsk; } // a different box starts with a fresh spot
   const hasSpot = d.boxRow || d.boxSlot;
   if (!hasSpot && d._spotAsk !== "yes" && d._spotAsk !== "no") { // ask first: his coins sit in a real order, so he may want to pick the spot

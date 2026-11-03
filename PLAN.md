@@ -18,7 +18,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | ✓ plan PR |
 | 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | ✓ merged v0.30.0 (PR #71) |
 | 8 | Opus | Phase review (4.3b through 7), then merge | ✓ reviewed, 6 fixes, merged |
-| 9 | Sonnet | Step 4.6 add many identical coins at once | PR |
+| 9 | Sonnet | Step 4.6 add many identical coins at once | PR open (v0.31.0) |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. Phase 8 Seller Mode planning on Opus. | |
 
 **Rules for a session:**
@@ -317,6 +317,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 - [x] Short look at 4.4 (session 8: odd old shelf settings cause no errors)
 
 **Step 4.6. Add many identical coins at once (IDEAS 10). Model: Sonnet. Planned on Opus (session 6).**
+- [x] Built (v0.31.0, branch `step-4.6-add-many`, file `many.js`, test `tests/many46.js`). Tax, shipping and fees are split across the coins the same way as a group price. Quantity stays 1 on each coin. Not offered when an album is picked.
 - [ ] Merged
 - On Add coin, a **How many?** box (default 1, up to 100). Everything you fill in (type, year, mint, grade, holder, notes) is copied to each coin. **Each saves as its own coin with its own ID** (e.g. MD-013 to MD-024).
 - **Price:** each time you choose **per coin** or **total for the group** (split evenly; any leftover cent goes on the first coin).
