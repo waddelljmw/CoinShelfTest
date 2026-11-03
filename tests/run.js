@@ -57,7 +57,7 @@ const path = require("path");
   await p.click(".coin-row:has-text('Silver Eagle')");
   const ebay = await p.getAttribute("a:has-text('Check eBay sold')", "href");
   console.log("ebay", ebay);
-  await p.click("[data-act=sell]");
+  await p.click("[data-act=sell]"); await p.click("#sellForm summary");
   await p.fill("#sellForm [name=amount]", "60"); await p.fill("#sellForm [name=shipping]", "5");
   await p.click("#sellForm button[type=submit]");
   await p.waitForTimeout(100);

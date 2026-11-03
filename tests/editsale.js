@@ -6,7 +6,7 @@ const { chromium } = require("./_compat");
   await p.click("#fab"); await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0");
   await p.fill("[data-f=year]", "1880"); await p.selectOption("[data-f=mint]", "O"); await p.fill("[data-f=qty]", "3"); await p.fill("[data-f=paid]", "45");
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(200);
-  await p.click("[data-act=sell]"); await p.fill("#sellForm [name=n]", "1"); await p.fill("#sellForm [name=date]", "2026-10-31");
+  await p.click("[data-act=sell]"); await p.click("#sellForm summary"); await p.fill("#sellForm [name=n]", "1"); await p.fill("#sellForm [name=date]", "2026-10-31");
   await p.fill("#sellForm [name=amount]", "70"); await p.fill("#sellForm [name=shipping]", "5.95"); await p.click("#sellForm button[type=submit]"); await p.waitForTimeout(200);
   await p.click(".brand"); await p.waitForTimeout(200);
   const marginBefore = await p.textContent(".stat:has-text('Margin') .v");

@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 7, build Phase 7 basic selling):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 8, Opus phase review of 4.3b through 7, then merge PR for session 7):** switch to **Opus**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -16,7 +16,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | ✓ merged |
 | 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | ✓ merged v0.29.0 |
 | 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | ✓ plan PR |
-| 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | PR |
+| 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | ✓ PR (v0.30.0, not merged; review in 8) |
 | 8 | Opus | Phase review (4.3b through 7), then merge | merge |
 | 9 | Sonnet | Step 4.6 add many identical coins at once | PR |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. Phase 8 Seller Mode planning on Opus. | |
@@ -347,7 +347,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 **Step 7.0. Coin ID numbers (IDEAS 8). Built first in session 7, checked by the session 8 Opus review before merge.**
 - [ ] Merged
 - Every item gets an ID you can write on its flip: a **type code + number**, e.g. **MD-012** (Morgan dollar #12). Numbers count up separately for each type (MD-001, MD-002…; PD-001 for Peace dollars). 3 digits, growing to 4 if a type passes 999.
-- Codes come from a short list in `catalog/data.js` (one per coin type; also bars, rounds, sets, rolls, medals/tokens, foreign). Look up the type names already in the catalog; don't invent new types. Show him the code list in the PR so he can change any code.
+- Codes come from a short list in `catalog/idcodes.js` (one per coin type; also bars, rounds, sets, rolls, medals/tokens, foreign). Look up the type names already in the catalog; don't invent new types. Show him the code list in the PR so he can change any code.
 - **Existing coins all get IDs now**, in the order they were added. Done on read, so old backups still restore and get numbered too.
 - An ID is **never reused**, even after a coin is sold, gone or deleted. A coin's type never changes, so its code never changes.
 - **You can edit an ID.** The app refuses a duplicate and says which coin already has it.
