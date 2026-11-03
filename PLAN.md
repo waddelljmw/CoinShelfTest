@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 9, Step 4.6 add many identical coins at once):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 10, Step 8.0 plan Seller Mode):** switch to **Opus**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -18,7 +18,8 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | ✓ plan PR |
 | 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | ✓ merged v0.30.0 (PR #71) |
 | 8 | Opus | Phase review (4.3b through 7), then merge | ✓ reviewed, 6 fixes, merged |
-| 9 | Sonnet | Step 4.6 add many identical coins at once | PR open (v0.31.0) |
+| 9 | Sonnet | Step 4.6 add many identical coins at once | ✓ merged v0.31.0 (PR #72) |
+| 10 | Opus | Step 8.0 plan Seller Mode (business info, reports, tax documents) | |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. Phase 8 Seller Mode planning on Opus. | |
 
 **Rules for a session:**
@@ -318,7 +319,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 
 **Step 4.6. Add many identical coins at once (IDEAS 10). Model: Sonnet. Planned on Opus (session 6).**
 - [x] Built (v0.31.0, branch `step-4.6-add-many`, file `many.js`, test `tests/many46.js`). Tax, shipping and fees are split across the coins the same way as a group price. Quantity stays 1 on each coin. Not offered when an album is picked.
-- [ ] Merged
+- [x] Merged (v0.31.0, Nov 2, 2026, PR #72)
 - On Add coin, a **How many?** box (default 1, up to 100). Everything you fill in (type, year, mint, grade, holder, notes) is copied to each coin. **Each saves as its own coin with its own ID** (e.g. MD-013 to MD-024).
 - **Price:** each time you choose **per coin** or **total for the group** (split evenly; any leftover cent goes on the first coin).
 - **Photos:** one photo shared by all. You can change any single coin's photo later. Deleting one coin must **never** delete a photo another coin still uses.
