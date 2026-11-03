@@ -18,7 +18,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | ✓ plan PR |
 | 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | PR |
 | 8 | Opus | Phase review (4.3b through 7), then merge | merge |
-| later | Opus | Plan IDEAS 10 (add many identical coins to a container at once) | plan PR |
+| 9 | Sonnet | Step 4.6 add many identical coins at once | PR |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. Phase 8 Seller Mode planning on Opus. | |
 
 **Rules for a session:**
@@ -315,6 +315,14 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 - [x] Review of 4.3 done (Nov 2, 2026)
 - [x] Box columns added (v0.26.0, Nov 2, 2026): Edit box → "Spots run in" Rows or Columns
 - [ ] Short look at 4.4
+
+**Step 4.6. Add many identical coins at once (IDEAS 10). Model: Sonnet. Planned on Opus (session 6).**
+- [ ] Merged
+- On Add coin, a **How many?** box (default 1, up to 100). Everything you fill in (type, year, mint, grade, holder, notes) is copied to each coin. **Each saves as its own coin with its own ID** (e.g. MD-013 to MD-024).
+- **Price:** each time you choose **per coin** or **total for the group** (split evenly; any leftover cent goes on the first coin).
+- **Photos:** one photo shared by all. You can change any single coin's photo later. Deleting one coin must **never** delete a photo another coin still uses.
+- **Placing in a box:** pick the box once; its spot grid opens. **Tap spots in order**: each tap places the next coin, a tap on a placed coin takes it back out. A **Fill the rest for me** button puts the rest in the next free spots. Not offered for albums (each album spot is a different date).
+- **One Undo** removes the whole group.
 
 ## Phase 5: Features that need an outside service. Model: Sonnet.
 
