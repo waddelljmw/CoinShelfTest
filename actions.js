@@ -222,7 +222,12 @@ const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge 
   "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums sortAlbumsDate moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const goEl = e.target.closest("[data-go]");
-  if (goEl) { e.preventDefault(); go(goEl.dataset.go); return; }
+  if (goEl) {
+    e.preventDefault();
+    // A link may name the folded Options section it lands on (data-open): open it so it is ready to use.
+    if (goEl.dataset.open) saveSettings({ optOpen: { ...(settings().optOpen || {}), [goEl.dataset.open]: true } });
+    go(goEl.dataset.go); return;
+  }
   const actEl = e.target.closest("[data-act]");
   if (actEl && actions[actEl.dataset.act]) {
     if (store.mode === "snapshot" && SNAPSHOT_BLOCK.has(actEl.dataset.act)) { e.preventDefault(); toast("This is a view-only copy."); return; }
