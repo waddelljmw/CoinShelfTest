@@ -210,6 +210,9 @@ const actions = {
   },
   spotAsk: (el) => { draft._spotAsk = el.dataset.v; const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; },
   fetchSpot: () => fetchSpotPrices(false),
+  tryDemo: () => { location.href = location.pathname + "?demo"; }, // opens fresh, so the real saved coins are never touched
+  exitDemo: () => { location.href = location.pathname; },
+  demoFill: () => demoFillRun(),
   resetLabel: () => { draft.labelEdited = false; draft.label = ""; renderCoinForm(); },
 };
 

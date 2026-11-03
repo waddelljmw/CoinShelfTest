@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 21, Sonnet):** build demo mode (Step 9.1). Switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 22 to 25 in the table.
+**Next session starts here (session 22, Sonnet):** three AI test-user reviews (IDEAS 13), one chat each, starting with the first-time collector. Stay on **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 23 to 25 in the table.
 
 ## Session plan (one chat per session, done in order)
 
@@ -31,7 +31,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 19 | Sonnet | Build the menu rework (Step 9.0) | ✅ merged v0.37.0 (PR #95) |
 | 20 | Opus | Plan demo mode (IDEAS 8) | ✅ plan PR (Step 9.1) + automatic GitHub tests |
 | 20b | Sonnet | Split `app.js` into smaller files by area (no change to what you see); check the automatic GitHub test run passes | ✅ merged v0.37.1 (PR #99), automatic GitHub tests pass |
-| 21 | Sonnet | Build demo mode (Step 9.1) | |
+| 21 | Sonnet | Build demo mode (Step 9.1) | ✅ merged v0.38.0 |
 | 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | |
 | 23 | Opus | Read the reviews, then the feature audit (IDEAS 22); plan the changes | |
 | 24 | Sonnet | Build the audit changes | |
@@ -102,12 +102,12 @@ Only moves and renames menu buttons. No saved data changes, no page addresses ch
 
 ## Step 9.1: Demo mode (IDEAS 8). Planned session 20 (Opus); build session 21 (Sonnet)
 Your choices (2026-11-03): made-up coins only, simple drawn coin pictures, opened by a button **and** a link. The infographic is **not** in the app: it is for you to show people, made later (session 25) once the reviews and audit show the best features.
-- [ ] **Separate from real coins.** New `store.mode` `"demo"`: everything lives in memory only, never touches the phone's saved coins (IndexedDB) or the Claude account. No value-history saving, no backup reminder, Backup/Restore and Import hidden in demo. Banner on every page: "Demo: these aren't real coins. **Exit demo**". Exit reloads the app normally.
-- [ ] **Opening it.** "Try the demo" button on the first-open screen and in Options; link `https://waddelljmw.github.io/CoinShelfTest/?demo`. The demo file loads only when the demo opens (keeps the normal app small, idea 26), but is in `FILES` in sw.js so it works offline at a show.
-- [ ] **Sample collection** in new `catalog/demo.js` (under ~150 KB): ~25 single coins across many types (must include a **1910 Indian Head $2.50 gold** coin, `indian-2-5`), a few rolls, 1 oz and 10 oz silver bars, a "black box" storage box of ~25 wheat cents in 2x2 flips, 2 partly filled albums: Lincoln cents (lightly filled), and a **Morgan dollar album about 85% full** (real album layout from `ALBUM_DB`; the empty spots are mostly the rare, expensive dates, like a real collection), one want list, a few sold coins, one Seller Mode show with business stock, and ~12 months of value history. About **100–120 coins in all**: enough to fill every page, not so many a friend gets lost. Build it from short lists the app turns into coins. Only real dates and mints from `EXACT_SLOTS`; values come from the app's Red Book data (none typed into the demo). Nothing from your backup.
-- [ ] **Drawn coin pictures.** One small function draws a coin (metal color, size, denomination and year on it), so no picture files. Never a copy of a real coin design.
-- [ ] **Photo fill showcase** (still locked in the real app). One demo coin marked "Filled in from photos". On Add coin in demo, a "See photo fill in action" button fills the form one field at a time from two drawn photos, labeled **Example**. No API key, no outside service.
-- [ ] **Tests** (`tests/demo.js`): demo opens from the button and from `?demo`; adding/deleting a coin in demo leaves the real saved coins unchanged after Exit; every demo coin passes `yearProblem`; demo.js stays under the size limit.
+- [x] ✅ **Separate from real coins.** New `store.mode` `"demo"`: everything lives in memory only, never touches the phone's saved coins (IndexedDB) or the Claude account. No value-history saving, no backup reminder, Backup/Restore and Import hidden in demo. Banner on every page: "Demo: these aren't real coins. **Exit demo**". Exit reloads the app normally.
+- [x] ✅ **Opening it.** "Try the demo" button on the first-open screen and in Options; link `https://waddelljmw.github.io/CoinShelfTest/?demo`. The demo file loads only when the demo opens (keeps the normal app small, idea 26), but is in `FILES` in sw.js so it works offline at a show.
+- [x] ✅ **Sample collection** in new `catalog/demo.js` (under ~150 KB): ~25 single coins across many types (must include a **1910 Indian Head $2.50 gold** coin, `indian-2-5`), a few rolls, 1 oz and 10 oz silver bars, a "black box" storage box of ~25 wheat cents in 2x2 flips, 2 partly filled albums: Lincoln cents (lightly filled), and a **Morgan dollar album about 85% full** (real album layout from `ALBUM_DB`; the empty spots are mostly the rare, expensive dates, like a real collection), one want list, a few sold coins, one Seller Mode show with business stock, and ~12 months of value history. About **100–120 coins in all**: enough to fill every page, not so many a friend gets lost. Build it from short lists the app turns into coins. Only real dates and mints from `EXACT_SLOTS`; values come from the app's Red Book data (none typed into the demo). Nothing from your backup.
+- [x] ✅ **Drawn coin pictures.** One small function draws a coin (metal color, size, denomination and year on it), so no picture files. Never a copy of a real coin design.
+- [x] ✅ **Photo fill showcase** (still locked in the real app). One demo coin marked "Filled in from photos". On Add coin in demo, a "See photo fill in action" button fills the form one field at a time from two drawn photos, labeled **Example**. No API key, no outside service.
+- [x] ✅ **Tests** (`tests/demo.js`): demo opens from the button and from `?demo`; adding/deleting a coin in demo leaves the real saved coins unchanged after Exit; every demo coin passes `yearProblem`; demo.js stays under the size limit.
 - [ ] Version: feature (middle number).
 
 ## What you want, in short

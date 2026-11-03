@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.37.1";
+const APP_VERSION = "0.38.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -60,7 +60,22 @@ function showBanner(text) {
   b.hidden = false;
 }
 
+// Demo mode (Step 9.1): made-up coins, kept in memory only. catalog/demo.js is fetched only when the demo opens.
+async function startDemo() {
+  await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "catalog/demo.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+  store.mode = "demo";
+  store.docs = new Map(demoDocs());
+  store.docs.set("history", demoHistory());
+  document.body.classList.add("demo");
+  $("#banner").innerHTML = `Demo: these aren't real coins. <button class="link-btn" data-act="exitDemo">Exit demo</button>`;
+  $("#banner").hidden = false;
+  render();
+}
 async function initStore() {
+  if (/[?&]demo(=|&|$)/.test(location.search)) { // the link .../CoinShelfTest/?demo
+    try { await startDemo(); } catch (e) { store.mode = "memory"; showBanner("Couldn't open the demo. Check your connection and try again."); render(); }
+    return;
+  }
   // View-only snapshot: a copy of someone's coins baked into the page (for showing friends).
   if (window.COIN_SNAPSHOT) {
     store.mode = "snapshot";

@@ -102,7 +102,7 @@ function viewHome() {
     ...(groupsPresent().length > 1 ? groupsPresent().map((g) => { const on = !hiddenGroups().includes(g); return `<button class="chip ${on ? "on" : ""}" data-act="toggleGroup" data-v="${esc(g)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(g)} · ${sum(everything.filter((c) => groupOf(c) === g), qtyOf)}</button>`; }) : []),
     ...stacksPresent().map((n) => { const on = !hiddenStacks().includes(n); return `<button class="chip ${on ? "on" : ""}" data-act="toggleStack" data-v="${esc(n)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(n)} · ${sum(everything.filter((c) => stackOf(c) === n), qtyOf)}</button>`; }),
   ];
-  let html = `${typeof backupReminder === "function" ? backupReminder() : ""}<h1 class="sr-only">Your cabinet</h1>
+  let html = `${typeof backupReminder === "function" ? backupReminder() : ""}${store.mode === "local" && !allCoins().some((c) => c.status !== "deleted") ? `<div class="card"><b>New here?</b> Look around a made-up sample collection first. It is kept apart from your own coins.<div class="btn-row"><button class="btn" data-act="tryDemo">Try the demo</button></div></div>` : ""}<h1 class="sr-only">Your cabinet</h1>
   ${eyeButton()}
   ${chips.length ? `<div class="chips home-chips" aria-label="Count in the totals">${chips.join("")}</div>` : ""}
   ${typeof shelfHtml === "function" ? shelfHtml(owned, { total, melt, count }) : ""}
