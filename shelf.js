@@ -9,9 +9,12 @@ function applyShelfStyle() { document.body.classList.toggle("safe", shelfStyle()
 
 // Step 4.4: which shelves show, in what order, and which are pinned. Saved in settings as `shelfLayout`: { order, hidden, hiddenItems, pins }.
 // Anything missing or unknown falls back to the default, so shelves added later just appear.
-const SHELF_DEFS = [["albums", "Albums"], ["stacks", "Stacks and coins"], ["storage", "Storage boxes"], ["display", "Display boxes"], ["sets", "Sets"]];
+const SHELF_DEFS = [["albums", "Albums"], ["stacks", "Stacks and coins"], ["storage", "Storage boxes"], ["display", "Display boxes"], ["sets", "Sets"], ["dealer", "Dealer cases"]];
 const SHELF_KEYS = SHELF_DEFS.map((d) => d[0]);
+// The Dealer cases shelf only exists while Seller Mode is on.
+const shelfKeys = () => SHELF_KEYS.filter((k) => k !== "dealer" || (typeof sellerOn === "function" && sellerOn()));
 function shelfLayout() {
+  const SHELF_KEYS = shelfKeys(); // (shadows the full list for this function)
   const L = settings().shelfLayout || {}, obj = (v) => (v && typeof v === "object" && !Array.isArray(v) ? v : {});
   const order = (Array.isArray(L.order) ? L.order : []).filter((k, i, a) => SHELF_KEYS.includes(k) && a.indexOf(k) === i);
   SHELF_KEYS.forEach((k) => { if (!order.includes(k)) order.push(k); });
@@ -120,9 +123,11 @@ function shelfStacks(owned) {
 // One box drawn on the shelf, by its look: black, cardboard, plastic (any color, or clear with coins showing). Display boxes are a glass case.
 function boxDrawing(b) {
   const st = boxStats(b), name = esc(b.name || "Box");
-  const cap = (b.type === "display" ? "Display" : "Storage") + " · " + (hasSpots(b) ? st.filled + "/" + st.total : st.filled + " item" + (st.filled === 1 ? "" : "s"));
+  const cap = (b.type === "dealer" ? "Dealer" : b.type === "display" ? "Display" : "Storage") + " · " + (hasSpots(b) ? st.filled + "/" + st.total : st.filled + " item" + (st.filled === 1 ? "" : "s"));
   let art;
-  if (b.type === "display" && b.look === "wood") { // a wooden display box is a solid wood case
+  if (b.type === "dealer") { // a glass-top show case with green felt
+    art = `<span class="sh-case dealer"><span class="sh-case-coins">${["ag", "ag", "au", "cu", "ni"].map((k) => `<i class="sh-coin ${k}"></i>`).join("")}</span><b>${name}</b></span>`;
+  } else if (b.type === "display" && b.look === "wood") { // a wooden display box is a solid wood case
     art = `<span class="sh-case solid"><span class="sh-case-coins">${["ag", "cu", "ni", "ag", "au"].map((k) => `<i class="sh-coin ${k}"></i>`).join("")}</span><b>${name}</b></span>`;
   } else if (b.type === "display") {
     const coins = ["ag", "cu", "ni", "ag", "au"].slice(0, 5).map((k) => `<i class="sh-coin ${k}"></i>`).join("");
@@ -138,6 +143,7 @@ function shelfBoxes() {
   return limitGroups(storageBoxes().filter((b) => itemShown(b.id)).map(boxDrawing), "boxes", "Storage").join("");
 }
 function shelfDisplay() { return limitGroups(displayBoxes().filter((b) => itemShown(b.id)).map(boxDrawing), "boxes", "Storage").join(""); }
+function shelfDealer() { return limitGroups(dealerBoxes().filter((b) => itemShown(b.id)).map(boxDrawing), "boxes", "Storage").join(""); }
 // Sets get their own shelf (only drawn when you own one).
 function shelfSets(owned) {
   const sets = owned.filter((c) => itemOf(c) === "set");
@@ -167,6 +173,7 @@ function shelfHtml(owned, t) {
     stacks: () => row("Stacks and coins", shelfStacks(owned), "spread"),
     storage: () => { const h = shelfBoxes(); return h ? row("Storage boxes", h, "spread") : ""; },
     display: () => { const h = shelfDisplay(); return h ? row("Display boxes", h, "spread") : ""; },
+    dealer: () => { if (!sellerOn()) return ""; const h = shelfDealer(); return h ? row("Dealer cases", h, "spread") : ""; },
     sets: () => { const h = shelfSets(owned); return h ? row("Sets", h, "spread") : ""; },
   };
   const rows = shelfOrder().filter((k) => !L.hidden[k]).map((k) => draw[k]()).join("");
@@ -180,13 +187,13 @@ function shelfHtml(owned, t) {
 function shelfOptionsHtml() {
   const L = shelfLayout(), name = Object.fromEntries(SHELF_DEFS);
   const n = hiddenItemCount();
-  const rows = L.order.map((k, i) => {
+  const rows = L.order.filter((k) => k !== "dealer" || sellerOn()).map((k, i, vis) => {
     const pin = L.pins[k] || "", lock = pin === "lock";
     const chip = (v, txt) => `<button class="chip ${pin === v ? "on" : ""}" data-act="shelfPin" data-k="${k}" data-v="${v}" aria-pressed="${pin === v}">${txt}</button>`;
     return `<div class="shelf-opt"><label class="switch"><span>${name[k]}</span><input type="checkbox" data-act="shelfShow" data-k="${k}" ${L.hidden[k] ? "" : "checked"}></label>
       <div class="chips">${chip("", "No pin")}${chip("top", "Pin to top")}${chip("lock", "Lock in place")}
         <button class="chip" data-act="shelfMove" data-k="${k}" data-d="-1" ${lock || i === 0 ? "disabled" : ""} aria-label="Move ${name[k]} up">▲</button>
-        <button class="chip" data-act="shelfMove" data-k="${k}" data-d="1" ${lock || i === L.order.length - 1 ? "disabled" : ""} aria-label="Move ${name[k]} down">▼</button></div></div>`;
+        <button class="chip" data-act="shelfMove" data-k="${k}" data-d="1" ${lock || i === vis.length - 1 ? "disabled" : ""} aria-label="Move ${name[k]} down">▼</button></div></div>`;
   }).join("");
   return `<div class="small muted" style="margin-bottom:6px">Totals always stay first. Hidden shelves still count in your totals.</div>${rows}
     ${n ? `<div class="hint">${n} album${n === 1 ? "" : "s"} or box${n === 1 ? "" : "es"} hidden from the shelf. <button class="link-btn" data-act="shelfShowAll">Show all</button></div>` : ""}`;

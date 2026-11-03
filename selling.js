@@ -64,7 +64,8 @@ function openSell(id, edit) {
     ${q > 1 ? `<label class="f"><span>How many sold (of ${q})</span><input type="number" name="n" min="1" max="${q}" value="${q}"></label>` : ""}
     <label class="f"><span>Date sold</span><input type="date" name="date" value="${edit ? fv(sv.date) : today()}"></label>
     <label class="f"><span>Sold for (total, optional)</span><input type="number" inputmode="decimal" step="0.01" name="amount" placeholder="$" value="${fv(amount)}"></label>
-    ${whereFields(sv)}
+    ${typeof showPicker === "function" ? showPicker(c, sv, edit) : ""}
+    ${whereFields(!edit && typeof showSaleDefault === "function" && showSaleDefault(c) ? { ...sv, ...showSaleDefault(c) } : sv)}
     <details class="more" ${moreOpen ? "open" : ""}><summary>More details</summary>
       <div class="grid2">${mon("shipCharged", "Shipping you charged")}${mon("shipping", "Shipping you paid (label)")}</div>
       <div class="grid2">${mon("insurance", "Insurance")}${mon("salesTax", "Sales tax collected")}</div>
@@ -121,6 +122,12 @@ function doSell(form) {
     shipCharged: m("shipCharged"), fees: m("fees"), salesTax: m("salesTax"), payMethod: String(fd.get("payMethod") || ""),
     orderNo: String(fd.get("orderNo") || "").trim(), trackNo: String(fd.get("trackNo") || "").replace(/\s+/g, ""),
     ...readWhere(fd), to: String(fd.get("soldTo") || "").trim() };
+  const showId = String(fd.get("showId") || "");
+  if (showId && typeof getShow === "function" && getShow(showId)) { // sold at a show: remember which, and suggest "Where" if it was left blank
+    sold.showId = showId;
+    const w = !sold.whereType && typeof whereFromShow === "function" ? whereFromShow(getShow(showId)) : null;
+    if (w) { Object.assign(sold, w); sold.where = whereText(sold); }
+  }
   if (form.dataset.edit) {
     saveCoin({ ...c, sold: { ...sold, at: (c.sold && c.sold.at) || sold.at, carrier: c.sold && c.sold.carrier } });
     closeSheet();

@@ -116,7 +116,7 @@ function openFilterPanel() {
   const saved = fltSaved();
   const field = (label, inner) => `<label class="f"><span>${label}</span>${inner}</label>`;
   const sel = (k, first, list, cur) => `<select data-flt="${k}"><option value="">${first}</option>${fltOpts(list, cur)}</select>`;
-  const keptList = [["none", "Nothing special"], ...albums().map((a) => ["a:" + a.id, "Album: " + albumTitle(a)]), ...storageBoxes().map((b) => ["b:" + b.id, "Storage box: " + b.name]), ...displayBoxes().map((b) => ["b:" + b.id, "Display box: " + b.name]), ...stacks.map((s) => ["s:" + s, "Stack: " + s])];
+  const keptList = [["none", "Nothing special"], ...albums().map((a) => ["a:" + a.id, "Album: " + albumTitle(a)]), ...storageBoxes().map((b) => ["b:" + b.id, "Storage box: " + b.name]), ...displayBoxes().map((b) => ["b:" + b.id, "Display box: " + b.name]), ...(sellerOn() ? dealerBoxes() : []).map((b) => ["b:" + b.id, "Dealer case: " + b.name]), ...stacks.map((s) => ["s:" + s, "Stack: " + s])];
   openSheet(`<div class="sheet-head"><h2>Filter</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     ${saved.length ? `<div class="card"><b>Saved filters</b>${saved.map((s) => listState._ren === s.id
       ? `<div class="rowline"><input type="text" data-flt-ren value="${esc(s.name)}" maxlength="40"><button class="btn" data-act="fltRenSave" data-id="${esc(s.id)}">Save</button></div>`
@@ -175,6 +175,7 @@ function movePlace(c, dest, used) {
   if (dest.startsWith("b:")) {
     const b = getBox(dest.slice(2));
     if (!b) return "box not found";
+    if (caseOn(b) && isInherited(c)) return "inherited coins can't go in a for-sale case";
     if (c.boxId === b.id && (!hasSpots(b) || c.boxRow)) return "already in it";
     let spot = null;
     if (hasSpots(b)) {
@@ -266,7 +267,7 @@ Object.assign(actions, {
     openSheet(`<div class="sheet-head"><h2>Move ${picked.length} to…</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
       <label class="f"><span>Kept in</span><select data-flt="mv"><option value="">Pick where…</option>${opt("none", "Nothing special")}
         ${albums().map((a) => opt("a:" + a.id, "Album: " + albumTitle(a))).join("")}
-        ${storageBoxes().map((b) => opt("b:" + b.id, "Storage box: " + b.name)).join("")}${displayBoxes().map((b) => opt("b:" + b.id, "Display box: " + b.name)).join("")}
+        ${storageBoxes().map((b) => opt("b:" + b.id, "Storage box: " + b.name)).join("")}${displayBoxes().map((b) => opt("b:" + b.id, "Display box: " + b.name)).join("")}${(sellerOn() ? dealerBoxes() : []).map((b) => opt("b:" + b.id, "Dealer case: " + b.name)).join("")}
         ${stackNames().map((s) => opt("s:" + s, "Stack: " + s)).join("")}</select></label>
       <div class="hint">Boxes with numbered spots fill the next free spots. Anything that can't go there is skipped and listed. One Undo puts everything back.</div>
       <button class="btn primary block" data-act="mvGo" style="margin-top:10px">Move</button>`);
