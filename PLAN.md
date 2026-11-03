@@ -20,7 +20,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 8 | Opus | Phase review (4.3b through 7), then merge | ✓ reviewed, 6 fixes, merged |
 | 9 | Sonnet | Step 4.6 add many identical coins at once | ✓ merged v0.31.0 (PR #72) |
 | 10 | Opus | Step 8.0 plan Seller Mode (business info, reports, tax documents) | ✓ plan PR |
-| 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | ✓ v0.31.1 (PR pending merge) |
+| 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | ✓ merged v0.31.1 (PR #74) |
 | 12 | Sonnet | Step 8.1 Seller Mode switch, Business stock, business profile | |
 | 13 | Sonnet | Step 8.2 dealer display case and shows | |
 | 14 | Sonnet | Step 8.3 pricing help and reports | |
