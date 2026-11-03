@@ -140,7 +140,7 @@ async function doRestore() {
 
 // A gentle reminder on Home when the last backup is old (only once there are coins worth protecting).
 function backupReminder() {
-  if (store.mode === "snapshot" || store.mode === "memory" || store.mode === "loading") return "";
+  if (store.mode === "snapshot" || store.mode === "memory" || store.mode === "loading" || store.mode === "demo") return "";
   const n = allCoins().filter((c) => c.status !== "deleted").length;
   if (!n) return "";
   const last = settings().lastBackup;

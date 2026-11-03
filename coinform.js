@@ -87,7 +87,7 @@ function renderCoinForm() {
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add " + noun) : "Edit " + noun}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" data-coin="${d.id}" autocomplete="off">
-    ${d._isNew && !other && it === "coin" ? (sampleApi ? photoFillButton(d) : photoFillLockedButton()) : ""}
+    ${d._isNew && !other && it === "coin" ? (store.mode === "demo" && typeof demoFillCard === "function" ? demoFillCard(d) : sampleApi ? photoFillButton(d) : photoFillLockedButton()) : ""}
     ${it === "bullion" ? bullionTopHtml(d) : it === "set" ? setTopHtml(d) : `${typeBlock}
     ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
     <div class="grid2">

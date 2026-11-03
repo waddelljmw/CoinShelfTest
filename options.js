@@ -13,7 +13,7 @@ function viewGuide() {
 // Live metal prices from a free source (gold-api.com, no account). Asked for each metal; any it can't give stay as typed.
 const SPOT_SYMBOLS = { gold: "XAU", silver: "XAG", platinum: "XPT", copper: "HG" };
 async function fetchSpotPrices(auto) {
-  if (store.mode === "snapshot" || store.mode === "memory") return;
+  if (store.mode === "snapshot" || store.mode === "memory" || store.mode === "demo") return;
   if (auto && (navigator.onLine === false || !/^https?:/.test(location.protocol))) return; // not when opened as a plain file
   const btn = $("#spotFetch"); if (btn) { btn.disabled = true; btn.textContent = "Getting prices…"; }
   const got = {};
@@ -88,7 +88,7 @@ function optionsHtml() {
     <div class="card">${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof" }[k])).join(" · ")}</span></div>`).join("")}
       <label class="f"><span>Red Book edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
       <div class="hint">A coin with no value typed in uses its Red Book value. Coins below the lowest listed grade use melt.</div></div>
-    <h2>Spreadsheet</h2>
+    ${store.mode === "demo" ? "" : `    <h2>Spreadsheet</h2>
     <div class="card">Save all your coins as a spreadsheet file (CSV), or add coins from one.
       <div class="btn-row"><button class="btn" data-act="export">Export CSV</button><button class="btn" data-act="openImport">Import CSV</button></div>
       ${s.lastImport && s.lastImport.ids ? `<div class="hint" style="margin-top:8px">Last import: ${s.lastImport.count} row${s.lastImport.count === 1 ? "" : "s"} on ${esc(s.lastImport.at)}. <button class="link-btn" data-act="undoImport">Remove them</button></div>` : ""}</div>
@@ -96,9 +96,13 @@ function optionsHtml() {
     <div class="card">${store.mode === "db" ? "Save everything, photos included, in one file. This is also how you move your coins into the Coin Cabinet app on your phone." : "Save everything, photos included, in one file, or bring coins in from a backup."}
       ${settings().lastBackup ? `<div class="small muted" style="margin-top:6px">Last backup: ${esc(settings().lastBackup)}</div>` : ""}
       <div class="btn-row"><button class="btn" data-act="openBackup">Backup and restore</button></div></div>
+`}
     <h2>Share Coin Cabinet</h2>
     <div class="card">Send someone the link so they can install Coin Cabinet. They get their own, separate collection: they can't see your coins, and you can't see theirs.
       <div class="btn-row"><button class="btn" data-act="shareApp">Share the app</button></div></div>
+    ${store.mode === "demo" ? "" : `<h2>Try the demo</h2>
+    <div class="card">Look around a made-up sample collection (about 120 coins, rolls, bars, albums and a coin show). It is kept apart from your real coins, and nothing you do there is saved.
+      <div class="btn-row"><button class="btn" data-act="tryDemo">Try the demo</button></div></div>`}
     <h2>Share a snapshot</h2>
     <div class="card">Save a view-only copy of your collection as one file to send to friends. What you paid, sources, notes and buyers are left out unless you choose to include them.
       <div class="btn-row"><button class="btn" data-act="openSnapshot">Share a snapshot</button></div></div>

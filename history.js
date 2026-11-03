@@ -18,7 +18,7 @@ const historyDays = () => ((store.docs.get("history") || {}).days || {});
 
 // Save today's totals if they changed. Called a moment after any change, and on load.
 function recordHistory() {
-  if (store.mode === "snapshot" || store.mode === "loading") return;
+  if (store.mode === "snapshot" || store.mode === "loading" || store.mode === "demo") return;
   const t = currentTotals();
   const days = { ...historyDays() };
   const key = today();
