@@ -25,7 +25,7 @@ function repData(p) {
   const r = repRange(p);
   const sold = soldCoins().filter((c) => c.sold && !isInherited(c) && String(c.sold.date || "").slice(0, 10) >= r.start && String(c.sold.date || "").slice(0, 10) <= r.end);
   const biz = sold.filter(isBiz), pers = sold.filter((c) => !isBiz(c));
-  const shows = allShows().filter((s) => String(s.start || "").slice(0, 10) >= r.start && String(s.start || "").slice(0, 10) <= r.end);
+  const shows = allShows().filter((s) => !isAttendee(s)).filter((s) => String(s.start || "").slice(0, 10) >= r.start && String(s.start || "").slice(0, 10) <= r.end);
   const showCost = {}; SHOW_COSTS.forEach(([k]) => { showCost[k] = r2(sum(shows, (s) => num(s.costs && s.costs[k]))); });
   const showTotal = r2(sum(Object.values(showCost), (x) => x));
   const t = soldTotals(biz);
@@ -131,7 +131,14 @@ async function saveRepFile(name, data) {
 }
 
 Object.assign(actions, {
-  repKind: (el) => { repPeriod.kind = el.dataset.v; if (repPeriod.kind === "quarter") repPeriod.n = Math.min(4, Math.ceil(repPeriod.n / 3) || 1); render(); },
+  repKind: (el) => {
+    const was = repPeriod.kind; repPeriod.kind = el.dataset.v;
+    if (repPeriod.kind === "quarter" && was === "month") repPeriod.n = Math.min(4, Math.ceil(repPeriod.n / 3) || 1);
+    else if (repPeriod.kind === "quarter" && was === "year") repPeriod.n = Math.ceil((new Date().getMonth() + 1) / 3);
+    else if (repPeriod.kind === "month" && was === "quarter") repPeriod.n = (repPeriod.n - 1) * 3 + 1;
+    else if (repPeriod.kind === "month" && was === "year") repPeriod.n = new Date().getMonth() + 1;
+    render();
+  },
   repShift: (el) => {
     const v = +el.dataset.v, p = repPeriod;
     if (p.kind === "year") p.y += v;

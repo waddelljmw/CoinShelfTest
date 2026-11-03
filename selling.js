@@ -131,7 +131,10 @@ function doSell(form) {
     if (w) { Object.assign(sold, w); sold.where = whereText(sold); }
   }
   if (form.dataset.edit) {
-    saveCoin({ ...c, sold: { ...sold, at: (c.sold && c.sold.at) || sold.at, carrier: c.sold && c.sold.carrier } });
+    const old = c.sold || {}; // keep what the form doesn't show: where it was kept, and its show when the Show field is hidden
+    const keep = { keptIn: old.keptIn }; if (!fd.has("showId")) keep.showId = old.showId;
+    Object.keys(keep).forEach((k) => { if (keep[k] == null) delete keep[k]; });
+    saveCoin({ ...c, sold: { ...keep, ...sold, at: old.at || sold.at, carrier: old.carrier } });
     closeSheet();
     toast("Sale updated.");
     return;
