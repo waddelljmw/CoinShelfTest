@@ -15,6 +15,7 @@ Read this, then `IDEAS.md` (short; just don't build from it unless asked), then 
 - **Say which model to use before each next step.** Opus: planning, reviews, anything that reshapes stored data. Sonnet: building, routine fixes, data entry (album lists, coin dates).
 
 ## Doing a change (keep it cheap)
+0. **Stay small:** don't change unrelated files; reuse existing helpers before writing new ones; if a request has a risk (breaks old data, touches many files), say so in one line *before* building.
 1. Branch from `main`. Batch related small requests into one branch/PR.
 2. Find code with `grep -n` and read only the lines needed. Don't read whole files (`app.js` is now small; the rest is split by area, see the code map).
 3. Plain files only: no build step, no frameworks.
