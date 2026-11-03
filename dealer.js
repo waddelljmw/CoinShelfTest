@@ -100,12 +100,13 @@ function whereFromShow(s) {
 }
 // Sales made at a show. Inherited coins are never counted in sold results.
 const showSales = (s) => soldCoins().filter((c) => c.sold && c.sold.showId === s.id && !isInherited(c));
+const isAttendee = (s) => s.role === "attendee";
 function showStats(s) {
   const cs = showSales(s);
   const sales = r2(sum(cs, saleMoneyIn)), cost = r2(sum(cs, (c) => costOf(c) || 0));
   const fees = r2(sum(cs, (c) => num(c.sold.fees))), ship = r2(sum(cs, (c) => (num(c.sold.shipping) || 0) + (num(c.sold.insurance) || 0)));
   const tax = r2(sum(cs, (c) => num(c.sold.salesTax))), costs = showCostTotal(s);
-  return { n: sum(cs, qtyOf), cs, sales, cost, fees, ship, tax, costs, profit: r2(sales - cost - fees - ship - costs) };
+  return { att: isAttendee(s), n: sum(cs, qtyOf), cs, sales, cost, fees, ship, tax, costs, profit: r2(sales - cost - fees - ship - costs) };
 }
 
 // In the Mark as sold form (Seller Mode only, and only once a show exists).
@@ -130,13 +131,14 @@ document.addEventListener("change", (e) => {
 function showCard(s) {
   const st = showStats(s);
   return `<button class="card" style="display:block;width:100%;text-align:left" data-go="show-${esc(s.id)}">
-    <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(s.name)}</b><span class="num ${signCls(st.profit)}">${st.n || st.costs ? (st.profit >= 0 ? "+" : "") + money(st.profit) : ""}</span></div>
+    <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(s.name)}</b><span class="num ${st.att ? "muted" : signCls(st.profit)}">${st.att ? "Attendee" : st.n || st.costs ? (st.profit >= 0 ? "+" : "") + money(st.profit) : ""}</span></div>
     <div class="small muted">${esc(showKindText(s.type))} · ${esc(showDates(s))}${s.place ? " · " + esc(s.place) : ""} · ${st.n} sold</div></button>`;
 }
 function viewShows() {
   const shows = allShows();
   return `<h1>Shows</h1>
     <div class="small muted" style="margin-bottom:10px">Coin shows, Whatnot lives and eBay Lives. Add one, then pick it when you mark a coin sold to see your profit for the show.</div>
+    <div class="small" style="margin-bottom:10px"><a href="https://www.google.com/search?q=coin+shows+near+me" target="_blank" rel="noopener">Find coin shows near you</a> <span class="muted">(opens a web search; the app can't keep its own show list up to date)</span></div>
     <button class="btn primary block" data-act="showNew">+ New show</button>
     <div style="margin-top:12px">${shows.length ? shows.map(showCard).join("") : `<div class="card empty">No shows yet. Tap <b>+ New show</b>.</div>`}</div>`;
 }
@@ -149,14 +151,14 @@ function viewShow(r) {
   return `<button class="link-btn" data-go="shows">← Shows</button>
     <h1 style="margin-top:10px">${esc(s.name)}</h1>
     <div class="small muted" style="margin:-8px 0 12px">${esc(showKindText(s.type))} · ${esc(showDates(s))}${s.place ? " · " + esc(s.place) : ""}</div>
-    <div class="card"><b>Profit for the show</b>
+    ${st.att ? `<div class="card"><b>Going as an attendee</b>${line("Coins sold here", String(st.n))}${st.costs ? line("Show costs", money(st.costs, "$0.00")) : ""}${costLines}<div class="hint">No table fee or profit math for attendee shows.</div></div>` : `<div class="card"><b>Profit for the show</b>
       ${line("Sales (" + st.n + " sold)", money(st.sales, "$0.00"))}
       ${line("Coin cost", "− " + money(st.cost, "$0.00"))}
       ${line("Fees", "− " + money(st.fees, "$0.00"))}
       ${st.ship ? line("Shipping and insurance paid", "− " + money(st.ship, "$0.00")) : ""}
       ${line("Show costs", "− " + money(st.costs, "$0.00"))}${costLines}
       ${line("<b>Profit</b>", `<b>${st.profit >= 0 ? "" : "− "}${money(Math.abs(st.profit), "$0.00")}</b>`, signCls(st.profit))}
-      ${st.tax ? `<div class="hint">Sales tax collected: ${money(st.tax)}. It isn't profit.</div>` : ""}</div>
+      ${st.tax ? `<div class="hint">Sales tax collected: ${money(st.tax)}. It isn't profit.</div>` : ""}</div>`}
     <h2 style="margin:12px 0 6px">Sold here</h2>
     <div class="card">${st.cs.length ? st.cs.map((c) => `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${qtyOf(c) > 1 ? "×" + qtyOf(c) + " · " : ""}Paid ${costOf(c) == null ? "—" : money(costOf(c))}</span></span><span class="coin-val">${money(saleMoneyIn(c))}</span></button>`).join("") : `<div class="small muted">Nothing sold here yet. When you mark a coin sold, pick this show.</div>`}</div>
     <div class="btn-row"><button class="btn" data-act="showEdit" data-id="${esc(s.id)}">Edit show</button><button class="btn danger" data-act="showDelete" data-id="${esc(s.id)}">Delete show</button></div>`;
@@ -167,12 +169,13 @@ function showForm(s) {
   openSheet(`<div class="sheet-head"><h2>${s ? "Edit show" : "New show"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <form id="showForm" data-id="${s ? esc(s.id) : ""}" autocomplete="off">
     <label class="f"><span>Name</span><input type="text" name="name" value="${esc(s ? s.name : "")}" placeholder="e.g. Baltimore Expo" maxlength="60" required></label>
+    <label class="f"><span>Going as</span><select name="role" id="showRole"><option value="seller" ${cur.role !== "attendee" ? "selected" : ""}>Seller (I have a table or I'm live)</option><option value="attendee" ${cur.role === "attendee" ? "selected" : ""}>Attendee (just visiting)</option></select></label>
     <div class="grid2"><label class="f"><span>Kind</span><select name="type">${SHOW_KINDS.map(([k, t]) => `<option value="${k}" ${cur.type === k ? "selected" : ""}>${t}</option>`).join("")}</select></label>
     <label class="f"><span>Place</span><input type="text" name="place" value="${esc(cur.place || "")}" placeholder="City, or app" maxlength="60"></label></div>
     <div class="grid2"><label class="f"><span>First day</span><input type="date" name="start" value="${esc(cur.start || "")}" required></label>
     <label class="f"><span>Last day <span class="muted small">(if more than one)</span></span><input type="date" name="end" value="${esc(cur.end || "")}"></label></div>
     <b class="small">What the show cost you</b>
-    <div class="grid2">${mon("table", "Table fee")}${mon("gas", "Gas / mileage")}</div>
+    <div class="grid2"><span id="tableFeeBox" ${cur.role === "attendee" ? "hidden" : ""}>${mon("table", "Table fee")}</span>${mon("gas", "Gas / mileage")}</div>
     <div class="grid2">${mon("hotel", "Hotel")}${mon("food", "Food")}</div>${mon("other", "Other")}
     <div class="btn-row"><button type="submit" class="btn primary">${s ? "Save" : "Add show"}</button><button type="button" class="btn" data-act="closeSheet">Cancel</button></div></form>`, "sheet-75");
 }
@@ -184,8 +187,9 @@ function saveShowForm(form) {
   const old = id && getShow(id), before = old ? JSON.parse(JSON.stringify(old)) : null;
   if (!old) id = uid();
   const costs = {};
-  SHOW_COSTS.forEach(([k]) => { const v = num(f.get("c_" + k)); if (v != null && v >= 0) costs[k] = v; });
-  const rec = { ...(old || { kind: "show", id, createdAt: Date.now() }), name, start, type: SHOW_KINDS.some((x) => x[0] === f.get("type")) ? f.get("type") : "coinshow", place: String(f.get("place") || "").trim(), costs };
+  const role = f.get("role") === "attendee" ? "attendee" : "seller";
+  SHOW_COSTS.forEach(([k]) => { const v = num(f.get("c_" + k)); if (v != null && v >= 0 && !(role === "attendee" && k === "table")) costs[k] = v; });
+  const rec = { ...(old || { kind: "show", id, createdAt: Date.now() }), name, start, type: SHOW_KINDS.some((x) => x[0] === f.get("type")) ? f.get("type") : "coinshow", place: String(f.get("place") || "").trim(), role, costs };
   if (end && end !== start) rec.end = end; else delete rec.end;
   put("sh_" + rec.id, rec);
   closeSheet();
@@ -193,6 +197,7 @@ function saveShowForm(form) {
   if (!old) go("show-" + id);
 }
 document.addEventListener("submit", (e) => { if (e.target.id === "showForm") saveShowForm(e.target); });
+document.addEventListener("change", (e) => { if (e.target.id === "showRole") { const b = document.getElementById("tableFeeBox"); if (b) b.hidden = e.target.value === "attendee"; } });
 
 Object.assign(actions, {
   caseOut: (el) => { const c = getCoin(el.dataset.id); if (c && c.status === "owned") caseReturn([c], labelOf(c) + " taken out."); },
