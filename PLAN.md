@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 13, Step 8.2 dealer display case and shows):** switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below
+**Next session starts here (session 14, Step 8.3 pricing help and reports):** switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below
 
 ## Session plan (one chat per session, done in order)
 
@@ -22,7 +22,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 10 | Opus | Step 8.0 plan Seller Mode (business info, reports, tax documents) | ✓ plan PR |
 | 11 | Sonnet | Fix list (album date sort, notes above purchase, proof value, smaller Home chips) | ✓ merged v0.31.1 (PR #74) |
 | 12 | Sonnet | Step 8.1 Seller Mode switch, Business stock, business profile | ✓ merged v0.32.0 (PR #76) |
-| 13 | Sonnet | Step 8.2 dealer display case and shows | |
+| 13 | Sonnet | Step 8.2 dealer display case and shows | ✓ merged v0.33.0 (PR #79) |
 | 14 | Sonnet | Step 8.3 pricing help and reports | |
 | 15 | Opus | Step 8.4 review of Phase 8, then merge | |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
@@ -405,6 +405,7 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 - **Business profile** (Options): business name, EIN or tax ID, address, state sales-tax permit number. Saved in `settings.seller.profile`, stays on the phone, goes into Backup.
 
 **Step 8.2. Dealer display case and shows. Model: Sonnet.** (session 13)
+- [x] Merged (v0.33.0, Nov 2, 2026, PR #79; file `dealer.js`, test `tests/seller82.js`). Inherited coins can't go in a for-sale case; picking a show also fills in "Where".
 - **Dealer case:** a new box type next to storage and display boxes (`type: "dealer"`), drawn on the shelf like a glass-top show case. Spots on or off, like other boxes. It can be a permanent home or used just for shows.
 - **Moving in:** each dealer case has a **"For sale case"** switch (on by default; Edit case, `forSale`). On: coins moved in switch to **For sale** (inherited coins are skipped and listed). Off: coins keep their status (a display-only case). Turning the switch off later doesn't change coins already inside. The app remembers each coin's earlier place and status (`caseFrom`: album/box/spot/stack plus status/stage).
 - **Moving out:** "Take out" on one coin, or **"Return unsold coins"** on the case, puts each coin back in its old spot and old status. A coin that was already For sale stays For sale. If its old spot is taken now, it goes to "Nothing special" and the app lists it. One Undo.
