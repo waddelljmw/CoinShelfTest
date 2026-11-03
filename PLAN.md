@@ -29,9 +29,9 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 17 | Sonnet | Tidy batch (see **After Phase 8** below): hide values keeps melt prices, Options tidy, Home toggles, junk silver default | ✅ merged v0.36.0 (PR #90) |
 | 18 | Opus | Plan the main menu rework (IDEAS 7); planning only | ✅ plan PR (Step 9.0) |
 | 19 | Sonnet | Build the menu rework (Step 9.0) | ✅ merged v0.37.0 (PR #95) |
-| 20 | Opus | Plan demo mode and the one-page infographic (IDEAS 8) | |
+| 20 | Opus | Plan demo mode and the one-page infographic (IDEAS 8) | ✅ plan PR (Step 9.1) + automatic GitHub tests |
 | 20b | Sonnet | Split `app.js` into smaller files by area (no change to what you see); check the automatic GitHub test run passes | |
-| 21 | Sonnet | Build demo mode | |
+| 21 | Sonnet | Build demo mode and infographic (Step 9.1) | |
 | 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | |
 | 23 | Opus | Read the reviews, then the feature audit (IDEAS 22); plan the changes | |
 | 24 | Sonnet | Build the audit changes | |
@@ -98,6 +98,17 @@ Only moves and renames menu buttons. No saved data changes, no page addresses ch
 - [x] ✅ **9.4 Test** `tests/menu.js`: order of items, Business group hidden/shown with Seller Mode, highlighting for album/box/show pages. Version: feature → middle number.
 
 **Later, not now:** the feature audit (IDEAS 22) may hide or cut pages; that only means small menu edits.
+
+## Step 9.1: Demo mode + one-page infographic (IDEAS 8). Planned session 20 (Opus); build session 21 (Sonnet)
+Your choices (2026-11-03): made-up coins only, simple drawn coin pictures, opened by a button **and** a link, infographic shown at the demo start **and** as its own printable page.
+- [ ] **Separate from real coins.** New `store.mode` `"demo"`: everything lives in memory only, never touches the phone's saved coins (IndexedDB) or the Claude account. No value-history saving, no backup reminder, Backup/Restore and Import hidden in demo. Banner on every page: "Demo: these aren't real coins. **Exit demo**". Exit reloads the app normally.
+- [ ] **Opening it.** "Try the demo" button on the first-open screen and in Options; link `https://waddelljmw.github.io/CoinShelfTest/?demo`. The demo file loads only when the demo opens (keeps the normal app small, idea 26), but is in `FILES` in sw.js so it works offline at a show.
+- [ ] **Sample collection** in new `catalog/demo.js` (under ~150 KB): ~40 coins across many types, a few rolls, 1 oz and 10 oz silver bars, a "black box" storage box of wheat cents in 2x2 flips, 2 partly filled albums (Lincoln cents, one more), a want list, a few sold coins, one Seller Mode show with business stock, and ~12 months of value history. Only real dates and mints from `EXACT_SLOTS`; values come from the app's Red Book data (none typed into the demo). Nothing from your backup.
+- [ ] **Drawn coin pictures.** One small function draws a coin (metal color, size, denomination and year on it), so no picture files. Never a copy of a real coin design.
+- [ ] **Photo fill showcase** (still locked in the real app). One demo coin marked "Filled in from photos". On Add coin in demo, a "See photo fill in action" button fills the form one field at a time from two drawn photos, labeled **Example**. No API key, no outside service.
+- [ ] **Infographic** `infographic.html`: one plain, print-friendly page with ~8 key features (shelf, add a coin fast, albums, want lists, values and melt, insurance report, backup/offline, Seller Mode, photo fill "coming soon") and a "Try the demo" button. Shown first when the demo opens (Skip / Start), and linked from Options. Build session drafts the wording; you approve it before merge. Add to `FILES` in sw.js.
+- [ ] **Tests** (`tests/demo.js`): demo opens from the button and from `?demo`; adding/deleting a coin in demo leaves the real saved coins unchanged after Exit; every demo coin passes `yearProblem`; demo.js stays under the size limit; infographic opens and prints with no errors.
+- [ ] Version: feature (middle number).
 
 ## What you want, in short
 
