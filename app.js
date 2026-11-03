@@ -18,7 +18,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.30.0";
+const APP_VERSION = "0.31.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -1465,7 +1465,7 @@ function renderCoinForm() {
       <div id="varietyBox">${varietyField(d)}</div>
     </fieldset>`}
 
-    ${sec("value", "Quantity, value and metal", `<div class="grid2">
+    ${sec("value", "Quantity, value and metal", `${typeof manyField === "function" ? manyField(d) : ""}<div class="grid2">
       <label class="f"><span>Quantity</span><input type="number" inputmode="numeric" min="1" data-f="qty" value="${esc(d.qty)}"></label>
       <label class="f"><span>Value${eachWord(d)}</span><input type="number" inputmode="decimal" step="0.01" data-f="value" value="${esc(isJunk(d) ? "" : d.value)}" placeholder="${isJunk(d) ? "melt" : "$"}" ${isJunk(d) ? "disabled" : ""}></label>
     </div>
@@ -1475,7 +1475,7 @@ function renderCoinForm() {
       <label class="f"><span>${it === "set" ? "Silver in the set (oz)" : it === "roll" ? "Metal content per coin (oz)" : "Metal content (oz)"}</span><input type="number" inputmode="decimal" step="0.00001" data-f="oz" value="${esc(d.oz)}" placeholder="0.77344"></label>
     </div>`}
     ${other ? gramsHelper(d) : ""}
-    <div class="hint" id="meltHint">${esc(meltHintText(d))}</div>`, num(d.qty) > 1 || d.value || (other && d.metal))}
+    <div class="hint" id="meltHint">${esc(meltHintText(d))}</div>`, num(d.qty) > 1 || d.value || (other && d.metal) || (typeof manyOn === "function" && manyOn(d)))}
 
     ${sec("status", "Status" + (d._status && d._status !== "owned" ? ` <span class="muted small">· ${esc(STATUS_TEXT[d._status] || "")}</span>` : ""), statusFields(d), (d._status && d._status !== "owned") || d.upgrade || d.status === "sold")}
 
@@ -1531,8 +1531,8 @@ function statusFields(d) {
 function purchaseFields(d) {
   const has = d.seller || d.paid || d.acquired || BUY_EXTRAS.some((k) => num(d[k]) != null) || d.payMethod || d.receiptNo || (d.receiptPhotos || []).length || (d.source && !d._isNew);
   const money$ = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" data-f="${k}" value="${esc(d[k] || "")}" placeholder="$"></label>`;
-  return sec("purchase", "Purchase details" + (d.source ? ` <span class="muted small">· ${esc(d.source)}</span>` : ""), `<div class="grid2">
-      <label class="f"><span>Paid each</span><input type="number" inputmode="decimal" step="0.01" data-f="paid" value="${esc(d.paid)}" placeholder="$"></label>
+  return sec("purchase", "Purchase details" + (d.source ? ` <span class="muted small">· ${esc(d.source)}</span>` : ""), `${typeof manyPayFields === "function" ? manyPayFields(d) : ""}<div class="grid2">
+      <label class="f"><span>${typeof paidLabel === "function" ? paidLabel(d) : "Paid each"}</span><input type="number" inputmode="decimal" step="0.01" data-f="paid" value="${esc(d.paid)}" placeholder="$"></label>
       <label class="f"><span>Date acquired</span><input type="date" data-f="acquired" value="${esc(d.acquired)}"></label>
     </div>
     <label class="f"><span>Source</span><select data-f="_sourceKind" data-rerender><option value="">Choose…</option>${sourceOptions().map((s) => `<option value="${esc(s)}" ${d._sourceKind === s ? "selected" : ""}>${esc(s)}</option>`).join("")}<option value="Other" ${d._sourceKind === "Other" ? "selected" : ""}>Other…</option></select></label>
@@ -1815,8 +1815,10 @@ async function saveDraft() {
   const d = draft;
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
-  delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
+  delete c._many; delete c._payMode; delete c._spots; delete c._spotsFor; delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = normHolder(formHolder(d));
+  const many = typeof manyOn === "function" && manyOn(d);
+  if (many) { const m = manyPrep(c, d); if (m) { toast(m); return; } } // several coins: every chosen spot must be free
   if (typeof boxCheck === "function") { const m = boxCheck(c); if (m) { toast(m); return; } }
   if (c.gradeMode !== "cert") { c.cac = ""; c.catNo = ""; }
   // Status: Sold (and deleted) are only changed from the coin's page.
@@ -1916,6 +1918,7 @@ async function saveDraft() {
   if (d._fromWant) remove("w_" + d._fromWant); // bought a coin off the want list
   if (c.typeId) touchType(c.typeId);
   closeSheet();
+  if (many) { await manySave(c, d); return; }
   await saveCoin(c);
   if (d._replaces) {
     const old = getCoin(d._replaces);
