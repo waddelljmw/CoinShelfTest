@@ -82,6 +82,7 @@ Object.assign(actions, {
   },
   bizBulkBack: () => {
     bulkApply("Moved to Personal", (c) => {
+      if (c.status !== "owned") return "not in your collection";
       if (!isBiz(c)) return "already Personal";
       delete c.biz; return "";
     });

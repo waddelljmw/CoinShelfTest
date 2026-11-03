@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 16, Step 8.4 review of Phase 8, then merge):** switch to **Opus**, start a new chat, paste the start prompt from the **Starting a new chat** line below
+**Next session starts here (session 17, tidy batch in "After Phase 8" below):** switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below
 
 ## Session plan (one chat per session, done in order)
 
@@ -25,7 +25,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 13 | Sonnet | Step 8.2 dealer display case and shows | ✅ merged v0.33.0 (PR #79) |
 | 14 | Sonnet | Step 8.3 pricing help and reports | ✅ merged v0.34.0 (PR #82) |
 | 15 | Sonnet | Step 8.3b saved shipping costs, "Going as" on shows, "Was kept in" on sold coins | ✅ merged v0.35.0 (PR #85) |
-| 16 | Opus | Step 8.4 review of Phase 8, then merge | |
+| 16 | Opus | Step 8.4 review of Phase 8, then merge | ✅ reviewed, 6 fixes, v0.35.1 |
 | 17 | Sonnet | Tidy batch (see **After Phase 8** below): hide values keeps melt prices, Options tidy, Home toggles, junk silver default | |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
@@ -439,7 +439,10 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 - **Going as:** each show gets **Seller** or **Attendee**. Attendee shows skip table fee and profit math. Add a **Find shows** link (a web search for coin shows near you); the app can't keep its own show list up to date offline.
 - **Was kept in:** when a coin is marked sold from a dealer case, its old place is saved on the sale and shown on the sold coin's page, so you know where it lived before the show. Check that it also shows for coins sold from other places.
 
-**Step 8.4. Review. Model: Opus.** (session 16) Checks Business totals, the dealer case return (old spot taken, Undo), show profit math, reports against sample sales, and old backups.
+**Step 8.4. Review. Model: Opus.** (session 16)
+- [x] ✅ Reviewed (v0.35.1, Nov 3, 2026). Test `tests/review84.js`. Fixed: editing a sale kept losing Was kept in / its show; case return could double up an album spot; attendee show costs counted in Reports; Move to Personal moved sold coins; deleting a dealer case now sends coins back; Quarter→Month period switch.
+
+Checks Business totals, the dealer case return (old spot taken, Undo), show profit math, reports against sample sales, and old backups.
 
 ---
 

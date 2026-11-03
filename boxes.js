@@ -240,10 +240,10 @@ Object.assign(actions, {
     const b = getBox(el.dataset.id);
     if (!b) return;
     const n = boxCoins(b).length;
-    confirmSheet("Delete " + b.name + "?", n ? "Its " + n + " item" + (n > 1 ? "s stay" : " stays") + " in your collection. They just lose their box." : "This box is empty.", "Delete box", () => {
+    confirmSheet("Delete " + b.name + "?", n ? (b.type === "dealer" ? "Its " + n + " item" + (n > 1 ? "s go" : " goes") + " back where " + (n > 1 ? "they were" : "it was") + " before the case." : "Its " + n + " item" + (n > 1 ? "s stay" : " stays") + " in your collection. They just lose their box.") : "This box is empty.", "Delete box", () => {
       const coins = boxCoins(b).map((c) => JSON.parse(JSON.stringify(c)));
       const box = JSON.parse(JSON.stringify(b));
-      coins.forEach((c) => { const x = { ...c }; delete x.boxId; delete x.boxRow; delete x.boxSlot; put("c_" + c.id, x); });
+      coins.forEach((c) => { const x = JSON.parse(JSON.stringify(c)); if (b.type === "dealer" && x.caseFrom && typeof caseRestore === "function") caseRestore(x); /* back to its old place and status */ else { delete x.boxId; delete x.boxRow; delete x.boxSlot; } put("c_" + c.id, x); });
       remove("b_" + b.id);
       go("boxes");
       toast("Box deleted.", { label: "Undo", fn: () => { put("b_" + box.id, box); coins.forEach((c) => put("c_" + c.id, c)); toast("Restored."); } });

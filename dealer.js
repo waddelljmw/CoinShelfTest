@@ -31,7 +31,9 @@ function caseRestore(c) {
   c.boxId = ""; c.boxRow = ""; c.boxSlot = ""; c.albumId = ""; delete c.slotId;
   c.stage = f.stage || "";
   if (f.albumId) {
-    if (getAlbum(f.albumId) && itemOf(c) === "coin") { c.albumId = f.albumId; if (f.slotId) c.slotId = f.slotId; }
+    const taken = f.slotId && ownedCoins().find((o) => o.id !== c.id && o.albumId === f.albumId && o.slotId === f.slotId);
+    if (taken) note = "its old album spot now holds " + labelOf(taken);
+    else if (getAlbum(f.albumId) && itemOf(c) === "coin") { c.albumId = f.albumId; if (f.slotId) c.slotId = f.slotId; }
     else note = "its old album is gone";
   } else if (f.boxId) {
     const ob = getBox(f.boxId);
