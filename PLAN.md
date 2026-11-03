@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 18, Opus, planning only, no code):** plan the main menu rework (IDEAS 7). Switch to **Opus**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 19 to 24 in the table.
+**Next session starts here (session 19, Sonnet):** build the main menu rework, **Step 9.0** (9.1–9.4). Switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 20 to 24 in the table.
 
 ## Session plan (one chat per session, done in order)
 
@@ -27,8 +27,8 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 15 | Sonnet | Step 8.3b saved shipping costs, "Going as" on shows, "Was kept in" on sold coins | ✅ merged v0.35.0 (PR #85) |
 | 16 | Opus | Step 8.4 review of Phase 8, then merge | ✅ reviewed, 6 fixes, v0.35.1 |
 | 17 | Sonnet | Tidy batch (see **After Phase 8** below): hide values keeps melt prices, Options tidy, Home toggles, junk silver default | ✅ merged v0.36.0 (PR #90) |
-| 18 | Opus | Plan the main menu rework (IDEAS 7); planning only | |
-| 19 | Sonnet | Build the menu rework | |
+| 18 | Opus | Plan the main menu rework (IDEAS 7); planning only | ✅ plan PR (Step 9.0) |
+| 19 | Sonnet | Build the menu rework (Step 9.0) | |
 | 20 | Opus | Plan demo mode and the one-page infographic (IDEAS 8) | |
 | 21 | Sonnet | Build demo mode | |
 | 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | |
@@ -72,6 +72,31 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - **Sold results and Value over time** collapse on Home like the other sections.
 - **Incomplete mark:** a tiny corner mark on coins missing a grade or cost, plus a My Coins filter "Missing grade or cost".
 - **Want list check:** adding a coin through normal Add coin that matches a want asks "This is on your want list. Remove it?" (today only "Got it" from the want list removes it).
+
+## Step 9.0: Main menu rework (IDEAS 7). Planned session 18 (Opus); build session 19 (Sonnet)
+Only moves and renames menu buttons. No saved data changes, no page addresses change (`#home`, `#albums` etc. stay, so bookmarks and old links keep working).
+
+**New menu, top to bottom** (indented = sits just under its group, slightly smaller, still one tap):
+- **My Cabinet** (today's Home)
+- **My Coins**
+  - My Albums
+  - Storage
+- **Want List**
+- **My Stacks**
+- **Coin Value**
+  - Insurance Report
+- **PCGS Photograde**
+- **My Business** (heading only, not a button; shown only when Seller Mode is on)
+  - Shows
+  - Sales Reports
+- **Options** (stays last)
+
+- [ ] **9.1 Menu.** Rebuild `#menu` in `index.html` in that order. Group children get a class (e.g. `menu-sub`: indent, slightly smaller text). "My Business" is a small heading (`menu-head`), hidden with Shows/Reports when Seller Mode is off (reuse how `menuShows`/`menuReports` are hidden today). Highlighting: keep `menuKey` in app.js; album → My Albums, box → Storage, show → Shows (as today).
+- [ ] **9.2 Names match.** Page headings and back buttons use the new names: "Home" → "My Cabinet", "Albums" → "My Albums", "Stacks" → "My Stacks", "PCGS Photo Guide" → "PCGS Photograde" (grep `← Albums`, `Back to Albums`, `data-go="stacks">Stacks`, page `<h1>`s). Only words he sees; internal names stay.
+- [ ] **9.3 Check on phone width.** One screenshot of the open menu at phone size, Seller Mode on and off; the menu must scroll if it's taller than the screen.
+- [ ] **9.4 Test** `tests/menu.js`: order of items, Business group hidden/shown with Seller Mode, highlighting for album/box/show pages. Version: feature → middle number.
+
+**Later, not now:** the feature audit (IDEAS 22) may hide or cut pages; that only means small menu edits.
 
 ## What you want, in short
 
