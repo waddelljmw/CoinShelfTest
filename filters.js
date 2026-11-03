@@ -26,6 +26,8 @@ function extraFilter(c) {
   const f = listState.f || {};
   if (f.group && groupOf(c) !== f.group) return false;
   if (f.stack && stackOf(c) !== f.stack) return false;
+  if (f.biz === "business" && !c.biz) return false;
+  if (f.biz === "personal" && c.biz) return false;
   if (f.holder && holderText(c) !== f.holder) return false;
   if (f.kept && !fltKept(c, f.kept)) return false;
   const y = num(c.year), yF = fltNum(f.yFrom), yT = fltNum(f.yTo);
@@ -58,6 +60,7 @@ function fltChips() {
   if (listState.cert) add("cert", listState.cert === "raw" ? "Raw" : "Certified");
   if (f.group) add("group", "Group: " + f.group);
   if (f.stack) add("stack", "Stack: " + f.stack);
+  if (f.biz) add("biz", f.biz === "business" ? "Business stock" : "Personal");
   if (f.holder) add("holder", "Holder: " + f.holder);
   if (f.kept) add("kept", "Kept in: " + fltKeptName(f.kept));
   if (f.yFrom || f.yTo) add("year", "Year " + (f.yFrom || "…") + "–" + (f.yTo || "…"));
@@ -89,7 +92,8 @@ function coinsControls(base, list) {
     ${showCount ? `<div class="small muted" style="margin:0 2px 10px">${n} of ${total} coin${total === 1 ? "" : "s"} · ${sold ? "Sold for" : "Value"} ${money(val, "$0.00")} · Melt ${money(meltN, "$0.00")}</div>` : ""}
     ${sel ? `<div class="card selbar"><b>${picked.length} selected</b>
       <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="selAll">Select all shown (${list.length})</button><button class="btn" data-act="selNone">Clear</button></div>
-      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${picked.length ? "" : "disabled"}>Move to…</button><button class="btn" data-act="hdOpen" ${picked.length ? "" : "disabled"}>Set holder…</button></div></div>` : ""}`;
+      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${picked.length ? "" : "disabled"}>Move to…</button><button class="btn" data-act="hdOpen" ${picked.length ? "" : "disabled"}>Set holder…</button></div>
+      ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${picked.length ? "" : "disabled"}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${picked.length ? "" : "disabled"}>Move to Personal</button></div>` : ""}</div>` : ""}`;
 }
 function selRow(c) {
   const on = listState.sel.has(c.id);
@@ -123,6 +127,7 @@ function openFilterPanel() {
     ${field("Raw or certified", sel("cert", "Raw + certified", [["raw", "Raw"], ["cert", "Certified"]], listState.cert))}</div>
     ${field("Group", sel("group", "Any group", groups, f.group || ""))}
     ${stacks.length ? field("Stack", sel("stack", "Any stack", stacks, f.stack || "")) : ""}
+    ${sellerOn() ? field("Personal or Business", sel("biz", "Both", [["personal", "Personal"], ["business", "Business stock"]], f.biz || "")) : ""}
     ${field("Holder", sel("holder", "Any holder", holders, f.holder || ""))}
     ${field("Kept in", sel("kept", "Anywhere", keptList, f.kept || ""))}
     <div class="grid2">${field("Year from", `<input type="number" inputmode="numeric" data-flt="yFrom" value="${esc(f.yFrom || "")}">`)}${field("Year to", `<input type="number" inputmode="numeric" data-flt="yTo" value="${esc(f.yTo || "")}">`)}</div>
@@ -142,7 +147,7 @@ function fltRead() {
   if (v("metal") !== undefined) listState.metal = v("metal");
   if (v("cert") !== undefined) listState.cert = v("cert");
   const f = {};
-  ["group", "stack", "holder", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "vFrom", "vTo"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
+  ["group", "stack", "biz", "holder", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "vFrom", "vTo"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
   const probs = [...document.querySelectorAll("#sheet [data-flt-prob]:checked")].map((e) => e.dataset.fltProb);
   if (probs.length) f.probs = probs;
   listState.f = f;

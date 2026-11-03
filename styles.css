@@ -319,3 +319,7 @@ h2.fold { margin: 14px 0 6px; }
 /* Phase 7: folded "More details" and sell form */
 details.more { margin: 8px 0; }
 details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
+
+/* Step 8.1: Seller Mode */
+.sold-tag.st-biz { color: var(--accent, #1565c0); border-color: currentColor; }
+.biz-plaque { margin-top: 10px; }

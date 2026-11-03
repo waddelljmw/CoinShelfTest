@@ -7,7 +7,7 @@ let historyTimer = null;
 const historyView = { range: "90" }; // 30 | 90 | 365 | all
 
 function currentTotals() {
-  const owned = ownedCoins();
+  const owned = ownedCoins().filter((c) => !c.biz); // Business stock is counted apart
   return {
     v: Math.round(sum(owned, (c) => (bestEach(c) || 0) * qtyOf(c)) * 100) / 100,
     m: Math.round(sum(owned, (c) => (meltEach(c) || 0) * qtyOf(c)) * 100) / 100,
