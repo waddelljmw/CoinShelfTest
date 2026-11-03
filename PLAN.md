@@ -57,6 +57,13 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - **Options tidy.** Put Options in collapsible sections that look cleaner; make **Red Book values** its own collapsible section.
 - **More Home toggles.** Turn on and off more Home sections: Recently added, Recently sold, value over time, melt value (as well as melt and sale info today).
 - **Junk silver in My Silver Stack by default** for new coins, with a switch in Options. Stored coins don't change.
+- **For sale button** on a coin's page, with an "Are you sure?" that has a "Don't ask again" box.
+- **Purchase details** on Add coin move below Grade and above Quantity / Value / Melt.
+- **Paid with fills itself:** eBay, Whatnot or another online platform gives Credit card; Coin show gives Cash. Still editable.
+- **Franklin FBL fallback (bug):** when the Red Book has no Full Bell Lines price for the grade (or the grade is below MS-63), use the regular Red Book price before melt.
+- **Sold results and Value over time** collapse on Home like the other sections.
+- **Incomplete mark:** a tiny corner mark on coins missing a grade or cost, plus a My Coins filter "Missing grade or cost".
+- **Want list check:** adding a coin through normal Add coin that matches a want asks "This is on your want list. Remove it?" (today only "Got it" from the want list removes it).
 
 ## What you want, in short
 
