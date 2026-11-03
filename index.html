@@ -21,17 +21,18 @@
   </button>
 </header>
 <nav class="menu" id="menu" hidden>
-  <button data-go="home">Home</button>
-  <button data-go="value">Coin Value</button>
-  <button data-go="albums">Albums</button>
-  <button data-go="wants">Want List</button>
+  <button data-go="home">My Cabinet</button>
   <button data-go="coins">My Coins</button>
-  <button data-go="stacks">Stacks</button>
-  <button data-go="boxes">Storage</button>
-  <button data-go="shows" id="menuShows" hidden>Shows</button>
-  <button data-go="reports" id="menuReports" hidden>Sales Reports</button>
-  <button data-go="guide">PCGS Photo Guide</button>
-  <button data-act="openReport">Insurance Report</button>
+  <button class="menu-sub" data-go="albums">My Albums</button>
+  <button class="menu-sub" data-go="boxes">Storage</button>
+  <button data-go="wants">Want List</button>
+  <button data-go="stacks">My Stacks</button>
+  <button data-go="value">Coin Value</button>
+  <button class="menu-sub" data-act="openReport">Insurance Report</button>
+  <button data-go="guide">PCGS Photograde</button>
+  <div class="menu-head" id="menuBiz" hidden>My Business</div>
+  <button class="menu-sub" data-go="shows" id="menuShows" hidden>Shows</button>
+  <button class="menu-sub" data-go="reports" id="menuReports" hidden>Sales Reports</button>
   <button data-go="options">Options</button>
 </nav>
 <div id="banner" class="banner" hidden></div>

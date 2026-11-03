@@ -11,7 +11,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.evaluate(() => { pickType("morgan-dollar"); });
   await p.waitForTimeout(100);
   const t = await p.evaluate(() => ({ id: draft.typeId, pl: (document.querySelector("#pcgsLink") || {}).href, pt: (document.querySelector("#pcgsLink") || {}).textContent }));
-  ok("type picked: PCGS link names the coin", /Morgan/.test(t.pl || "") && /PCGS Photo Guide: Morgan/.test(t.pt || ""));
+  ok("type picked: PCGS link names the coin", /Morgan/.test(t.pl || "") && /PCGS Photograde: Morgan/.test(t.pt || ""));
   ok("Morgan opens its own Photograde page", /photograde#\/Morgan\/Grades$/.test(t.pl || ""));
   const codes = await p.evaluate(() => [["standing-liberty-quarter", 1916, ""], ["standing-liberty-quarter", 1917, ""], ["standing-liberty-quarter", 1917, "Type 2"], ["standing-liberty-quarter", 1920, ""], ["standing-liberty-quarter", 1925, ""], ["shield-nickel", 1870, ""], ["liberty-nickel", 1890, ""], ["buffalo-nickel", 1920, ""], ["jefferson-war-nickel", 1943, ""], ["ike-40", 1971, ""], ["sba-dollar", 1979, ""], ["sacagawea-dollar", 2000, ""], ["kennedy-90", 1964, ""], ["presidential-dollar", 2010, ""]].map((a) => pcgsCodeFor(...a)).join(","));
   ok("PCGS codes follow type, year and design", codes === "SLQT1,SLQT1,SLQe,SLQe,SLQ,ShieldNic,LibNic,Buffalo,Jefferson,Ike,SBA,SAC,Kennedy,");

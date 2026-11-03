@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.36.0";
+const APP_VERSION = "0.37.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -584,9 +584,9 @@ window.addEventListener("hashchange", (e) => {
 });
 function coinBackLink() {
   const h = coinBackTo || "coins";
-  let name = { home: "Home", value: "Coin Value", albums: "Albums", wants: "Want List", coins: "My Coins", stacks: "Stacks", boxes: "Storage", guide: "PCGS Photo Guide", options: "Options" }[h];
+  let name = { home: "My Cabinet", value: "Coin Value", albums: "My Albums", wants: "Want List", coins: "My Coins", stacks: "My Stacks", boxes: "Storage", guide: "PCGS Photograde", options: "Options" }[h];
   if (!name && h.startsWith("box-")) { const b = getBox(h.slice(4)); name = b ? b.name : "Boxes"; }
-  if (!name && h.startsWith("album-")) { const a = getAlbum(h.slice(6)); name = a ? albumTitle(a) : "Albums"; }
+  if (!name && h.startsWith("album-")) { const a = getAlbum(h.slice(6)); name = a ? albumTitle(a) : "My Albums"; }
   return `<button class="link-btn" data-go="${esc(name ? h : "coins")}">← ${esc(name || "My Coins")}</button>`;
 }
 function closeMenu() { $("#menu").hidden = true; $("#menuBtn").setAttribute("aria-expanded", "false"); }
@@ -701,7 +701,7 @@ function viewHome() {
 
 function viewStacks() {
   const names = stacksPresent();
-  const head = `<h1>Stacks</h1><div class="small muted" style="margin-bottom:10px">Bars, rounds and junk silver, kept apart from your coins. Each stack counts in your Home totals (switch one off with its chip on Home).</div>`;
+  const head = `<h1>My Stacks</h1><div class="small muted" style="margin-bottom:10px">Bars, rounds and junk silver, kept apart from your coins. Each stack counts in your Home totals (switch one off with its chip on Home).</div>`;
   const add = `<button class="btn block primary" data-act="addBullion" style="margin-top:10px">+ Add a bar, round or other silver item</button>`;
   if (!names.length) return head + `<div class="card empty">No stacks yet. Add a bar or round, or put a junk silver coin in a stack from its Holder section.</div>` + add;
   return head + names.map((n) => {
@@ -787,7 +787,7 @@ function viewCoins() {
       <button data-act="status" data-v="sold" class="${listState.status === "sold" ? "on" : ""}">Sold (${sum(soldCoins(), qtyOf)})</button>
       ${goneCoins().length ? `<button data-act="status" data-v="gone" class="${listState.status === "gone" ? "on" : ""}">Gone (${sum(goneCoins(), qtyOf)})</button>` : ""}
     </div>
-    ${stackedN && listState.status === "owned" ? `<div class="small muted" style="margin:-4px 0 8px">${stackedN} bar${stackedN > 1 ? "s, rounds or other silver items are" : ", round or other silver item is"} in <button class="link-btn" data-go="stacks">Stacks</button>.</div>` : ""}
+    ${stackedN && listState.status === "owned" ? `<div class="small muted" style="margin:-4px 0 8px">${stackedN} bar${stackedN > 1 ? "s, rounds or other silver items are" : ", round or other silver item is"} in <button class="link-btn" data-go="stacks">My Stacks</button>.</div>` : ""}
     ${stages.length ? `<label class="f" style="margin:-4px 0 8px"><span>Show</span><select data-list="stage"><option value="">All in collection</option>${stages.map(([k, l]) => `<option value="${k}" ${listState.stage === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>` : ""}
     <div class="chips">
       <button class="chip ${!listState.family ? "on" : ""}" data-act="fam" data-v="">All</button>
@@ -1094,7 +1094,7 @@ function viewAlbums() {
   const units = albumUnits();
   const mv = (id, i, n, whole) => `<span class="slot-mv"><button data-act="moveAlbum" data-id="${esc(id)}" ${whole ? "data-whole=\"1\"" : ""} data-d="-1" ${i ? "" : "disabled"} aria-label="Move up">▲</button><button data-act="moveAlbum" data-id="${esc(id)}" ${whole ? "data-whole=\"1\"" : ""} data-d="1" ${i < n - 1 ? "" : "disabled"} aria-label="Move down">▼</button></span>`;
   if (albumsView.reorder && list.length) {
-    return `<h1>Albums</h1>
+    return `<h1>My Albums</h1>
       <div class="banner" style="margin:0 0 10px">Use ▲ ▼ to put your albums in the order you want. Albums in a series move together; use the arrows inside a series to change its order.</div>
       ${units.map((u, ui) => u.key
         ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b>${mv(u.items[0].id, ui, units.length, true)}</div>
@@ -1113,7 +1113,7 @@ function viewAlbums() {
         <div class="small muted">${esc(isSetAlbum(a) ? "Type set · " + albumTypes(a).length + " types" : albumTypeText(a))}${a.start ? " · " + a.start + "–" + a.end : ""} · ${money(st.value, "$0.00")}</div>
         <div class="bar"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div></button>`;
   };
-  return `<h1>Albums</h1>
+  return `<h1>My Albums</h1>
     <button class="btn primary block" data-act="newAlbum">+ New album</button>
     ${list.length > 1 ? `<div style="text-align:right;margin-top:8px"><button class="link-btn" data-act="reorderAlbums">Reorder albums</button></div>` : ""}
     <div style="margin-top:12px">${list.length ? units.map((u) => u.key ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b></div>${u.items.map(card).join("")}</div>` : card(u.items[0])).join("") : `<div class="card empty">No albums yet. Make one here, or pick an album number when you add a coin.</div>`}</div>`;
@@ -1121,12 +1121,12 @@ function viewAlbums() {
 const albumEdit = { id: null };
 function viewAlbum(r) {
   const a = getAlbum(r.id);
-  if (!a) return `<div class="card empty">That album isn't here. <button class="link-btn" data-go="albums">Back to Albums</button></div>`;
+  if (!a) return `<div class="card empty">That album isn't here. <button class="link-btn" data-go="albums">Back to My Albums</button></div>`;
   const st = albumStats(a);
   const done = st.total && st.owned === st.total;
   const editing = albumEdit.id === a.id;
   const extras = st.coins.filter((c) => ![...st.filled.values()].includes(c));
-  return `<button class="link-btn" data-go="albums">← Albums</button>
+  return `<button class="link-btn" data-go="albums">← My Albums</button>
     <h1 style="margin-top:10px">${esc(albumTitle(a))}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</h1>
     <div class="small muted" style="margin:-8px 0 12px">${esc([a.brand, a.number && "No. " + a.number, isSetAlbum(a) ? "Type set" : albumTypeText(a)].filter(Boolean).join(" · "))}${a.start ? " · " + a.start + "–" + a.end : ""}</div>
     <div class="stats">
@@ -1282,7 +1282,7 @@ function saveSpot(form) {
 
 /* --- Photo guide --- */
 function viewGuide() {
-  return `<h1>PCGS Photo Guide</h1>
+  return `<h1>PCGS Photograde</h1>
     <div class="card">PCGS Photograde shows photos of each coin type at every grade, so you can compare your coin side by side.
       <div class="btn-row"><a class="btn primary" style="text-align:center;text-decoration:none" href="https://www.pcgs.com/photograde" target="_blank" rel="noopener">Open PCGS Photograde ↗</a></div>
       <div class="hint">Opens in your browser.</div></div>
@@ -1520,7 +1520,7 @@ function renderCoinForm() {
         ${d.service === "Other" ? `<label class="f"><span>Service name</span><input type="text" data-f="customService" value="${esc(d.customService)}"></label>` : ""}
         <div class="grid2"><label class="f"><span>CAC sticker</span><select data-f="cac"><option value="">None</option><option ${d.cac === "Green" ? "selected" : ""}>Green</option><option ${d.cac === "Gold" ? "selected" : ""}>Gold</option></select></label>
         <label class="f"><span>Catalog number (optional)</span><input type="text" data-f="catNo" value="${esc(d.catNo || "")}" placeholder="From the label, e.g. 7172" maxlength="20"></label></div>
-        <div class="hint">The ${d.service === "NGC" ? "NGC" : "PCGS"} coin number printed on the slab's label. Later it opens this exact coin in the PCGS Photo Guide.</div>` : ""}
+        <div class="hint">The ${d.service === "NGC" ? "NGC" : "PCGS"} coin number printed on the slab's label. Later it opens this exact coin in PCGS Photograde.</div>` : ""}
       <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
@@ -1777,7 +1777,7 @@ function bookHintText(d) {
 }
 // Link to the coin type's own PCGS Photograde page; types without a saved code open the general page.
 const photoGuideCode = (c) => (c.typeId ? pcgsCodeFor(c.typeId, c.year, c.variety) : "");
-const photoGuideText = (c) => (c.typeName && c.typeId ? "PCGS Photo Guide: " + c.typeName : "Compare grades on PCGS Photograde");
+const photoGuideText = (c) => (c.typeName && c.typeId ? "PCGS Photograde: " + c.typeName : "Compare grades on PCGS Photograde");
 const photoGuideUrl = (c) => { const k = photoGuideCode(c); return k ? "https://www.pcgs.com/photograde#/" + k + "/Grades" : "https://www.pcgs.com/photograde"; };
 function refreshFormHints() {
   const pl = $("#pcgsLink"); if (pl) { pl.href = photoGuideUrl(draft); pl.textContent = photoGuideText(draft) + " ↗"; }

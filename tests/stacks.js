@@ -43,7 +43,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   const txt = await p.textContent("main");
   ok("stacks page lists the stack with oz and melt", /My Silver Stack/.test(txt) && /10\.7\d\d oz pure/.test(txt));
   await p.evaluate(() => go("coins")); await p.waitForTimeout(200);
-  ok("bars are kept out of Your Coins, junk coins stay", await p.evaluate(() => !/Engelhard/.test($("#view").textContent) && /in\s+Stacks/.test($("#view").textContent) && ownedCoins().some((c) => c.id === "junk")));
+  ok("bars are kept out of Your Coins, junk coins stay", await p.evaluate(() => !/Engelhard/.test($("#view").textContent) && /in\s+My Stacks/.test($("#view").textContent) && ownedCoins().some((c) => c.id === "junk")));
   // saving a normal coin never keeps a stack
   await p.evaluate(() => { openCoinForm("plain"); draft.stack = "Sneaky"; });
   await p.evaluate(() => saveDraft()); await p.waitForTimeout(150);
