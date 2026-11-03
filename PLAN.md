@@ -2,7 +2,7 @@
 
 Last updated November 2, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged.
 
-**Next session starts here (session 7, build Phase 7 basic selling):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
+**Next session starts here (session 9, Step 4.6 add many identical coins at once):** switch to **Sonnet**, start a new chat, say *"Open my repo waddelljmw/CoinShelfTest, read CLAUDE.md, IDEAS.md and PLAN.md, and do the next session."*
 
 ## Session plan (one chat per session, done in order)
 
@@ -16,8 +16,8 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 4 | Sonnet | Step 4.4 arrange the Home shelf + Fix list | ✓ merged |
 | 5 | Sonnet | Phase 5 live metal prices (auto refresh + button); Report a problem button (IDEAS 2) + Fix list | ✓ merged v0.29.0 |
 | 6 | Opus | Plan Phase 7 selling details and the photo-fill choice | ✓ plan PR |
-| 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | PR |
-| 8 | Opus | Phase review (4.3b through 7), then merge | merge |
+| 7 | Sonnet | Coin IDs (7.0), Phase 7 basic selling (7.1–7.3) + photo-fill "Coming soon" lock | ✓ merged v0.30.0 (PR #71) |
+| 8 | Opus | Phase review (4.3b through 7), then merge | ✓ reviewed, 6 fixes, merged |
 | 9 | Sonnet | Step 4.6 add many identical coins at once | PR |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. Phase 8 Seller Mode planning on Opus. | |
 
@@ -314,7 +314,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 *Say this (on Opus):* "Do Step 4.5 of the plan."
 - [x] Review of 4.3 done (Nov 2, 2026)
 - [x] Box columns added (v0.26.0, Nov 2, 2026): Edit box → "Spots run in" Rows or Columns
-- [ ] Short look at 4.4
+- [x] Short look at 4.4 (session 8: odd old shelf settings cause no errors)
 
 **Step 4.6. Add many identical coins at once (IDEAS 10). Model: Sonnet. Planned on Opus (session 6).**
 - [ ] Merged
@@ -345,22 +345,22 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 *Planned in session 6 (Opus). The app already has: a For sale status, and **Mark as sold** with date, price, shipping, insurance, where, buyer, and sold results on Home.*
 
 **Step 7.0. Coin ID numbers (IDEAS 8). Built first in session 7, checked by the session 8 Opus review before merge.**
-- [ ] Merged
+- [x] Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
 - Every item gets an ID you can write on its flip: a **type code + number**, e.g. **MD-012** (Morgan dollar #12). Numbers count up separately for each type (MD-001, MD-002…; PD-001 for Peace dollars). 3 digits, growing to 4 if a type passes 999.
-- Codes come from a short list in `catalog/data.js` (one per coin type; also bars, rounds, sets, rolls, medals/tokens, foreign). Look up the type names already in the catalog; don't invent new types. Show him the code list in the PR so he can change any code.
+- Codes come from a short list in `catalog/idcodes.js` (one per coin type; also bars, rounds, sets, rolls, medals/tokens, foreign). Look up the type names already in the catalog; don't invent new types. Show him the code list in the PR so he can change any code.
 - **Existing coins all get IDs now**, in the order they were added. Done on read, so old backups still restore and get numbered too.
 - An ID is **never reused**, even after a coin is sold, gone or deleted. A coin's type never changes, so its code never changes.
 - **You can edit an ID.** The app refuses a duplicate and says which coin already has it.
 - **Shown:** on the coin page (near the label), in My Coins search (type "MD-012"), in CSV export, Backup and the insurance report, and on the sale record when sold.
 
 **Step 7.1. For sale and asking price.**
-- [ ] Merged
+- [x] Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
 - An **Asking price** field shows when status is For sale (inherited coins still can't be For sale).
 - A **For Sale list**: one tap from Home (and the For sale filter on My Coins) showing each coin, its asking price, what you paid, and the profit if it sells at that price.
 - The asking price fills in "Sold for" when you tap Mark as sold (you can change it).
 
 **Step 7.2. A fuller Mark as sold form.**
-- [ ] Merged
+- [x] Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
 - Always shown: how many (for rolls/quantities), date, **sold for**, where.
 - **More details** (closed until tapped): shipping you charged the buyer, shipping you paid (label), insurance, **platform fees**, sales tax collected, payment method (same list as buying), buyer, order number, tracking number (with the Track package link).
 - **Where sold** choices: Whatnot, eBay, eBay Live, Coin show, **Coin shop**, **Private sale**, **Facebook / social**, **Auction house**, **Pawn shop**, Other. Old sales keep their saved "where" (convert on read).
@@ -368,7 +368,7 @@ Claude adds items here when they wait. Sessions 4 and 5 clear them.
 - Sales tax collected is **not** profit (it's passed to the state); shown but left out of profit.
 
 **Step 7.3. Profit.**
-- [ ] Merged
+- [x] Merged (v0.30.0, Nov 2, 2026, after the session 8 review)
 - Worked out as you type in the form: **sold for + shipping charged − what you paid (total cost) − fees − shipping paid − insurance**.
 - Shown on the sold coin's page and in Sold results on Home (total profit and margin %). Inherited coins stay out of sold results, as today.
 - Selling part of a roll or quantity splits the cost the same way the coin is split today.

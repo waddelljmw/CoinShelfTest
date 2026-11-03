@@ -100,7 +100,7 @@ async function buildReport(opts) {
     return `<tr>
       <td class="n">${i + 1}</td>
       ${opts.photos ? `<td class="ph">${thumbs[c.id] ? `<img src="${thumbs[c.id]}" alt="">` : ""}</td>` : ""}
-      <td><b>${esc(labelOf(c))}</b>${extra ? `<div class="sub">${extra}</div>` : ""}${c.notes ? `<div class="sub">${esc(c.notes)}</div>` : ""}</td>
+      <td><b>${esc(labelOf(c))}</b>${c.cid ? ` <span class="sub">${esc(c.cid)}</span>` : ""}${extra ? `<div class="sub">${extra}</div>` : ""}${c.notes ? `<div class="sub">${esc(c.notes)}</div>` : ""}</td>
       <td>${esc(gradeText(c))}${certLine}</td>
       <td class="r">${q}</td>
       <td class="r">${m(v)}</td>

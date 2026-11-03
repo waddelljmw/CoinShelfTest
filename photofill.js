@@ -147,3 +147,15 @@ async function fillFromPhoto(files) {
 document.addEventListener("change", (e) => {
   if (e.target.id === "photoFill" && e.target.files && e.target.files.length) fillFromPhoto([...e.target.files].slice(0, MAX_FILL_PHOTOS));
 });
+
+// Photo fill is off in the phone app until there is an API key (Phase 7 decision). The button shows grayed out with a lock.
+function photoFillLockedButton() {
+  return `<button type="button" class="btn block" id="photoFillLocked" disabled aria-disabled="true" style="display:block;width:100%;text-align:center;margin-bottom:4px;opacity:.55">🔒 Fill in from photos · Coming soon</button>
+    <div class="hint" style="margin-bottom:6px">Reading a coin from its photos will switch on once an AI key is added in Options.</div>`;
+}
+// Options: a closed spot where the key will go. Nothing is stored yet.
+function photoFillOptionsHtml() {
+  return `<h2>Photo fill (API key) <span class="muted small">🔒 Coming soon</span></h2><div class="card"><details class="more"><summary>Photo fill settings</summary>
+    <label class="f"><span>API key</span><input type="password" disabled placeholder="Coming soon" aria-disabled="true"></label>
+    <div class="hint">When this is switched on, the Add coin page can read a coin's front and back photos and fill in the form. It costs a few cents per coin; the steps will be explained here first.</div></details></div>`;
+}

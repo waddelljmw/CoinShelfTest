@@ -18,7 +18,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.29.2";
+const APP_VERSION = "0.30.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -529,7 +529,7 @@ function thumbHtml(c) {
 const photoSrc = (p) => (p.lid ? (typeof localPhotoUrls !== "undefined" && localPhotoUrls.get(p.lid)) || "" : p.id ? "/_blob/" + p.id : p.url || "");
 
 /* ---------- navigation ---------- */
-const VIEWS = ["home", "value", "albums", "wants", "coins", "stacks", "boxes", "guide", "options"];
+const VIEWS = ["home", "value", "albums", "wants", "coins", "forsale", "stacks", "boxes", "guide", "options"];
 function currentRoute() {
   const h = location.hash.replace(/^#/, "");
   if (VIEWS.includes(h)) return { view: h };
@@ -568,10 +568,11 @@ function render() {
   const r = currentRoute();
   const main = $("#view");
   if (store.mode === "loading") { main.innerHTML = `<div class="empty">Opening your cabinet…</div>`; return; }
-  const menuKey = r.view === "coin" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view;
+  if (typeof ensureIds === "function") ensureIds(); // Step 7.0: every coin gets its ID
+  const menuKey = r.view === "coin" || r.view === "forsale" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view;
   $$("#menu button").forEach((b) => b.classList.toggle("on", b.dataset.go === menuKey));
   if (typeof applyShelfStyle === "function") applyShelfStyle();
-  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
+  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
   const keepSearch = active && active.id === "coinSearch" ? active.selectionStart : null;
@@ -659,6 +660,7 @@ function viewHome() {
     const da = (a.sold && a.sold.date) || "", db = (b.sold && b.sold.date) || "";
     return da !== db ? (da < db ? 1 : -1) : ((b.sold && b.sold.at) || 0) - ((a.sold && a.sold.at) || 0);
   }).slice(0, 5);
+  if (typeof forSaleHomeHtml === "function") html += forSaleHomeHtml();
   // Only shown once at least one coin has been sold.
   if (sold.length) {
     html += homeSection("sold", "Recently sold", `<div class="list">${sold.map((c) => coinRow(c)).join("")}</div>` + (soldCoins().length > 5 ? `<div style="margin-top:8px"><button class="link-btn" data-act="seeSold">See all sold coins</button></div>` : ""));
@@ -685,14 +687,13 @@ function viewStacks() {
 function soldCard() {
   const sold = soldCoins().filter((c) => !isInherited(c));
   const revenue = sum(sold, (c) => num(c.sold && c.sold.amount));
-  const costs = sum(sold, (c) => (num(c.sold && c.sold.shipping) || 0) + (num(c.sold && c.sold.insurance) || 0));
-  const basis = sum(sold, (c) => costOf(c) || 0);
-  const profit = revenue - costs - basis;
-  const margin = revenue ? profit / revenue : null;
+  const moneyIn = sum(sold, saleMoneyIn); // sold for + shipping charged
+  const profit = sum(sold, saleProfit);
+  const margin = moneyIn ? profit / moneyIn : null;
   return `<h2>Sold results</h2><div class="stats">
     <div class="stat"><div class="k">Sold</div><div class="v">${sum(sold, qtyOf)}</div><div class="small muted">${money(revenue, "$0.00")} in sales</div></div>
     <div class="stat"><div class="k">Margin</div><div class="v ${signCls(margin)}">${pct(margin)}</div><div class="small muted">${money(profit, "$0.00")} profit</div></div>
-  </div><div class="small muted" style="margin:6px 0 4px">After shipping, insurance and what you paid. Inherited coins aren't counted.</div>`;
+  </div><div class="small muted" style="margin:6px 0 4px">After what you paid, fees, shipping and insurance. Inherited coins aren't counted.</div>`;
 }
 
 function viewValue() {
@@ -740,7 +741,7 @@ function viewCoins() {
     (!listState.cert || c.gradeMode === listState.cert) &&
     (!listState.stage || (listState.stage === "upgrade" ? c.upgrade : stageOf(c) === listState.stage)) &&
     (typeof extraFilter !== "function" || extraFilter(c)) &&
-    (!listState.q || (labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.seller || "") + " " + (c.caseName || "") + " " + holderText(c) + " " + keptName(c)).toLowerCase().includes(listState.q.toLowerCase())));
+    (!listState.q || ((c.cid || "") + " " + labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.seller || "") + " " + (c.caseName || "") + " " + holderText(c) + " " + keptName(c)).toLowerCase().includes(listState.q.toLowerCase())));
   const key = {
     year: (c) => num(c.year) ?? 99999,
     value: (c) => (bestEach(c) || 0) * qtyOf(c),
@@ -847,6 +848,7 @@ function viewCoin(r) {
   return `${coinBackLink()}${eyeButton()}
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}</h1>
     ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button></div>` : ""}
+    <div class="small muted" style="margin:-4px 0 8px">ID <b>${esc(c.cid || "")}</b> <button class="link-btn" data-act="editId" data-id="${esc(c.id)}">Change</button></div>
     ${mintageLine(c)}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
@@ -875,7 +877,7 @@ function viewCoin(r) {
       <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-top:8px" href="${esc(trackUrl(c))}" target="_blank" rel="noopener">Track package ↗</a></div>` : ""}
     ${stageOf(c) === "coming" ? `<button class="btn block primary" style="margin-bottom:8px" data-act="received" data-id="${esc(c.id)}">✓ Mark as received</button>` : ""}
     ${c.status === "gone" ? `<div class="card"><b>Gone</b>${row("Why", esc((c.gone && c.gone.reason) || ""))}${row("Date", esc((c.gone && c.gone.date) || ""))}<div class="small muted">Not counted in your totals.</div></div>` : ""}
-    ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}</div>` : ""}
+    ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("ID", esc(c.cid))}${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping charged", num(sold.shipCharged) == null ? null : money(num(sold.shipCharged)))}${row("Platform fees", num(sold.fees) == null ? null : money(num(sold.fees)))}${row("Shipping paid", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Sales tax collected", num(sold.salesTax) == null ? null : money(num(sold.salesTax)))}${row("Paid with", esc(sold.payMethod))}${row("Where", esc(whereText(sold)))}${row("Sold to", esc(sold.to))}${row("Order number", esc(sold.orderNo))}${row("Tracking", sold.trackNo ? `<a href="${esc(trackUrl({ trackNo: sold.trackNo, trackCarrier: sold.carrier }))}" target="_blank" rel="noopener">${esc(sold.trackNo)} ↗</a>` : "")}${isInherited(c) ? "" : row("What you paid", costOf(c) == null ? null : money(costOf(c))) + row("Profit", typeof saleProfit === "function" ? `<b class="${signCls(saleProfit(c))}">${money(saleProfit(c))}</b>` : null)}</div>` : ""}
     ${caseCard(c)}
     ${c.notes ? `<div class="card"><div class="muted small">Notes</div><div style="white-space:pre-wrap">${esc(c.notes)}</div></div>` : ""}
     ${certUrl(c) ? `<a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-bottom:8px" href="${esc(certUrl(c))}" target="_blank" rel="noopener">Verify cert on ${esc(c.service)} ↗</a>` : ""}
@@ -1288,6 +1290,8 @@ function viewOptions() {
       <div class="hint">Bookcase: wood shelves; at night only the page around it goes dark. Safe: steel walls, dark all the time.</div></div>
     <h2>Home shelf</h2>
     <div class="card">${typeof shelfOptionsHtml === "function" ? shelfOptionsHtml() : ""}</div>
+    ${typeof sellingOptionsHtml === "function" ? sellingOptionsHtml() : ""}
+    ${!sampleApi && typeof photoFillOptionsHtml === "function" ? photoFillOptionsHtml() : ""}
     <h2>Show on Home</h2>
     <div class="card">
       ${SPOT_METALS.map((m) => `<label class="switch"><span>${m.label} spot price</span><input type="checkbox" data-act="hideSpot" data-v="${m.key}" ${s.hideSpot[m.key] ? "" : "checked"}></label>`).join("")}
@@ -1430,7 +1434,7 @@ function renderCoinForm() {
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add " + noun) : "Edit " + noun}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" data-coin="${d.id}" autocomplete="off">
-    ${sampleApi && d._isNew && !other && it === "coin" ? photoFillButton(d) : ""}
+    ${d._isNew && !other && it === "coin" ? (sampleApi ? photoFillButton(d) : photoFillLockedButton()) : ""}
     ${it === "bullion" ? bullionTopHtml(d) : it === "set" ? setTopHtml(d) : `${typeBlock}
     ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
     <div class="grid2">
@@ -1515,6 +1519,7 @@ function statusFields(d) {
     </div>
     <label class="f"><span>Group <span class="muted small">(optional)</span></span><input type="text" data-f="group" list="groupList" value="${esc(d.group || "")}" placeholder="${esc(isInherited(d) ? "Inherited" : "My collection")}"><datalist id="groupList">${[...new Set(["My collection", "Inherited", ...allCoins().map((c) => String(c.group || "").trim()).filter(Boolean)])].map((g) => `<option value="${esc(g)}">`).join("")}</datalist></label>
     <div class="hint">${d._status === "coming" ? "Bought or won, not here yet. Counted in your totals." : d._status === "gone" ? "Traded, gifted or lost. Left out of your totals." : inh ? "Inherited coins can't be set to For sale." : ""}</div>
+    ${d._status === "forsale" && typeof askField === "function" ? askField(d) : ""}
     ${d._status === "coming" || d.trackNo ? `<div class="grid2">
       <label class="f"><span>Tracking number</span><input type="text" data-f="trackNo" id="trackNo" value="${esc(d.trackNo || "")}" placeholder="Paste it here" maxlength="40" autocapitalize="characters"></label>
       <label class="f"><span>Carrier</span><select data-f="trackCarrier"><option value="">Work it out</option>${CARRIERS.map((x) => `<option ${d.trackCarrier === x ? "selected" : ""}>${x}</option>`).join("")}</select></label></div>
@@ -1768,7 +1773,7 @@ function retypeDraft() {
   const keep = JSON.parse(JSON.stringify(draft));
   draft = { ...keep, id: uid(), _isNew: true, _what: "us", _replaces: old.id, typeId: "", typeName: "", family: "", denom: "", metal: "", oz: "",
     variety: "", fbl: false, sms: false, label: "", labelEdited: false, albumId: "", createdAt: Date.now(), _newAlbum: { brand: "Whitman", number: "" } };
-  delete draft.slotId; delete draft.lotId; delete draft.splitFrom;
+  delete draft.slotId; delete draft.lotId; delete draft.splitFrom; delete draft.cid;
   renderCoinForm();
   toast("Pick the right coin type, then tap Add coin. Everything else was copied.");
 }
@@ -1822,6 +1827,7 @@ async function saveDraft() {
     else { c.status = "owned"; c.stage = k === "owned" ? "" : k; delete c.gone; }
   }
   c.upgrade = !!c.upgrade;
+  if (c.stage === "forsale") c.ask = num(c.ask) == null ? "" : String(Math.max(0, num(c.ask))); // asking price only matters while for sale
   c.mintErrors = listOf(c.mintErrors); c.problems = listOf(c.problems);
   c.trackNo = String(c.trackNo || "").replace(/\s+/g, "");
   ["seller", "knownVar", "receiptNo", "catNo", "trackCarrier"].forEach((k) => { c[k] = String(c[k] || "").trim(); });
@@ -1974,7 +1980,7 @@ async function addPhotos(files, target = "photos") {
 }
 
 /* --- Where a coin was sold --- */
-const SOLD_WHERE = ["Whatnot", "eBay", "eBay Live", "Coin show", "Other"];
+const SOLD_WHERE = ["Whatnot", "eBay", "eBay Live", "Coin show", "Coin shop", "Private sale", "Facebook / social", "Auction house", "Pawn shop", "Other"];
 // Older sales saved "where" as free text; read it back as one of the choices when it matches.
 function whereParts(sold) {
   if (!sold) return { type: "", detail: "" };
@@ -1987,12 +1993,14 @@ function whereParts(sold) {
 function whereText(sold) {
   const { type, detail } = whereParts(sold);
   if (type === "Coin show") return detail ? "Coin show: " + detail : "Coin show";
+  if (type === "Coin shop") return detail ? "Coin shop: " + detail : "Coin shop";
   if (type === "Other") return detail || "Other";
   return type;
 }
 function whereDetailField(type, detail) {
   if (type === "Coin show") return `<label class="f"><span>Which coin show?</span><input type="text" name="whereDetail" placeholder="e.g. FUN Show, Baltimore Expo" value="${esc(detail)}"></label>`;
-  if (type === "Other") return `<label class="f"><span>Where was it sold?</span><input type="text" name="whereDetail" placeholder="e.g. local coin shop, Facebook" value="${esc(detail)}"></label>`;
+  if (type === "Coin shop") return `<label class="f"><span>Shop or dealer name (optional)</span><input type="text" name="whereDetail" placeholder="e.g. Main Street Coins" value="${esc(detail)}"></label>`;
+  if (type === "Other") return `<label class="f"><span>Where was it sold?</span><input type="text" name="whereDetail" placeholder="e.g. flea market, swap meet" value="${esc(detail)}"></label>`;
   return "";
 }
 function whereFields(sv) {
@@ -2002,7 +2010,7 @@ function whereFields(sv) {
 }
 function readWhere(fd) {
   const type = String(fd.get("whereType") || "");
-  const detail = type === "Coin show" || type === "Other" ? String(fd.get("whereDetail") || "").trim() : "";
+  const detail = type === "Coin show" || type === "Coin shop" || type === "Other" ? String(fd.get("whereDetail") || "").trim() : "";
   const sold = { whereType: type, whereDetail: detail };
   sold.where = whereText(sold); // plain text too, for exports and older screens
   return sold;
@@ -2016,57 +2024,15 @@ document.addEventListener("change", (e) => {
   if (inp) inp.focus();
 });
 
-/* --- Sell --- */
-function openSell(id, edit) {
+/* --- Change a coin's ID (Step 7.0) --- */
+function openEditId(id, msg) {
   const c = getCoin(id);
   if (!c) return;
-  const q = edit ? 1 : qtyOf(c); // editing a sale never splits the coin
-  const sv = (edit && c.sold) || {};
-  const val = (v) => (v == null ? "" : esc(v));
-  openSheet(`<div class="sheet-head"><h2>${edit ? "Edit sale" : "Mark as sold"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
-  <p><b>${esc(labelOf(c))}</b></p>
-  ${isInherited(c) ? `<div class="banner" style="margin:0 0 8px"><span class="dns">Do not sell</span> This coin is inherited. It won't be counted in sold results.</div>` : ""}
-  <form id="sellForm" data-id="${esc(c.id)}" ${edit ? 'data-edit="1"' : ""}>
-    ${q > 1 ? `<label class="f"><span>How many sold (of ${q})</span><input type="number" name="n" min="1" max="${q}" value="${q}"></label>` : ""}
-    <label class="f"><span>Date sold</span><input type="date" name="date" value="${edit ? val(sv.date) : today()}"></label>
-    <label class="f"><span>Sold for (total, optional)</span><input type="number" inputmode="decimal" step="0.01" name="amount" placeholder="$" value="${val(sv.amount)}"></label>
-    <div class="grid2">
-      <label class="f"><span>Shipping (optional)</span><input type="number" inputmode="decimal" step="0.01" name="shipping" placeholder="$" value="${val(sv.shipping)}"></label>
-      <label class="f"><span>Insurance (optional)</span><input type="number" inputmode="decimal" step="0.01" name="insurance" placeholder="$" value="${val(sv.insurance)}"></label>
-    </div>
-    ${whereFields(sv)}
-    <label class="f"><span>Sold to (optional)</span><input type="text" name="soldTo" placeholder="Buyer's name or username" value="${val(sv.to)}"></label>
-    <div class="btn-row"><button class="btn primary" type="submit">${edit ? "Save sale" : "Mark sold"}</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
-  </form>`);
-}
-function doSell(form) {
-  const c = getCoin(form.dataset.id);
-  if (!c) return;
-  const fd = new FormData(form);
-  const q = qtyOf(c);
-  const n = Math.min(q, Math.max(1, num(fd.get("n")) || q));
-  const sold = { at: Date.now(), date: fd.get("date") || today(), amount: num(fd.get("amount")), shipping: num(fd.get("shipping")), insurance: num(fd.get("insurance")), ...readWhere(fd), to: String(fd.get("soldTo") || "").trim() };
-  if (form.dataset.edit) {
-    // Only the sale details change; keep when it was first recorded so ordering stays the same.
-    saveCoin({ ...c, sold: { ...sold, at: (c.sold && c.sold.at) || sold.at } });
-    closeSheet();
-    toast("Sale updated.");
-    return;
-  }
-  if (n < q) {
-    // Both pieces share a lot id, so moving them back always rejoins them, whichever piece survives.
-    const lotId = c.lotId || c.id;
-    const ex = splitExtras(c, n); // tax, shipping and fees shared by quantity
-    saveCoin({ ...c, ...ex.keep, qty: q - n, lotId });
-    saveCoin({ ...c, ...ex.part, id: uid(), qty: n, status: "sold", stage: "", sold, splitFrom: c.id, lotId });
-  } else {
-    saveCoin({ ...c, status: "sold", stage: "", sold });
-  }
-  const s = settings();
-  if (!s.soldAutoDone) saveSettings({ showSold: true, soldAutoDone: true });
-  closeSheet();
-  toast("Marked as sold.");
-  go("coins");
+  openSheet(`<div class="sheet-head"><h2>Coin ID</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  <p class="small muted">The ID is what you write on the flip. Two coins can't share one.</p>
+  <form id="idForm" data-id="${esc(c.id)}"><label class="f"><span>ID</span><input type="text" name="cid" value="${esc(c.cid || "")}" autocapitalize="characters"></label>
+  ${msg ? `<div class="hint" style="color:var(--bad)">${esc(msg)}</div>` : ""}
+  <div class="btn-row"><button class="btn primary" type="submit">Save ID</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div></form>`);
 }
 
 /* --- New album --- */
@@ -2269,6 +2235,8 @@ const actions = {
   edit: (el) => openCoinForm(el.dataset.id),
   sell: (el) => openSell(el.dataset.id),
   editSale: (el) => openSell(el.dataset.id, true),
+  editId: (el) => openEditId(el.dataset.id),
+  feeReset: () => { saveSettings({ feeRates: {} }); toast("Usual fee rates are back."); },
   unsell: (el) => {
     const c = getCoin(el.dataset.id);
     if (!c) return;
@@ -2278,7 +2246,8 @@ const actions = {
     const home = lot ? allCoins().find((x) => x.id !== c.id && x.status === "owned" && (x.lotId || x.id) === lot && same(x)) : null;
     const undo = (docs) => toast("Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
     if (home) {
-      saveCoin({ ...home, ...joinExtras(home, c), qty: qtyOf(home) + qtyOf(c) });
+      const ask = num(home.ask) != null || num(c.ask) != null ? { ask: String(r2((num(home.ask) || 0) + (num(c.ask) || 0))) } : {};
+      saveCoin({ ...home, ...joinExtras(home, c), ...ask, qty: qtyOf(home) + qtyOf(c) });
       remove("c_" + c.id);
       undo([home, c]);
       go("coin-" + home.id);
@@ -2562,6 +2531,10 @@ document.addEventListener("submit", (e) => {
   e.preventDefault();
   if (e.target.id === "coinForm") saveDraft();
   else if (e.target.id === "sellForm") doSell(e.target);
+  else if (e.target.id === "idForm") {
+    const f = e.target, bad = setCoinId(f.dataset.id, new FormData(f).get("cid"));
+    if (bad) openEditId(f.dataset.id, bad); else { closeSheet(); toast("ID saved."); }
+  }
   else if (e.target.id === "albumForm") doNewAlbum(e.target);
   else if (e.target.id === "spotForm") saveSpot(e.target);
   else if (e.target.id === "editAlbumForm") saveEditAlbum(e.target);
