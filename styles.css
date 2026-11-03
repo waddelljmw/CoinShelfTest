@@ -323,3 +323,6 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 /* Step 8.1: Seller Mode */
 .sold-tag.st-biz { color: var(--accent, #1565c0); border-color: currentColor; }
 .biz-plaque { margin-top: 10px; }
+
+/* Step 8.2: dealer case on the shelf (glass top over green felt) */
+.sh-case.dealer { background: linear-gradient(rgba(220,235,242,.22), rgba(20,70,45,.75)); border-color: #3b2a14; color: #f3ecd8; }

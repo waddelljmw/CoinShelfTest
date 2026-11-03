@@ -18,7 +18,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.32.0";
+const APP_VERSION = "0.33.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -130,6 +130,7 @@ async function claudeExtras() {
 
 function put(key, obj, quiet) {
   const body = JSON.parse(JSON.stringify(obj));
+  if (key.startsWith("c_") && typeof caseOnPut === "function") caseOnPut(store.docs.get(key), body); // dealer case: remember the old place
   store.docs.set(key, body);
   if (key !== "history" && typeof scheduleHistory === "function") scheduleHistory(); // value over time
   if (!quiet) render();
@@ -533,13 +534,14 @@ function thumbHtml(c) {
 const photoSrc = (p) => (p.lid ? (typeof localPhotoUrls !== "undefined" && localPhotoUrls.get(p.lid)) || "" : p.id ? "/_blob/" + p.id : p.url || "");
 
 /* ---------- navigation ---------- */
-const VIEWS = ["home", "value", "albums", "wants", "coins", "forsale", "stacks", "boxes", "guide", "options"];
+const VIEWS = ["home", "value", "albums", "wants", "coins", "forsale", "stacks", "boxes", "shows", "guide", "options"];
 function currentRoute() {
   const h = location.hash.replace(/^#/, "");
   if (VIEWS.includes(h)) return { view: h };
   if (h.startsWith("coin-")) return { view: "coin", id: h.slice(5) };
   if (h.startsWith("album-")) return { view: "album", id: h.slice(6) };
   if (h.startsWith("box-")) return { view: "box", id: h.slice(4) };
+  if (h.startsWith("show-")) return { view: "show", id: h.slice(5) };
   return { view: "home" };
 }
 function go(hash) {
@@ -573,10 +575,11 @@ function render() {
   const main = $("#view");
   if (store.mode === "loading") { main.innerHTML = `<div class="empty">Opening your cabinet…</div>`; return; }
   if (typeof ensureIds === "function") ensureIds(); // Step 7.0: every coin gets its ID
-  const menuKey = r.view === "coin" || r.view === "forsale" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view;
+  const menuKey = r.view === "coin" || r.view === "forsale" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view === "show" ? "shows" : r.view;
   $$("#menu button").forEach((b) => b.classList.toggle("on", b.dataset.go === menuKey));
   if (typeof applyShelfStyle === "function") applyShelfStyle();
-  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
+  if (typeof syncShowsMenu === "function") syncShowsMenu();
+  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, shows: typeof viewShows === "function" ? viewShows : viewHome, show: typeof viewShow === "function" ? viewShow : viewHome, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
   const keepSearch = active && active.id === "coinSearch" ? active.selectionStart : null;
