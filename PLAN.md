@@ -397,6 +397,7 @@ Ideas for status, purchase and sale details came from OpenNumismat (ideas only, 
 - **A note on taxes:** Claude isn't a tax advisor. The app organizes your records; a tax professional should review them before you file.
 
 **Step 8.1. Seller Mode switch, Business stock, business profile. Model: Sonnet.** (session 12)
+- [x] Built (v0.32.0, branch `step-8.1-seller-mode`, file `seller.js`, test `tests/seller81.js`), PR open, not merged yet
 - **Options → Seller Mode** on/off. Off: nothing about selling business shows (Business stock, dealer cases, shows, reports hide; data is kept, never deleted).
 - **Business stock tag:** every item is Personal (default) or Business (`biz: true`; missing = Personal, convert on read). Add coin gets a Personal/Business choice when Seller Mode is on; Add many (4.6) copies it to each coin.
 - **Separate totals:** Business stock never counts in your collection value. Home shows a small Business plaque (stock value, cost, count) only when Seller Mode is on. My Coins filter gets Personal/Business.

@@ -18,7 +18,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.31.1";
+const APP_VERSION = "0.32.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -424,7 +424,7 @@ const stacksPresent = () => [...new Set(ownedCoins().map(stackOf).filter(Boolean
 const stackNames = () => [...new Set(["My Silver Stack", ...allCoins().map(stackOf).filter(Boolean)])];
 const hiddenStacks = () => settings().hiddenStacks || [];
 // A stacked item counts only when its group chip AND its stack chip are on.
-const countedCoins = () => ownedCoins().filter((c) => !hiddenGroups().includes(groupOf(c)) && !hiddenStacks().includes(stackOf(c)));
+const countedCoins = () => ownedCoins().filter((c) => !c.biz && !hiddenGroups().includes(groupOf(c)) && !hiddenStacks().includes(stackOf(c)));
 const isInherited = (c) => (c.source || "").trim().toLowerCase() === "inherited";
 const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
@@ -599,7 +599,7 @@ function coinRow(c, opts = {}) {
     ${thumbHtml(c)}
     <span class="coin-main">
       <span class="coin-label">${esc(labelOf(c))}</span>
-      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}</span>
+      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}${typeof sellerOn === "function" && sellerOn() && c.biz ? `<span class="sold-tag st-biz">Business</span>` : ""}</span>
     </span>
     <span class="coin-val">${c.status === "sold" ? money(num(c.sold && c.sold.amount)) : money(v == null ? null : v * q)}${m != null && c.status !== "sold" ? `<div class="melt">melt ${money(m * q)}</div>` : ""}</span>
   </button>`;
@@ -614,7 +614,7 @@ function homeSection(key, title, inner) {
 }
 function viewHome() {
   const s = settings();
-  const everything = ownedCoins();
+  const everything = ownedCoins().filter((c) => !c.biz);
   const owned = countedCoins(); // groups switched off are left out of the totals
   const count = sum(owned, qtyOf);
   const total = sum(owned, (c) => (bestEach(c) || 0) * qtyOf(c));
@@ -642,7 +642,7 @@ function viewHome() {
   <div class="stats">
     <div class="stat"><div class="k">Cost</div><div class="v">${money(paid, "$0.00")}</div><div class="small muted">Paid, with tax, shipping and fees</div></div>
     <div class="stat"><div class="k">Gain</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Add prices paid" : pct(paid ? gain / paid : null) + " · inherited not counted"}</div></div>
-  </div>`;
+  </div>${typeof bizPlaqueHtml === "function" ? bizPlaqueHtml() : ""}`;
   if (typeof historyCard === "function") html += historyCard();
 
   // Melt Value by Metal, only for metals in the collection
@@ -888,7 +888,7 @@ function viewCoin(r) {
     <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>
     <div class="btn-row">
       <button class="btn primary" data-act="edit" data-id="${esc(c.id)}">Edit</button>
-      ${c.status === "owned" ? `<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>` : c.status === "gone" ? `<button class="btn" data-act="ungone" data-id="${esc(c.id)}">Move back to collection</button>` : `<button class="btn" data-act="editSale" data-id="${esc(c.id)}">Edit sale</button><button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}
+      ${c.status === "owned" ? `<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>${typeof bizButton === "function" ? bizButton(c) : ""}` : c.status === "gone" ? `<button class="btn" data-act="ungone" data-id="${esc(c.id)}">Move back to collection</button>` : `<button class="btn" data-act="editSale" data-id="${esc(c.id)}">Edit sale</button><button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}
       <button class="btn danger" data-act="delete" data-id="${esc(c.id)}">Delete</button>
     </div>`;
 }
@@ -1305,6 +1305,7 @@ function viewOptions() {
       <div class="hint">Bookcase: wood shelves; at night only the page around it goes dark. Safe: steel walls, dark all the time.</div></div>
     <h2>Home shelf</h2>
     <div class="card">${typeof shelfOptionsHtml === "function" ? shelfOptionsHtml() : ""}</div>
+    ${typeof sellerOptionsHtml === "function" ? sellerOptionsHtml() : ""}
     ${typeof sellingOptionsHtml === "function" ? sellingOptionsHtml() : ""}
     ${!sampleApi && typeof photoFillOptionsHtml === "function" ? photoFillOptionsHtml() : ""}
     <h2>Show on Home</h2>
@@ -1533,6 +1534,7 @@ function statusFields(d) {
       <label class="switch" style="align-self:end"><span>Upgrade wanted<div class="small muted">You'd like a nicer one</div></span><input type="checkbox" data-fcheck="upgrade" ${d.upgrade ? "checked" : ""}></label>
     </div>
     <label class="f"><span>Group <span class="muted small">(optional)</span></span><input type="text" data-f="group" list="groupList" value="${esc(d.group || "")}" placeholder="${esc(isInherited(d) ? "Inherited" : "My collection")}"><datalist id="groupList">${[...new Set(["My collection", "Inherited", ...allCoins().map((c) => String(c.group || "").trim()).filter(Boolean)])].map((g) => `<option value="${esc(g)}">`).join("")}</datalist></label>
+    ${typeof bizField === "function" ? bizField(d) : ""}
     <div class="hint">${d._status === "coming" ? "Bought or won, not here yet. Counted in your totals." : d._status === "gone" ? "Traded, gifted or lost. Left out of your totals." : inh ? "Inherited coins can't be set to For sale." : ""}</div>
     ${d._status === "forsale" && typeof askField === "function" ? askField(d) : ""}
     ${d._status === "coming" || d.trackNo ? `<div class="grid2">
@@ -1844,6 +1846,7 @@ async function saveDraft() {
     else { c.status = "owned"; c.stage = k === "owned" ? "" : k; delete c.gone; }
   }
   c.upgrade = !!c.upgrade;
+  if (typeof bizNormalize === "function") bizNormalize(c);
   if (c.stage === "forsale") c.ask = num(c.ask) == null ? "" : String(Math.max(0, num(c.ask))); // asking price only matters while for sale
   c.mintErrors = listOf(c.mintErrors); c.problems = listOf(c.problems);
   c.trackNo = String(c.trackNo || "").replace(/\s+/g, "");
