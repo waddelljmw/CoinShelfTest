@@ -33,6 +33,16 @@ const { chromium } = require("./_compat");
   if (!r.cid || r.left[0][2] === r.cid) console.log("FAIL ids differ");
   const csv = await p.evaluate(() => toCsv(allCoins()));
   console.log("csv has profit col:", /Profit/.test(csv) && /Platform fees/.test(csv));
+  // Review fixes (session 8): Move back rejoins the asking price; editing an old sale never adds a fee by itself
+  const sid = await p.evaluate(() => soldCoins()[0].id);
+  await p.goto("file://" + require("path").resolve(__dirname, "../index.html") + "#coin-" + sid); await p.waitForTimeout(300);
+  await p.evaluate((i) => actions.unsell({ dataset: { id: i } }), sid); await p.waitForTimeout(200);
+  const back = await p.evaluate(() => ownedCoins().map((c) => [c.qty, c.ask]));
+  console.log("moved back:", JSON.stringify(back)); if (back.length !== 1 || +back[0][1] !== 120) console.log("FAIL ask rejoin");
+  const oid = await p.evaluate(() => { const c = ownedCoins()[0]; saveCoin({ ...c, status: "sold", stage: "", sold: { date: "2026-01-02", amount: "100", where: "Whatnot" } }); return c.id; });
+  await p.goto("file://" + require("path").resolve(__dirname, "../index.html") + "#coin-" + oid); await p.waitForTimeout(300);
+  await p.evaluate((i) => openSell(i, true), oid); await p.waitForTimeout(200);
+  const oldFee = await p.inputValue("#sellForm [name=fees]"); if (oldFee !== "") console.log("FAIL old sale got a fee", oldFee);
   await p.goto("file://" + require("path").resolve(__dirname, "../index.html") + "#options"); await p.waitForTimeout(300);
   console.log("options selling:", await p.locator("[data-fee=whatnotPct]").count(), "photo key spot:", /Coming soon/.test(await p.textContent("#view")));
   await p.screenshot({ path: "/tmp/options-sell.png" });

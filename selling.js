@@ -79,7 +79,7 @@ function openSell(id, edit) {
     <div class="btn-row"><button class="btn primary" type="submit">${edit ? "Save sale" : "Mark sold"}</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
   const f = $("#sellForm");
-  if (edit && sv.fees != null && sv.fees !== "") f.dataset.feeTouched = "1"; // never overwrite a fee you typed
+  if (edit) f.dataset.feeTouched = "1"; // editing a sale: never change its fee by itself (the estimate shows in the hint)
   sellRecalc(f);
 }
 const sellVal = (f, k) => num((f.elements[k] || {}).value);

@@ -15,8 +15,9 @@ const idText = (code, n) => code + "-" + String(n).padStart(3, "0");
 const idParts = (s) => { const m = /^([A-Z0-9]{1,4})-(\d+)$/.exec(String(s || "").trim().toUpperCase()); return m ? { code: m[1], n: +m[2] } : null; };
 // Who already has this ID (other than coin `exceptId`)?
 function idOwner(cid, exceptId) {
-  const want = String(cid || "").trim().toUpperCase();
-  return allCoins().find((c) => c.id !== exceptId && String(c.cid || "").toUpperCase() === want) || null;
+  const norm = (s) => { const p = idParts(s); return p ? idText(p.code, p.n) : String(s || "").trim().toUpperCase(); };
+  const want = norm(cid);
+  return allCoins().find((c) => c.id !== exceptId && c.cid && norm(c.cid) === want) || null;
 }
 // Give every coin without an ID its number, oldest first. Quiet: no screen redraw. Safe to call any time.
 let idBusy = false;
@@ -44,8 +45,8 @@ function ensureIds() {
 function setCoinId(id, text) {
   const c = getCoin(id);
   if (!c) return "That coin isn't here.";
-  const v = String(text || "").trim().toUpperCase();
-  const p = idParts(v);
+  const p = idParts(text);
+  const v = p ? idText(p.code, p.n) : "";
   if (!p) return "Type an ID like MD-012: letters, a dash, then a number.";
   const other = idOwner(v, id);
   if (other) return v + " is already used by " + labelOf(other) + ".";

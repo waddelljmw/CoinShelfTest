@@ -1773,7 +1773,7 @@ function retypeDraft() {
   const keep = JSON.parse(JSON.stringify(draft));
   draft = { ...keep, id: uid(), _isNew: true, _what: "us", _replaces: old.id, typeId: "", typeName: "", family: "", denom: "", metal: "", oz: "",
     variety: "", fbl: false, sms: false, label: "", labelEdited: false, albumId: "", createdAt: Date.now(), _newAlbum: { brand: "Whitman", number: "" } };
-  delete draft.slotId; delete draft.lotId; delete draft.splitFrom;
+  delete draft.slotId; delete draft.lotId; delete draft.splitFrom; delete draft.cid;
   renderCoinForm();
   toast("Pick the right coin type, then tap Add coin. Everything else was copied.");
 }
@@ -2246,7 +2246,8 @@ const actions = {
     const home = lot ? allCoins().find((x) => x.id !== c.id && x.status === "owned" && (x.lotId || x.id) === lot && same(x)) : null;
     const undo = (docs) => toast("Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
     if (home) {
-      saveCoin({ ...home, ...joinExtras(home, c), qty: qtyOf(home) + qtyOf(c) });
+      const ask = num(home.ask) != null || num(c.ask) != null ? { ask: String(r2((num(home.ask) || 0) + (num(c.ask) || 0))) } : {};
+      saveCoin({ ...home, ...joinExtras(home, c), ...ask, qty: qtyOf(home) + qtyOf(c) });
       remove("c_" + c.id);
       undo([home, c]);
       go("coin-" + home.id);

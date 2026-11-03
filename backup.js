@@ -65,8 +65,15 @@ async function doBackup() {
 }
 
 // Settings and value history are combined with what's on this device, not replaced.
+let restoreRenumbered = 0;
 function mergeRestored(id, body) {
   const here = store.docs.get(id);
+  if (id.startsWith("c_")) {
+    // Coin IDs: keep the one on this device if the backup has none; drop one another coin already uses (it gets a fresh number).
+    if (here && here.cid && !body.cid) body = { ...body, cid: here.cid };
+    if (body.cid && typeof idOwner === "function" && idOwner(body.cid, body.id || id.slice(2))) { const { cid, ...rest } = body; body = rest; restoreRenumbered++; }
+    return body;
+  }
   if (!here) return body;
   if (id === "history") return { ...body, ...here, days: { ...(body.days || {}), ...(here.days || {}) } };
   if (id === "settings") {
@@ -116,6 +123,7 @@ async function doRestore() {
     } catch (e) { failed++; }
   }
   const fix = (p) => { const k = p && (p.lid ? "lid:" + p.lid : p.id ? "id:" + p.id : null); return (k && newRef.get(k)) || p; };
+  restoreRenumbered = 0;
   // 2) Records, one at a time so large backups don't overwhelm saving.
   for (const { id, data: d } of data.docs) {
     if (!id || !d) continue;
@@ -127,7 +135,7 @@ async function doRestore() {
   }
   if (store.mode === "local") cleanUnusedPhotos();
   go("home");
-  toast("Restored " + data.docs.filter((d) => d.data && d.data.kind === "coin").length + " coins." + (failed ? " " + failed + " photo" + (failed === 1 ? "" : "s") + " couldn't be restored." : ""));
+  toast("Restored " + data.docs.filter((d) => d.data && d.data.kind === "coin").length + " coins." + (failed ? " " + failed + " photo" + (failed === 1 ? "" : "s") + " couldn't be restored." : "") + (restoreRenumbered ? " " + restoreRenumbered + " coin ID" + (restoreRenumbered === 1 ? " was" : "s were") + " already in use, so " + (restoreRenumbered === 1 ? "it got a new number." : "they got new numbers.") : ""));
 }
 
 // A gentle reminder on Home when the last backup is old (only once there are coins worth protecting).

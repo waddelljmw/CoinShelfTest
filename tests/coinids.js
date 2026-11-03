@@ -25,5 +25,25 @@ const { chromium } = require("./_compat");
   await p.goto("file://" + require("path").resolve(__dirname, "../index.html") + "#coins"); await p.waitForTimeout(300);
   await p.fill("#coinSearch", "PD-050"); await p.waitForTimeout(200);
   const n = await p.locator(".coin-row").count(); console.log("search PD-050 rows:", n); if (n !== 1) console.log("FAIL search");
+  // Review fixes (session 8): padding duplicates, restores keep/refresh IDs, re-add drops the ID
+  const fx = await p.evaluate(async () => {
+    const out = {};
+    const m1 = allCoins().find((c) => c.cid === "MD-001"), m3 = allCoins().find((c) => c.cid === "MD-003");
+    out.pad = setCoinId(m3.id, "md-1");
+    out.norm = [setCoinId(m3.id, "md-77"), getCoin(m3.id).cid];
+    const before = allCoins().filter((c) => c.status !== "deleted").map((c) => c.id + "=" + c.cid).sort().join();
+    let docs = allCoins().map((c) => { const d = { ...c }; delete d.cid; return { id: "c_" + c.id, data: d }; });
+    restorePending = { kind: BACKUP_KIND, format: 1, docs, photos: {} }; await doRestore(); await new Promise((r) => setTimeout(r, 300));
+    out.oldBackupSame = allCoins().filter((c) => c.status !== "deleted").map((c) => c.id + "=" + c.cid).sort().join() === before;
+    docs = [{ id: "c_other1", data: { ...m1, id: "other1", cid: "MD-001", year: "1885" } }];
+    restorePending = { kind: BACKUP_KIND, format: 1, docs, photos: {} }; await doRestore(); await new Promise((r) => setTimeout(r, 300));
+    const all = allCoins().map((c) => c.cid);
+    out.noDup = all.length === new Set(all).size && !!getCoin("other1").cid && getCoin("other1").cid !== "MD-001";
+    return out;
+  });
+  console.log("review fixes:", JSON.stringify(fx));
+  if (!/already used/.test(fx.pad) || fx.norm[1] !== "MD-077" || !fx.oldBackupSame || !fx.noDup) console.log("FAIL review fixes");
+  const re = await p.evaluate(() => { openCoinForm(allCoins().find((c) => c.cid === "MD-001").id); retypeDraft(); return draft.cid; });
+  if (re) console.log("FAIL re-add copies ID " + re);
   console.log("errors", errors); await b.close();
 })();
