@@ -221,6 +221,14 @@ function saveWantForm(form) {
   if (currentRoute().view !== "wants") go("wants");
 }
 
+// A coin added the normal way that matches something on a want list: ask before taking it off.
+function askWantRemove(c) {
+  if (!c || !c.typeId || itemOf(c) !== "coin") return;
+  const hits = wants().filter((w) => w.typeId === c.typeId && String(w.year) === String(c.year) && normMint(w.mint) === normMint(c.mint)
+    && !!w.pf === isProofGrade(c.grade) && (!w.variety || varietyFits(c.variety, w.variety) || varietyFits(c.spotVariety, w.variety)));
+  if (!hits.length) return;
+  confirmSheet("This is on your want list", wantLabel(hits[0]) + " is on your want list. Remove it?", "Remove from list", () => { hits.forEach((w) => remove("w_" + w.id)); toast("Removed from your want list."); });
+}
 // "Got it": open the add-coin form filled in from the want; saving the coin removes the want.
 function gotWant(id) {
   const w = getWant(id);

@@ -6,6 +6,7 @@ const launch = chromium.launch.bind(chromium);
 const script = () => {
   const go = () => {
     document.querySelectorAll(".what-btn[data-v=us]").forEach((b) => b.click());
+    document.querySelectorAll("[data-act=optSec][aria-expanded=false]").forEach((b) => b.click()); // Options sections start folded since session 17
     document.querySelectorAll("#coinForm details[data-sec]:not([open])").forEach((d) => { d.open = true; });
   };
   document.addEventListener("DOMContentLoaded", () => new MutationObserver(go).observe(document.body, { childList: true, subtree: true }));

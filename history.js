@@ -98,11 +98,10 @@ function historyCard() {
         </div>`;
     }
   }
-  return `<h2>Value over time</h2>
-    <div class="card">
+  return homeSection("history", "Value over time", `<div class="card">
       ${all.length >= 2 ? `<div class="chips" style="margin:-2px 0 10px">${ranges.map(([k, l]) => `<button class="chip ${historyView.range === k ? "on" : ""}" data-act="histRange" data-v="${k}">${l}</button>`).join("")}</div>` : ""}
       ${body}
-    </div>`;
+    </div>`);
 }
 
 Object.assign(actions, {

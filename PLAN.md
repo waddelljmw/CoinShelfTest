@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 17, tidy batch in "After Phase 8" below):** switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below
+**Next session starts here:** session 17 (tidy batch) is done and merged as v0.36.0. Nothing is scheduled after it. Choose the next one with Claude: the "later" row in the table below (needs your Red Book), or ideas 7, 13 or 22 in `IDEAS.md` (planned on Opus).
 
 ## Session plan (one chat per session, done in order)
 
@@ -26,7 +26,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 14 | Sonnet | Step 8.3 pricing help and reports | ✅ merged v0.34.0 (PR #82) |
 | 15 | Sonnet | Step 8.3b saved shipping costs, "Going as" on shows, "Was kept in" on sold coins | ✅ merged v0.35.0 (PR #85) |
 | 16 | Opus | Step 8.4 review of Phase 8, then merge | ✅ reviewed, 6 fixes, v0.35.1 |
-| 17 | Sonnet | Tidy batch (see **After Phase 8** below): hide values keeps melt prices, Options tidy, Home toggles, junk silver default | |
+| 17 | Sonnet | Tidy batch (see **After Phase 8** below): hide values keeps melt prices, Options tidy, Home toggles, junk silver default | ✅ built v0.36.0 (PR pending) |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
@@ -53,6 +53,7 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 **Starting a new chat** (fast version, no whole-plan read, no test run): paste *"Open my repo waddelljmw/CoinShelfTest. Read CLAUDE.md and IDEAS.md. From PLAN.md read only the "Next session starts here" line, the session table and the next unchecked step, not the whole file. Do a quick check with no test run: last PR merged, checklist ticked, Fix list empty, no open "Problem:" bug reports on GitHub. Fix any gap. Tell me which model the next session needs and which model you are (if they differ, tell me to switch and stop). Then say in 1–2 lines what the session will do and wait for my go."*
 
 ## After Phase 8 (session 17, Sonnet; kept here so the Fix list stays empty for the start check)
+- [x] ✅ All items below built in v0.36.0 (branch `session-17-tidy`, test `tests/session17.js`). Options sections start folded; "Don't ask before For sale" and the junk silver switch are in Options.
 - **Hide values keeps melt prices.** The eye button should not hide current spot/melt prices (they aren't your coin values).
 - **Options tidy.** Put Options in collapsible sections that look cleaner; make **Red Book values** its own collapsible section.
 - **More Home toggles.** Turn on and off more Home sections: Recently added, Recently sold, value over time, melt value (as well as melt and sale info today).

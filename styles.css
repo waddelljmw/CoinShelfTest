@@ -326,3 +326,7 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 
 /* Step 8.2: dealer case on the shelf (glass top over green felt) */
 .sh-case.dealer { background: linear-gradient(rgba(220,235,242,.22), rgba(20,70,45,.75)); border-color: #3b2a14; color: #f3ecd8; }
+
+/* Session 17: tiny corner mark on a coin missing its grade or cost */
+.coin-row { position: relative; }
+.inc-mark { position: absolute; top: 6px; left: 6px; width: 9px; height: 9px; border-radius: 50%; background: #e08a00; border: 1.5px solid var(--bg, #fff); }
