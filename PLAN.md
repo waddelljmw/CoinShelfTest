@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 19, Sonnet):** build the main menu rework, **Step 9.0** (9.1–9.4). Switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 20 to 24 in the table.
+**Next session starts here (session 20, Opus):** plan demo mode and the one-page infographic (IDEAS 8); planning only. Switch to **Opus**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 21 to 24 in the table.
 
 ## Session plan (one chat per session, done in order)
 
@@ -28,7 +28,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 16 | Opus | Step 8.4 review of Phase 8, then merge | ✅ reviewed, 6 fixes, v0.35.1 |
 | 17 | Sonnet | Tidy batch (see **After Phase 8** below): hide values keeps melt prices, Options tidy, Home toggles, junk silver default | ✅ merged v0.36.0 (PR #90) |
 | 18 | Opus | Plan the main menu rework (IDEAS 7); planning only | ✅ plan PR (Step 9.0) |
-| 19 | Sonnet | Build the menu rework (Step 9.0) | |
+| 19 | Sonnet | Build the menu rework (Step 9.0) | ✅ merged v0.37.0 (PR #95) |
 | 20 | Opus | Plan demo mode and the one-page infographic (IDEAS 8) | |
 | 21 | Sonnet | Build demo mode | |
 | 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | |
@@ -91,10 +91,10 @@ Only moves and renames menu buttons. No saved data changes, no page addresses ch
   - Sales Reports
 - **Options** (stays last)
 
-- [ ] **9.1 Menu.** Rebuild `#menu` in `index.html` in that order. Group children get a class (e.g. `menu-sub`: indent, slightly smaller text). "My Business" is a small heading (`menu-head`), hidden with Shows/Reports when Seller Mode is off (reuse how `menuShows`/`menuReports` are hidden today). Highlighting: keep `menuKey` in app.js; album → My Albums, box → Storage, show → Shows (as today).
-- [ ] **9.2 Names match.** Page headings and back buttons use the new names: "Home" → "My Cabinet", "Albums" → "My Albums", "Stacks" → "My Stacks", "PCGS Photo Guide" → "PCGS Photograde" (grep `← Albums`, `Back to Albums`, `data-go="stacks">Stacks`, page `<h1>`s). Only words he sees; internal names stay.
-- [ ] **9.3 Check on phone width.** One screenshot of the open menu at phone size, Seller Mode on and off; the menu must scroll if it's taller than the screen.
-- [ ] **9.4 Test** `tests/menu.js`: order of items, Business group hidden/shown with Seller Mode, highlighting for album/box/show pages. Version: feature → middle number.
+- [x] ✅ **9.1 Menu.** Rebuild `#menu` in `index.html` in that order. Group children get a class (e.g. `menu-sub`: indent, slightly smaller text). "My Business" is a small heading (`menu-head`), hidden with Shows/Reports when Seller Mode is off (reuse how `menuShows`/`menuReports` are hidden today). Highlighting: keep `menuKey` in app.js; album → My Albums, box → Storage, show → Shows (as today).
+- [x] ✅ **9.2 Names match.** Page headings and back buttons use the new names: "Home" → "My Cabinet", "Albums" → "My Albums", "Stacks" → "My Stacks", "PCGS Photo Guide" → "PCGS Photograde" (grep `← Albums`, `Back to Albums`, `data-go="stacks">Stacks`, page `<h1>`s). Only words he sees; internal names stay.
+- [x] ✅ **9.3 Check on phone width.** One screenshot of the open menu at phone size, Seller Mode on and off; the menu must scroll if it's taller than the screen.
+- [x] ✅ **9.4 Test** `tests/menu.js`: order of items, Business group hidden/shown with Seller Mode, highlighting for album/box/show pages. Version: feature → middle number.
 
 **Later, not now:** the feature audit (IDEAS 22) may hide or cut pages; that only means small menu edits.
 
