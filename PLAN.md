@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 20b, Sonnet):** split `app.js` into smaller files by area (no change to what you see); check the automatic GitHub test run passes. Switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 21 to 25 in the table.
+**Next session starts here (session 21, Sonnet):** build demo mode (Step 9.1). Switch to **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 22 to 25 in the table.
 
 ## Session plan (one chat per session, done in order)
 
@@ -30,7 +30,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 18 | Opus | Plan the main menu rework (IDEAS 7); planning only | ✅ plan PR (Step 9.0) |
 | 19 | Sonnet | Build the menu rework (Step 9.0) | ✅ merged v0.37.0 (PR #95) |
 | 20 | Opus | Plan demo mode (IDEAS 8) | ✅ plan PR (Step 9.1) + automatic GitHub tests |
-| 20b | Sonnet | Split `app.js` into smaller files by area (no change to what you see); check the automatic GitHub test run passes | |
+| 20b | Sonnet | Split `app.js` into smaller files by area (no change to what you see); check the automatic GitHub test run passes | ✅ merged v0.37.1 (PR #99), automatic GitHub tests pass |
 | 21 | Sonnet | Build demo mode (Step 9.1) | |
 | 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | |
 | 23 | Opus | Read the reviews, then the feature audit (IDEAS 22); plan the changes | |
