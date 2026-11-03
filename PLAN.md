@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here:** session 17 (tidy batch) is done and merged as v0.36.0. Nothing is scheduled after it. Choose the next one with Claude: the "later" row in the table below (needs your Red Book), or ideas 7, 13 or 22 in `IDEAS.md` (planned on Opus).
+**Next session starts here (session 18, Opus, planning only, no code):** plan the main menu rework (IDEAS 7). Switch to **Opus**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 19 to 24 in the table.
 
 ## Session plan (one chat per session, done in order)
 
@@ -27,6 +27,13 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 15 | Sonnet | Step 8.3b saved shipping costs, "Going as" on shows, "Was kept in" on sold coins | ✅ merged v0.35.0 (PR #85) |
 | 16 | Opus | Step 8.4 review of Phase 8, then merge | ✅ reviewed, 6 fixes, v0.35.1 |
 | 17 | Sonnet | Tidy batch (see **After Phase 8** below): hide values keeps melt prices, Options tidy, Home toggles, junk silver default | ✅ merged v0.36.0 (PR #90) |
+| 18 | Opus | Plan the main menu rework (IDEAS 7); planning only | |
+| 19 | Sonnet | Build the menu rework | |
+| 20 | Opus | Plan demo mode and the one-page infographic (IDEAS 8) | |
+| 21 | Sonnet | Build demo mode | |
+| 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | |
+| 23 | Opus | Read the reviews, then the feature audit (IDEAS 22); plan the changes | |
+| 24 | Sonnet | Build the audit changes | |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
