@@ -1291,7 +1291,7 @@ function viewOptions() {
     <h2>Home shelf</h2>
     <div class="card">${typeof shelfOptionsHtml === "function" ? shelfOptionsHtml() : ""}</div>
     ${typeof sellingOptionsHtml === "function" ? sellingOptionsHtml() : ""}
-    ${typeof photoFillOptionsHtml === "function" ? photoFillOptionsHtml() : ""}
+    ${!sampleApi && typeof photoFillOptionsHtml === "function" ? photoFillOptionsHtml() : ""}
     <h2>Show on Home</h2>
     <div class="card">
       ${SPOT_METALS.map((m) => `<label class="switch"><span>${m.label} spot price</span><input type="checkbox" data-act="hideSpot" data-v="${m.key}" ${s.hideSpot[m.key] ? "" : "checked"}></label>`).join("")}
