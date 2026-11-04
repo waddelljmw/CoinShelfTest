@@ -38,7 +38,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 24b | Sonnet | Step 9.2 session 24b: seller fixes from review 3 | ✅ merged v0.40.0 (PR #111) |
 | 25 | Sonnet | One-page infographic of the app's best features, for you to show people (not in the app); made as a design you can edit, print or share | ✅ done (Claude Design canvas "Coin Cabinet: Best Features", not in the repo) |
 | 26 | Opus | Plan from your 45-minute use notes (Step 9.3) | ✅ plan PR #112 (+ v0.40.1 hide-values fix) |
-| 27 | Sonnet | Step 9.3a: faster entry fixes + Add album cleanup + What's new | ✅ v0.41.0 (PR open) |
+| 27 | Sonnet | Step 9.3a: faster entry fixes + Add album cleanup + What's new | ✅ merged v0.41.0 (PR #113) |
 | 28 | Sonnet | Step 9.3b: complete profile, Needs info list, inheritances | |
 | 29 | Sonnet | Step 9.3c: want lists (one want, many lists; missing from album; album wish list) | |
 | 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | |
