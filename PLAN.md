@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 25, Sonnet):** make the one-page infographic of the app's best features (design you can edit, print or share).
+**Next session starts here (session 26, Opus):** plan inherited coins (locked, value when inherited) + new-user help: plain words, walkthrough, Simple mode.
 
 ## Session plan (one chat per session, done in order)
 
@@ -35,8 +35,8 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | ✅ all 3 done: `reviews/01-first-time-collector.md`, `reviews/02-heir.md`, `reviews/03-coin-show-seller.md` |
 | 23 | Opus | Read the reviews, then the feature audit (IDEAS 22); plan the changes | ✅ plan PR (Step 9.2) |
 | 24 | Sonnet | Step 9.2 session 24: honest values, Add coin, Options groups, tuck away | ✅ merged v0.39.0 (PR #109) |
-| 24b | Sonnet | Step 9.2 session 24b: seller fixes from review 3 | ✅ v0.40.0 (PR open, merge pending) |
-| 25 | Sonnet | One-page infographic of the app's best features, for you to show people (not in the app); made as a design you can edit, print or share | |
+| 24b | Sonnet | Step 9.2 session 24b: seller fixes from review 3 | ✅ merged v0.40.0 (PR #111) |
+| 25 | Sonnet | One-page infographic of the app's best features, for you to show people (not in the app); made as a design you can edit, print or share | ✅ done (Claude Design canvas "Coin Cabinet: Best Features", not in the repo) |
 | 26 | Opus | Plan inherited coins (locked, value when inherited) + new-user help: plain words, walkthrough, Simple mode | |
 | later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
