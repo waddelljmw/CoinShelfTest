@@ -82,6 +82,8 @@ function viewReports() {
     ${repSections(d, money).map(sec).join("").replace(/<div class="card"><b>Schedule C/, (m) => plat + m)}
     ${pers}
     <div class="btn-row"><button class="btn primary" data-act="repPrint">Printable page</button><button class="btn" data-act="repCsv">Spreadsheet (CSV)</button></div>
+    <div class="card"><b>Tax records for ${p.y}</b><div class="small muted">Every sale in the year, with cost, fees, gain, and whether you held it over a year. ${esc(TAX_NOTE)}</div>
+      <div class="btn-row"><button class="btn" data-act="repTax">Tax records ${p.y} (CSV)</button></div></div>
     ${REP_NOTES.map((n) => `<p class="small muted">${esc(n)}</p>`).join("")}`;
 }
 
@@ -122,6 +124,35 @@ function buildSalesReportCsv(d) {
     ["By platform (gross includes shipping and sales tax)"], ["Platform", "Sold", "Gross", "Fees"], ...d.platforms.map((x) => [x.name, x.n, x.gross, x.fees])];
   return rows.map((r) => r.map((v) => csvCell(v)).join(",")).join("\n");
 }
+/* ---- Step 9.3d: tax records. Year-end list of every sale (Business, Personal and Inherited) for your tax preparer. ---- */
+const TAX_NOTE = "Records for your tax preparer, not tax advice. Coins are collectibles; your preparer decides the rates.";
+const TAX_COLS = ["Date bought", "Date sold", "Item", "Qty", "Cost incl. fees", "Sale price", "Fees", "Gain", "Held over 1 year", "Inherited"];
+// Cost for the tax list: an inherited coin uses its value when inherited (each × qty), otherwise what you paid plus tax, shipping and fees.
+const taxCost = (c) => (isInherited(c) && inhValueOf(c) != null ? r2(inhValueOf(c) * qtyOf(c)) : costOf(c));
+// Day you got it: the date acquired, or for an inherited coin its inheritance date.
+const taxBought = (c) => String(c.acquired || (isInherited(c) && inheritanceOf(c) ? inheritanceOf(c).date : "") || "").slice(0, 10);
+// "Yes" when sold more than one year (a day later than the same date a year on) after it was bought; blank when a date is missing.
+function heldOverYear(bought, sold) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(bought) || !/^\d{4}-\d{2}-\d{2}$/.test(sold)) return "";
+  const [y, m, d] = bought.split("-").map(Number), limit = `${y + 1}-${pad2(m)}-${pad2(d)}`;
+  return sold > limit ? "Yes" : "No";
+}
+function taxData(year) {
+  const rows = soldCoins().filter((c) => c.sold && String(c.sold.date || "").slice(0, 4) === String(year))
+    .sort((a, b) => String(a.sold.date).localeCompare(String(b.sold.date)))
+    .map((c) => {
+      const s = c.sold, cost = taxCost(c), price = num(s.amount) || 0, fees = num(s.fees) || 0, bought = taxBought(c), soldOn = String(s.date || "").slice(0, 10);
+      return [bought, soldOn, labelOf(c), qtyOf(c), cost, price, fees, cost == null ? "" : r2(price - fees - cost), heldOverYear(bought, soldOn), isInherited(c) ? "Yes" : "No"];
+    });
+  return rows;
+}
+function buildTaxCsv(year) {
+  const rows = taxData(year);
+  const totalGain = r2(sum(rows, (r) => num(r[7]) || 0));
+  return [[`Tax records ${year}`], [TAX_NOTE], TAX_COLS, ...rows, [], ["Total gain (only sales with a known cost)", "", "", "", "", "", "", totalGain],
+    ["Gain = sale price − fees − cost. Shipping and sales tax are not included. Blank cost or date = not entered yet."]]
+    .map((r) => r.map((v) => csvCell(v)).join(",")).join("\n");
+}
 async function saveRepFile(name, data) {
   if (downloadsApi) {
     try { await downloadsApi.save({ filename: name, data }); return true; } catch (e) { if (e && e.code === "declined") return false; }
@@ -145,6 +176,7 @@ Object.assign(actions, {
     else { const top = p.kind === "quarter" ? 4 : 12; p.n += v; if (p.n < 1) { p.n = top; p.y--; } else if (p.n > top) { p.n = 1; p.y++; } }
     render();
   },
+  repTax: async () => { const y = repPeriod.y; if (await saveRepFile("coin-cabinet-tax-records-" + y + ".csv", buildTaxCsv(y))) toast("Tax records saved. " + TAX_NOTE); },
   repPrint: async () => { if (await saveRepFile("coin-cabinet-sales-" + repRange(repPeriod).label.split(" (")[0].replace(/\s+/g, "-") + ".html", buildSalesReportHtml(repData(repPeriod)))) toast("Saved. Open it, then print or save as PDF."); },
   repCsv: async () => { if (await saveRepFile("coin-cabinet-sales-" + repRange(repPeriod).label.split(" (")[0].replace(/\s+/g, "-") + ".csv", buildSalesReportCsv(repData(repPeriod)))) toast("Spreadsheet saved."); },
 });

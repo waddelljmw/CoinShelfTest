@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.44.0": [
+    "Asking price now has three suggestions: Red Book, melt, and your cost plus a minimum markup. The highest is highlighted, so it never goes below what you need. Set the minimum markup in Options.",
+    "Reports: \u201CTax records\u201D saves a year-end list of every sale (cost, fees, gain, held over a year, inherited) for your tax preparer. Not tax advice."
+  ],
   "0.43.0": [
     "A coin can be on several want lists at once, each with its own grade. Album spots and the Want List show \u201Cwanted \u00D72\u201D; tap it to see which lists.",
     "Album page: \u201CAdd missing to a want list\u201D suggests a list for that coin type, or makes a new one.",

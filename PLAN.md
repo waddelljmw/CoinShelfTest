@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 30, Sonnet):** Step 9.3d asking price with your cost + tax records (Seller Mode).
+**Next session starts here (session 31, Opus):** review of 9.3b–9.3d (they add saved data), fix what it finds.
 
 ## Session plan (one chat per session, done in order)
 
@@ -41,7 +41,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 27 | Sonnet | Step 9.3a: faster entry fixes + Add album cleanup + What's new | ✅ merged v0.41.0 (PR #113) |
 | 28 | Sonnet | Step 9.3b: complete profile, Needs info list, inheritances | ✅ merged v0.42.0 (PR #114) |
 | 29 | Sonnet | Step 9.3c: want lists (one want, many lists; missing from album; album wish list) | ✅ v0.43.0 (PR pending merge) |
-| 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | |
+| 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | ✅ v0.44.0 (PR pending merge) |
 | 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | |
 | 32 | Opus | Plan new-user help: plain words, walkthrough, Simple mode | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
@@ -180,9 +180,9 @@ Goal: fewer taps when entering, nothing lost, and the app tells you what still n
 - [x] ✅ Tests + version.
 
 ### 9.3d (session 30, Sonnet): asking price + tax records (Seller Mode)
-- [ ] **Asking price** shows three numbers: Red Book × your %, melt + your %, and **your cost + your minimum markup %**. Suggested = the higher of the first two, **never below cost + minimum markup**. Inherited: uses value when inherited as cost if set.
-- [ ] **Tax records:** a year-end sales export (date bought, date sold, cost incl. fees, sale price, fees, gain, held over 1 year yes/no, inherited yes/no). Plain note: "Records for your tax preparer, not tax advice." (Coins are collectibles; your preparer decides the rates.)
-- [ ] Tests + version.
+- [x] ✅ **Asking price** shows three numbers: Red Book × your %, melt + your %, and **your cost + your minimum markup %**. Suggested = the higher of the first two, **never below cost + minimum markup**. Inherited: uses value when inherited as cost if set.
+- [x] ✅ **Tax records:** a year-end sales export (date bought, date sold, cost incl. fees, sale price, fees, gain, held over 1 year yes/no, inherited yes/no). Plain note: "Records for your tax preparer, not tax advice." (Coins are collectibles; your preparer decides the rates.)
+- [x] ✅ Tests + version.
 
 ### Decided not now
 - **Value over time using past metal prices:** needs an outside price history and is confusing; stays with IDEAS 32.
