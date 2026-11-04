@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 34, Sonnet):** Step 9.4b first open, guided first coin, plain-words help. (Session 33 done: v0.45.0, Fix list empty.)
+**Next session starts here (session 34b, Sonnet):** Step 9.4b first open, guided first coin, plain-words help. (Bug #120 fixed in v0.45.1, PR #124 merged; Fix list empty. Bug #123 waits for an Opus planning session.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -45,7 +45,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | ✅ reviewed, 5 fixes + delete confirm, merged v0.44.1 (PR #118) |
 | 32 | Opus | Plan new-user help: plain words, walkthrough, Simple mode | ✅ plan PR (Step 9.4) + automatic version check |
 | 33 | Sonnet | Fix list + Step 9.4a: change many coins at once | ✅ merged v0.45.0 (PR #122) |
-| 34 | Sonnet | Step 9.4b: first open, guided first coin, plain-words help | |
+| 34 | Sonnet | Step 9.4b: first open, guided first coin, plain-words help (bug #120 fixed first: v0.45.1, PR #124) | started |
 | 35 | Sonnet | Step 9.4c: Simple mode (3 levels) | |
 | 36 | Opus | Review of 9.4 (9.4a changes many saved coins at once), fix what it finds | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
