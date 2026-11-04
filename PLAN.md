@@ -122,6 +122,7 @@ From the three test-user reviews (`reviews/`) and your audit choices (2026-11-03
 
 ### Session 24 (Sonnet): honest values + Add coin + Options
 - [ ] **Metal price prompt (IDEAS 27).** On saving the first silver/gold coin with no price for that metal, a pop-up: "Get live prices" or type it in (works offline). Until a price exists, coin values say "face value, no silver price yet", not cents.
+- [ ] **Price status line on Home** (your worry, 2026-11-03: will people know to refresh, or to type prices when they don't fill in?). Today the automatic fetch fails silently. Under the shelf, one line with a button, three states: **fresh** "Silver $32.10 · updated 2:14 PM ↻" (tap ↻ refreshes right there); **old** (over a day) amber "Prices are 3 days old · Refresh"; **failed or none** "Couldn't get live prices (no internet?) · Type them in" (opens Spot prices, unfolded). The same line sits at the top of the Insurance Report pop-up. Keeps the "Prices updated" date you like.
 - [ ] **Low-total warning.** Home and the Insurance Report show "Totals are low: add a silver (gold) price" with a button, whenever an owned coin's metal has no price.
 - [ ] **No Red Book value (IDEAS 29).** Coin page says "No Red Book value for this date and grade" (or "Add a grade to get a value" when ungraded) instead of quietly showing face value. Reuse `bookLookup`; no values typed in.
 - [ ] **Add another (IDEAS 28).** Saved coin page gets an "Add another" button: fresh Add coin form, same coin type picked.
