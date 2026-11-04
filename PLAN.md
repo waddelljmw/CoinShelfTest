@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 22, review 3 of 3, Sonnet):** the **coin-show seller** test-user review (IDEAS 13), in its own chat. Reviews 1 (first-time collector) and 2 (heir) are done: `reviews/01-first-time-collector.md`, `reviews/02-heir.md`. Stay on **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 23 to 25 in the table.
+**Next session starts here (session 22, review 3 of 3, Sonnet):** the **coin-show seller** test-user review (IDEAS 13), in its own chat. Reviews 1 (first-time collector) and 2 (heir) are done: `reviews/01-first-time-collector.md`, `reviews/02-heir.md`. Stay on **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. The test computer has no internet, so live prices never load: start the run by typing a silver price in Options (and note it in the review). Order after that: rows 23 to 25 in the table.
 
 ## Session plan (one chat per session, done in order)
 
