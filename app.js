@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.38.2";
+const APP_VERSION = "0.38.3";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -154,14 +154,18 @@ function put(key, obj, quiet) {
   if (key.startsWith("c_") && typeof caseOnPut === "function") caseOnPut(store.docs.get(key), body); // dealer case: remember the old place
   store.docs.set(key, body);
   if (key !== "history" && typeof scheduleHistory === "function") scheduleHistory(); // value over time
+  // Queue the save BEFORE redrawing: the redraw may add a coin ID (ensureIds) and queue its own save of this coin,
+  // which must come after this one or the plain copy would overwrite the ID on disk.
+  let next = Promise.resolve();
+  if (store.mode === "local") next = chainWrite(key, () => localPut(key, body));
+  else if (store.mode === "db" && store.coll) {
+    const prev = writeChains.get(key) || Promise.resolve();
+    next = prev.then(() => store.coll.doc(key).set(body)).catch((e) => {
+      toast(e && e.code === "quota_exceeded" ? "Storage is full. Delete some old coins or photos." : "Couldn't save that change. Try again.");
+    });
+    writeChains.set(key, next);
+  }
   if (!quiet) render();
-  if (store.mode === "local") return chainWrite(key, () => localPut(key, body));
-  if (store.mode !== "db" || !store.coll) return Promise.resolve();
-  const prev = writeChains.get(key) || Promise.resolve();
-  const next = prev.then(() => store.coll.doc(key).set(body)).catch((e) => {
-    toast(e && e.code === "quota_exceeded" ? "Storage is full. Delete some old coins or photos." : "Couldn't save that change. Try again.");
-  });
-  writeChains.set(key, next);
   return next;
 }
 /* ---------- sharing ---------- */
