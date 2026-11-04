@@ -36,7 +36,7 @@ function sellerOptionsHtml() {
   const on = sellerOn(), p = sellerProfile(), hidden = bizCoins().length;
   const inp = (k, label, ph) => `<label class="f"><span>${label}</span><input type="text" data-seller="${k}" value="${esc(p[k])}" placeholder="${esc(ph || "")}" maxlength="${k === "address" ? 160 : 60}"></label>`;
   return `<h2>Seller Mode</h2><div class="card">
-    <label class="switch"><span>Seller Mode<div class="small muted">Business stock, and later dealer cases, shows and reports. Turn it off and they hide; nothing is deleted.</div></span><input type="checkbox" data-act="sellerMode" ${on ? "checked" : ""}></label>
+    <label class="switch"><span>Seller Mode<div class="small muted">Business stock, and later dealer cases, shows and reports. Turn it off and they hide; nothing is deleted. ${typeof wi === "function" ? wi("seller") : ""}</div></span><input type="checkbox" data-act="sellerMode" ${on ? "checked" : ""}></label>
     ${hidden ? `<div class="hint">${hidden} item${hidden === 1 ? "" : "s"} tagged Business ${hidden === 1 ? "is" : "are"} kept and stay out of your collection totals.</div>` : ""}
     ${on ? `<details class="more" open><summary>Business profile</summary>
       <div class="hint">Stays on this phone and goes into your backup. Used on reports later.</div>

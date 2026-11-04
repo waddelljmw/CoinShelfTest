@@ -85,7 +85,7 @@ function redBookHtml() {
   return `<h2>Red Book values</h2>
     <div class="card">${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof", sms: "SMS" }[k] || k)).join(" · ")}</span></div>`).join("")}
       <label class="f"><span>Red Book edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
-      <div class="hint">A coin with no value typed in uses its Red Book value. Coins below the lowest listed grade use melt.</div></div>`;
+      <div class="hint">A coin with no value typed in uses its Red Book ${wi("redbook")} value. Coins below the lowest listed grade use melt.</div></div>`;
 }
 // Options: every section folds shut (closed by default, remembered). Splits the page at each heading.
 // Options sections sit under five group headings (Seller Mode keeps its own). Each section still folds on its own.
@@ -94,7 +94,7 @@ const OPT_GROUPS = [
   ["Look of Home", ["shelf-style", "home-shelf", "show-on-home"]],
   ["Adding coins", ["adding-coins", "inheritances"]],
   ["Your data", ["spreadsheet", "backup-and-restore", "share-a-snapshot", "insurance-report", "recently-deleted"]],
-  ["Share and help", ["share-coin-cabinet", "try-the-demo", "whats-new", "report-a-problem"]],
+  ["Share and help", ["share-coin-cabinet", "try-the-demo", "guided-first-coin", "whats-new", "report-a-problem"]],
   ["Seller Mode", ["seller-mode"]],
 ];
 function viewOptions() {
@@ -124,7 +124,7 @@ function optionsHtml() {
   const del = deletedCoins().sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
   return `<h1>Options</h1>
     <h2>Spot prices</h2>
-    <div class="card">
+    <div class="card"><div class="small muted">Spot price ${wi("spot")}: what a metal is trading for today.</div>
       ${SPOT_METALS.map((m) => `<label class="f"><span>${m.label} ($ per ${m.unit})</span><input type="number" inputmode="decimal" step="0.01" min="0" data-spot="${m.key}" value="${esc(s.spot[m.key] ?? "")}" placeholder="0.00"></label>`).join("")}
       <div class="btn-row"><button class="btn" id="spotFetch" data-act="fetchSpot">Get live prices</button></div>
       <div class="hint">Filled in for you when the app opens, or tap the button. You can also type prices. <span id="spotStamp">${s.spotUpdated ? "Last updated " + esc(stampText(s.spotUpdated)) + "." : ""}</span> <a href="https://www.kitco.com/" target="_blank" rel="noopener">Look up current prices ↗</a></div>
@@ -167,8 +167,11 @@ function optionsHtml() {
     ${store.mode === "demo" ? "" : `<h2>Try the demo</h2>
     <div class="card">Look around a made-up sample collection (about 120 coins, rolls, bars, albums and a coin show). It is kept apart from your real coins, and nothing you do there is saved.
       <div class="btn-row"><button class="btn" data-act="tryDemo">Try the demo</button></div></div>`}
+    <h2>Guided first coin</h2>
+    <div class="card">A one-minute walk-through of adding a coin, with small tips over the real form. Nothing is saved unless you save the coin.
+      <div class="btn-row"><button class="btn" data-act="guideStart">Show me how</button></div></div>
     <h2>Share a snapshot</h2>
-    <div class="card">Save a view-only copy of your collection as one file to send to friends. What you paid, sources, notes and buyers are left out unless you choose to include them.
+    <div class="card">Save a view-only copy of your collection as one file to send to friends. What you paid, sources, notes and buyers are left out unless you choose to include them. ${wi("snapshot")}
       <div class="btn-row"><button class="btn" data-act="openSnapshot">Share a snapshot</button></div></div>
     <h2>Insurance report</h2>
     <div class="card">A dated, itemized list of every coin you own with values and totals, ready to print or save as a PDF for your insurance agent.

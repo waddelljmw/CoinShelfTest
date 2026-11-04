@@ -45,7 +45,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | ✅ reviewed, 5 fixes + delete confirm, merged v0.44.1 (PR #118) |
 | 32 | Opus | Plan new-user help: plain words, walkthrough, Simple mode | ✅ plan PR (Step 9.4) + automatic version check |
 | 33 | Sonnet | Fix list + Step 9.4a: change many coins at once | ✅ merged v0.45.0 (PR #122) |
-| 34 | Sonnet | Step 9.4b: first open, guided first coin, plain-words help (bug #120 fixed first: v0.45.1, PR #124) | started |
+| 34 | Sonnet | Step 9.4b: first open, guided first coin, plain-words help (bug #120 fixed first: v0.45.1, PR #124) | ✅ built v0.46.0 (PR open) |
 | 35 | Sonnet | Step 9.4c: Simple mode (3 levels) | |
 | 36 | Opus | Review of 9.4 (9.4a changes many saved coins at once), fix what it finds | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
@@ -207,10 +207,10 @@ Your choices (2026-11-04): Simple mode starts with **3 levels**; the guided firs
 - [x] ✅ Tests: set date/source/price on 3 coins, blanks untouched, Undo restores all, inherited skipped. Version (feature).
 
 ### 9.4b (session 34, Sonnet): first open, guided first coin, plain words
-- [ ] **First open** (no coins yet, phone app): a welcome card with two big buttons: **Start my collection** and **Try with sample coins** (today's demo). The small "New here?" card becomes this. Shown until the first coin is saved; Options › Share and help keeps both.
-- [ ] **Guided first coin (optional):** Start my collection asks "Show me how (1 minute)" or "Skip". The guide is a few small bubbles over the real Add coin form: pick the type → year/mint → grade → cost → Save. Then it shows the coin page (what Missing means, how Fill in works) and ends by showing **where the coin is kept** (album spot, box or My Coins). Skip / Next on every bubble; never blocks typing. Can be replayed from Options.
-- [ ] **Plain-words help:** a small ⓘ after hard words (Melt value, Spot price, Red Book, Raw/Slab, Kept in, Seller Mode, Snapshot, Details coin). Tap shows one line in plain words. One list in the code so words are added in one place. Only shown where the word first appears on a page.
-- [ ] Tests (welcome shows only with no coins; guide can be skipped and replayed; every ⓘ word has a meaning). Version (feature).
+- [x] ✅ **First open** (no coins yet, phone app): a welcome card with two big buttons: **Start my collection** and **Try with sample coins** (today's demo). The small "New here?" card becomes this. Shown until the first coin is saved; Options › Share and help keeps both.
+- [x] ✅ **Guided first coin (optional):** Start my collection asks "Show me how (1 minute)" or "Skip". The guide is a few small bubbles over the real Add coin form: pick the type → year/mint → grade → cost → Save. Then it shows the coin page (what Missing means, how Fill in works) and ends by showing **where the coin is kept** (album spot, box or My Coins). Skip / Next on every bubble; never blocks typing. Can be replayed from Options.
+- [x] ✅ **Plain-words help:** a small ⓘ after hard words (Melt value, Spot price, Red Book, Raw/Slab, Kept in, Seller Mode, Snapshot, Details coin). Tap shows one line in plain words. One list in the code so words are added in one place. Only shown where the word first appears on a page.
+- [x] ✅ Tests (welcome shows only with no coins; guide can be skipped and replayed; every ⓘ word has a meaning). Version (feature).
 
 ### 9.4c (session 35, Sonnet): Simple mode
 - [ ] **Three levels**, picked on the welcome card after "Start my collection" (or later in Options › first group, one tap to switch, clearly named):

@@ -40,6 +40,7 @@ function closeMenu() { $("#menu").hidden = true; $("#menuBtn").setAttribute("ari
 /* ---------- rendering ---------- */
 function render() {
   const r = currentRoute();
+  if (typeof wordsReset === "function") wordsReset(); // the ⓘ help shows once per word per page
   const main = $("#view");
   if (store.mode === "loading") { main.innerHTML = `<div class="empty">Opening your cabinet…</div>`; return; }
   if (typeof ensureIds === "function") ensureIds(); // Step 7.0: every coin gets its ID
@@ -104,7 +105,7 @@ function viewHome() {
     ...(groupsPresent().length > 1 ? groupsPresent().map((g) => { const on = !hiddenGroups().includes(g); return `<button class="chip ${on ? "on" : ""}" data-act="toggleGroup" data-v="${esc(g)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(g)} · ${sum(everything.filter((c) => groupOf(c) === g), qtyOf)}</button>`; }) : []),
     ...stacksPresent().map((n) => { const on = !hiddenStacks().includes(n); return `<button class="chip ${on ? "on" : ""}" data-act="toggleStack" data-v="${esc(n)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(n)} · ${sum(everything.filter((c) => stackOf(c) === n), qtyOf)}</button>`; }),
   ];
-  let html = `${typeof backupReminder === "function" ? backupReminder() : ""}${store.mode === "local" && !allCoins().some((c) => c.status !== "deleted") ? `<div class="card"><b>New here?</b> Look around a made-up sample collection first. It is kept apart from your own coins.<div class="btn-row"><button class="btn" data-act="tryDemo">Try the demo</button></div></div>` : ""}<h1 class="sr-only">Your cabinet</h1>
+  let html = `${typeof backupReminder === "function" ? backupReminder() : ""}${store.mode === "local" && !allCoins().some((c) => c.status !== "deleted") ? `${welcomeCard()}` : ""}<h1 class="sr-only">Your cabinet</h1>
   ${eyeButton()}
   ${chips.length ? `<div class="chips home-chips" aria-label="Count in the totals">${chips.join("")}</div>` : ""}
   ${typeof shelfHtml === "function" ? shelfHtml(owned, { total, melt, count }) : ""}
@@ -312,7 +313,7 @@ function purchaseCard(c, row) {
 function errorsCard(c, row) {
   const errs = listOf(c.mintErrors), probs = listOf(c.problems);
   if (!c.knownVar && !errs.length && !probs.length && !c.errorNote) return "";
-  return `<div class="card"><b>Errors and problems</b>${row("Known variety", esc(c.knownVar))}${row("Mint errors", esc(errs.join(", ")))}${row("Problems", probs.length ? esc(probs.join(", ")) + ` <span class="muted small">(Details coin)</span>` : null)}${c.errorNote ? `<div class="small" style="white-space:pre-wrap;margin-top:4px">${esc(c.errorNote)}</div>` : ""}</div>`;
+  return `<div class="card"><b>Errors and problems</b>${row("Known variety", esc(c.knownVar))}${row("Mint errors", esc(errs.join(", ")))}${row("Problems", probs.length ? esc(probs.join(", ")) + ` <span class="muted small">(Details coin)</span>${wi("details")}` : null)}${c.errorNote ? `<div class="small" style="white-space:pre-wrap;margin-top:4px">${esc(c.errorNote)}</div>` : ""}</div>`;
 }
 function viewCoin(r) {
   const c = getCoin(r.id);
@@ -346,7 +347,7 @@ function viewCoin(r) {
       ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, Red Book)" : "Value each (Red Book)") : valueSource(c) === "face" ? (meltKey(c) && num(c.oz) && spotPerOz(meltKey(c)) == null ? "Value each (face value, no " + meltKey(c) + " price yet)" : "Value each (face value)") : "Value" + eachWord(c), money(v))}
       ${noBookNote(c) ? `<div class="small muted" style="margin:2px 0 6px">${esc(noBookNote(c))}</div>` : ""}
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row("Red Book", money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
-      ${row("Melt" + eachWord(c), m == null ? (meltKey(c) ? "Enter spot price" : null) : moneyOpen(m))}
+      ${row("Melt" + eachWord(c) + wi("melt"), m == null ? (meltKey(c) ? "Enter spot price" : null) : moneyOpen(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
       ${row("Metal", esc([c.metal, num(c.oz) ? num(c.oz) + " oz" + (itemOf(c) === "roll" ? " per coin" : itemOf(c) === "set" ? " in the set" : itemOf(c) === "bullion" ? " pure" : "") : ""].filter(Boolean).join(" · ")))}
     </div>
