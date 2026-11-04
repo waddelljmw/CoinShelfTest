@@ -215,6 +215,10 @@ const actions = {
     const body = "What were you doing?\n\n\nWhat went wrong?\n\n\n(Please don't include private details. This page is public.)\n\n---\nApp version: " + APP_VERSION + "\nMode: " + store.mode + "\nPhone/browser: " + navigator.userAgent;
     window.open("https://github.com/waddelljmw/CoinShelfTest/issues/new?title=" + encodeURIComponent("Problem: ") + "&body=" + encodeURIComponent(body), "_blank", "noopener");
   },
+  suggestIdea: () => {
+    const body = "What would you like the app to do?\n\n\nWhy would it help?\n\n\n(Please don't include private details. This page is public.)\n\n---\nApp version: " + APP_VERSION;
+    window.open("https://github.com/waddelljmw/CoinShelfTest/issues/new?title=" + encodeURIComponent("Idea: ") + "&body=" + encodeURIComponent(body), "_blank", "noopener");
+  },
   spotAsk: (el) => { draft._spotAsk = el.dataset.v; const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; },
   srcChip: (el) => {
     const v = el.dataset.v, y = $(".sheet").scrollTop;

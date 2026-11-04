@@ -298,7 +298,7 @@ function setYearProblem(kind, year) {
   if (k.years.some(([a, b]) => y >= a && y <= b)) return "";
   return k.name + "s weren't made in " + y + ".";
 }
-const SOURCE_DEFAULTS = ["Inherited", "Coin Shop", "Coin Show", "Pawn Shop", "eBay", "Whatnot", "Gift", "Pocket change", "Bank roll"];
+const SOURCE_DEFAULTS = ["Inherited", "Coin Shop", "Coin Show", "Pawn Shop", "eBay", "Whatnot", "U.S. Mint", "Gift", "Pocket change", "Bank roll"];
 const ALBUM_BRANDS = ["Whitman", "Dansco", "H.E. Harris", "Littleton", "Other"];
 
 // Short, plain-language grade guide (our own summary, not copied from any book).

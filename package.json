@@ -1,6 +1,6 @@
 {
   "name": "coin-cabinet",
-  "version": "0.47.1",
+  "version": "0.48.0",
   "private": true,
   "description": "Coin Cabinet: a private coin inventory app. Plain files, no build step.",
   "scripts": {

@@ -380,6 +380,7 @@ function openSlotMenu(el) {
   openSheet(`<div class="sheet-head"><h2>${esc(label)}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <div class="small muted" style="margin:-4px 0 12px">${coin ? "In this album · " + esc(gradeText(coin)) : "Not in this album yet"}${mt ? " · Mintage " + esc(mt.text) : ""}</div>
     ${coin ? "" : `<button class="btn block btn-addcoin" data-act="slotHave" ${sd}>＋ Add coin to this spot</button>`}
+    ${!coin && spotCandidates(a, { y, m, v, pf: s.pf, set: s.set, t: s.t, id: s.id }).length ? `<button class="btn block" data-act="slotUseList" ${sd}>Put a coin I already have here</button>` : ""}
     ${ws.length ? `<div class="card small">${ws.map((w) => `<div class="rowline"><span>★ ${esc(listNameOf(w))}${w.grade ? " · target " + esc(w.grade) : ""}${num(w.maxPrice) != null ? " · up to " + money(num(w.maxPrice)) : ""}</span><button class="link-btn" style="color:var(--bad)" data-act="slotUnwant" data-id="${esc(w.id)}">Remove</button></div>`).join("")}</div>
          <div class="btn-row"><button class="btn" data-go="wants">View want list</button></div>` : ""}
     ${coin && upG ? `<button class="btn block btn-want" data-act="slotWant" data-upgrade="1" ${sd}>★ Want an upgrade (above ${esc(coin.grade)})</button>` : ""}
@@ -435,6 +436,37 @@ function slotWantAdd() {
   closeSheet();
   toast("Added to " + ((wl && wl.name) || "your want list") + ".");
 }
+// Owned single coins of this spot's type, year and mint that are not in any album yet (groups of more than one are left out).
+function spotCandidates(a, s0) {
+  const tid = slotType(a, s0);
+  const pfOk = (c) => (s0.pf ? isProofGrade(c.grade) : !(a.proofs && isProofGrade(c.grade)));
+  return ownedCoins().filter((c) => !c.albumId && qtyOf(c) === 1 && c.typeId === tid && pfOk(c) && (s0.set || (num(c.year) === s0.y && normMint(c.mint) === s0.m)));
+}
+function slotUseList(el) {
+  const a = getAlbum(el.dataset.album);
+  if (!a) return;
+  const s0 = spotFromEl(a, el);
+  const list = spotCandidates(withSlotIds(a), s0);
+  const sd = `data-album="${esc(a.id)}" data-sid="${esc(s0.id || "")}" data-y="${esc(el.dataset.y)}" data-m="${esc(el.dataset.m)}" data-v="${esc(el.dataset.v)}"`;
+  openSheet(`<div class="sheet-head"><h2>Pick a coin for this spot</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <div class="list">${list.map((c) => `<button class="coin-row" style="width:100%;text-align:left" data-act="slotUse" data-cid="${esc(c.id)}" ${sd}>${thumbHtml(c)}<span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(gradeText(c))}</span></span></button>`).join("")}</div>
+    <div class="hint">Only coins of this type, year and mint that are not in an album yet. Nothing else about the coin changes.</div>`);
+}
+function slotUse(el) {
+  const a = getAlbum(el.dataset.album);
+  const c = getCoin(el.dataset.cid);
+  if (!a || !c) return;
+  const aa = withSlotIds(a);
+  const s0 = spotFromEl(a, el);
+  const spot = (s0.id && (aa.slots || []).find((x) => x.id === s0.id)) || (aa.slots || []).find((x) => slotKey(x) === slotKey(s0));
+  const before = { ...c };
+  const next = { ...c, albumId: a.id };
+  if (spot) next.slotId = spot.id;
+  saveCoin(next);
+  closeSheet();
+  render();
+  toast("Placed in " + a.name + ".", { label: "Undo", fn: () => { saveCoin(before); render(); } });
+}
 // Open slot: add the coin you already have, filled in and placed in this album.
 function slotHave(el) {
   const a = getAlbum(el.dataset.album);
@@ -479,6 +511,8 @@ Object.assign(actions, {
   slotMenu: openSlotMenu,
   slotWant,
   slotHave,
+  slotUseList,
+  slotUse,
   slotUnwant: (el) => { const w = getWant(el.dataset.id); if (w) { remove("w_" + w.id); closeSheet(); toast("Removed from your want list.", { label: "Undo", fn: () => saveWant(w) }); } },
   wantWhere: (el) => {
     const w = getWant(el.dataset.id);
