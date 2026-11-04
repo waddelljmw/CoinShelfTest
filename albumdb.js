@@ -27,7 +27,7 @@ function albumLookupMessage(info, applied) {
 function applyAlbumInfo(form, info) {
   const f = (n) => form.querySelector("[name=" + n + "]");
   const nm = f("name");
-  if (nm && (!nm.value.trim() || nm.value === form.dataset.autoName)) { nm.value = info.name; form.dataset.autoName = info.name; }
+  if (nm) { if (form.id === "albumForm") nm.placeholder = info.name; else if (!nm.value.trim() || nm.value === form.dataset.autoName) { nm.value = info.name; form.dataset.autoName = info.name; } } // new album: suggest in gray, save only if typed
   const box = $("#albumTypes");
   if (box) box.innerHTML = info.types.map(albumTypeRow).join("");
   if (f("start")) f("start").value = info.start;

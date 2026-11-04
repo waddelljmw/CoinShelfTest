@@ -54,7 +54,7 @@ const actions = {
     if (!c) return;
     const prevStatus = c.status;
     saveCoin({ ...c, status: "deleted", prevStatus, deletedAt: Date.now() });
-    go("coins");
+    go(coinBackTarget());
     toast("Coin deleted.", { label: "Undo", fn: () => { const x = getCoin(c.id); if (x) { const n = { ...x, status: prevStatus }; const note = n.status === "owned" ? (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "") : ""; saveCoin(n); toast("Restored." + note); } } });
   },
   received: (el) => {
@@ -209,6 +209,7 @@ const actions = {
     $(".sheet").scrollTop = y;
   },
   rmPhoto: (el) => { (draft[el.dataset.k || "photos"] || []).splice(+el.dataset.i, 1); const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; },
+  whatsNew: () => openWhatsNew(true),
   reportProblem: () => {
     const body = "What were you doing?\n\n\nWhat went wrong?\n\n\n(Please don't include private details. This page is public.)\n\n---\nApp version: " + APP_VERSION + "\nMode: " + store.mode + "\nPhone/browser: " + navigator.userAgent;
     window.open("https://github.com/waddelljmw/CoinShelfTest/issues/new?title=" + encodeURIComponent("Problem: ") + "&body=" + encodeURIComponent(body), "_blank", "noopener");
@@ -317,6 +318,13 @@ document.addEventListener("change", (e) => {
   if (el.id === "photoInput") { addPhotos([...el.files]); return; }
   if (el.id === "receiptInput") { addPhotos([...el.files], "receiptPhotos"); return; }
   if (el.id === "spotM") { refreshSpotHints(); return; }
+  if (el.id === "albumTypeFind") { // Add album: type a few letters, pick a coin type from the list
+    const q = el.value.trim().toLowerCase();
+    const t = COIN_TYPES.find((x) => x.name.toLowerCase() === q) || (q.length > 2 ? (COIN_TYPES.filter((x) => x.name.toLowerCase().includes(q)).length === 1 ? COIN_TYPES.find((x) => x.name.toLowerCase().includes(q)) : null) : null);
+    const sel = $("#albumTypes select[data-albumtype]");
+    if (t && sel) { sel.value = t.id; const f = el.form; if (f) { f.dataset.touched = "1"; const nm = f.querySelector("[name=name]"); if (nm && f.id === "albumForm") nm.placeholder = t.name; } albumYearsFromTypes(); }
+    return;
+  }
   if (el.dataset.albumtype != null) { albumYearsFromTypes(); return; }
   if (el.id === "albumLayout") { const h = $("#albumHint"); if (h) h.textContent = el.value === "set" ? "Add each coin type your type set holds. Each gets one spot, and any date fills it. The years are just for your reference." : "Use the years printed on your album. Each coin type gets spots for the dates and mint marks struck in those years."; return; }
   if (!draft) return;
@@ -345,6 +353,7 @@ document.addEventListener("change", (e) => {
     if (el.dataset.f === "_sourceKind") {
       applySourceKind(draft, el.value);
     }
+    if (el.dataset.f === "albumId" && draft._isNew && !draft.source) { const al = getAlbum(el.value); if (al && al.inherited) applySourceKind(draft, "Inherited"); }
     if (el.dataset.f === "albumId" && draft._isNew && !draft.typeId) { const al = getAlbum(el.value); if (al && albumTypes(al).length === 1) { pickType(albumTypes(al)[0]); return; } }
     if (el.dataset.f === "setKind") autoSetOz(draft);
     if (el.hasAttribute("data-rerender")) {
@@ -374,4 +383,4 @@ document.addEventListener("submit", (e) => {
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { dismissSheet(); closeMenu(); } });
 
 // Start once every script (sheets.js, photofill.js) has loaded.
-document.addEventListener("DOMContentLoaded", () => { render(); initStore(); });
+document.addEventListener("DOMContentLoaded", () => { render(); Promise.resolve(initStore()).then(() => { try { maybeShowWhatsNew(); } catch (e) { /* never block the app */ } }); });

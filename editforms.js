@@ -19,8 +19,12 @@ function openNewAlbum() {
       <label class="f"><span>Album number</span><input type="text" name="number" placeholder="9128"></label>
     </div>
     <div class="hint" id="albumLookupHint"></div>
-    <label class="f"><span>Name (optional)</span><input type="text" name="name" placeholder="Grandpa's Morgans"></label>
+    <label class="f"><span>Find coin type</span><input type="search" id="albumTypeFind" list="albumTypeList" placeholder="Type a few letters, e.g. fra" autocomplete="off"></label>
+    <datalist id="albumTypeList">${COIN_TYPES.map((t) => `<option value="${esc(t.name)}">`).join("")}</datalist>
+    <label class="f"><span>Name (optional)</span><input type="text" name="name" placeholder="${esc(firstAlbumType().name)}"></label>
+    <div class="name-hint">The gray name is used if you leave this empty.</div>
     ${albumColorField("red")}
+    <label class="f inline-check"><input type="checkbox" name="inherited"> <span>This album was inherited</span></label>
     <label class="f"><span>Kind of album</span><select name="layout" id="albumLayout">
       <option value="dates">Dates and mint marks (most albums)</option><option value="set">Type set (one coin of each type)</option></select></label>
     ${albumTypeRows([firstAlbumType().id])}
@@ -75,7 +79,7 @@ function doNewAlbum(form) {
   if (prob) { toast(prob); return; }
   const proofs = (layout !== "set" && fd.get("proofs")) || "";
   if (proofs && !hasProofs(types)) { toast("The app doesn't have proof dates for these coin types yet. Add proof spots with + Add a spot."); return; }
-  const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: info0 ? info0.number : (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), typeId: types[0], typeIds: types, layout, start, end, proofs, removed: [], createdAt: Date.now() };
+  const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: info0 ? info0.number : (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), inherited: !!fd.get("inherited"), typeId: types[0], typeIds: types, layout, start, end, proofs, removed: [], createdAt: Date.now() };
   if (fd.get("brand") === "Other") a.color = String(fd.get("color") || "red");
   a.slots = buildAlbumSlots(types, layout, start, end, proofs);
   put("a_" + a.id, a);
@@ -127,6 +131,7 @@ function openEditAlbum(id) {
     <div class="hint" id="albumLookupHint"></div>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" value="${esc(a.name || "")}"></label>
     ${albumColorField(a.color)}
+    <label class="f inline-check"><input type="checkbox" name="inherited" ${a.inherited ? "checked" : ""}> <span>This album was inherited</span></label>
     ${seriesField(a)}
     <div class="small muted" style="margin-top:10px">${isSetAlbum(a) ? "Type set (one coin of each type)" : "Dates and mint marks"}</div>
     ${albumTypeRows(albumTypes(a).length ? albumTypes(a) : [COIN_TYPES[0].id])}
@@ -166,7 +171,7 @@ function saveEditAlbum(form) {
     slots = set ? [...kept, ...added] : sortSlots([...kept, ...added]);
   }
   const removed = a.removed || [];
-  put("a_" + a.id, { ...a, color: String(fd.get("color") || a.color || "red"), brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, proofs, slots, removed, ...seriesFromForm(a, fd) });
+  put("a_" + a.id, { ...a, color: String(fd.get("color") || a.color || "red"), brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, inherited: !!fd.get("inherited"), proofs, slots, removed, ...seriesFromForm(a, fd) });
   closeSheet();
   toast("Album saved.");
 }

@@ -94,7 +94,7 @@ const OPT_GROUPS = [
   ["Look of Home", ["shelf-style", "home-shelf", "show-on-home"]],
   ["Adding coins", ["adding-coins"]],
   ["Your data", ["spreadsheet", "backup-and-restore", "share-a-snapshot", "insurance-report", "recently-deleted"]],
-  ["Share and help", ["share-coin-cabinet", "try-the-demo", "report-a-problem"]],
+  ["Share and help", ["share-coin-cabinet", "try-the-demo", "whats-new", "report-a-problem"]],
   ["Seller Mode", ["seller-mode"]],
 ];
 function viewOptions() {
@@ -172,6 +172,9 @@ function optionsHtml() {
     <h2>Insurance report</h2>
     <div class="card">A dated, itemized list of every coin you own with values and totals, ready to print or save as a PDF for your insurance agent.
       <div class="btn-row"><button class="btn" data-act="openReport">Create insurance report</button></div></div>
+    <h2>What's new</h2>
+    <div class="card">See what changed in the latest updates.
+      <div class="btn-row"><button class="btn" data-act="whatsNew">What's new</button></div></div>
     <h2>Report a problem</h2>
     <div class="card">Something wrong or confusing? This opens a note on GitHub with your app version already filled in. Don't put anything private in it, because the page is public.
       <div class="btn-row"><button class="btn" data-act="reportProblem">Report a problem</button></div></div>

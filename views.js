@@ -26,6 +26,8 @@ window.addEventListener("hashchange", (e) => {
   render();
   window.scrollTo(0, 0);
 });
+// Where "done" actions (delete, sell) should land: the page you opened the coin from.
+const coinBackTarget = () => coinBackTo || "coins";
 function coinBackLink() {
   const h = coinBackTo || "coins";
   let name = { home: "My Cabinet", value: "Coin Value", albums: "My Albums", wants: "Want List", coins: "My Coins", stacks: "My Stacks", boxes: "Storage", guide: "PCGS Photograde", options: "Options" }[h];

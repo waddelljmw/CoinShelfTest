@@ -207,7 +207,7 @@ function doSell(form) {
   if (!s.soldAutoDone) saveSettings({ showSold: true, soldAutoDone: true });
   closeSheet();
   toast("Marked as sold.");
-  go("coins");
+  go(coinBackTarget());
 }
 
 /* ---- Options → Selling → Fee rates ---- */
