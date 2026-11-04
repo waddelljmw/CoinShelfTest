@@ -174,7 +174,8 @@ function renderCoinForm() {
 
     ${sec("notes", "Notes and label", `<label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>
       <label class="f"><span>Label</span><input type="text" id="labelInput" data-f="label" value="${esc(d.labelEdited ? d.label : autoLabel(d))}"></label>
-      <div class="hint">Fills in as date-mint mark, coin type, denomination. Type over it to use your own.${d.labelEdited ? ` <button type="button" class="link-btn" data-act="resetLabel">Use automatic label</button>` : ""}</div>`, d.notes || d.labelEdited)}
+      <div class="hint">Fills in as date-mint mark, coin type, denomination. Type over it to use your own.${d.labelEdited ? ` <button type="button" class="link-btn" data-act="resetLabel">Use automatic label</button>` : ""}</div>
+      ${typeof idStyle === "function" && idStyle() === "off" ? `<label class="f"><span>ID or flip label (optional)</span><input type="text" data-f="cid" maxlength="40" autocapitalize="off" value="${esc(d.cid || "")}"></label>` : d._isNew && typeof nextIdPreview === "function" ? `<div class="hint">ID: next is <b>${esc(nextIdPreview(d))}</b>. You can change it on the coin's page after saving.</div>` : ""}`, d.notes || d.labelEdited || (typeof idStyle === "function" && idStyle() === "off"))}
 
     <div class="btn-row">
       <button type="submit" class="btn primary">${d._isNew ? "Add " + noun : "Save changes"}</button>

@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 39, Sonnet):** Build Step 9.5: Coin ID style (app's codes, your own codes, one running number, off), any flip label typed, IDs in CSV import, optional renumber that keeps the old ID, cleaner spreadsheet export. (Session 38 planned it.)
+**Next session starts here (session 40, Opus):** Short review of Step 9.5 (renumbering changes saved coins): restore an old backup, renumber, Undo, CSV import with clashing IDs, add many coins in each style. Fix what it finds. (Session 39 built it as v0.49.0.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -50,7 +50,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 36 | Opus | Review of 9.4 (9.4a changes many saved coins at once), fix what it finds | ✅ reviewed, 5 fixes, merged v0.47.1 (PR #130); inherited coins keep skipping Date acquired too |
 | 37 | Sonnet | Fix list (your 2026-11-04 notes: update bar, Suggest an idea, existing coin into album spot, U.S. Mint, level lines) | ✅ merged v0.48.0 |
 | 38 | Opus | Plan bug #123: your own catalog numbers (turn off auto Coin ID, use your own flip labels, other systems) | ✅ plan PR (Step 9.5) |
-| 39 | Sonnet | Step 9.5: Coin ID style (your own codes, one running number, off), any label typed, IDs in CSV import, renumber with old ID kept | |
+| 39 | Sonnet | Step 9.5: Coin ID style (your own codes, one running number, off), any label typed, IDs in CSV import, renumber with old ID kept | ✅ built v0.49.0 (PR open, waiting for your OK to merge: it adds a saved field) |
 | 40 | Opus | Short review of 9.5 (renumbering changes saved coins), fix what it finds | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
@@ -239,19 +239,19 @@ Your choices (2026-11-04): Simple mode starts with **3 levels**; the guided firs
 Why: sellers and collectors often already have numbers written on their flips, or another program that numbers coins. The app must take their numbers, or count up in their style, without a "pattern builder" (too complicated, rarely needed).
 
 ### 9.5 (session 39, Sonnet)
-- [ ] **Coin ID style** in Options (one choice, plain words, default = today):
+- [x] ✅ **Coin ID style** in Options (one choice, plain words, default = today):
   1. **App's codes** (MD-012), as today.
   2. **My own codes:** a list of the type codes where each can be renamed (MD → MOR) and given a starting number. Codes: 1–6 letters/numbers.
   3. **One running number:** optional start text (e.g. "JW-") + starting number (e.g. 1050); counts up for every item, any type. Digits padded to match the start (0007 stays 4 digits).
   4. **Off:** no automatic IDs; type your own or leave blank. My Coins and the coin page say "No ID" quietly (no nagging).
-- [ ] **Any label can be typed** on a coin (today only MD-012 shapes are accepted, so "A17" or "Box 3 #17" is refused). Still refuse duplicates (ignore case and extra spaces) and say which coin has it. If a typed label fits the current style, the counter moves past it so it's never handed out again.
-- [ ] **Changing the style only affects new coins.** Existing IDs stay as they are. Never reuse a number (today's rule).
-- [ ] **"Renumber my coins"** button under the style (the user's choice, not automatic): asks first, suggests a Backup, then renumbers owned coins in the order they were added. Each coin keeps its **old ID** (shown small on the coin page, found by My Coins search) so labels already written on flips still find the coin. **Undo** right after. Sold/gone coins keep their IDs (sale records match).
-- [ ] **CSV import takes the ID column** (today it's export-only), so numbers from another program come in. Duplicates in the file: keep the first, report the rest. Backup restore already keeps IDs.
-- [ ] **Cleaner spreadsheet export** (your note 2026-11-04: too much scrolling right). Today roll, bar and box columns come before Year and Grade. Put the everyday columns first (ID, Label, Year, Mint, Coin type, Grade, Qty, Paid, Value, Kept in, Status), then the rest; **leave out columns that are empty for every coin**. Import still matches columns by heading, so old and new files both import. No saved data changes.
-- [ ] Add coin / add many: shows the next ID it will use (or nothing when Off); with Off, an optional ID field on Add coin for the flip label.
-- [ ] Old data: coins without a style setting = App's codes (convert on read). Demo mode unchanged.
-- [ ] Tests (each style, typed labels, duplicates, renumber + old ID search + Undo, CSV import IDs, old backup restores). Version (feature).
+- [x] ✅ **Any label can be typed** on a coin (today only MD-012 shapes are accepted, so "A17" or "Box 3 #17" is refused). Still refuse duplicates (ignore case and extra spaces) and say which coin has it. If a typed label fits the current style, the counter moves past it so it's never handed out again.
+- [x] ✅ **Changing the style only affects new coins.** Existing IDs stay as they are. Never reuse a number (today's rule).
+- [x] ✅ **"Renumber my coins"** button under the style (the user's choice, not automatic): asks first, suggests a Backup, then renumbers owned coins in the order they were added. Each coin keeps its **old ID** (shown small on the coin page, found by My Coins search) so labels already written on flips still find the coin. **Undo** right after. Sold/gone coins keep their IDs (sale records match).
+- [x] ✅ **CSV import takes the ID column** (today it's export-only), so numbers from another program come in. Duplicates in the file: keep the first, report the rest. Backup restore already keeps IDs.
+- [x] ✅ **Cleaner spreadsheet export** (your note 2026-11-04: too much scrolling right). Today roll, bar and box columns come before Year and Grade. Put the everyday columns first (ID, Label, Year, Mint, Coin type, Grade, Qty, Paid, Value, Kept in, Status), then the rest; **leave out columns that are empty for every coin**. Import still matches columns by heading, so old and new files both import. No saved data changes.
+- [x] ✅ Add coin / add many: shows the next ID it will use (or nothing when Off); with Off, an optional ID field on Add coin for the flip label.
+- [x] ✅ Old data: coins without a style setting = App's codes (convert on read). Demo mode unchanged.
+- [x] ✅ Tests (each style, typed labels, duplicates, renumber + old ID search + Undo, CSV import IDs, old backup restores). Version (feature).
 
 ### Session 40 (Opus): short review
 - [ ] One adversarial review of 9.5 (renumbering changes saved coins): restore an old backup, renumber, Undo, CSV import with clashing IDs, add many coins in each style. Fix what it finds. An AI test-user run as **(g) a seller with labeled flips** (IDEAS 13) only if budget allows.

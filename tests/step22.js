@@ -85,7 +85,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // 7. CSV round trip
   const csv = await p.evaluate(() => toCsv());
-  ok("CSV has new columns", /Known variety,Mint errors,Problems,Upgrade wanted/.test(csv) && /Seller,Purchase tax,Purchase shipping,Purchase fees,Total cost,Paid with,Carrier,Tracking number,Receipt number/.test(csv) && /For sale/.test(csv) && /Off-center/.test(csv));
+  ok("CSV has new columns", ["Mint errors", "Problems", "Seller", "Purchase tax", "Purchase shipping", "Purchase fees", "Total cost", "Paid with", "Receipt number"].every((h) => csv.split("\n")[0].split(",").includes(h)) && /For sale/.test(csv) && /Off-center/.test(csv));
   const back = await p.evaluate(() => {
     const rows = parseCsv(toCsv()); const head = rows[0]; const taken = new Set(); const map = head.map((h) => { const k = guessField(h, taken); if (k) taken.add(k); return k; });
     const r = rows.find((x) => x.includes("Bob's Coins")); const g = (key) => { const i = map.indexOf(key); return i < 0 ? null : r[i]; };

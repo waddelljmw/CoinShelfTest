@@ -6,7 +6,7 @@
 // One entry per spreadsheet column. `names` are other headings we recognize on import
 // (compared lowercase with spaces, dashes and punctuation removed).
 const SHEET_COLS = [
-  { key: "cid", head: "ID", names: ["coinid", "cabinetid"], exportOnly: true },
+  { key: "cid", head: "ID", names: ["id", "coinid", "cabinetid", "flip", "fliplabel", "flipid", "mynumber"] },
   { key: "label", head: "Label", names: ["label", "name", "title", "description"] },
   { key: "item", head: "Item", names: ["item", "itemtype", "entrytype"] },
   { key: "rollCount", head: "Coins per roll", names: ["coinsperroll", "rollcount", "coinsinroll"] },
@@ -107,9 +107,15 @@ function coinToRow(c) {
     album: a ? albumTitle(a) : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance, soldWhere: c.sold ? whereText(c.sold) : "", soldTo: s.to || "", shipCharged: s.shipCharged ?? "", soldFees: s.fees ?? "", soldTax: s.salesTax ?? "", soldPay: s.payMethod || "", soldOrder: s.orderNo || "", soldTrack: s.trackNo || "", soldProfit: c.status === "sold" && !isInherited(c) && typeof saleProfit === "function" ? saleProfit(c) : "", askPrice: c.ask || "", inhFrom: isInherited(c) && typeof inheritanceOf === "function" && inheritanceOf(c) ? inhLabel(inheritanceOf(c)) : "", inhValue: isInherited(c) && typeof inhValueOf === "function" ? (inhValueOf(c) ?? "") : "",
   };
 }
+// Everyday columns come first; the rest follow in the usual order. Columns that are empty for every coin are left out.
+const CSV_FIRST = ["cid", "label", "year", "mint", "typeName", "grade", "qty", "paid", "value", "keptIn", "status"];
+const CSV_KEEP = ["label", "year", "typeName", "qty"];
 function toCsv(coins) {
   const list = coins || allCoins().filter((c) => c.status !== "deleted");
-  return [SHEET_COLS.map((c) => c.head).join(","), ...list.map((c) => { const r = coinToRow(c); return SHEET_COLS.map((col) => csvCell(r[col.key])).join(","); })].join("\n");
+  const rows = list.map(coinToRow);
+  const first = CSV_FIRST.map((k) => SHEET_COLS.find((c) => c.key === k)).filter(Boolean);
+  const cols = [...first, ...SHEET_COLS.filter((c) => !CSV_FIRST.includes(c.key))].filter((c) => CSV_KEEP.includes(c.key) || rows.some((r) => r[c.key] != null && String(r[c.key]) !== ""));
+  return [cols.map((c) => c.head).join(","), ...rows.map((r) => cols.map((col) => csvCell(r[col.key])).join(","))].join("\n");
 }
 async function doExport() {
   const csv = toCsv();
@@ -250,6 +256,7 @@ function rowToCoin(get) {
   // A "Serial number" column on a slab row is its cert number.
   if (certified && !c.cert && txt("bSerial")) c.cert = txt("bSerial");
   c.notes = String(get("notes") || "").trim();
+  { const x = String(get("cid") ?? "").trim().replace(/\s+/g, " ").slice(0, 40); if (x) c.cid = x; } // an ID from another program (checked for repeats when importing)
   const itemT = String(get("item") || "").trim().toLowerCase();
   if (itemT === "set" || itemT === "roll") {
     const hl = itemT === "set" ? SET_HOLDERS : ROLL_HOLDERS;
@@ -395,7 +402,8 @@ async function doImport() {
   closeSheet();
   toast("Importing " + chosen.length + " rows…");
   const ids = [];
-  let noSpot = 0;
+  let noSpot = 0, idClash = 0;
+  const seenId = new Set(); // keep the first coin with an ID, report the rest
   for (const c of chosen) {
     const an = c._albumName; delete c._albumName;
     // Only into an album made for this coin's type.
@@ -405,6 +413,10 @@ async function doImport() {
     const bx = bn && typeof allBoxes === "function" && allBoxes().find((b) => squash(b.name) === squash(bn));
     if (bx) { c.boxId = bx.id; if (boxCheck(c)) { delete c.boxId; delete c.boxRow; delete c.boxSlot; noSpot++; } }
     else { delete c.boxRow; delete c.boxSlot; }
+    if (c.cid) {
+      const k = idNormKey(c.cid);
+      if (seenId.has(k) || idOwner(c.cid)) { delete c.cid; idClash++; } else { seenId.add(k); idBump(c.cid); }
+    }
     c.importBatch = batch;
     ids.push(c.id);
     if (c.typeId) touchType(c.typeId);
@@ -414,7 +426,7 @@ async function doImport() {
   const anySold = chosen.some((c) => c.status === "sold");
   if (anySold && !settings().soldAutoDone) saveSettings({ showSold: true, soldAutoDone: true });
   go("coins");
-  toast("Imported " + ids.length + " rows." + (dropped ? " Skipped " + dropped + " with a year that doesn't fit." : "") + (noSpot ? " " + noSpot + " couldn't go in their box spot (taken or missing), so they're not in a box." : ""), { label: "Undo", fn: () => undoImport(true) });
+  toast("Imported " + ids.length + " rows." + (dropped ? " Skipped " + dropped + " with a year that doesn't fit." : "") + (idClash ? " " + idClash + " ID" + (idClash === 1 ? " was" : "s were") + " already used, so " + (idClash === 1 ? "that coin " : "those coins ") + (idStyle() === "off" ? "have no ID." : "got a new one.") : "") + (noSpot ? " " + noSpot + " couldn't go in their box spot (taken or missing), so they're not in a box." : ""), { label: "Undo", fn: () => undoImport(true) });
 }
 // Imported rows you haven't changed since. Edited coins leave the batch (see saveCoin).
 const importLeft = (li) => li.ids.map(getCoin).filter((c) => c && c.importBatch === li.batch && c.status !== "deleted");

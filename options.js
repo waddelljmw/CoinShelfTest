@@ -92,7 +92,7 @@ function redBookHtml() {
 const OPT_GROUPS = [
   ["Prices and values", ["spot-prices", "selling", "photo-fill"]],
   ["Look of Home", ["shelf-style", "home-shelf", "show-on-home"]],
-  ["Adding coins", ["adding-coins", "inheritances"]],
+  ["Adding coins", ["adding-coins", "coin-id-style", "inheritances"]],
   ["Your data", ["spreadsheet", "backup-and-restore", "share-a-snapshot", "insurance-report", "recently-deleted"]],
   ["Share and help", ["share-coin-cabinet", "try-the-demo", "guided-first-coin", "whats-new", "report-a-problem"]],
   ["Seller Mode", ["seller-mode"]],
@@ -153,6 +153,7 @@ function optionsHtml() {
       <label class="switch"><span>Junk silver goes in My Silver Stack<div class="small muted">For new junk silver coins. Coins you already saved don't change.</div></span><input type="checkbox" data-act="homeTog" data-v="junkStack" ${s.junkStack !== false ? "checked" : ""}></label>
       <label class="switch"><span>Don't ask before putting a coin up for sale</span><input type="checkbox" data-act="homeTog" data-v="skipForSaleAsk" ${s.skipForSaleAsk ? "checked" : ""}></label>
     </div>
+    ${store.mode === "snapshot" || typeof idStyleOptionsHtml !== "function" ? "" : idStyleOptionsHtml()}
     ${store.mode === "demo" ? "" : `    <h2>Spreadsheet</h2>
     <div class="card">Save all your coins as a spreadsheet file (CSV), or add coins from one.
       <div class="btn-row"><button class="btn" data-act="export">Export CSV</button><button class="btn" data-act="openImport">Import CSV</button></div>
