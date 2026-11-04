@@ -22,7 +22,7 @@ Read this, then `IDEAS.md` (short; just don't build from it unless asked), then 
 4. Add/adjust a test in `tests/`. Run **`node tests/run-all.js 2>&1 | tail -3`**; only look at details if something fails. Screenshots only for new layouts.
 5. Raise the version in **three places**: `APP_VERSION` (app.js), `version` (package.json), `CACHE` (sw.js). Fix → last number; feature → middle. New page files must be added to `FILES` in sw.js.
 6. Commit, push, open a PR with `gh api` (GraphQL is blocked).
-7. On **"merge it"**: `gh api -X PUT repos/waddelljmw/CoinShelfTest/pulls/<n>/merge -f merge_method=merge -f sha=<HEAD>`, confirm `main` has it, tick `PLAN.md`, give **https://github.com/waddelljmw/CoinShelfTest/branches**. Remind him to tap **Update now** on the phone.
+7. **Merge yourself when the work is finished and all tests pass** (no need to wait for "merge it"). Exception: ask first for anything that changes how saved coin data is stored, and for review-fix sessions. Then: `gh api -X PUT repos/waddelljmw/CoinShelfTest/pulls/<n>/merge -f merge_method=merge -f sha=<HEAD>`, confirm `main` has it, tick `PLAN.md`, give **https://github.com/waddelljmw/CoinShelfTest/branches**. Remind him to tap **Update now** on the phone.
 8. Merging publishes the real app at **https://waddelljmw.github.io/CoinShelfTest/**. The Claude artifact (slug `11b5b1eb-a5c1-4157-8b05-2c9cda610e1f`) is only a test copy; don't publish there unless asked.
 
 ## Reviews (the most expensive thing; ~100–150k tokens each)
