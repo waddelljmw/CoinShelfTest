@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 33, Sonnet):** Fix list (update jumps to newest, mintage overlap, Select all at top) + Step 9.4a change many coins at once.
+**Next session starts here (session 34, Sonnet):** Step 9.4b first open, guided first coin, plain-words help. (Session 33 done: v0.45.0, Fix list empty.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -44,7 +44,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | ✅ merged v0.44.0 (PR #117) |
 | 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | ✅ reviewed, 5 fixes + delete confirm, merged v0.44.1 (PR #118) |
 | 32 | Opus | Plan new-user help: plain words, walkthrough, Simple mode | ✅ plan PR (Step 9.4) + automatic version check |
-| 33 | Sonnet | Fix list + Step 9.4a: change many coins at once | |
+| 33 | Sonnet | Fix list + Step 9.4a: change many coins at once | ✅ PR open v0.45.0 |
 | 34 | Sonnet | Step 9.4b: first open, guided first coin, plain-words help | |
 | 35 | Sonnet | Step 9.4c: Simple mode (3 levels) | |
 | 36 | Opus | Review of 9.4 (9.4a changes many saved coins at once), fix what it finds | |
@@ -59,9 +59,9 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 ## Fix list (small changes waiting for a session)
 - [x] ✅ done v0.38.3 **Coin ID changes on first reopen** (review 3, finding 1; Sonnet). New coin shows MD-001, after one reload it is MD-002 and 001 is used up. `ensureIds()` in `ids.js` adds the ID in memory but the saved record lacks it (likely overwritten by the form save). Fix so the ID is saved with the coin, add a test (save coin, reload, same ID), and check old coins.
 
-- [ ] **Update always jumps to the newest version** (your note 2026-11-04). Tapping Update now could install an older waiting version, then ask again. Register `sw.js` with `updateViaCache: "none"`; on tap, run `reg.update()` and send "update-now" to the newest `reg.waiting` (not the worker saved when the bar first showed); if a newer one arrives while the bar is up, the bar uses that one. Test: two versions published in a row need only one tap.
-- [ ] **Mintage line covered by the "Missing" box** on the coin page (screenshot 2026-11-04). Move the mintage line to sit right under the coin name/album/ID, above the Missing box; check the box no longer overlaps anything.
-- [ ] **Select all · Clear at the top too** on long pick lists (album "Missing" list in `wants.js`, and the My Coins select bar). Keep the bottom ones as well.
+- [x] ✅ done v0.45.0 **Update always jumps to the newest version** (your note 2026-11-04). Tapping Update now could install an older waiting version, then ask again. Register `sw.js` with `updateViaCache: "none"`; on tap, run `reg.update()` and send "update-now" to the newest `reg.waiting` (not the worker saved when the bar first showed); if a newer one arrives while the bar is up, the bar uses that one. Test: two versions published in a row need only one tap.
+- [x] ✅ done v0.45.0 **Mintage line covered by the "Missing" box** on the coin page (screenshot 2026-11-04). Move the mintage line to sit right under the coin name/album/ID, above the Missing box; check the box no longer overlaps anything.
+- [x] ✅ done v0.45.0 **Select all · Clear at the top too** on long pick lists (album "Missing" list in `wants.js`, and the My Coins select bar). Keep the bottom ones as well.
 
 Claude adds items here when they wait. Session 11 cleared the open ones.
 - ✅ done v0.28.0 **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
@@ -199,11 +199,11 @@ Goal: fewer taps when entering, nothing lost, and the app tells you what still n
 Your choices (2026-11-04): Simple mode starts with **3 levels**; the guided first coin uses the person's **real first coin**; change-many sets **date acquired, where/from whom, price paid each**.
 
 ### 9.4a (session 33, Sonnet): change many coins at once
-- [ ] **Select inside an album** (and box pages): a Select button like My Coins, tap spots that have coins, same select bar (Move, Set holder, Mark inherited, the new Set purchase info). Select all · Clear at top and bottom.
-- [ ] **Set purchase info…** in the select bar: one sheet with **Date acquired**, **Where / from whom** (same Source and seller choices as Add coin, including Coin show and its name), **Price paid each** or **Split a total evenly** (shows the each-price before saving). Only fields you fill are changed; blank fields leave each coin as it is. Says "Changes 14 coins" before saving.
-- [ ] Inherited coins skip price/source (listed, like Mark inherited). Sold coins aren't selectable here.
-- [ ] **One Undo puts every coin back.** Needs-info list updates (coins with a cost now drop off).
-- [ ] Tests: set date/source/price on 3 coins, blanks untouched, Undo restores all, inherited skipped. Version (feature).
+- [x] ✅ **Select inside an album** (and box pages): a Select button like My Coins, tap spots that have coins, same select bar (Move, Set holder, Mark inherited, the new Set purchase info). Select all · Clear at top and bottom.
+- [x] ✅ **Set purchase info…** in the select bar: one sheet with **Date acquired**, **Where / from whom** (same Source and seller choices as Add coin, including Coin show and its name), **Price paid each** or **Split a total evenly** (shows the each-price before saving). Only fields you fill are changed; blank fields leave each coin as it is. Says "Changes 14 coins" before saving.
+- [x] ✅ Inherited coins skip price/source (listed, like Mark inherited). Sold coins aren't selectable here.
+- [x] ✅ **One Undo puts every coin back.** Needs-info list updates (coins with a cost now drop off).
+- [x] ✅ Tests: set date/source/price on 3 coins, blanks untouched, Undo restores all, inherited skipped. Version (feature).
 
 ### 9.4b (session 34, Sonnet): first open, guided first coin, plain words
 - [ ] **First open** (no coins yet, phone app): a welcome card with two big buttons: **Start my collection** and **Try with sample coins** (today's demo). The small "New here?" card becomes this. Shown until the first coin is saved; Options › Share and help keeps both.

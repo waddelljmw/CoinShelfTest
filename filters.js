@@ -77,6 +77,25 @@ function fltChips() {
 }
 const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"], value: ["vFrom", "vTo"], probs: ["probs"], inc: ["inc"] };
 
+// The Select bar (shared by My Coins, album pages and box pages): count, Select all / Clear, and the bulk buttons.
+function selBarHtml(picked, shown) {
+  const dis = picked.length ? "" : "disabled";
+  return `<div class="card selbar"><b>${picked.length} selected</b>
+      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="selAll">Select all shown (${shown})</button><button class="btn" data-act="selNone">Clear</button></div>
+      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="hdOpen" ${dis}>Set holder…</button><button class="btn" data-act="inhMark" ${dis}>Mark inherited…</button><button class="btn" data-act="pcOpen" ${dis}>Set purchase info…</button></div>
+      ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button></div>` : ""}</div>`;
+}
+// Bottom copy of Select all · Clear for long lists.
+const selFootHtml = () => listState.sel ? `<div class="small muted" style="text-align:center;margin:10px 0"><button type="button" class="link-btn" data-act="selAll">Select all</button> · <button type="button" class="link-btn" data-act="selNone">Clear</button></div>` : "";
+// Select button + bar for album and box pages. "coins" = the owned coins on that page.
+function pageSelHtml(coins) {
+  coins = coins.filter((c) => c.status === "owned");
+  listState._shown = coins;
+  if (!coins.length) return "";
+  const picked = listState.sel ? coins.filter((c) => listState.sel.has(c.id)) : [];
+  return `<div class="toolbar"><button class="btn ${listState.sel ? "on-btn" : ""}" data-act="${listState.sel ? "selDone" : "selStart"}" style="flex:1">${listState.sel ? "Done selecting" : "Select coins"}</button></div>${listState.sel ? selBarHtml(picked, coins.length) : ""}`;
+}
+
 // Everything between the search box and the sort line: Filter / Select buttons, chips, the count, and the Select bar.
 function coinsControls(base, list) {
   listState._base = base; listState._shown = list;
@@ -94,10 +113,7 @@ function coinsControls(base, list) {
     </div>
     ${chips.length ? `<div class="chips" style="margin-bottom:6px">${chips.map(([k, l]) => `<button class="chip on" data-act="fltDrop" data-k="${k}" aria-label="Remove filter ${esc(l)}">${esc(l)} ✕</button>`).join("")}<button class="chip" data-act="fltClear">Clear all</button></div>` : ""}
     ${showCount ? `<div class="small muted" style="margin:0 2px 10px">${n} of ${total} coin${total === 1 ? "" : "s"} · ${sold ? "Sold for" : "Value"} ${money(val, "$0.00")} · Melt ${money(meltN, "$0.00")}</div>` : ""}
-    ${sel ? `<div class="card selbar"><b>${picked.length} selected</b>
-      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="selAll">Select all shown (${list.length})</button><button class="btn" data-act="selNone">Clear</button></div>
-      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${picked.length ? "" : "disabled"}>Move to…</button><button class="btn" data-act="hdOpen" ${picked.length ? "" : "disabled"}>Set holder…</button><button class="btn" data-act="inhMark" ${picked.length ? "" : "disabled"}>Mark inherited…</button></div>
-      ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${picked.length ? "" : "disabled"}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${picked.length ? "" : "disabled"}>Move to Personal</button></div>` : ""}</div>` : ""}`;
+    ${sel ? selBarHtml(picked, list.length) : ""}`;
 }
 function selRow(c) {
   const on = listState.sel.has(c.id);
@@ -217,6 +233,68 @@ function bulkApply(label, fn) {
   } else toast(label + ": " + done + " done.", done ? undo : null);
 }
 
+/* ---------- Select > Set purchase info (date, where from, price each) ---------- */
+const pcCanChange = (c) => c.status === "owned" && !isInherited(c);
+function pcSources() { return [...new Set([...SOURCE_DEFAULTS.filter((x) => x !== "Inherited"), ...allCoins().map((c) => (c.source || "").trim()).filter((x) => x && x !== "Inherited" && !SOURCE_DEFAULTS.some((d) => d.toLowerCase() === x.toLowerCase()))])]; }
+// What price each coin would get, from the sheet's current entries (null = leave prices alone).
+function pcEach(picks) {
+  const amt = num(($("#pcAmt") || {}).value);
+  if (amt == null) return null;
+  const split = (document.querySelector('#sheet input[name="pcMode"]:checked') || {}).value === "split";
+  const qty = sum(picks, qtyOf);
+  return split ? (qty ? Math.round((amt / qty) * 100) / 100 : null) : amt;
+}
+function pcPreview() {
+  const picks = pickedCoins().filter(pcCanChange), el = $("#pcPreview");
+  if (!el) return;
+  const each = pcEach(picks);
+  el.innerHTML = `Changes <b>${picks.length}</b> coin${picks.length === 1 ? "" : "s"}${each != null ? ` · <b>${money(each)}</b> each` : ""}`;
+}
+document.addEventListener("input", (e) => { if (e.target.closest && e.target.closest("[data-pc]")) pcPreview(); });
+document.addEventListener("change", (e) => {
+  if (!e.target.matches || !e.target.matches("[data-pc]")) return;
+  const o = $("#pcOtherRow"); if (o) o.hidden = ($("#pcSrc") || {}).value !== "Other";
+  pcPreview();
+});
+Object.assign(actions, {
+  pcOpen: () => {
+    const picked = pickedCoins();
+    if (!picked.length) return;
+    openSheet(`<div class="sheet-head"><h2>Set purchase info for ${picked.length}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <div class="hint">Only what you fill in changes. Blank boxes leave each coin as it is.</div>
+      <label class="f"><span>Date acquired</span><input type="date" id="pcDate" data-pc></label>
+      <label class="f"><span>Where from</span><select id="pcSrc" data-pc><option value="">Leave as is</option>${pcSources().map((x) => `<option>${esc(x)}</option>`).join("")}<option value="Other">Other…</option></select></label>
+      <label class="f" id="pcOtherRow" hidden><span>Where did you get them?</span><input type="text" id="pcOther" maxlength="60" placeholder="e.g. flea market"></label>
+      <label class="f"><span>Shop, show or seller name (optional)</span><input type="text" id="pcSeller" data-pc list="sellerList" maxlength="60" placeholder="e.g. Main Street Coins"></label>
+      <datalist id="sellerList">${pastSellers().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
+      <div class="btn-row" style="margin:8px 0"><label><input type="radio" name="pcMode" value="each" data-pc checked> Price paid each</label><label><input type="radio" name="pcMode" value="split" data-pc> Split a total evenly</label></div>
+      <label class="f"><span>Amount</span><input type="number" inputmode="decimal" step="0.01" id="pcAmt" data-pc placeholder="$ (leave blank to keep prices)"></label>
+      <div class="small" id="pcPreview" style="margin:6px 0"></div>
+      <div class="hint">Inherited coins are skipped and listed. One Undo puts everything back.</div>
+      <button class="btn primary block" data-act="pcGo" style="margin-top:10px">Save to these coins</button>`);
+    pcPreview();
+  },
+  pcGo: () => {
+    const date = ($("#pcDate") || {}).value || "", src = ($("#pcSrc") || {}).value || "";
+    const other = (($("#pcOther") || {}).value || "").trim(), seller = (($("#pcSeller") || {}).value || "").trim();
+    const picks = pickedCoins().filter(pcCanChange);
+    const each = pcEach(picks);
+    if (src === "Other" && !other) { toast("Type where you got them, or pick another source."); return; }
+    if (!date && !src && !seller && each == null) { toast("Fill in at least one thing to change."); return; }
+    if (each != null && each < 0) { toast("The price can't be negative."); return; }
+    bulkApply("Purchase info set", (c) => {
+      if (c.status !== "owned") return "not in your collection";
+      if (isInherited(c)) return "inherited coins keep their own info";
+      if (date) c.acquired = date;
+      if (src) c.source = src === "Other" ? other : src;
+      if (seller) c.seller = seller;
+      if (each != null) c.paid = String(each);
+      return "";
+    });
+    listState.sel = null; render();
+  },
+});
+
 /* ---------- actions ---------- */
 Object.assign(actions, {
   fltOpen: () => openFilterPanel(),
@@ -311,4 +389,4 @@ Object.assign(actions, {
     fltLast = null; closeSheet(); render(); toast("Undone.");
   },
 });
-if (typeof SNAPSHOT_BLOCK !== "undefined") ["mvGo", "hdGo", "fltSave", "fltRenSave", "fltDel", "fltUndo"].forEach((a) => SNAPSHOT_BLOCK.add(a));
+if (typeof SNAPSHOT_BLOCK !== "undefined") ["mvGo", "hdGo", "pcOpen", "pcGo", "fltSave", "fltRenSave", "fltDel", "fltUndo"].forEach((a) => SNAPSHOT_BLOCK.add(a));

@@ -1,6 +1,17 @@
 // Installing Coin Cabinet on the phone and keeping it up to date (only when it runs on its own website).
 "use strict";
 
+let swReg = null;
+// Wait for any version that is still downloading, then give back the newest one that is ready.
+async function newestWaiting(fallback) {
+  if (swReg) {
+    try { await swReg.update(); } catch (e) { /* offline: use what we have */ }
+    const inst = swReg.installing;
+    if (inst && inst.state !== "installed") await new Promise((res) => { const f = () => { if (inst.state === "installed" || inst.state === "redundant") { inst.removeEventListener("statechange", f); res(); } }; inst.addEventListener("statechange", f); setTimeout(res, 8000); });
+    if (swReg.waiting) return swReg.waiting;
+  }
+  return fallback;
+}
 function showUpdateBar(worker) {
   if (document.getElementById("updateBar")) return;
   const last = settings().lastBackup;
@@ -15,7 +26,7 @@ function showUpdateBar(worker) {
     // Don't throw away a coin (or anything else) you're in the middle of typing.
     if (draft || !$("#sheet").hidden) { toast("Finish or close what you're working on first, then tap Update now."); return; }
     bar.querySelector("#updateNow").disabled = true;
-    worker.postMessage("update-now");
+    newestWaiting(worker).then((w) => w.postMessage("update-now"));
   });
 }
 
@@ -33,7 +44,8 @@ function initPwa() {
     location.reload();
   };
   navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadController) reloadWhenFree(); });
-  navigator.serviceWorker.register("sw.js").then((reg) => {
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((reg) => {
+    swReg = reg;
     const watch = (w) => w && w.addEventListener("statechange", () => { if (w.state === "installed" && navigator.serviceWorker.controller) showUpdateBar(w); });
     if (reg.waiting && navigator.serviceWorker.controller) showUpdateBar(reg.waiting);
     watch(reg.installing);

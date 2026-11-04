@@ -13,7 +13,7 @@ function currentRoute() {
 function go(hash) {
   closeMenu();
   if (!$("#sheet").hidden) closeSheet(); // leaving the page closes any open pop-up
-  if (location.hash === "#" + hash) render(); else location.hash = hash;
+  if (location.hash === "#" + hash) render(); else { listState.sel = null; location.hash = hash; } // leaving a page ends Select
   window.scrollTo(0, 0);
 }
 // Remember the page you were on before opening a coin, so its back button returns there.
@@ -248,7 +248,7 @@ function viewCoins() {
       <select data-list="sort" aria-label="Sort by">${[["year", "Year"], ["value", "Value"], ["melt", "Melt value"], ["acquired", "Date acquired"], ["type", "Coin type"]].map(([k, l]) => `<option value="${k}" ${listState.sort === k ? "selected" : ""}>Sort: ${l}</option>`).join("")}</select>
       <button class="btn" data-act="dir" style="flex:0 0 auto">${listState.dir === "asc" ? "↑ Low to high" : "↓ High to low"}</button>
     </div>
-    ${list.length ? `<div class="list">${list.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c, { miss: true }))).join("")}</div>` : `<div class="card empty">${base.length ? "No coins match these filters." : listState.status === "sold" ? "No sold coins yet." : "No coins yet. Tap <b>+</b> to add one."}</div>`}`;
+    ${list.length ? `<div class="list">${list.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c, { miss: true }))).join("")}</div>${typeof selFootHtml === "function" ? selFootHtml() : ""}` : `<div class="card empty">${base.length ? "No coins match these filters." : listState.status === "sold" ? "No sold coins yet." : "No coins yet. Tap <b>+</b> to add one."}</div>`}`;
 }
 
 // One small line under the search box: count, value and melt of the coins found.
@@ -327,7 +327,7 @@ function viewCoin(r) {
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}</h1>
     ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button></div>` : ""}
     <div class="small muted" style="margin:-4px 0 8px">ID <b>${esc(c.cid || "")}</b> <button class="link-btn" data-act="editId" data-id="${esc(c.id)}">Change</button></div>
-    ${typeof coinInhHtml === "function" ? coinInhHtml(c) : ""}${mintageLine(c)}
+    ${mintageLine(c)}${typeof coinInhHtml === "function" ? coinInhHtml(c) : ""}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
       ${row("Status", esc(STATUS_TEXT[statusKey(c)] || "") + (c.upgrade && c.status === "owned" ? " · Upgrade wanted" : ""))}

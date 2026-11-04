@@ -122,7 +122,7 @@ function mintageInfo(c) {
 function mintageLine(c) {
   const m = mintageInfo(c);
   if (!m) return "";
-  return `<div class="small muted" style="margin:-10px 0 12px">Mintage ${esc(m.text)}${m.proof ? " proofs" : m.sms ? " SMS sets" : ""}${m.shared ? " (all varieties of this date)" : ""}</div>`;
+  return `<div class="small muted" style="margin:-4px 0 10px">Mintage ${esc(m.text)}${m.proof ? " proofs" : m.sms ? " SMS sets" : ""}${m.shared ? " (all varieties of this date)" : ""}</div>`;
 }
 // Plain note for the coin page when the Red Book gives no value (instead of quietly showing face value).
 function noBookNote(c) {

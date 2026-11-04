@@ -142,10 +142,11 @@ function viewBox(r) {
   const b = getBox(r.id);
   if (!b) return `<div class="card empty">That box isn't here. <button class="link-btn" data-go="boxes">Back to Storage</button></div>`;
   const st = boxStats(b), inBox = boxCoins(b);
-  const itemRow = (c) => `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(holderText(c) || "")}</span></span></button>`;
+  const sel = listState.sel;
+  const itemRow = (c) => sel ? selRow(c) : `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(holderText(c) || "")}</span></span></button>`;
   let body;
   const cell = (row, slot) => { const c = spotCoin(b.id, row, slot);
-    return c ? `<button class="slot full" data-go="coin-${esc(c.id)}" title="${esc(labelOf(c))}"><span class="sn">${slot}</span>${esc(slotDate(c))}</button>`
+    return c ? `<button class="slot full${sel && sel.has(c.id) ? " on" : ""}" ${sel ? `data-act="selToggle" data-id="${esc(c.id)}" aria-pressed="${sel.has(c.id)}"` : `data-go="coin-${esc(c.id)}"`} title="${esc(labelOf(c))}"><span class="sn">${slot}</span>${esc(slotDate(c))}</button>`
       : `<button class="slot" data-act="boxAdd" data-box="${esc(b.id)}" data-row="${row}" data-slot="${slot}" aria-label="Add a coin to ${lineWord(b).toLowerCase()} ${row}, slot ${slot}"><span class="sn">${slot}</span>+</button>`; };
   if (hasSpots(b) && b.cols) { // columns side by side, like the real box seen from above; scrolls sideways when there are many
     const heads = Array.from({ length: b.rows }, (_, i) => `<div class="col-head">Col ${i + 1}<span class="muted small"> · ${inBox.filter((c) => +c.boxRow === i + 1).length}/${b.perRow}</span></div>`).join("");
@@ -157,7 +158,7 @@ function viewBox(r) {
       const row = i + 1;
       const cells = Array.from({ length: b.perRow }, (_, j) => {
         const slot = j + 1, c = spotCoin(b.id, row, slot);
-        return c ? `<button class="slot full" data-go="coin-${esc(c.id)}" title="${esc(labelOf(c))}"><span class="sn">${slot}</span>${esc(slotDate(c))}</button>`
+        return c ? `<button class="slot full${sel && sel.has(c.id) ? " on" : ""}" ${sel ? `data-act="selToggle" data-id="${esc(c.id)}" aria-pressed="${sel.has(c.id)}"` : `data-go="coin-${esc(c.id)}"`} title="${esc(labelOf(c))}"><span class="sn">${slot}</span>${esc(slotDate(c))}</button>`
           : `<button class="slot" data-act="boxAdd" data-box="${esc(b.id)}" data-row="${row}" data-slot="${slot}" aria-label="Add a coin to row ${row}, slot ${slot}"><span class="sn">${slot}</span>+</button>`;
       }).join("");
       return `<h2 style="margin:14px 0 6px">Row ${row} <span class="muted small">· ${inBox.filter((c) => +c.boxRow === row).length}/${b.perRow}</span></h2><div class="slots">${cells}</div>`;
@@ -173,8 +174,9 @@ function viewBox(r) {
     <div class="small muted" style="margin:-8px 0 12px">${boxKindText(b)} · ${esc(boxLookText(b))} · ${hasSpots(b) ? st.filled + " of " + st.total + " slots filled · " + b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow : st.filled + " item" + (st.filled === 1 ? "" : "s")}</div>
     ${b.inside ? `<div class="card"><div class="muted small">What's inside</div><div style="white-space:pre-wrap">${esc(b.inside)}</div></div>` : ""}
     ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(b.id) : ""}
+    ${typeof pageSelHtml === "function" ? pageSelHtml(inBox) : ""}
     ${b.type === "dealer" && typeof dealerPanel === "function" ? dealerPanel(b) : ""}
-    ${body}
+    ${body}${typeof selFootHtml === "function" ? selFootHtml() : ""}
     <div class="btn-row"><button class="btn" data-act="boxEdit" data-id="${esc(b.id)}">Edit box</button><button class="btn danger" data-act="boxDelete" data-id="${esc(b.id)}">Delete box</button></div>`;
 }
 function boxForm(b) {

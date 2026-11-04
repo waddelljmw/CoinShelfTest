@@ -339,7 +339,10 @@ function renderMissingPicker(preselect) {
   const lists = wantLists().filter((l) => albumTypes(a).some((id) => listAccepts(l, id)));
   if (!missingPick.listId || (missingPick.listId !== "__auto" && !lists.some((l) => l.id === missingPick.listId))) missingPick.listId = sug.id;
   const spotWant = (s) => (missingPick.listId === "__auto" ? null : spotFindWant(a, s, missingPick.listId));
+  const missBar = (first) => `<div class="small muted" style="display:flex;justify-content:space-between;margin:10px 2px"><span class="missCount"${first ? ' id="missCount"' : ""}>${missingPick.chosen.size} selected</span>
+      <span><button type="button" class="link-btn" data-act="missAll">Select all</button> · <button type="button" class="link-btn" data-act="missNone">Clear</button></span></div>`;
   openSheet(`<div class="sheet-head"><h2>Missing (${missing.length})</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    ${missing.some((s) => !spotWant(s)) ? missBar(true) : ""}
     ${missing.length ? `<div class="card">${missing.map((s, i) => {
       const t = TYPE_BY_ID[slotType(a, s)];
       const fake = { typeId: t ? t.id : "", year: s.set ? "" : s.y, mint: s.m, typeName: t ? shortName(t) : "", denom: t ? t.denom : "", gradeMode: "raw" };
@@ -353,8 +356,7 @@ function renderMissingPicker(preselect) {
           ${onAny ? `<span class="small muted" style="margin-left:10px">On this list</span>` : ""}</span></div>`;
     }).join("")}</div>
     ${missing.some((s) => !spotWant(s)) ? `
-    <div class="small muted" style="display:flex;justify-content:space-between;margin:10px 2px"><span id="missCount">${missingPick.chosen.size} selected</span>
-      <span><button type="button" class="link-btn" data-act="missAll">Select all</button> · <button type="button" class="link-btn" data-act="missNone">Clear</button></span></div>
+    ${missBar(false)}
     <label class="f"><span>Add selected to</span><select id="missListPick">${lists.map((l) => `<option value="${esc(l.id)}" ${missingPick.listId === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}${sug.id === "__auto" ? `<option value="__auto" ${missingPick.listId === "__auto" ? "selected" : ""}>New: ${esc(sug.name)}</option>` : ""}<option value="__new">+ New list…</option></select></label>
     <button class="btn primary block" data-act="missAdd" ${missingPick.chosen.size ? "" : "disabled"}>Add to want list</button>` : ""}`
     : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
@@ -567,7 +569,7 @@ document.addEventListener("change", (e) => {
   }
   if (e.target.dataset && e.target.dataset.missck != null) {
     e.target.checked ? missingPick.chosen.add(e.target.dataset.missck) : missingPick.chosen.delete(e.target.dataset.missck);
-    const c = $("#missCount"); if (c) c.textContent = missingPick.chosen.size + " selected";
+    document.querySelectorAll(".missCount").forEach((c) => { c.textContent = missingPick.chosen.size + " selected"; });
     const b = $("[data-act=missAdd]"); if (b) b.disabled = !missingPick.chosen.size;
   }
 });
