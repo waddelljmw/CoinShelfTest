@@ -29,6 +29,7 @@ const { chromium } = require("./_compat");
   console.log("summary:", (await p.textContent("main .small.muted")).trim());
   await p.screenshot({ path: "/tmp/wants.png" });
   // Got it → form prefilled → saving removes the want
+  await p.click("[data-act=wantsPickList][data-id=general]"); await p.waitForTimeout(100); // missing coins now go to their own suggested list
   const morganId = await p.evaluate(() => wants().find((w) => w.typeId === "morgan-dollar").id);
   await p.click(`[data-act=wantGot][data-id="${morganId}"]`); await p.waitForTimeout(200);
   console.log("prefill:", JSON.stringify(await p.evaluate(() => ({ t: draft.typeId, y: draft.year, m: draft.mint, g: draft.grade, hint: document.querySelector("#bookHint").textContent }))));
@@ -36,7 +37,7 @@ const { chromium } = require("./_compat");
   console.log("coin added:", await p.textContent("h1"), "| want gone:", await p.evaluate((id) => !getWant(id), morganId));
   // Got it for an album want keeps the album
   const peace = await p.evaluate(() => wants().find((w) => w.year === 1922 && w.mint === "S").id);
-  await p.evaluate(() => go("wants")); await p.waitForTimeout(150);
+  await p.evaluate((id) => { wantsView.listId = getWant(id).listId; go("wants"); }, peace); await p.waitForTimeout(150);
   await p.click(`[data-act=wantGot][data-id="${peace}"]`); await p.waitForTimeout(200);
   console.log("album kept:", await p.evaluate(() => draft.albumId));
   await p.click("[data-act=closeSheet] >> nth=0");

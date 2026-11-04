@@ -1,5 +1,11 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.43.0": [
+    "A coin can be on several want lists at once, each with its own grade. Album spots and the Want List show \u201Cwanted \u00D72\u201D; tap it to see which lists.",
+    "Album page: \u201CAdd missing to a want list\u201D suggests a list for that coin type, or makes a new one.",
+    "On a filled album spot, \u201CWant an upgrade\u201D adds the next grade up.",
+    "Want List has a new section for albums you want to buy."
+  ],
   "0.42.0": [
     "Home shows an amber line when some coins need info (grade, cost or date inherited); tap it to see them.",
     "Totals say \u201Cestimate*\u201D until those coins are filled in.",

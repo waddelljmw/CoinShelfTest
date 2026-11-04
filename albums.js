@@ -234,14 +234,15 @@ function viewAlbum(r) {
           ${canL || canR ? `<span class="slot-mv"><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="-1" ${canL ? "" : "disabled"} aria-label="Move earlier">◀</button><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="1" ${canR ? "" : "disabled"} aria-label="Move later">▶</button></span>` : ""}
         </div>`;
       }
-      const onList = spotFindWant(a, s);
-      const tag = onList ? `<span class="g" style="color:var(--accent)">★ wanted</span>` : "";
+      const onN = spotWants(a, s).length;
+      const tag = onN ? `<span class="g" style="color:var(--accent)">★ ${wantedTag(onN)}</span>` : "";
       return hit
         ? `<button class="slot have" data-act="slotMenu" ${data} data-coin="${esc(hit.id)}">${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${hit.origAlbum ? `<span class="g" style="color:var(--accent)">original</span>` : ""}${tag}</button>`
         : `<button class="slot" data-act="slotMenu" ${data}>${esc(lab)}${vLine}${tag || `<span class="g">open</span>`}</button>`;
     }).join("")}</div>
     ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => coinRow(c)).join("")}</div>` : ""}
     <div class="btn-row">
+      ${st.total - st.owned > 0 ? `<button class="btn" data-act="missing" data-id="${esc(a.id)}">★ Add missing to a want list</button>` : ""}
       <button class="btn" data-act="editAlbum" data-id="${esc(a.id)}">Edit album</button>
       <button class="btn danger" data-act="deleteAlbum" data-id="${esc(a.id)}">Delete album</button>
     </div>
