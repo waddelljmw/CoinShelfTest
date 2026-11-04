@@ -95,6 +95,7 @@ document.addEventListener("scroll", () => guidePlace(), true); // the form scrol
 Object.assign(actions, {
   word: (el) => { const w = WORDS[el.dataset.w]; if (w) openSheet(`<div class="sheet-head"><h2>${esc(w[0])}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div><p>${esc(w[1])}</p>`); },
   startCollection: () => openSheet(`<div class="sheet-head"><h2>Add your first coin</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <p><b>How much do you want to see?</b> You can change this later in Options.</p>${levelChips()}
     <p>Want a one-minute walk-through? Small tips appear over the real form. You can skip at any time.</p>
     <div class="btn-row"><button class="btn primary block" data-act="guideStart">Show me how (1 minute)</button><button class="btn block" data-act="guideNoThanks">Skip</button></div>`),
   guideNoThanks: () => { closeSheet(); openCoinForm(null); },

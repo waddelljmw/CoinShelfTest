@@ -2,7 +2,7 @@
 // Private details are left out unless you tick them. Loaded after app.js.
 "use strict";
 
-const SNAP_FILES = ["styles.css", "catalog/data.js", "catalog/pricebook.js", "catalog/albums.js", "catalog/varieties.js", "app.js", "values.js", "views.js", "albums.js", "options.js", "coinform.js", "coinsave.js", "editforms.js", "actions.js", "sheets.js", "photofill.js", "history.js", "wants.js", "boxes.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "whatsnew.js", "inherit.js", "welcome.js"];
+const SNAP_FILES = ["styles.css", "catalog/data.js", "catalog/pricebook.js", "catalog/albums.js", "catalog/varieties.js", "app.js", "values.js", "views.js", "albums.js", "options.js", "coinform.js", "coinsave.js", "editforms.js", "actions.js", "sheets.js", "photofill.js", "history.js", "wants.js", "boxes.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "whatsnew.js", "inherit.js", "welcome.js", "levels.js"];
 const SNAP_PRIVATE = [
   ["paid", "What you paid"],
   ["source", "Where you got each coin"],

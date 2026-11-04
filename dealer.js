@@ -260,4 +260,4 @@ Object.assign(actions, {
 if (typeof SNAPSHOT_BLOCK !== "undefined") ["caseOut", "caseReturnAll", "caseUndo", "caseAskOpen", "caseAskGo", "showNew", "showEdit", "showDelete"].forEach((a) => SNAPSHOT_BLOCK.add(a));
 
 // The Shows item in the main menu only appears with Seller Mode on.
-function syncShowsMenu() { const st = $("#menuStacks"); if (st) st.hidden = !hasStackItem(); const m = $("#menuShows"); if (m) m.hidden = !sellerOn(); const r = $("#menuReports"); if (r) r.hidden = !sellerOn(); const g = $("#menuBiz"); if (g) g.hidden = !sellerOn(); }
+function syncShowsMenu() { const st = $("#menuStacks"); if (st) st.hidden = !hasStackItem(); const m = $("#menuShows"); if (m) m.hidden = !sellerOn(); const r = $("#menuReports"); if (r) r.hidden = !sellerOn(); const g = $("#menuBiz"); if (g) g.hidden = !sellerOn(); if (typeof syncLevelMenu === "function") syncLevelMenu(); }

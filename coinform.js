@@ -63,6 +63,7 @@ function mintChoices(t, proof) {
 }
 // Closed-by-default section. It stays open (or closed) as you left it, even when the form redraws.
 function sec(key, title, body, hasData) {
+  if (typeof levelHidesSection === "function" && levelHidesSection(key)) return ""; // Simple level, new coin
   const o = draft._open && draft._open[key];
   const open = o !== undefined ? o : !!hasData && !draft._isNew; // new coins start with every section closed
   return `<details data-sec="${key}" ${open ? "open" : ""}><summary>${title}</summary>${body}</details>`;
