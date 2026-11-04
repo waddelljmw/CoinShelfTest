@@ -29,48 +29,68 @@ function welcomeCard() {
 }
 
 /* ---------- guided first coin ---------- */
+// Each tip sits next to the real field it is about (never on top of it). Tapping a choice moves on by itself;
+// typed fields (year, price) wait for Next so the guide never jumps while you type.
 let guide = null; // { step } while the guide is on
+const SAVE_STEP = 4;
 const GUIDE_STEPS = [
-  { sel: ["#typeSearch", "[data-act=what]"], text: "Choose what you're adding. For a US coin, search its name and tap the type." },
-  { sel: ["[data-f=year]"], text: "Type the year, then pick the mint mark (the tiny letter on the coin; none means Philadelphia)." },
-  { sel: ["[data-f=grade]"], text: "Pick the grade, how worn the coin is. Not sure? Choose your best guess; you can change it later." },
-  { sel: ["[data-f=paid]"], text: "Type what you paid. Skip it if you don't know; the coin just shows as “missing” that info." },
-  { sel: ["#coinForm button[type=submit]"], text: "Tap here to save the coin." },
-  { sel: [".miss-banner, .card"], text: "This is your coin. “Missing” lists details still blank; tap Fill in whenever you have them." },
+  { sel: ["#typeSearch"], above: true, text: "Type part of the coin's name (like \u201CMorgan\u201D), then tap it in the list.", done: () => draft && draft.typeId },
+  { sel: ["[data-f=year]"], text: "Type the year on the coin. Pick the mint mark too if you know it. Then tap Next.", next: true },
+  { sel: ["[data-f=grade]"], text: "Tap here and pick the grade (how worn the coin is). Your best guess is fine.", done: () => draft && draft.grade },
+  { sel: ["[data-f=paid]"], text: "Type what you paid. Don't know? Leave it and tap Next.", next: true },
+  { sel: ["#coinForm button[type=submit]"], above: true, text: "Tap here to save your coin." },
+  { sel: [".miss-banner, .card"], text: "This is your coin. \u201CMissing\u201D lists details still blank; tap Fill in whenever you have them.", next: true },
   { sel: [".album-chip, .rowline"], text: () => "Where it's kept: " + guideWhere() },
 ];
 function guideWhere() {
   const m = location.hash.match(/^#coin-(.+)$/), c = m && getCoin(m[1]);
   if (!c) return "see My Coins.";
   const a = c.albumId && getAlbum(c.albumId), bx = c.boxId && getBox(c.boxId);
-  return a ? "in your album “" + albumTitle(a) + "”." : bx ? "in " + boxText(c) + "." : "in My Coins (open it from the menu to see every coin).";
+  return a ? "in your album \u201C" + albumTitle(a) + "\u201D." : bx ? "in " + boxText(c) + "." : "in My Coins (open it from the menu to see every coin).";
+}
+function guidePlace() { // put the bubble just above or below the highlighted field, so the field stays free to tap
+  const b = document.getElementById("guideBubble"), t = document.querySelector(".guide-hl");
+  if (!b || !guide) return;
+  if (!t) { b.className = ""; b.style.top = "8px"; return; }
+  const r = t.getBoundingClientRect(), h = b.offsetHeight, vh = window.innerHeight;
+  let above = !!GUIDE_STEPS[guide.step].above;
+  if (!above && r.bottom + h + 16 > vh - 70) above = true;
+  if (above && r.top - h - 16 < 4) above = false;
+  b.className = above ? "g-above" : "g-below";
+  b.style.top = Math.max(4, Math.min(vh - h - 4, above ? r.top - h - 12 : r.bottom + 12)) + "px";
 }
 function guideBubble() {
   let b = document.getElementById("guideBubble");
-  if (!guide) { if (b) b.remove(); document.querySelectorAll(".guide-hl").forEach((x) => x.classList.remove("guide-hl")); return; }
-  const s = GUIDE_STEPS[guide.step], last = guide.step === GUIDE_STEPS.length - 1, noNext = last || guide.step === 4; // step 4: tapping Save is the way on
+  document.querySelectorAll(".guide-hl").forEach((x) => x.classList.remove("guide-hl"));
+  if (!guide) { if (b) b.remove(); return; }
+  const s = GUIDE_STEPS[guide.step], last = guide.step === GUIDE_STEPS.length - 1;
   if (!b) { b = document.createElement("div"); b.id = "guideBubble"; b.setAttribute("role", "status"); document.body.appendChild(b); }
   b.innerHTML = `<div class="small muted">Step ${guide.step + 1} of ${GUIDE_STEPS.length}</div><div>${esc(typeof s.text === "function" ? s.text() : s.text)}</div>
-    <div class="btn-row"><button class="btn" data-act="guideSkip">${last ? "Done" : "Skip"}</button>${noNext ? "" : `<button class="btn primary" data-act="guideNext">Next</button>`}</div>`;
-  document.querySelectorAll(".guide-hl").forEach((x) => x.classList.remove("guide-hl"));
+    <div class="btn-row"><button class="btn" data-act="guideSkip">${last ? "Done" : "Skip guide"}</button>${s.next ? `<button class="btn primary" data-act="guideNext">Next</button>` : ""}</div>`;
   let t = null;
   for (const q of s.sel) { t = document.querySelector(q); if (t) break; }
   if (t) {
     const d = t.closest("details"); if (d && !d.open) d.open = true; // a closed section opens so the field can be seen
-    t.classList.add("guide-hl"); t.scrollIntoView({ block: "center", behavior: "smooth" });
+    t.classList.add("guide-hl"); t.scrollIntoView({ block: "center" });
   }
+  guidePlace();
 }
-function guideSync() { // follow the person: saving the coin moves the guide to the coin page; leaving it ends the guide
+function guideSync() { // follow the person: finished choices move on, saving moves to the coin page, leaving it ends the guide
   if (!guide) return;
   const onCoin = location.hash.startsWith("#coin-");
-  if (onCoin && guide.step < 5) guide.step = 5;
-  else if (!onCoin && guide.step >= 5) guide = null;
+  if (onCoin && guide.step < SAVE_STEP + 1) guide.step = SAVE_STEP + 1;
+  else if (!onCoin && guide.step > SAVE_STEP) guide = null;
+  else if (!onCoin) { let s = GUIDE_STEPS[guide.step]; while (s && s.done && s.done() && guide.step < SAVE_STEP) s = GUIDE_STEPS[++guide.step]; }
   guideBubble();
 }
 let guideTimer = null;
-const guideWatch = new MutationObserver(() => { if (guide) { clearTimeout(guideTimer); guideTimer = setTimeout(guideSync, 60); } });
+const guideLater = () => { if (guide) { clearTimeout(guideTimer); guideTimer = setTimeout(guideSync, 60); } };
+const guideWatch = new MutationObserver(guideLater);
 ["#view", "#sheet"].forEach((q) => { const e = document.querySelector(q); if (e) guideWatch.observe(e, { childList: true, subtree: true }); }); // not the bubble itself, or it would loop
+document.addEventListener("change", guideLater);
 window.addEventListener("hashchange", () => setTimeout(guideSync, 0));
+window.addEventListener("resize", () => guidePlace());
+document.addEventListener("scroll", () => guidePlace(), true); // the form scrolls inside the pop-up
 
 Object.assign(actions, {
   word: (el) => { const w = WORDS[el.dataset.w]; if (w) openSheet(`<div class="sheet-head"><h2>${esc(w[0])}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div><p>${esc(w[1])}</p>`); },

@@ -357,8 +357,12 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 .slot.sel.on::after, .slot.full.on::after { content: "✓"; color: var(--accent); }
 /* Step 9.4b: welcome, guide bubble, plain-words help */
 .info-btn { border: 0; background: none; color: var(--accent); font-size: 15px; padding: 0 4px; cursor: pointer; line-height: 1; }
-#guideBubble { position: fixed; top: 6px; left: 8px; right: 8px; max-width: 520px; margin: 0 auto; z-index: 60; background: var(--ink); color: #fff; border-radius: 12px; padding: 10px 12px; font-size: 14px; box-shadow: var(--shadow); }
+#guideBubble { position: fixed; left: 10px; right: 10px; max-width: 420px; margin: 0 auto; z-index: 60; background: var(--ink); color: #fff; border-radius: 12px; padding: 10px 12px; font-size: 15px; box-shadow: 0 6px 22px rgba(0,0,0,.35); }
+#guideBubble::after { content: ""; position: absolute; left: 50%; margin-left: -8px; border: 8px solid transparent; }
+#guideBubble.g-below::after { top: -16px; border-bottom-color: var(--ink); }
+#guideBubble.g-above::after { bottom: -16px; border-top-color: var(--ink); }
 #guideBubble .muted { color: #cfc7ba; }
 #guideBubble .btn-row { margin-top: 8px; justify-content: flex-end; }
-.guide-hl { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
 #guideBubble .btn { color: var(--ink); background: #fff; } #guideBubble .btn.primary { color: var(--accent-ink); background: var(--accent); }
+.guide-hl { outline: 3px solid #e0a63a; outline-offset: 3px; border-radius: 8px; animation: guidePulse 1.4s ease-in-out infinite; }
+@keyframes guidePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(224,166,58,.55); } 50% { box-shadow: 0 0 0 9px rgba(224,166,58,0); } }
