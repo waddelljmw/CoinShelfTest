@@ -118,7 +118,7 @@ function renderCoinForm() {
     <div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>`}
     ${it === "roll" ? rollFields(d) : ""}
 
-    ${it !== "coin" ? "" : `<fieldset><legend>Grade</legend>
+    ${it !== "coin" ? "" : `<fieldset><legend>Grade ${wi("rawslab")}</legend>
       <div class="seg"><button type="button" data-act="gmode" data-v="raw" class="${d.gradeMode === "raw" ? "on" : ""}">Raw</button><button type="button" data-act="gmode" data-v="cert" class="${d.gradeMode === "cert" ? "on" : ""}">Certified</button></div>
       ${d.gradeMode === "cert" ? `<div class="grid2">
         <label class="f"><span>Grading service</span><select data-f="service" data-rerender>${SERVICES.map((s) => `<option ${d.service === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
