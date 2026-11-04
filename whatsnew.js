@@ -1,5 +1,11 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.42.0": [
+    "Home shows an amber line when some coins need info (grade, cost or date inherited); tap it to see them.",
+    "Totals say \u201Cestimate*\u201D until those coins are filled in.",
+    "Options has an Inheritances list: who, when, earlier owners. Inherited coins use your default one.",
+    "In My Coins, Select \u203A Mark inherited\u2026 fixes many coins at once."
+  ],
   "0.41.0": [
     "The Save button now stays at the bottom of the screen while you fill in a coin.",
     "After you delete or sell a coin, you land back where you came from (like your album).",

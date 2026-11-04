@@ -100,6 +100,7 @@ async function saveDraft() {
       c.albumId = a.id;
     }
   }
+  if (typeof inhPrepSave === "function") inhPrepSave(c);
   const isNew = d._isNew;
   if (isNew) { // quick-add remembers these for the next coin (Album and Slab fill in on their own)
     const keep = ["Album", "Slab"].includes(c.holder) || it !== "coin" ? settings().lastHolder || "" : c.holder;

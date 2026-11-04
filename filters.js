@@ -71,7 +71,7 @@ function fltChips() {
   if (f.gCustom) add("grade", "Grade: " + f.gCustom);
   else if (f.gFrom || f.gTo) add("grade", "Grade " + (f.gFrom || "any") + " to " + (f.gTo || "any"));
   if (f.vFrom || f.vTo) add("value", "Value " + (f.vFrom ? "$" + f.vFrom : "…") + "–" + (f.vTo ? "$" + f.vTo : "…"));
-  if (f.inc) add("inc", "Missing grade or cost");
+  if (f.inc) add("inc", "Needs info");
   if ((f.probs || []).length) add("probs", FLT_PROBS.filter(([k]) => f.probs.includes(k)).map(([, l]) => l).join(" or "));
   return out;
 }
@@ -96,12 +96,12 @@ function coinsControls(base, list) {
     ${showCount ? `<div class="small muted" style="margin:0 2px 10px">${n} of ${total} coin${total === 1 ? "" : "s"} · ${sold ? "Sold for" : "Value"} ${money(val, "$0.00")} · Melt ${money(meltN, "$0.00")}</div>` : ""}
     ${sel ? `<div class="card selbar"><b>${picked.length} selected</b>
       <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="selAll">Select all shown (${list.length})</button><button class="btn" data-act="selNone">Clear</button></div>
-      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${picked.length ? "" : "disabled"}>Move to…</button><button class="btn" data-act="hdOpen" ${picked.length ? "" : "disabled"}>Set holder…</button></div>
+      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${picked.length ? "" : "disabled"}>Move to…</button><button class="btn" data-act="hdOpen" ${picked.length ? "" : "disabled"}>Set holder…</button><button class="btn" data-act="inhMark" ${picked.length ? "" : "disabled"}>Mark inherited…</button></div>
       ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${picked.length ? "" : "disabled"}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${picked.length ? "" : "disabled"}>Move to Personal</button></div>` : ""}</div>` : ""}`;
 }
 function selRow(c) {
   const on = listState.sel.has(c.id);
-  return coinRow(c)
+  return coinRow(c, { miss: true })
     .replace(/data-go="coin-[^"]*"/, `data-act="selToggle" data-id="${esc(c.id)}" aria-pressed="${on}"`)
     .replace('<button class="coin-row"', `<button class="coin-row sel ${on ? "on" : ""}"`)
     .replace(/^(<button[^>]*>)/, `$1<span class="selbox">${on ? "✓" : ""}</span>`);
@@ -139,7 +139,7 @@ function openFilterPanel() {
     <div class="grid2">${field("Grade from", sel("gFrom", "Any", GRADES, f.gFrom || ""))}${field("Grade to", sel("gTo", "Any", GRADES, f.gTo || ""))}</div>
     ${customGrades.length ? field("Custom grade", sel("gCustom", "Any", customGrades, f.gCustom || "")) : ""}
     <div class="grid2">${field("Value from ($)", `<input type="number" inputmode="decimal" data-flt="vFrom" value="${esc(f.vFrom || "")}">`)}${field("Value to ($)", `<input type="number" inputmode="decimal" data-flt="vTo" value="${esc(f.vTo || "")}">`)}</div>
-    ${field("Missing information", sel("inc", "Any", [["1", "Missing grade or cost"]], f.inc || ""))}
+    ${field("Missing information", sel("inc", "Any", [["1", "Needs info (grade, cost or date)"]], f.inc || ""))}
     <div class="f"><span>Problems and errors <span class="muted small">(any of the ticked)</span></span>${FLT_PROBS.map(([k, l]) => `<label class="chk"><input type="checkbox" data-flt-prob="${k}" ${(f.probs || []).includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div>
     <div class="btn-row" style="margin-top:10px"><button class="btn primary" data-act="fltApply">Show results</button><button class="btn" data-act="fltClear">Clear all</button></div>
     <div class="card" style="margin-top:12px"><b>Save this filter</b><div class="rowline" style="gap:8px"><input type="text" data-flt-name placeholder="e.g. Inherited silver" maxlength="40"><button class="btn" data-act="fltSave">Save</button></div></div>`);
@@ -261,6 +261,7 @@ Object.assign(actions, {
     openFilterPanel();
     toast("Deleted saved filter “" + gone.name + "”.", { label: "Undo", fn: () => { saveSettings({ savedFilters: before }); toast("Back again."); } });
   },
+  needInfo: () => { Object.assign(listState, { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", f: { inc: "1" } }); go("coins"); },
   selStart: () => { listState.sel = new Set(); render(); },
   selDone: () => { listState.sel = null; render(); },
   selToggle: (el) => { const id = el.dataset.id; if (listState.sel.has(id)) listState.sel.delete(id); else listState.sel.add(id); render(); },

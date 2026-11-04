@@ -15,7 +15,7 @@ function openReportForm() {
   repSel.mode = "all"; repSel.ids = new Set(); repSel.q = "";
   openSheet(`<div class="sheet-head"><h2>Insurance report</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <p>A dated, itemized list of your coins with values and totals, to keep for your records or send to your insurance agent. Sold coins aren't included.</p>
-    ${priceStatusLine(true)}${lowTotalNote(true)}
+    ${priceStatusLine(true)}${lowTotalNote(true)}${needInfoCoins().length ? `<p class="small" style="color:#a85d00"><b>Estimate*</b> ${NEED_NOTE} <button class="link-btn" data-act="needInfo">See them</button></p>` : ""}
     <div class="f"><span>Which coins</span>
       <div class="seg"><button type="button" data-act="repMode" data-v="all" class="on">All coins (${sum(owned, qtyOf)})</button><button type="button" data-act="repMode" data-v="pick">Choose coins</button></div>
     </div>
@@ -148,7 +148,7 @@ async function buildReport(opts) {
 <h1>Coin collection inventory</h1>
 <div class="meta">${name ? "Owner: " + esc(name) + " · " : ""}Prepared ${esc(dateLong)} with Coin Cabinet${opts.ids ? " · Selected coins (" + coins.length + " of " + ownedCoins().length + " entries in the collection)" : ""}</div>
 <div class="sum">
-  <div><span>Total value</span><b>${money(totVal)}</b></div>
+  <div><span>Total value${needInfoCoins().length ? " (estimate*)" : ""}</span><b>${money(totVal)}</b></div>
   <div><span>Coins</span><b>${totQty}</b></div>
   <div><span>Melt value</span><b>${money(totMelt)}</b></div>
   ${opts.paid ? `<div><span>Paid${paidCoins.length < coins.length ? " (where recorded)" : ""}</span><b>${money(totPaid)}</b></div>` : ""}
@@ -163,6 +163,7 @@ async function buildReport(opts) {
 <table><thead><tr><th>Type</th><th class="r">Coins</th><th class="r">Value</th><th class="r">Melt</th></tr></thead><tbody>${famRows}</tbody></table>
 ${metalRows ? `<h2>Precious metal content</h2><table><thead><tr><th>Metal</th><th class="r">Coins</th><th class="r">Fine weight</th><th class="r">Melt value</th></tr></thead><tbody>${metalRows}</tbody></table>` : ""}
 <div class="note">
+  ${needInfoCoins().length ? `<p><b>*Estimate.</b> ${NEED_NOTE}</p>` : ""}
   ${metalsMissingPrice().length ? `<p><b>Warning: totals are low.</b> No ${esc(metalWords(metalsMissingPrice()))} price was entered, so those coins are counted at face value or left out of melt.</p>` : ""}
   <p><b>How values were set.</b> Each coin uses the owner's own value where one was entered; otherwise the Red Book${ed ? " " + esc(ed) : ""} retail value for its grade; otherwise its melt value. Melt values use spot prices of ${spots ? esc(spots) : "(none entered)"}${s.spotUpdated ? ", as of " + esc(stampText(s.spotUpdated)) : ""}.</p>
   <p>These values are the owner's estimates for record keeping. This is not a professional appraisal. Some insurers require an appraisal for high-value coins.</p>

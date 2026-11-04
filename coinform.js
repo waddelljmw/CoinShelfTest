@@ -27,6 +27,7 @@ function sourceOptions() {
 function applySourceKind(d, v) {
   d._sourceKind = v;
   d.source = v === "Other" ? "" : v;
+  if (isInherited(d) && !d.inhId && typeof inhDefaultId === "function") d.inhId = inhDefaultId(); // Inherited fills in the default inheritance
   // Paid with fills itself on a new coin (still editable): online platforms → Card, Coin Show → Cash.
   const auto = ["eBay", "Whatnot"].includes(v) ? "Card" : v === "Coin Show" ? "Cash" : "";
   if (d._isNew && auto && (!d.payMethod || d.payMethod === d._payAuto)) { d.payMethod = auto; d._payAuto = auto; }
@@ -40,13 +41,14 @@ function sourceChips(d) {
   const names = ["Inherited", ...common];
   const cur = d._sourceKind;
   if (cur && cur !== "Other" && !names.includes(cur)) names.push(cur); // a chosen source stays visible
-  return `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">More…</button></div></div>`;
+  return `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">More…</button></div>${typeof inhFields === "function" ? inhFields(d) : ""}</div>`;
 }
 // First render of a coin: figure out whether its saved source is a known choice or custom text.
 function initSourceKind(d) {
   if (d._sourceKind !== undefined) return;
   const canon = SOURCE_DEFAULTS.find((x) => x.toLowerCase() === (d.source || "").trim().toLowerCase()); // "Coin shop" saved before → "Coin Shop"
   if (canon) d.source = canon;
+  if (d._isNew && isInherited(d) && !d.inhId && typeof inhDefaultId === "function") d.inhId = inhDefaultId();
   d._sourceKind = !d.source ? "" : sourceOptions().includes(d.source) ? d.source : "Other";
 }
 // Mint marks offered for a type. Proofs have their own list: e.g. West Point (W) proofs of Silver Eagles.
