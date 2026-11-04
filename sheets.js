@@ -78,6 +78,8 @@ const SHEET_COLS = [
   { key: "soldTrack", head: "Sold tracking number", names: ["soldtrackingnumber"], exportOnly: true },
   { key: "soldProfit", head: "Profit", names: ["profit"], exportOnly: true },
   { key: "askPrice", head: "Asking price", names: ["askingprice"], exportOnly: true },
+  { key: "inhFrom", head: "Inherited from", names: ["inheritedfrom"], exportOnly: true },
+  { key: "inhValue", head: "Value when inherited", names: ["valuewheninherited"], exportOnly: true },
   { key: "insurance", head: "Insurance", names: ["insurance", "insurancecost"] },
   { key: "soldWhere", head: "Sold where", names: ["soldwhere", "wheresold", "soldon", "soldvia", "platform", "venue"] },
   { key: "soldTo", head: "Sold to", names: ["soldto", "buyer", "buyername", "customer", "purchaser"] },
@@ -102,7 +104,7 @@ function coinToRow(c) {
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
     cert: c.cert, cac: cacOf(c), holder: holderOf(c), keptIn: keptName(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
     redBook: rb ?? "", meltEach: m == null ? "" : m.toFixed(2), source: (c.source || "").trim(), acquired: c.acquired,
-    album: a ? albumTitle(a) : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance, soldWhere: c.sold ? whereText(c.sold) : "", soldTo: s.to || "", shipCharged: s.shipCharged ?? "", soldFees: s.fees ?? "", soldTax: s.salesTax ?? "", soldPay: s.payMethod || "", soldOrder: s.orderNo || "", soldTrack: s.trackNo || "", soldProfit: c.status === "sold" && !isInherited(c) && typeof saleProfit === "function" ? saleProfit(c) : "", askPrice: c.ask || "",
+    album: a ? albumTitle(a) : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance, soldWhere: c.sold ? whereText(c.sold) : "", soldTo: s.to || "", shipCharged: s.shipCharged ?? "", soldFees: s.fees ?? "", soldTax: s.salesTax ?? "", soldPay: s.payMethod || "", soldOrder: s.orderNo || "", soldTrack: s.trackNo || "", soldProfit: c.status === "sold" && !isInherited(c) && typeof saleProfit === "function" ? saleProfit(c) : "", askPrice: c.ask || "", inhFrom: isInherited(c) && typeof inheritanceOf === "function" && inheritanceOf(c) ? inhLabel(inheritanceOf(c)) : "", inhValue: isInherited(c) && typeof inhValueOf === "function" ? (inhValueOf(c) ?? "") : "",
   };
 }
 function toCsv(coins) {

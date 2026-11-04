@@ -59,9 +59,13 @@ Object.assign(actions, {
   },
   inhDelete: () => {
     const e = inhEd, list = inheritances(), def = inhDefaultId(), n = inhCount(e.id);
+    const go = () => {
     inhSet(list.filter((x) => x.id !== e.id), def === e.id ? "" : def);
     inhEd = null; closeSheet(); render();
     toast("Deleted." + (n ? " " + n + " coin" + (n === 1 ? "" : "s") + " now say “who/when not set”." : ""), { label: "Undo", fn: () => { inhSet(list, def); render(); toast("Back again."); } });
+    };
+    if (!n) return go();
+    confirmSheet("Delete this inheritance?", n + " coin" + (n === 1 ? " uses" : "s use") + " it. They will say “who/when not set” and lose its value when inherited (used for tax records).", "Delete", go);
   },
   inhDefault: (el) => { saveSettings({ inhDefault: el.dataset.id }); },
 });
