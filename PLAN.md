@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 26, Opus):** plan inherited coins (locked, value when inherited) + new-user help: plain words, walkthrough, Simple mode.
+**Next session starts here (session 27, Sonnet):** Step 9.3a faster entry fixes, Add album cleanup and a What's new note.
 
 ## Session plan (one chat per session, done in order)
 
@@ -37,8 +37,14 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 24 | Sonnet | Step 9.2 session 24: honest values, Add coin, Options groups, tuck away | ✅ merged v0.39.0 (PR #109) |
 | 24b | Sonnet | Step 9.2 session 24b: seller fixes from review 3 | ✅ merged v0.40.0 (PR #111) |
 | 25 | Sonnet | One-page infographic of the app's best features, for you to show people (not in the app); made as a design you can edit, print or share | ✅ done (Claude Design canvas "Coin Cabinet: Best Features", not in the repo) |
-| 26 | Opus | Plan inherited coins (locked, value when inherited) + new-user help: plain words, walkthrough, Simple mode | |
-| later | Sonnet / Opus | With your Red Book: 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
+| 26 | Opus | Plan from your 45-minute use notes (Step 9.3) | ✅ plan PR #112 (+ v0.40.1 hide-values fix) |
+| 27 | Sonnet | Step 9.3a: faster entry fixes + Add album cleanup + What's new | |
+| 28 | Sonnet | Step 9.3b: complete profile, Needs info list, inheritances | |
+| 29 | Sonnet | Step 9.3c: want lists (one want, many lists; missing from album; album wish list) | |
+| 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | |
+| 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | |
+| 32 | Opus | Plan new-user help: plain words, walkthrough, Simple mode | |
+| later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
 - Stay in the chat while it works. Coming back after more than ~5 minutes makes the next message cost more (the chat has to be re-read at full price), so finish or say "stop here" before stepping away.
@@ -143,9 +149,41 @@ From the three test-user reviews (`reviews/`) and your audit choices (2026-11-03
 - [x] ✅ Show page **break-even line**: "Sell $X more to cover show costs".
 - [x] ✅ Tests + version: feature (middle number).
 
-### Later (Opus planning session 26)
-- **Inherited coins:** keep them locked from selling, as now (your choice). Plan "Value when inherited" (and date) with IDEAS 32, and whether/how to unlock one on purpose.
-- **New-user feedback:** plain-words help (IDEAS 31), first-time walkthrough (IDEAS 3) and Simple mode levels (IDEAS 25), planned together from what the reviews showed newcomers trip on.
+## Step 9.3: From your use notes (2026-11-03). Planned session 26 (Opus)
+Goal: fewer taps when entering, nothing lost, and the app tells you what still needs filling in.
+
+### 9.3a (session 27, Sonnet): faster entry
+- [ ] **Save button always on screen** on Add/Edit coin (sticks to the bottom), no scrolling up.
+- [ ] **Back goes where you came from:** album → coin → (edit/delete) → back lands on the album, not My Coins. Same for boxes and want lists.
+- [ ] **Add album cleanup:** brand + album number first (exists), then a **searchable coin-type box** (type "fra" → Franklin), then Name, pre-filled in gray from the type/album and only saved as typed if you change it. Count taps before and after; cut any extra step.
+- [ ] **Album "Inherited" switch** on new/edit album (coins added from its spots default to Inherited).
+- [ ] **What's new:** after an update with new features, a small one-time pop-up with 2–4 plain lines (list kept in the code per version; fixes-only updates show nothing). Also in Options › Share and help.
+- [ ] Tests + version (feature).
+
+### 9.3b (session 28, Sonnet): complete profile + inheritances
+- [ ] **Complete = grade + (cost, or inherit date for inherited coins).** Bars/rounds/rolls need cost only. Replaces today's incomplete rule.
+- [ ] **Needs info list:** a Home line "12 coins need info › " opening My Coins filtered to incomplete, each row says what's missing; a coin drops off once filled.
+- [ ] **Inheritances:** Options holds a list; one is the default (from whom, date, e.g. "Mother-in-law, 2023"). Choosing Source = Inherited fills the default; a picker switches to another; "+ New inheritance" for exceptions. **Earlier owners:** each inheritance can list who had it before and when (e.g. her grandmother, 1974), shown on the coin page as its history.
+- [ ] **Value when inherited** (optional, per coin or per inheritance) for tax records. Inherited coins stay locked from selling.
+- [ ] **Mark many as inherited:** Select › "Mark inherited" (pick the inheritance). Fixes the coins you missed.
+- [ ] **Original to album:** a check on coins in an inherited album; coins added later aren't original. Shown on the album spot.
+- [ ] Old coins: Inherited with no inheritance shows "Inherited (who/when not set)"; nothing rewritten until you edit. Tests + version.
+
+### 9.3c (session 29, Sonnet): want lists
+- [ ] **One want, many lists:** a want can belong to several lists/albums, each with its own grade ("any grade" or "upgrade above MS-63"). A small **"wanted ×2"** tag on album spots, the want list and the coin page; tap shows which albums.
+- [ ] Old wants convert on read (one list each); a second matching want for the same coin is merged only when you add to it.
+- [ ] **Missing from album:** album page button "Add missing to a want list": suggests an existing list for that type, otherwise a new one named "Franklin Half – Missing from [album name]".
+- [ ] **Upgrade:** on a filled spot, "Want an upgrade" adds it with a grade above the current one.
+- [ ] **Album wish list:** albums you want to buy (brand, number, name), a section on the Want List page.
+- [ ] Tests + version.
+
+### 9.3d (session 30, Sonnet): asking price + tax records (Seller Mode)
+- [ ] **Asking price** shows three numbers: Red Book × your %, melt + your %, and **your cost + your minimum markup %**. Suggested = the higher of the first two, **never below cost + minimum markup**. Inherited: uses value when inherited as cost if set.
+- [ ] **Tax records:** a year-end sales export (date bought, date sold, cost incl. fees, sale price, fees, gain, held over 1 year yes/no, inherited yes/no). Plain note: "Records for your tax preparer, not tax advice." (Coins are collectibles; your preparer decides the rates.)
+- [ ] Tests + version.
+
+### Decided not now
+- **Value over time using past metal prices:** needs an outside price history and is confusing; stays with IDEAS 32.
 
 ## What you want, in short
 
