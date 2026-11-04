@@ -23,7 +23,7 @@ const { chromium } = require("./_compat");
   // New album form: type Whitman 9122
   await p.evaluate(() => go("albums")); await p.waitForTimeout(100); await p.click("[data-act=newAlbum]");
   await p.selectOption("#albumForm [name=brand]", "Whitman"); await p.fill("#albumForm [name=number]", "9122"); await p.waitForTimeout(100);
-  const f = await p.evaluate(() => ({ name: document.querySelector("#albumForm [name=name]").value, types: [...document.querySelectorAll("#albumTypes select")].map((s) => s.value), start: document.querySelector("#albumStart").value, end: document.querySelector("#albumEnd").value, proofs: document.querySelector("#albumForm [name=proofs]").value, hint: document.querySelector("#albumLookupHint").textContent }));
+  const f = await p.evaluate(() => ({ name: document.querySelector("#albumForm [name=name]").placeholder, types: [...document.querySelectorAll("#albumTypes select")].map((s) => s.value), start: document.querySelector("#albumStart").value, end: document.querySelector("#albumEnd").value, proofs: document.querySelector("#albumForm [name=proofs]").value, hint: document.querySelector("#albumLookupHint").textContent }));
   ok("9122 fills name, both types, 1932–1990, S proofs", f.name === "Washington Quarters 1932–1990" && f.types.join() === "washington-silver,washington-clad" && f.start === "1932" && f.end === "1990" && f.proofs === "s");
   console.log(f.hint.replace(/\s+/g, " ").trim());
   await p.click("#albumForm button[type=submit]"); await p.waitForTimeout(200);

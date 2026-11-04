@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 27, Sonnet):** Step 9.3a faster entry fixes, Add album cleanup and a What's new note.
+**Next session starts here (session 28, Sonnet):** Step 9.3b complete profile, Needs info list and inheritances.
 
 ## Session plan (one chat per session, done in order)
 
@@ -38,7 +38,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 24b | Sonnet | Step 9.2 session 24b: seller fixes from review 3 | ✅ merged v0.40.0 (PR #111) |
 | 25 | Sonnet | One-page infographic of the app's best features, for you to show people (not in the app); made as a design you can edit, print or share | ✅ done (Claude Design canvas "Coin Cabinet: Best Features", not in the repo) |
 | 26 | Opus | Plan from your 45-minute use notes (Step 9.3) | ✅ plan PR #112 (+ v0.40.1 hide-values fix) |
-| 27 | Sonnet | Step 9.3a: faster entry fixes + Add album cleanup + What's new | |
+| 27 | Sonnet | Step 9.3a: faster entry fixes + Add album cleanup + What's new | ✅ v0.41.0 (PR open) |
 | 28 | Sonnet | Step 9.3b: complete profile, Needs info list, inheritances | |
 | 29 | Sonnet | Step 9.3c: want lists (one want, many lists; missing from album; album wish list) | |
 | 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | |
@@ -153,12 +153,12 @@ From the three test-user reviews (`reviews/`) and your audit choices (2026-11-03
 Goal: fewer taps when entering, nothing lost, and the app tells you what still needs filling in.
 
 ### 9.3a (session 27, Sonnet): faster entry
-- [ ] **Save button always on screen** on Add/Edit coin (sticks to the bottom), no scrolling up.
-- [ ] **Back goes where you came from:** album → coin → (edit/delete) → back lands on the album, not My Coins. Same for boxes and want lists.
-- [ ] **Add album cleanup:** brand + album number first (exists), then a **searchable coin-type box** (type "fra" → Franklin), then Name, pre-filled in gray from the type/album and only saved as typed if you change it. Count taps before and after; cut any extra step.
-- [ ] **Album "Inherited" switch** on new/edit album (coins added from its spots default to Inherited).
-- [ ] **What's new:** after an update with new features, a small one-time pop-up with 2–4 plain lines (list kept in the code per version; fixes-only updates show nothing). Also in Options › Share and help.
-- [ ] Tests + version (feature).
+- [x] ✅ **Save button always on screen** on Add/Edit coin (sticks to the bottom), no scrolling up.
+- [x] ✅ **Back goes where you came from:** album → coin → (edit/delete) → back lands on the album, not My Coins. Same for boxes and want lists.
+- [x] ✅ **Add album cleanup:** brand + album number first (exists), then a **searchable coin-type box** (type "fra" → Franklin), then Name, pre-filled in gray from the type/album and only saved as typed if you change it. Count taps before and after; cut any extra step.
+- [x] ✅ **Album "Inherited" switch** on new/edit album (coins added from its spots default to Inherited).
+- [x] ✅ **What's new:** after an update with new features, a small one-time pop-up with 2–4 plain lines (list kept in the code per version; fixes-only updates show nothing). Also in Options › Share and help.
+- [x] ✅ Tests + version (feature).
 
 ### 9.3b (session 28, Sonnet): complete profile + inheritances
 - [ ] **Complete = grade + (cost, or inherit date for inherited coins).** Bars/rounds/rolls need cost only. Replaces today's incomplete rule.

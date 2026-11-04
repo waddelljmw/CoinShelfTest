@@ -340,3 +340,8 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 .sheet .sh-upd { color: #6f675d; }
 .sheet .sh-upd.warn { color: #9a6b1f; }
 .optgroup { margin: 18px 2px 4px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted, #8a8178); }
+
+/* Session 27: the Save / Create buttons stay on screen at the bottom of a pop-up form */
+.sheet form > .btn-row:last-child { position: sticky; bottom: -28px; background: var(--bg); padding: 10px 0 12px; margin-bottom: -12px; z-index: 2; border-top: 1px solid #e3dccf; }
+.name-hint { font-size: 12px; color: #8a8174; }
+.inline-check { flex-direction: row; align-items: center; gap: 8px; margin-top: 8px; } .inline-check input { width: auto; }

@@ -360,6 +360,7 @@ function slotHave(el) {
   openCoinForm(null);
   if (t) { draft.typeId = t.id; draft.typeName = shortName(t); draft.family = t.family; draft.denom = t.denom; draft.metal = t.metal; draft.oz = t.oz || ""; }
   draft.year = s0.set ? "" : s0.y; draft.mint = s0.m || ""; draft.albumId = a.id;
+  if (a.inherited) applySourceKind(draft, "Inherited"); // an inherited album: its coins start as Inherited
   if (s0.pf) draft._proof = true;
   applyYearMetal(draft);
   const v = s0.v || "";
