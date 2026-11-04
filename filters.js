@@ -236,11 +236,12 @@ function bulkApply(label, fn) {
 /* ---------- Select > Set purchase info (date, where from, price each) ---------- */
 const pcCanChange = (c) => c.status === "owned" && !isInherited(c);
 function pcSources() { return [...new Set([...SOURCE_DEFAULTS.filter((x) => x !== "Inherited"), ...allCoins().map((c) => (c.source || "").trim()).filter((x) => x && x !== "Inherited" && !SOURCE_DEFAULTS.some((d) => d.toLowerCase() === x.toLowerCase()))])]; }
+const pcSplit = () => (document.querySelector('#sheet input[name="pcMode"]:checked') || {}).value === "split";
 // What price each coin would get, from the sheet's current entries (null = leave prices alone).
 function pcEach(picks) {
   const amt = num(($("#pcAmt") || {}).value);
   if (amt == null) return null;
-  const split = (document.querySelector('#sheet input[name="pcMode"]:checked') || {}).value === "split";
+  const split = pcSplit();
   const qty = sum(picks, qtyOf);
   return split ? (qty ? Math.round((amt / qty) * 100) / 100 : null) : amt;
 }
@@ -248,7 +249,9 @@ function pcPreview() {
   const picks = pickedCoins().filter(pcCanChange), el = $("#pcPreview");
   if (!el) return;
   const each = pcEach(picks);
-  el.innerHTML = `Changes <b>${picks.length}</b> coin${picks.length === 1 ? "" : "s"}${each != null ? ` · <b>${money(each)}</b> each` : ""}`;
+  const qty = sum(picks, qtyOf), split = pcSplit(), amt = num(($("#pcAmt") || {}).value);
+  const left = split && each != null && amt != null ? Math.round((amt - each * qty) * 100) / 100 : 0;
+  el.innerHTML = `Changes <b>${picks.length}</b> coin${picks.length === 1 ? "" : "s"}${qty !== picks.length ? ` (${qty} pieces)` : ""}${each != null ? ` · <b>${money(each)}</b> each` : ""}${split && each != null ? ` = ${money(amt)}` : ""}${left ? `<div class="small muted">${money(Math.abs(left))} ${left > 0 ? "added to" : "taken off"} one coin so it adds up exactly.</div>` : ""}`;
 }
 document.addEventListener("input", (e) => { if (e.target.closest && e.target.closest("[data-pc]")) pcPreview(); });
 document.addEventListener("change", (e) => {
@@ -282,13 +285,17 @@ Object.assign(actions, {
     if (src === "Other" && !other) { toast("Type where you got them, or pick another source."); return; }
     if (!date && !src && !seller && each == null) { toast("Fill in at least one thing to change."); return; }
     if (each != null && each < 0) { toast("The price can't be negative."); return; }
+    // Split a total: rounding to cents can leave a few cents over (3 × $3.33 = $9.99 of $10); one single coin takes them.
+    const amt = num(($("#pcAmt") || {}).value), qty = sum(picks, qtyOf);
+    const left = pcSplit() && each != null && amt != null ? Math.round((amt - each * qty) * 100) / 100 : 0;
+    const fixId = left ? (picks.find((c) => qtyOf(c) === 1) || {}).id : null;
     bulkApply("Purchase info set", (c) => {
       if (c.status !== "owned") return "not in your collection";
       if (isInherited(c)) return "inherited coins keep their own info";
       if (date) c.acquired = date;
       if (src) c.source = src === "Other" ? other : src;
       if (seller) c.seller = seller;
-      if (each != null) c.paid = String(each);
+      if (each != null) c.paid = String(c.id === fixId ? Math.round((each + left) * 100) / 100 : each);
       return "";
     });
     listState.sel = null; render();

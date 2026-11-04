@@ -79,6 +79,7 @@ function whatPicker() {
   <button type="button" class="btn block what-btn" data-act="what" data-v="other"><b>Medal, token or foreign coin</b><small>Anything that isn't a US coin from the Red Book</small></button>`, "sheet-75");
 }
 function renderCoinForm() {
+  if (typeof wordsReset === "function") wordsReset(); // the form redraws often; keep its ⓘ help
   const d = draft;
   const it = itemOf(d);
   const noun = it === "set" ? "set" : it === "roll" ? "roll" : "coin";

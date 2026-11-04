@@ -32,8 +32,9 @@ function welcomeCard() {
 // Each tip sits next to the real field it is about (never on top of it). Tapping a choice moves on by itself;
 // typed fields (year, price) wait for Next so the guide never jumps while you type.
 let guide = null; // { step } while the guide is on
-const SAVE_STEP = 4;
+const SAVE_STEP = 5;
 const GUIDE_STEPS = [
+  { sel: [".what-btn[data-v=us]"], text: "First pick what you\u2019re adding. For a coin like a Morgan dollar or a wheat cent, tap US coin.", done: () => draft && draft._what },
   { sel: ["#typeSearch"], above: true, text: "Type part of the coin's name (like \u201CMorgan\u201D), then tap it in the list.", done: () => draft && draft.typeId },
   { sel: ["[data-f=year]"], text: "Type the year on the coin. Pick the mint mark too if you know it. Then tap Next.", next: true },
   { sel: ["[data-f=grade]"], text: "Tap here and pick the grade (how worn the coin is). Your best guess is fine.", done: () => draft && draft.grade },
@@ -51,13 +52,13 @@ function guideWhere() {
 function guidePlace() { // put the bubble just above or below the highlighted field, so the field stays free to tap
   const b = document.getElementById("guideBubble"), t = document.querySelector(".guide-hl");
   if (!b || !guide) return;
-  if (!t) { b.className = ""; b.style.top = "8px"; return; }
+  if (!t) { b.className = ""; b.style.top = "70px"; return; } // below the top bar, so the menu and ✕ stay free
   const r = t.getBoundingClientRect(), h = b.offsetHeight, vh = window.innerHeight;
   let above = !!GUIDE_STEPS[guide.step].above;
   if (!above && r.bottom + h + 16 > vh - 70) above = true;
-  if (above && r.top - h - 16 < 4) above = false;
+  if (above && r.top - h - 16 < 64) above = false; // never over the top bar or the pop-up's ✕
   b.className = above ? "g-above" : "g-below";
-  b.style.top = Math.max(4, Math.min(vh - h - 4, above ? r.top - h - 12 : r.bottom + 12)) + "px";
+  b.style.top = Math.max(64, Math.min(vh - h - 4, above ? r.top - h - 12 : r.bottom + 12)) + "px";
 }
 function guideBubble() {
   let b = document.getElementById("guideBubble");
@@ -65,7 +66,7 @@ function guideBubble() {
   if (!guide) { if (b) b.remove(); return; }
   const s = GUIDE_STEPS[guide.step], last = guide.step === GUIDE_STEPS.length - 1;
   if (!b) { b = document.createElement("div"); b.id = "guideBubble"; b.setAttribute("role", "status"); document.body.appendChild(b); }
-  b.innerHTML = `<div class="small muted">Step ${guide.step + 1} of ${GUIDE_STEPS.length}</div><div>${esc(typeof s.text === "function" ? s.text() : s.text)}</div>
+  b.innerHTML = `<div class="small muted">Step ${guide.step + 1 - guide.base} of ${GUIDE_STEPS.length - guide.base}</div><div>${esc(typeof s.text === "function" ? s.text() : s.text)}</div>
     <div class="btn-row"><button class="btn" data-act="guideSkip">${last ? "Done" : "Skip guide"}</button>${s.next ? `<button class="btn primary" data-act="guideNext">Next</button>` : ""}</div>`;
   let t = null;
   for (const q of s.sel) { t = document.querySelector(q); if (t) break; }
@@ -78,6 +79,8 @@ function guideBubble() {
 function guideSync() { // follow the person: finished choices move on, saving moves to the coin page, leaving it ends the guide
   if (!guide) return;
   const onCoin = location.hash.startsWith("#coin-");
+  // The guide is for a first coin: it ends if the form is closed before saving, or a bar, roll, set or other item is picked.
+  if (!onCoin && ($("#sheet").hidden || (draft && (draft.item || (draft._what && draft._what !== "us"))))) { guide = null; guideBubble(); return; }
   if (onCoin && guide.step < SAVE_STEP + 1) guide.step = SAVE_STEP + 1;
   else if (!onCoin && guide.step > SAVE_STEP) guide = null;
   else if (!onCoin) { let s = GUIDE_STEPS[guide.step]; while (s && s.done && s.done() && guide.step < SAVE_STEP) s = GUIDE_STEPS[++guide.step]; }
@@ -99,7 +102,7 @@ Object.assign(actions, {
     <p>Want a one-minute walk-through? Small tips appear over the real form. You can skip at any time.</p>
     <div class="btn-row"><button class="btn primary block" data-act="guideStart">Show me how (1 minute)</button><button class="btn block" data-act="guideNoThanks">Skip</button></div>`),
   guideNoThanks: () => { closeSheet(); openCoinForm(null); },
-  guideStart: () => { if (!$("#sheet").hidden) closeSheet(); guide = { step: 0 }; openCoinForm(null); guideBubble(); },
+  guideStart: () => { if (!$("#sheet").hidden) closeSheet(); openCoinForm(null); const chooser = !!document.querySelector(".what-btn"); guide = { step: chooser ? 0 : 1, base: chooser ? 0 : 1 }; guideBubble(); }, // the "What is it?" step only when that chooser shows
   guideNext: () => { if (guide && guide.step < GUIDE_STEPS.length - 1) { guide.step++; guideBubble(); } },
   guideSkip: () => { guide = null; guideBubble(); },
 });

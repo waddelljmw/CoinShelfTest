@@ -23,6 +23,7 @@ window.addEventListener("hashchange", (e) => {
   const nowCoin = location.hash.startsWith("#coin-");
   if (nowCoin && !oldHash.startsWith("coin-")) coinBackTo = oldHash;
   if (!nowCoin) coinBackTo = null;
+  listState.sel = null; // Back leaves the page, so Select ends (same as go())
   render();
   window.scrollTo(0, 0);
 });

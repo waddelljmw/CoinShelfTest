@@ -48,6 +48,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 34 | Sonnet | Step 9.4b: first open, guided first coin, plain-words help (bug #120 fixed first: v0.45.1, PR #124) | ✅ merged v0.46.0 (PR #125) |
 | 35 | Sonnet | Step 9.4c: Simple mode (3 levels) | ✅ merged v0.47.0 |
 | 36 | Opus | Review of 9.4 (9.4a changes many saved coins at once), fix what it finds | |
+| 37 | Sonnet | Fix list (your 2026-11-04 notes: update bar, Suggest an idea, existing coin into album spot, U.S. Mint, level lines) | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
@@ -63,6 +64,12 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 - [x] ✅ done v0.45.0 **Update always jumps to the newest version** (your note 2026-11-04). Tapping Update now could install an older waiting version, then ask again. Register `sw.js` with `updateViaCache: "none"`; on tap, run `reg.update()` and send "update-now" to the newest `reg.waiting` (not the worker saved when the bar first showed); if a newer one arrives while the bar is up, the bar uses that one. Test: two versions published in a row need only one tap.
 - [x] ✅ done v0.45.0 **Mintage line covered by the "Missing" box** on the coin page (screenshot 2026-11-04). Move the mintage line to sit right under the coin name/album/ID, above the Missing box; check the box no longer overlaps anything.
 - [x] ✅ done v0.45.0 **Select all · Clear at the top too** on long pick lists (album "Missing" list in `wants.js`, and the My Coins select bar). Keep the bottom ones as well.
+
+- [ ] **Update bar covers the Save button** (your note 2026-11-04). The "update available" bar sits at the bottom of the screen, over the form's Save/Add button. Move the bar to the top while a form or pop-up is open (or always), so nothing is covered.
+- [ ] **Send an idea, too** (your note 2026-11-04). Report a problem in Options becomes **Report a problem · Suggest an idea**: same pre-filled GitHub page, but the idea one starts with "Idea:" so the start check (which looks only for "Problem:") isn't slowed. Ideas are read when you ask.
+- [ ] **Use a coin I already have for an empty album spot** (your note 2026-11-04). The empty-spot menu has only "Add coin to this spot" (makes a new coin). Add **"Put a coin I already have here"**: lists your owned coins of that type, year and mint that aren't in an album; tap one to place it. (A coin's own edit page already has Holder and Kept in › Album.) Uses the existing album field; no change to how coins are saved.
+- [ ] **The U.S. Mint as a place of purchase** (your note 2026-11-04). Add to the Source list (Paid with fills Card, like eBay).
+- [ ] **Show all three level lines** in Options › How much to show (your note 2026-11-04). Today only the chosen level's line shows; list all three short lines (Everything already says it has selling and Seller Mode).
 
 Claude adds items here when they wait. Session 11 cleared the open ones.
 - ✅ done v0.28.0 **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
