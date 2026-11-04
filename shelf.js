@@ -157,7 +157,7 @@ function shelfTop(t) {
   const shown = SPOT_METALS.filter((m) => !s.hideSpot[m.key] && num(s.spot[m.key]) != null);
   const anyShown = SPOT_METALS.some((m) => !s.hideSpot[m.key]);
   const spot = shown.length
-    ? shown.map((m) => `<span><b>${m.label}</b><i>${money(num(s.spot[m.key]))}</i></span>`).join("")
+    ? shown.map((m) => `<span><b>${m.label}</b><i>${moneyOpen(num(s.spot[m.key]))}</i></span>`).join("")
     : anyShown ? `<span>Tap to enter metal prices</span>` : "";
   return `<div class="sh-plaques">
       <button class="sh-pl big" data-go="value"><span class="k">Collection value</span><span class="v">${money(t.total, "$0.00")}</span></button>
