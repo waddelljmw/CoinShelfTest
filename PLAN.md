@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 22, review 2 of 3, Sonnet):** the **heir** test-user review (IDEAS 13), then the coin-show seller in its own chat. Review 1 (first-time collector) is done: `reviews/01-first-time-collector.md`. Stay on **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. Order after that: rows 23 to 25 in the table.
+**Next session starts here (session 22, review 3 of 3, Sonnet):** the **coin-show seller** test-user review (IDEAS 13), in its own chat. Reviews 1 (first-time collector) and 2 (heir) are done: `reviews/01-first-time-collector.md`, `reviews/02-heir.md`. Stay on **Sonnet**, start a new chat, paste the start prompt from the **Starting a new chat** line below. The test computer has no internet, so live prices never load: start the run by typing a silver price in Options (and note it in the review). Order after that: rows 23 to 25 in the table.
 
 ## Session plan (one chat per session, done in order)
 
@@ -32,7 +32,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 20 | Opus | Plan demo mode (IDEAS 8) | ✅ plan PR (Step 9.1) + automatic GitHub tests |
 | 20b | Sonnet | Split `app.js` into smaller files by area (no change to what you see); check the automatic GitHub test run passes | ✅ merged v0.37.1 (PR #99), automatic GitHub tests pass |
 | 21 | Sonnet | Build demo mode (Step 9.1) | ✅ merged v0.38.0 |
-| 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | 1 of 3 done: first-time collector ✅ (`reviews/01-first-time-collector.md`) |
+| 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | 2 of 3 done: first-time collector ✅ (`reviews/01-first-time-collector.md`), heir ✅ (`reviews/02-heir.md`) |
 | 23 | Opus | Read the reviews, then the feature audit (IDEAS 22); plan the changes | |
 | 24 | Sonnet | Build the audit changes | |
 | 25 | Sonnet | One-page infographic of the app's best features, for you to show people (not in the app); made as a design you can edit, print or share | |
