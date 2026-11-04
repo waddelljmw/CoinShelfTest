@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 28, Sonnet):** Step 9.3b complete profile, Needs info list and inheritances.
+**Next session starts here (session 29, Sonnet):** Step 9.3c want lists (one want, many lists; missing from album; upgrade; album wish list).
 
 ## Session plan (one chat per session, done in order)
 
@@ -39,7 +39,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 25 | Sonnet | One-page infographic of the app's best features, for you to show people (not in the app); made as a design you can edit, print or share | ✅ done (Claude Design canvas "Coin Cabinet: Best Features", not in the repo) |
 | 26 | Opus | Plan from your 45-minute use notes (Step 9.3) | ✅ plan PR #112 (+ v0.40.1 hide-values fix) |
 | 27 | Sonnet | Step 9.3a: faster entry fixes + Add album cleanup + What's new | ✅ merged v0.41.0 (PR #113) |
-| 28 | Sonnet | Step 9.3b: complete profile, Needs info list, inheritances | |
+| 28 | Sonnet | Step 9.3b: complete profile, Needs info list, inheritances | ✅ merged v0.42.0 (PR #114) |
 | 29 | Sonnet | Step 9.3c: want lists (one want, many lists; missing from album; album wish list) | |
 | 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | |
 | 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | |
