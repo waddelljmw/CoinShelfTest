@@ -30,7 +30,7 @@ const shots = process.argv.includes("--shots");
   ok("plaques show value, melt and count", /Collection value/.test(txt) && /Melt value/.test(txt) && !!(await p.$(".sh-pl.big")));
   ok("Home group chips are one swipe row (no wrapping)", await p.evaluate(() => { const c = document.querySelector(".home-chips"); return !c || (getComputedStyle(c).flexWrap === "nowrap" && getComputedStyle(c).overflowX === "auto"); }));
   ok("Home has a Get live prices button", !!(await p.$(".sh-getp")));
-  ok("metal prices on the top shelf", /Silver\s*\$30\.00/.test(await p.textContent(".sh-spot")) && /Prices updated .*2026/.test(await p.textContent(".sh-upd")));
+  ok("metal prices on the top shelf", /Silver\s*\$30\.00/.test(await p.textContent(".sh-spot")) && /Prices updated .*2026|days? old/.test(await p.textContent(".sh-upd")));
   ok("album spine", (await p.$$(".sh-spine")).length === 1);
   ok("stack shows a bar and ounces", !!(await p.$(".sh-bar.b")) && /My Silver Stack/.test(txt));
   ok("my coins stack has silver and gold", !!(await p.$(".sh-coin.ag")) && !!(await p.$(".sh-coin.au")));

@@ -16,10 +16,10 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   ok("Options sections start folded, open when tapped, version stays visible", await ev(() => {
     const closed = viewOptions();
-    actions.optSec({ dataset: { v: "red-book-values" } });
+    actions.optSec({ dataset: { v: "adding-coins" } });
     const open = viewOptions();
-    actions.optSec({ dataset: { v: "red-book-values" } });
-    return !/Red Book edition/.test(closed) && /Red Book edition/.test(open) && /Coin Cabinet version/.test(closed) && /fold-btn/.test(closed);
+    actions.optSec({ dataset: { v: "adding-coins" } });
+    return !/Junk silver goes in/.test(closed) && /Junk silver goes in/.test(open) && /Coin Cabinet version/.test(closed) && /fold-btn/.test(closed);
   }));
 
   ok("Home toggles hide Recently added", await ev(() => {

@@ -23,6 +23,25 @@ function sourceOptions() {
   const known = new Set(SOURCE_DEFAULTS.map((x) => x.toLowerCase()));
   return [...new Set([...SOURCE_DEFAULTS, ...allCoins().map((c) => (c.source || "").trim()).filter((x) => x && !known.has(x.toLowerCase()))])];
 }
+// Picking where a coin came from (the Source list or a chip): sets the source and a matching "Paid with" on a new coin.
+function applySourceKind(d, v) {
+  d._sourceKind = v;
+  d.source = v === "Other" ? "" : v;
+  // Paid with fills itself on a new coin (still editable): online platforms → Card, Coin Show → Cash.
+  const auto = ["eBay", "Whatnot"].includes(v) ? "Card" : v === "Coin Show" ? "Cash" : "";
+  if (d._isNew && auto && (!d.payMethod || d.payMethod === d._payAuto)) { d.payMethod = auto; d._payAuto = auto; }
+}
+// "Where from" chips right after Grade: Inherited first, then the three most used, then More… (opens the full list under Purchase details).
+function sourceChips(d) {
+  const counts = {};
+  allCoins().forEach((c) => { const s = (c.source || "").trim(); if (s && s !== "Inherited") counts[s] = (counts[s] || 0) + 1; });
+  const common = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 3);
+  ["Coin Shop", "Coin Show", "eBay"].forEach((x) => { if (common.length < 3 && !common.includes(x)) common.push(x); });
+  const names = ["Inherited", ...common];
+  const cur = d._sourceKind;
+  if (cur && cur !== "Other" && !names.includes(cur)) names.push(cur); // a chosen source stays visible
+  return `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">More…</button></div></div>`;
+}
 // First render of a coin: figure out whether its saved source is a known choice or custom text.
 function initSourceKind(d) {
   if (d._sourceKind !== undefined) return;
@@ -118,6 +137,7 @@ function renderCoinForm() {
       <div id="varietyBox">${varietyField(d)}</div>
     </fieldset>`}
 
+    ${sourceChips(d)}
     ${purchaseFields(d)}
 
     ${sec("value", "Quantity, value and metal", `${typeof manyField === "function" ? manyField(d) : ""}<div class="grid2">

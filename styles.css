@@ -332,3 +332,11 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 /* Session 17: tiny corner mark on a coin missing its grade or cost */
 .coin-row { position: relative; }
 .inc-mark { position: absolute; top: 6px; left: 6px; width: 9px; height: 9px; border-radius: 50%; background: #e08a00; border: 1.5px solid var(--bg, #fff); }
+.sh-upd.warn { opacity: 1; color: #e8b04a; font-size: 11px; }
+.lowtot { margin: 6px 0; padding: 6px 10px; border-radius: 8px; background: #fff3d6; color: #6b4a00; font-size: 12px; text-align: center; }
+.lowtot .link-btn { font-size: 12px; }
+.sheet .sh-updrow { justify-content: flex-start; }
+.sheet .sh-getp { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid #c9bda8; background: #fff; cursor: pointer; }
+.sheet .sh-upd { color: #6f675d; }
+.sheet .sh-upd.warn { color: #9a6b1f; }
+.optgroup { margin: 18px 2px 4px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted, #8a8178); }
