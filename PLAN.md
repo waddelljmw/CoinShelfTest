@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 23, Opus):** read the three reviews in `reviews/`, then the feature audit (IDEAS 22) and plan the changes (rows 23 to 25). **First, a Sonnet fix:** the coin ID changes on first reopen (review 3, finding 1); it is on the Fix list below, do it before the audit.
+**Next session starts here (session 23, Opus):** read the three reviews in `reviews/`, then the feature audit (IDEAS 22) and plan the changes (rows 23 to 25).
 
 ## Session plan (one chat per session, done in order)
 
@@ -45,7 +45,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 - Start a new chat for each session. Long chats cost more per message.
 
 ## Fix list (small changes waiting for a session)
-- [ ] **Coin ID changes on first reopen** (review 3, finding 1; Sonnet). New coin shows MD-001, after one reload it is MD-002 and 001 is used up. `ensureIds()` in `ids.js` adds the ID in memory but the saved record lacks it (likely overwritten by the form save). Fix so the ID is saved with the coin, add a test (save coin, reload, same ID), and check old coins.
+- [x] ✅ done v0.38.3 **Coin ID changes on first reopen** (review 3, finding 1; Sonnet). New coin shows MD-001, after one reload it is MD-002 and 001 is used up. `ensureIds()` in `ids.js` adds the ID in memory but the saved record lacks it (likely overwritten by the form save). Fix so the ID is saved with the coin, add a test (save coin, reload, same ID), and check old coins.
 
 Claude adds items here when they wait. Session 11 cleared the open ones.
 - ✅ done v0.28.0 **Session 4:** a **"hide values"** eye button on Home (and the coin pages) that hides every dollar amount until tapped again, for showing the app at a coin show.
