@@ -192,6 +192,28 @@ const hiddenStacks = () => settings().hiddenStacks || [];
 // A stacked item counts only when its group chip AND its stack chip are on.
 const countedCoins = () => ownedCoins().filter((c) => !c.biz && !hiddenGroups().includes(groupOf(c)) && !hiddenStacks().includes(stackOf(c)));
 const isInherited = (c) => (c.source || "").trim().toLowerCase() === "inherited";
+// Inheritances (made in Options): { id, from, date, earlier: [{ who, when }], valueWhen }. A coin points to one with inhId; the first is the default (settings.inhDefault).
+const inheritances = () => (Array.isArray(settings().inheritances) ? settings().inheritances : []);
+const inheritanceOf = (c) => (c.inhId ? inheritances().find((x) => x.id === c.inhId) || null : null);
+const inhLabel = (i) => (i ? [i.from, i.date].filter(Boolean).join(", ") : "");
+const inhDefaultId = () => { const l = inheritances(), d = settings().inhDefault; return l.some((x) => x.id === d) ? d : l.length ? l[0].id : ""; };
+const inhValueOf = (c) => { const i = inheritanceOf(c); return num(c.inhValue) ?? (i ? num(i.valueWhen) : null); }; // value when inherited, each: the coin's own, else its inheritance's
+// What an owned coin still needs: a grade (coins only) and what you paid, or for inherited coins the date you inherited it (an inheritance with a date, or "Acquired").
+function missingOf(c) {
+  if (!c || c.status !== "owned") return [];
+  const m = [];
+  if (itemOf(c) === "coin" && !c.grade) m.push("grade");
+  if (isInherited(c)) { const i = inheritanceOf(c); if (!(i && String(i.date || "").trim()) && !String(c.acquired || "").trim()) m.push("inherit date"); }
+  else if (costOf(c) == null) m.push("cost");
+  return m;
+}
+const needInfoCoins = () => ownedCoins().filter((c) => !c.biz && missingOf(c).length);
+const NEED_NOTE = "Some coins are missing a grade, a cost or the date inherited, so totals are estimates.";
+// The amber line under the Home totals; opens My Coins filtered to coins that need info.
+function needInfoLine() {
+  const n = needInfoCoins().length;
+  return n ? `<button class="need-line" data-act="needInfo">${n} coin${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} info, totals may be off \u203A</button>` : "";
+}
 const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
 /* --- Status, purchase, errors and problems (Step 2.2) --- */

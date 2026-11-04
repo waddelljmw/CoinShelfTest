@@ -161,15 +161,15 @@ Goal: fewer taps when entering, nothing lost, and the app tells you what still n
 - [x] ✅ Tests + version (feature).
 
 ### 9.3b (session 28, Sonnet): complete profile + inheritances
-- [ ] **Complete = grade + (cost, or inherit date for inherited coins).** Bars/rounds/rolls need cost only. Replaces today's incomplete rule.
-- [ ] **Needs info list, hard to miss:** an amber line right under the Home totals, "12 coins need info, totals may be off ›", opening My Coins filtered to incomplete; each row says what's missing; a coin drops off once filled. Goes away when all are complete.
-- [ ] **Totals marked:** while any coin needs info, Collection value and the Insurance Report show "estimate*" with the same note.
-- [ ] **Coin page banner:** an incomplete coin shows "Missing: grade" (etc.) at the top with a Fill in button; the row mark in My Coins and album spots gets bigger and amber.
-- [ ] **Inheritances:** Options holds a list; one is the default (from whom, date, e.g. "Mother-in-law, 2023"). Choosing Source = Inherited fills the default; a picker switches to another; "+ New inheritance" for exceptions. **Earlier owners:** each inheritance can list who had it before and when (e.g. her grandmother, 1974), shown on the coin page as its history.
-- [ ] **Value when inherited** (optional, per coin or per inheritance) for tax records. Inherited coins stay locked from selling.
-- [ ] **Mark many as inherited:** Select › "Mark inherited" (pick the inheritance). Fixes the coins you missed.
-- [ ] **Original to album:** a check on coins in an inherited album; coins added later aren't original. Shown on the album spot.
-- [ ] Old coins: Inherited with no inheritance shows "Inherited (who/when not set)"; nothing rewritten until you edit. Tests + version.
+- [x] ✅ **Complete = grade + (cost, or inherit date for inherited coins).** Bars/rounds/rolls need cost only. Replaces today's incomplete rule.
+- [x] ✅ **Needs info list, hard to miss:** an amber line right under the Home totals, "12 coins need info, totals may be off ›", opening My Coins filtered to incomplete; each row says what's missing; a coin drops off once filled. Goes away when all are complete.
+- [x] ✅ **Totals marked:** while any coin needs info, Collection value and the Insurance Report show "estimate*" with the same note.
+- [x] ✅ **Coin page banner:** an incomplete coin shows "Missing: grade" (etc.) at the top with a Fill in button; the row mark in My Coins and album spots gets bigger and amber.
+- [x] ✅ **Inheritances:** Options holds a list; one is the default (from whom, date, e.g. "Mother-in-law, 2023"). Choosing Source = Inherited fills the default; a picker switches to another; "+ New inheritance" for exceptions. **Earlier owners:** each inheritance can list who had it before and when (e.g. her grandmother, 1974), shown on the coin page as its history.
+- [x] ✅ **Value when inherited** (optional, per coin or per inheritance) for tax records. Inherited coins stay locked from selling.
+- [x] ✅ **Mark many as inherited:** Select › "Mark inherited" (pick the inheritance). Fixes the coins you missed.
+- [x] ✅ **Original to album:** a check on coins in an inherited album; coins added later aren't original. Shown on the album spot.
+- [x] ✅ Old coins: Inherited with no inheritance shows "Inherited (who/when not set)"; nothing rewritten until you edit. Tests + version.
 
 ### 9.3c (session 29, Sonnet): want lists
 - [ ] **One want, many lists:** a want can belong to several lists/albums, each with its own grade ("any grade" or "upgrade above MS-63"). A small **"wanted ×2"** tag on album spots, the want list and the coin page; tap shows which albums.

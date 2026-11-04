@@ -237,7 +237,7 @@ function viewAlbum(r) {
       const onList = spotFindWant(a, s);
       const tag = onList ? `<span class="g" style="color:var(--accent)">★ wanted</span>` : "";
       return hit
-        ? `<button class="slot have" data-act="slotMenu" ${data} data-coin="${esc(hit.id)}">${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${tag}</button>`
+        ? `<button class="slot have" data-act="slotMenu" ${data} data-coin="${esc(hit.id)}">${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${hit.origAlbum ? `<span class="g" style="color:var(--accent)">original</span>` : ""}${tag}</button>`
         : `<button class="slot" data-act="slotMenu" ${data}>${esc(lab)}${vLine}${tag || `<span class="g">open</span>`}</button>`;
     }).join("")}</div>
     ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => coinRow(c)).join("")}</div>` : ""}

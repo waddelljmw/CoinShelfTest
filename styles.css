@@ -345,3 +345,10 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 .sheet form > .btn-row:last-child { position: sticky; bottom: -28px; background: var(--bg); padding: 10px 0 12px; margin-bottom: -12px; z-index: 2; border-top: 1px solid #e3dccf; }
 .name-hint { font-size: 12px; color: #8a8174; }
 .inline-check { flex-direction: row; align-items: center; gap: 8px; margin-top: 8px; } .inline-check input { width: auto; }
+
+/* Step 9.3b: coins that need info */
+.inc-mark { width: 14px !important; height: 14px !important; background: #f59e0b !important; top: 5px !important; left: 5px !important; }
+.need-line { display: block; width: 100%; margin: 8px 0; padding: 10px 12px; text-align: left; font: inherit; font-weight: 600; color: #7a4300; background: #fff1d6; border: 1.5px solid #f59e0b; border-radius: 10px; cursor: pointer; }
+.miss-tag { display: inline-block; margin-left: 6px; padding: 0 6px; font-size: 11px; font-weight: 600; color: #7a4300; background: #fff1d6; border: 1px solid #f59e0b; border-radius: 6px; }
+.miss-banner { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #fff1d6; border: 1.5px solid #f59e0b; color: #7a4300; }
+.inh-box { margin-top: 8px; padding: 8px 10px; border: 1px solid var(--line, #ddd); border-radius: 10px; }

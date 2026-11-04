@@ -92,7 +92,7 @@ function redBookHtml() {
 const OPT_GROUPS = [
   ["Prices and values", ["spot-prices", "selling", "photo-fill"]],
   ["Look of Home", ["shelf-style", "home-shelf", "show-on-home"]],
-  ["Adding coins", ["adding-coins"]],
+  ["Adding coins", ["adding-coins", "inheritances"]],
   ["Your data", ["spreadsheet", "backup-and-restore", "share-a-snapshot", "insurance-report", "recently-deleted"]],
   ["Share and help", ["share-coin-cabinet", "try-the-demo", "whats-new", "report-a-problem"]],
   ["Seller Mode", ["seller-mode"]],
@@ -146,6 +146,7 @@ function optionsHtml() {
       <label class="switch"><span>Recently added</span><input type="checkbox" data-act="homeTog" data-v="showAdded" ${s.showAdded !== false ? "checked" : ""}></label>
       <label class="switch"><span>Recently sold</span><input type="checkbox" data-act="homeTog" data-v="showSoldList" ${s.showSoldList !== false ? "checked" : ""}></label>
     </div>
+    ${typeof inhOptionsHtml === "function" ? inhOptionsHtml() : ""}
     <h2>Adding coins</h2>
     <div class="card">
       <label class="switch"><span>Junk silver goes in My Silver Stack<div class="small muted">For new junk silver coins. Coins you already saved don't change.</div></span><input type="checkbox" data-act="homeTog" data-v="junkStack" ${s.junkStack !== false ? "checked" : ""}></label>
