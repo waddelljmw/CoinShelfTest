@@ -44,7 +44,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | ✅ merged v0.44.0 (PR #117) |
 | 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | ✅ reviewed, 5 fixes + delete confirm, merged v0.44.1 (PR #118) |
 | 32 | Opus | Plan new-user help: plain words, walkthrough, Simple mode | ✅ plan PR (Step 9.4) + automatic version check |
-| 33 | Sonnet | Fix list + Step 9.4a: change many coins at once | ✅ PR open v0.45.0 |
+| 33 | Sonnet | Fix list + Step 9.4a: change many coins at once | ✅ merged v0.45.0 (PR #122) |
 | 34 | Sonnet | Step 9.4b: first open, guided first coin, plain-words help | |
 | 35 | Sonnet | Step 9.4c: Simple mode (3 levels) | |
 | 36 | Opus | Review of 9.4 (9.4a changes many saved coins at once), fix what it finds | |
@@ -59,6 +59,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 ## Fix list (small changes waiting for a session)
 - [x] ✅ done v0.38.3 **Coin ID changes on first reopen** (review 3, finding 1; Sonnet). New coin shows MD-001, after one reload it is MD-002 and 001 is used up. `ensureIds()` in `ids.js` adds the ID in memory but the saved record lacks it (likely overwritten by the form save). Fix so the ID is saved with the coin, add a test (save coin, reload, same ID), and check old coins.
 
+- [x] ✅ done v0.45.1 **Selling part of a group (bug #120)** (session 34). The Mark as sold form already splits a group (`n` field), but it started at the full count, so it was easy to miss. The count now starts blank and is required, with **Just 1** / **All N** buttons. No change to how sold coins are saved. Test `tests/sellcount.js`.
 - [x] ✅ done v0.45.0 **Update always jumps to the newest version** (your note 2026-11-04). Tapping Update now could install an older waiting version, then ask again. Register `sw.js` with `updateViaCache: "none"`; on tap, run `reg.update()` and send "update-now" to the newest `reg.waiting` (not the worker saved when the bar first showed); if a newer one arrives while the bar is up, the bar uses that one. Test: two versions published in a row need only one tap.
 - [x] ✅ done v0.45.0 **Mintage line covered by the "Missing" box** on the coin page (screenshot 2026-11-04). Move the mintage line to sit right under the coin name/album/ID, above the Missing box; check the box no longer overlaps anything.
 - [x] ✅ done v0.45.0 **Select all · Clear at the top too** on long pick lists (album "Missing" list in `wants.js`, and the My Coins select bar). Keep the bottom ones as well.

@@ -23,6 +23,7 @@ const actions = {
   edit: (el) => openCoinForm(el.dataset.id),
   sell: (el) => openSell(el.dataset.id),
   editSale: (el) => openSell(el.dataset.id, true),
+  sellCount: (el) => { const f = el.closest("form"); if (f && f.elements.n) { f.elements.n.value = el.dataset.n; sellRecalc(f); } }, // quick 1 / All buttons on Mark as sold
   editId: (el) => openEditId(el.dataset.id),
   feeReset: () => { saveSettings({ feeRates: {} }); toast("Usual fee rates are back."); },
   unsell: (el) => {

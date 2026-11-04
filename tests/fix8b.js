@@ -9,7 +9,7 @@ const { chromium } = require("./_compat");
   const sell = async (n) => { await p.click("[data-act=sell]"); if (n) await p.fill("#sellForm [name=n]", String(n)); await p.fill("#sellForm [name=amount]", "50"); await p.click("#sellForm button[type=submit]"); await p.waitForTimeout(150); };
   await sell(3);
   await p.evaluate(() => go("coin-lotA")); await p.waitForTimeout(150);
-  await sell(); // the other 7
+  await sell(7); // the other 7 (the count is now required)
   ok("all 10 sold in 2 pieces", (await p.evaluate(() => soldCoins().map((c) => c.qty).sort().join())) === "3,7");
   // move back the 3, then the 7
   const s3 = await p.evaluate(() => soldCoins().find((c) => c.qty === 3).id);
@@ -20,7 +20,7 @@ const { chromium } = require("./_compat");
   ok("no sold left", (await p.evaluate(() => soldCoins().length)) === 0);
   // undo after moving back restores the sale
   await p.evaluate(() => { const c = ownedCoins()[0]; go("coin-" + c.id); }); await p.waitForTimeout(150);
-  await sell();
+  await sell(10);
   await p.evaluate(() => go("coin-" + soldCoins()[0].id)); await p.waitForTimeout(150);
   await p.click("[data-act=unsell]"); await p.waitForTimeout(150);
   await p.click("#toast button"); await p.waitForTimeout(150);
