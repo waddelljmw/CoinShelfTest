@@ -21,25 +21,25 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("melt + 10% for the whole lot", s.q.melt === Math.round(s.me * 2 * 110) / 100);
   ok("a coin with neither gets no suggestion", await ev(() => { const q = suggestAsk(getCoin("n")); return q.book == null && q.melt == null; }));
   await ev(() => go("coin-f")); await p.waitForTimeout(150);
-  ok("coin page shows both buttons", await p.locator('[data-act=askUse]').count() === 2);
+  ok("coin page shows three buttons", await p.locator('[data-act=askUse]').count() === 3);
   await p.locator('[data-act=askUse][data-pick=melt]').click(); await p.waitForTimeout(150);
   ok("tapping one saves it as the asking price", await ev(() => num(getCoin("f").ask) === suggestAsk(getCoin("f")).melt));
   // percentages changeable
   await ev(() => saveSettings({ pricing: { bookPct: 80, meltPct: 25 } }, true));
   ok("changed percentages are used", await ev(() => { const q = suggestAsk(getCoin("f")), bp = bookPrice(getCoin("f")), me = meltEach(getCoin("f")); return q.book === Math.round(bp * 2 * 80) / 100 && q.melt === Math.round(me * 2 * 125) / 100; }));
   await ev(() => actions.priceReset());
-  ok("reset puts back 90 and 10", await ev(() => pricingRates().bookPct === 90 && pricingRates().meltPct === 10));
+  ok("reset puts back 90 and 10", await ev(() => pricingRates().bookPct === 90 && pricingRates().meltPct === 10 && pricingRates().costPct === 10));
   // form
   await ev(() => go("options")); await p.waitForTimeout(150);
   ok("Options has the asking price rules", await p.locator("[data-price=bookPct]").count() === 1);
   await ev(() => { openCoinForm("f"); }); await p.waitForTimeout(150);
-  ok("coin form offers the suggestions", await p.locator("#coinForm [data-act=askUse]").count() === 2);
+  ok("coin form offers the suggestions", await p.locator("#coinForm [data-act=askUse]").count() === 3);
   await p.locator("#coinForm [data-act=askUse][data-pick=book]").click();
   ok("tapping fills the form's asking price", await ev(() => num(document.querySelector("[data-f=ask]").value) === suggestAsk(getCoin("f")).book && num(draft.ask) === suggestAsk(getCoin("f")).book));
   await ev(() => go("home"));
   // dealer case rows
   await ev(() => { put("b_dc", { kind: "box", id: "dc", name: "Show case", type: "dealer", look: "wood", spots: false, rows: 0, perRow: 0, createdAt: 2 }, true); put("c_f", { ...getCoin("f"), boxId: "dc", ask: "" }, true); go("box-dc"); }); await p.waitForTimeout(150);
-  ok("dealer case row offers the suggestions", await p.locator("#view [data-act=askUse]").count() === 2);
+  ok("dealer case row offers the suggestions", await p.locator("#view [data-act=askUse]").count() === 3);
 
   // ---- reports ----
   await ev(() => {
