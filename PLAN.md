@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 35, Sonnet):** Step 9.4c Simple mode (3 levels). (9.4b merged v0.46.0, PR #125; Fix list empty. Bug #123 waits for an Opus planning session.)
+**Next session starts here (session 35, Sonnet):** Step 9.4c Simple mode (3 levels). (9.4b merged v0.46.0 PR #125, guide fix v0.46.1 PR #126; Fix list empty. Bug #123 waits for an Opus planning session.)
 
 ## Session plan (one chat per session, done in order)
 
