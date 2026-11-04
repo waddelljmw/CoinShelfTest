@@ -5,6 +5,7 @@ const { chromium } = require("playwright");
 const launch = chromium.launch.bind(chromium);
 const script = () => {
   const go = () => {
+    if (document.querySelector("#ppInput")) { const l = document.querySelector(".sheet .btn[data-act=closeSheet]"); if (l) l.click(); } // the metal price pop-up (session 24) would block older tests
     document.querySelectorAll(".what-btn[data-v=us]").forEach((b) => b.click());
     document.querySelectorAll("[data-act=optSec][aria-expanded=false]").forEach((b) => b.click()); // Options sections start folded since session 17
     document.querySelectorAll("#coinForm details[data-sec]:not([open])").forEach((d) => { d.open = true; });

@@ -20,6 +20,14 @@ function meltEach(c) {
   const p = spotPerOz(m);
   return p == null ? null : oz * p;
 }
+// Metals that owned coins need a price for but have none yet (so melt and totals come out low).
+function metalsMissingPrice() {
+  const keys = new Set();
+  ownedCoins().forEach((c) => { const k = meltKey(c); if (k && ozEach(c) && spotPerOz(k) == null) keys.add(k); });
+  return SPOT_METALS.filter((m) => keys.has(m.key));
+}
+// "silver" or "silver and gold" for the warning texts.
+const metalWords = (list) => list.map((m) => m.label.toLowerCase()).join(" and ");
 const isJunk = (c) => c.gradeMode === "raw" && c.grade === "Junk";
 /* ---------- Red Book values ---------- */
 const hasSms = (c) => { const s = PRICE_BOOK.series[c.typeId]; return !!(s && s.sms && c.year && s.sms.rows[String(c.year)]); };
@@ -116,6 +124,13 @@ function mintageLine(c) {
   if (!m) return "";
   return `<div class="small muted" style="margin:-10px 0 12px">Mintage ${esc(m.text)}${m.proof ? " proofs" : m.sms ? " SMS sets" : ""}${m.shared ? " (all varieties of this date)" : ""}</div>`;
 }
+// Plain note for the coin page when the Red Book gives no value (instead of quietly showing face value).
+function noBookNote(c) {
+  if (itemOf(c) !== "coin" || isJunk(c) || hasProblems(c) || num(c.value) != null) return "";
+  if (!c.grade || c.grade === "Other") return "Add a grade to get a Red Book value.";
+  const b = bookLookup(c);
+  return b && b.price != null ? "" : "No Red Book value for this date and grade.";
+}
 const bookPrice = (c) => { const b = bookLookup(c); return b && b.price != null ? b.price : null; };
 function bookText(b) {
   if (!b) return "";
@@ -171,6 +186,8 @@ const bullionOz = (c) => { const w = num(c.bWeight), p = num(c.bPurity); return 
 const stackOf = (c) => { const s = String(c.stack || "").trim(); return itemOf(c) === "bullion" ? s || "My " + (c.metal || "Silver") + " Stack" : s; };
 const stacksPresent = () => [...new Set(ownedCoins().map(stackOf).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 const stackNames = () => [...new Set(["My Silver Stack", ...allCoins().map(stackOf).filter(Boolean)])];
+// A bar, round, roll or junk-silver stack coin exists (the My Stacks menu item shows only then; the page address still works).
+const hasStackItem = () => ownedCoins().some((c) => itemOf(c) === "bullion" || itemOf(c) === "roll" || !!stackOf(c));
 const hiddenStacks = () => settings().hiddenStacks || [];
 // A stacked item counts only when its group chip AND its stack chip are on.
 const countedCoins = () => ownedCoins().filter((c) => !c.biz && !hiddenGroups().includes(groupOf(c)) && !hiddenStacks().includes(stackOf(c)));

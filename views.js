@@ -173,7 +173,7 @@ function soldCard() {
 
 function viewValue() {
   const owned = ownedCoins();
-  if (!owned.length) return `<h1>Coin Value</h1><div class="card empty">Add coins to see what they're worth.</div>`;
+  if (!owned.length) return `<h1>Coin Value</h1><div class="card empty">Add coins to see what they're worth.</div>` + redBookHtml();
   const byFam = {};
   owned.forEach((c) => {
     const f = familyOf(c);
@@ -191,7 +191,8 @@ function viewValue() {
     <h2>Most valuable</h2>
     <div class="list">${top.map((c) => coinRow(c) + `<div class="small" style="text-align:right;margin:-4px 4px 6px"><a href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">eBay sold ↗</a></div>`).join("")}</div>
     ${premium.length ? `<h2>Highest premium over melt</h2><div class="card">${premium.map(({ c, p }) => `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="num ${signCls(p)}">${pct(p)} · <a href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">eBay ↗</a></span></div>`).join("")}</div>` : ""}
-    <p class="small muted">Values are the ones you enter, then Red Book values, then melt. Use <b>Check eBay sold</b> on any coin to see recent real sale prices.</p>`;
+    <p class="small muted">Values are the ones you enter, then Red Book values, then melt. Use <b>Check eBay sold</b> on any coin to see recent real sale prices.</p>
+    ${redBookHtml()}`;
 }
 
 /* --- Your Coins --- */
@@ -340,7 +341,8 @@ function viewCoin(r) {
       ${row("COA", c.coa ? "Included" : null)}
       ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
-      ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, Red Book)" : "Value each (Red Book)") : valueSource(c) === "face" ? "Value each (face value)" : "Value" + eachWord(c), money(v))}
+      ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, Red Book)" : "Value each (Red Book)") : valueSource(c) === "face" ? (meltKey(c) && num(c.oz) && spotPerOz(meltKey(c)) == null ? "Value each (face value, no " + meltKey(c) + " price yet)" : "Value each (face value)") : "Value" + eachWord(c), money(v))}
+      ${noBookNote(c) ? `<div class="small muted" style="margin:2px 0 6px">${esc(noBookNote(c))}</div>` : ""}
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row("Red Book", money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
       ${row("Melt" + eachWord(c), m == null ? (meltKey(c) ? "Enter spot price" : null) : moneyOpen(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
@@ -358,6 +360,7 @@ function viewCoin(r) {
     ${typeof askCard === "function" ? askCard(c) : ""}
     ${certUrl(c) ? `<a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-bottom:8px" href="${esc(certUrl(c))}" target="_blank" rel="noopener">Verify cert on ${esc(c.service)} ↗</a>` : ""}
     <a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>
+    ${c.status === "owned" && itemOf(c) === "coin" ? `<button class="btn block" style="margin-bottom:8px" data-act="addAnother" data-id="${esc(c.id)}">+ Add another${c.typeId ? " " + esc(shortName(TYPE_BY_ID[c.typeId] || { name: c.typeName })) : ""}</button>` : ""}
     <div class="btn-row">
       <button class="btn primary" data-act="edit" data-id="${esc(c.id)}">Edit</button>
       ${c.status === "owned" ? `${isInherited(c) ? "" : stageOf(c) === "forsale" ? `<button class="btn" data-act="notForSale" data-id="${esc(c.id)}">Take off For sale</button>` : `<button class="btn" data-act="forSale" data-id="${esc(c.id)}">For sale</button>`}<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>${typeof bizButton === "function" ? bizButton(c) : ""}` : c.status === "gone" ? `<button class="btn" data-act="ungone" data-id="${esc(c.id)}">Move back to collection</button>` : `<button class="btn" data-act="editSale" data-id="${esc(c.id)}">Edit sale</button><button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}

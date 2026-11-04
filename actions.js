@@ -186,6 +186,11 @@ const actions = {
     delete draft._sourceKind;
     renderCoinForm();
   },
+  addAnother: (el) => { // a fresh Add coin form with the same coin type picked
+    const c = getCoin(el.dataset.id);
+    openCoinForm(null);
+    if (c && c.typeId && TYPE_BY_ID[c.typeId]) pickType(c.typeId);
+  },
   retype: () => retypeDraft(),
   toggleProof: (el) => {
     if (!draft) return;
@@ -209,7 +214,22 @@ const actions = {
     window.open("https://github.com/waddelljmw/CoinShelfTest/issues/new?title=" + encodeURIComponent("Problem: ") + "&body=" + encodeURIComponent(body), "_blank", "noopener");
   },
   spotAsk: (el) => { draft._spotAsk = el.dataset.v; const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; },
+  srcChip: (el) => {
+    const v = el.dataset.v, y = $(".sheet").scrollTop;
+    if (v === "__more") (draft._open = draft._open || {}).purchase = true;
+    else if (draft._sourceKind === v) { draft._sourceKind = ""; draft.source = ""; } // tap again to clear
+    else applySourceKind(draft, v);
+    renderCoinForm(); $(".sheet").scrollTop = y;
+  },
   fetchSpot: () => fetchSpotPrices(false),
+  typeInPrices: () => { closeSheet(); saveSettings({ optOpen: { ...(settings().optOpen || {}), "spot-prices": true } }); go("options"); },
+  ppFetch: async (el) => { await fetchSpotPrices(false); if (spotPerOz(el.dataset.v) != null) { closeSheet(); render(); } },
+  ppSave: (el) => {
+    const v = num(($("#ppInput") || {}).value);
+    if (v == null || v <= 0) { toast("Type the price, like 32.10."); return; }
+    saveSettings({ spot: { ...settings().spot, [el.dataset.v]: v }, spotUpdated: new Date().toISOString() });
+    closeSheet(); toast("Price saved."); render();
+  },
   tryDemo: () => { location.href = location.pathname + "?demo"; }, // opens fresh, so the real saved coins are never touched
   exitDemo: () => { location.href = location.pathname; },
   demoFill: () => demoFillRun(),
@@ -323,10 +343,7 @@ document.addEventListener("change", (e) => {
     draft[el.dataset.f] = el.value;
     if (el.dataset.f === "metal" && !MELT_OF_METAL[el.value]) draft.oz = "";
     if (el.dataset.f === "_sourceKind") {
-      draft.source = el.value === "Other" ? "" : el.value;
-      // Paid with fills itself on a new coin (still editable): online platforms → Card, Coin Show → Cash.
-      const auto = ["eBay", "Whatnot"].includes(el.value) ? "Card" : el.value === "Coin Show" ? "Cash" : "";
-      if (draft._isNew && auto && (!draft.payMethod || draft.payMethod === draft._payAuto)) { draft.payMethod = auto; draft._payAuto = auto; }
+      applySourceKind(draft, el.value);
     }
     if (el.dataset.f === "albumId" && draft._isNew && !draft.typeId) { const al = getAlbum(el.value); if (al && albumTypes(al).length === 1) { pickType(albumTypes(al)[0]); return; } }
     if (el.dataset.f === "setKind") autoSetOz(draft);

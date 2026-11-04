@@ -125,6 +125,7 @@ async function saveDraft() {
   if (isNew && d._stay) { toast("Added to " + (getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "the album") + "."); if (wantAsk) askWantRemove(c); return; } // stay on the album
   toast(isNew ? "Coin added." : "Saved.");
   if (isNew) go("coin-" + c.id);
+  if (isNew) askMetalPrice(c);
   if (wantAsk) askWantRemove(c);
 }
 

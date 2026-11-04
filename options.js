@@ -12,6 +12,7 @@ function viewGuide() {
 /* --- Options --- */
 // Live metal prices from a free source (gold-api.com, no account). Asked for each metal; any it can't give stay as typed.
 const SPOT_SYMBOLS = { gold: "XAU", silver: "XAG", platinum: "XPT", copper: "HG" };
+let spotFailed = false; // the last automatic or button fetch got nothing (shown on Home; not saved)
 async function fetchSpotPrices(auto) {
   if (store.mode === "snapshot" || store.mode === "memory" || store.mode === "demo") return;
   if (auto && (navigator.onLine === false || !/^https?:/.test(location.protocol))) return; // not when opened as a plain file
@@ -27,6 +28,7 @@ async function fetchSpotPrices(auto) {
     } catch (e) { /* offline or blocked: keep the old price */ }
   }));
   const n = Object.keys(got).length;
+  spotFailed = n === 0;
   if (n) {
     const stamp = new Date().toISOString();
     saveSettings({ spot: { ...settings().spot, ...got }, spotUpdated: stamp }, true);
@@ -35,22 +37,87 @@ async function fetchSpotPrices(auto) {
     if (!draft && typeof render === "function" && !$(".sheet")) render();
   }
   if (btn) { btn.disabled = false; btn.textContent = "Get live prices"; }
+  if (!n && typeof render === "function" && !draft && !$(".sheet")) render(); // show the "couldn't get prices" line
   if (!auto) toast(n === SPOT_METALS.length ? "Prices updated." : n ? "Some prices updated. The rest stay as you typed them." : "Couldn't get prices. Check your connection, or type them in.");
 }
+// One line on Home (and in the Insurance Report pop-up) saying how fresh the metal prices are.
+// Three states: fresh, old (over a day), and failed or none. The warning below it appears whenever a metal has no price.
+function priceStatusLine(inSheet) {
+  if (store.mode === "snapshot") return "";
+  const s = settings(), typeIn = inSheet ? `data-act="typeInPrices"` : `data-go="options" data-open="spot-prices"`;
+  const anyPrice = SPOT_METALS.some((m) => num(s.spot[m.key]) != null);
+  const age = s.spotUpdated ? Date.now() - new Date(s.spotUpdated).getTime() : NaN;
+  const days = Math.floor(age / 86400000);
+  const btn = (label, extra) => `<button class="sh-getp" ${extra}>${label}</button>`;
+  let line;
+  if (!anyPrice || spotFailed && !(age < 3600000)) {
+    line = `<span class="sh-upd warn">Couldn't get live prices (no internet?)</span>${btn("Type them in", typeIn)}${btn("Try again", 'id="spotFetch" data-act="fetchSpot"')}`;
+  } else if (days >= 1) {
+    line = `<span class="sh-upd warn">Prices are ${days} day${days > 1 ? "s" : ""} old</span>${btn("Refresh", 'id="spotFetch" data-act="fetchSpot"')}`;
+  } else {
+    line = `<span class="sh-upd">${s.spotUpdated ? "Prices updated " + esc(stampText(s.spotUpdated)) : "Prices"}</span>${btn("↻ Refresh", 'id="spotFetch" data-act="fetchSpot" aria-label="Refresh prices"')}`;
+  }
+  return `<div class="sh-updrow">${line}</div>`;
+}
+// "Totals are low" note when an owned coin's metal has no price. Also used in the report pop-up.
+function lowTotalNote(inSheet) {
+  const miss = metalsMissingPrice();
+  if (!miss.length || store.mode === "snapshot") return "";
+  return `<div class="lowtot">Totals are low: add a ${esc(metalWords(miss))} price. <button class="link-btn" ${inSheet ? 'data-act="typeInPrices"' : 'data-go="options" data-open="spot-prices"'}>Type it in</button></div>`;
+}
+// When the first coin of a metal is saved and that metal has no price: ask once. Works offline (type it in).
+function askMetalPrice(c) {
+  const k = meltKey(c), s = settings();
+  if (!k || !ozEach(c) || spotPerOz(k) != null || (s.priceAsked || {})[k]) return;
+  if (["snapshot", "memory", "demo"].includes(store.mode)) return;
+  const m = SPOT_METALS.find((x) => x.key === k); if (!m) return;
+  saveSettings({ priceAsked: { ...(s.priceAsked || {}), [k]: true } }, true);
+  openSheet(`<div class="sheet-head"><h2>${esc(m.label)} price needed</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <p>To work out what this coin's ${esc(m.label.toLowerCase())} is worth, the app needs today's ${esc(m.label.toLowerCase())} price. Until then it shows the coin at face value.</p>
+    <div class="btn-row"><button class="btn primary" data-act="ppFetch" data-v="${k}">Get live prices</button></div>
+    <label class="f"><span>Or type it in ($ per ${esc(m.unit)})</span><input type="number" inputmode="decimal" step="0.01" min="0" id="ppInput" placeholder="0.00"></label>
+    <div class="btn-row"><button class="btn" data-act="ppSave" data-v="${k}">Save this price</button><button class="btn" data-act="closeSheet">Later</button></div>
+    <div class="hint">No internet? Typing it works fine. You can change prices any time in Options.</div>`);
+}
+// The Red Book table list and edition box. Lives at the bottom of Coin Value.
+function redBookHtml() {
+  const s = settings();
+  return `<h2>Red Book values</h2>
+    <div class="card">${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof", sms: "SMS" }[k] || k)).join(" · ")}</span></div>`).join("")}
+      <label class="f"><span>Red Book edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
+      <div class="hint">A coin with no value typed in uses its Red Book value. Coins below the lowest listed grade use melt.</div></div>`;
+}
 // Options: every section folds shut (closed by default, remembered). Splits the page at each heading.
+// Options sections sit under five group headings (Seller Mode keeps its own). Each section still folds on its own.
+const OPT_GROUPS = [
+  ["Prices and values", ["spot-prices", "selling", "photo-fill"]],
+  ["Look of Home", ["shelf-style", "home-shelf", "show-on-home"]],
+  ["Adding coins", ["adding-coins"]],
+  ["Your data", ["spreadsheet", "backup-and-restore", "share-a-snapshot", "insurance-report", "recently-deleted"]],
+  ["Share and help", ["share-coin-cabinet", "try-the-demo", "report-a-problem"]],
+  ["Seller Mode", ["seller-mode"]],
+];
 function viewOptions() {
   const open = settings().optOpen || {};
   const parts = optionsHtml().split(/(?=<h2[ >])/);
+  const head = parts.shift(); // the "Options" title
   const tail = parts[parts.length - 1], cut = tail.indexOf('<p class="small muted">Coin Cabinet version');
   let foot = "";
   if (cut > 0) { foot = tail.slice(cut); parts[parts.length - 1] = tail.slice(0, cut); }
-  return parts.map((p, i) => {
+  const secs = parts.map((p) => {
     const m = p.match(/^<h2[^>]*>([\s\S]*?)<\/h2>/);
-    if (!m) return p;
+    if (!m) return { key: "", html: p };
     const title = m[1], key = title.replace(/<[^>]*>/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const on = !!open[key];
-    return `<h2 class="fold"><button class="fold-btn" data-act="optSec" data-v="${key}" aria-expanded="${on}"><span>${title}</span><i aria-hidden="true">${on ? "▾" : "▸"}</i></button></h2>${on ? p.slice(m[0].length) : ""}`;
-  }).join("") + foot;
+    return { key, html: `<h2 class="fold"><button class="fold-btn" data-act="optSec" data-v="${key}" aria-expanded="${on}"><span>${title}</span><i aria-hidden="true">${on ? "▾" : "▸"}</i></button></h2>${on ? p.slice(m[0].length) : ""}` };
+  });
+  const used = new Set();
+  const grouped = OPT_GROUPS.map(([name, keys]) => {
+    const mine = secs.filter((x) => !used.has(x) && keys.some((k) => x.key === k || x.key.startsWith(k + "-")));
+    mine.forEach((x) => used.add(x));
+    return mine.length ? (name === "Seller Mode" ? "" : `<h3 class="optgroup">${name}</h3>`) + mine.map((x) => x.html).join("") : "";
+  }).join("");
+  return head + grouped + secs.filter((x) => !used.has(x)).map((x) => x.html).join("") + foot;
 }
 function optionsHtml() {
   const s = settings();
@@ -84,10 +151,6 @@ function optionsHtml() {
       <label class="switch"><span>Junk silver goes in My Silver Stack<div class="small muted">For new junk silver coins. Coins you already saved don't change.</div></span><input type="checkbox" data-act="homeTog" data-v="junkStack" ${s.junkStack !== false ? "checked" : ""}></label>
       <label class="switch"><span>Don't ask before putting a coin up for sale</span><input type="checkbox" data-act="homeTog" data-v="skipForSaleAsk" ${s.skipForSaleAsk ? "checked" : ""}></label>
     </div>
-    <h2>Red Book values</h2>
-    <div class="card">${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof" }[k])).join(" · ")}</span></div>`).join("")}
-      <label class="f"><span>Red Book edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
-      <div class="hint">A coin with no value typed in uses its Red Book value. Coins below the lowest listed grade use melt.</div></div>
     ${store.mode === "demo" ? "" : `    <h2>Spreadsheet</h2>
     <div class="card">Save all your coins as a spreadsheet file (CSV), or add coins from one.
       <div class="btn-row"><button class="btn" data-act="export">Export CSV</button><button class="btn" data-act="openImport">Import CSV</button></div>

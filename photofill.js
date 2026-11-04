@@ -150,8 +150,7 @@ document.addEventListener("change", (e) => {
 
 // Photo fill is off in the phone app until there is an API key (Phase 7 decision). The button shows grayed out with a lock.
 function photoFillLockedButton() {
-  return `<button type="button" class="btn block" id="photoFillLocked" disabled aria-disabled="true" style="display:block;width:100%;text-align:center;margin-bottom:4px;opacity:.55">🔒 Fill in from photos · Coming soon</button>
-    <div class="hint" style="margin-bottom:6px">Reading a coin from its photos will switch on once an AI key is added in Options.</div>`;
+  return `<div class="small muted" id="photoFillLocked" style="margin:-4px 0 8px">🔒 Fill in from photos: coming soon</div>`;
 }
 // Options: a closed spot where the key will go. Nothing is stored yet.
 function photoFillOptionsHtml() {
