@@ -180,9 +180,9 @@ function optionsHtml() {
     <h2>What's new</h2>
     <div class="card">See what changed in the latest updates.
       <div class="btn-row"><button class="btn" data-act="whatsNew">What's new</button></div></div>
-    <h2>Report a problem</h2>
-    <div class="card">Something wrong or confusing? This opens a note on GitHub with your app version already filled in. Don't put anything private in it, because the page is public.
-      <div class="btn-row"><button class="btn" data-act="reportProblem">Report a problem</button></div></div>
+    <h2>Report a problem · Suggest an idea</h2>
+    <div class="card">Something wrong or confusing, or an idea for the app? Either button opens a note on GitHub with your app version already filled in. Don't put anything private in it, because the page is public.
+      <div class="btn-row"><button class="btn" data-act="reportProblem">Report a problem</button><button class="btn" data-act="suggestIdea">Suggest an idea</button></div></div>
     <h2>Recently deleted</h2>
     ${del.length ? `<div class="list">${del.map((c) => `<div class="coin-row">${thumbHtml(c)}<span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(gradeText(c))}</span></span>
       <button class="btn" data-act="restore" data-id="${esc(c.id)}">Restore</button><button class="btn danger" data-act="purge" data-id="${esc(c.id)}" aria-label="Delete forever">✕</button></div>`).join("")}</div>` : `<div class="card empty">Nothing deleted.</div>`}

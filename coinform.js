@@ -29,7 +29,7 @@ function applySourceKind(d, v) {
   d.source = v === "Other" ? "" : v;
   if (isInherited(d) && !d.inhId && typeof inhDefaultId === "function") d.inhId = inhDefaultId(); // Inherited fills in the default inheritance
   // Paid with fills itself on a new coin (still editable): online platforms → Card, Coin Show → Cash.
-  const auto = ["eBay", "Whatnot"].includes(v) ? "Card" : v === "Coin Show" ? "Cash" : "";
+  const auto = ["eBay", "Whatnot", "U.S. Mint"].includes(v) ? "Card" : v === "Coin Show" ? "Cash" : "";
   if (d._isNew && auto && (!d.payMethod || d.payMethod === d._payAuto)) { d.payMethod = auto; d._payAuto = auto; }
 }
 // "Where from" chips right after Grade: Inherited first, then the three most used, then More… (opens the full list under Purchase details).

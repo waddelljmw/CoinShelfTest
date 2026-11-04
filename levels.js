@@ -12,7 +12,7 @@ const SIMPLE_HIDDEN_SECTIONS = ["status", "holder", "errors"];
 const levelHidesSection = (key) => levelKey() === "simple" && draft && draft._isNew && SIMPLE_HIDDEN_SECTIONS.includes(key);
 function levelChips() {
   return `<div class="chips">${LEVELS.map(([k, n]) => `<button class="chip ${levelKey() === k ? "on" : ""}" data-act="setLevel" data-v="${k}" aria-pressed="${levelKey() === k}">${levelKey() === k ? "✓ " : ""}${n}</button>`).join("")}</div>
-    <div class="hint">${esc(LEVELS.find((l) => l[0] === levelKey())[2])} Switching only hides or shows screens. Nothing you saved changes or is lost.</div>`;
+    <div class="hint">${LEVELS.map(([k, n, line]) => `<div style="${levelKey() === k ? "font-weight:600" : ""}"><b>${esc(n)}:</b> ${esc(line)}</div>`).join("")}<div style="margin-top:4px">Switching only hides or shows screens. Nothing you saved changes or is lost.</div></div>`;
 }
 function levelOptionsHtml() {
   return `<div class="card"><b>How much to show</b>${levelChips()}</div>`; // not a folded section: always visible at the top
