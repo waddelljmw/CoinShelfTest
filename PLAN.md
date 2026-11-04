@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 29, Sonnet):** Step 9.3c want lists (one want, many lists; missing from album; upgrade; album wish list).
+**Next session starts here (session 30, Sonnet):** Step 9.3d asking price with your cost + tax records (Seller Mode).
 
 ## Session plan (one chat per session, done in order)
 
@@ -40,7 +40,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 26 | Opus | Plan from your 45-minute use notes (Step 9.3) | ✅ plan PR #112 (+ v0.40.1 hide-values fix) |
 | 27 | Sonnet | Step 9.3a: faster entry fixes + Add album cleanup + What's new | ✅ merged v0.41.0 (PR #113) |
 | 28 | Sonnet | Step 9.3b: complete profile, Needs info list, inheritances | ✅ merged v0.42.0 (PR #114) |
-| 29 | Sonnet | Step 9.3c: want lists (one want, many lists; missing from album; album wish list) | |
+| 29 | Sonnet | Step 9.3c: want lists (one want, many lists; missing from album; album wish list) | ✅ v0.43.0 (PR pending merge) |
 | 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | |
 | 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | |
 | 32 | Opus | Plan new-user help: plain words, walkthrough, Simple mode | |
@@ -172,12 +172,12 @@ Goal: fewer taps when entering, nothing lost, and the app tells you what still n
 - [x] ✅ Old coins: Inherited with no inheritance shows "Inherited (who/when not set)"; nothing rewritten until you edit. Tests + version.
 
 ### 9.3c (session 29, Sonnet): want lists
-- [ ] **One want, many lists:** a want can belong to several lists/albums, each with its own grade ("any grade" or "upgrade above MS-63"). A small **"wanted ×2"** tag on album spots, the want list and the coin page; tap shows which albums.
-- [ ] Old wants convert on read (one list each); a second matching want for the same coin is merged only when you add to it.
-- [ ] **Missing from album:** album page button "Add missing to a want list": suggests an existing list for that type, otherwise a new one named "Franklin Half – Missing from [album name]".
-- [ ] **Upgrade:** on a filled spot, "Want an upgrade" adds it with a grade above the current one.
-- [ ] **Album wish list:** albums you want to buy (brand, number, name), a section on the Want List page.
-- [ ] Tests + version.
+- [x] ✅ **One want, many lists:** a want can belong to several lists/albums, each with its own grade ("any grade" or "upgrade above MS-63"). A small **"wanted ×2"** tag on album spots, the want list and the coin page; tap shows which albums.
+- [x] ✅ Old wants convert on read (one list each); a second matching want for the same coin is merged only when you add to it.
+- [x] ✅ **Missing from album:** album page button "Add missing to a want list": suggests an existing list for that type, otherwise a new one named "Franklin Half – Missing from [album name]".
+- [x] ✅ **Upgrade:** on a filled spot, "Want an upgrade" adds it with a grade above the current one.
+- [x] ✅ **Album wish list:** albums you want to buy (brand, number, name), a section on the Want List page.
+- [x] ✅ Tests + version.
 
 ### 9.3d (session 30, Sonnet): asking price + tax records (Seller Mode)
 - [ ] **Asking price** shows three numbers: Red Book × your %, melt + your %, and **your cost + your minimum markup %**. Suggested = the higher of the first two, **never below cost + minimum markup**. Inherited: uses value when inherited as cost if set.
