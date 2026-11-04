@@ -12,6 +12,9 @@ const { chromium } = require("./_compat");
   const blank = await p.inputValue("#sellForm [name=n]"); if (blank !== "") console.log("FAIL count should start blank:", blank);
   await p.click("#sellForm [data-act=sellCount][data-n='1']");
   if ((await p.inputValue("#sellForm [name=n]")) !== "1") console.log("FAIL Just 1 button");
+  await p.fill("#sellForm [name=n]", "3"); await p.evaluate(() => doSell(document.getElementById("sellForm"))); // any number works, e.g. 3
+  const r3 = await p.evaluate(() => allCoins().map((c) => c.status + ":" + c.qty).sort().join(",")); if (r3 !== "owned:22,sold:3") console.log("FAIL sell 3", r3);
+  process.exit(0);
   await p.evaluate(() => doSell(document.getElementById("sellForm")));
   const r = await p.evaluate(() => allCoins().map((c) => c.status + ":" + c.qty).sort().join(","));
   console.log("after:", r); if (r !== "owned:24,sold:1") console.log("FAIL split", r);
