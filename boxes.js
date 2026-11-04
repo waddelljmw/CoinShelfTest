@@ -68,7 +68,7 @@ function keptInFields(d) {
   const canStack = it === "coin" && isJunk(d) && d.metal === "Silver";
   const names = [...new Set([...stackNames(), String(d.stack || "").trim()].filter(Boolean))];
   const stacks = canStack ? names.map((x) => opt("s:" + x, "Stack: " + x)).join("") + opt("s:__new", "+ New stack…") : "";
-  return `<label class="f"><span>Kept in</span><select data-kept data-rerender><option value="">Nothing special</option>${albumOpts}${sb}${db}${dl}${stacks}</select></label>
+  return `<label class="f"><span>Kept in ${typeof wi === "function" ? wi("keptin") : ""}</span><select data-kept data-rerender><option value="">Nothing special</option>${albumOpts}${sb}${db}${dl}${stacks}</select></label>
     ${canStack && d._newStack ? `<label class="f"><span>New stack name</span><input type="text" data-f="stack" value="${esc(d.stack || "")}" placeholder="e.g. Junk silver stack"></label>` : ""}
     ${!allBoxes().length ? `<div class="hint">Want to say which box this is in? Add one on the <b>Storage</b> page first.</div>` : ""}`;
 }

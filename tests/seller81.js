@@ -54,7 +54,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.evaluate(() => { listState.f = {}; });
 
   // bulk: skips inherited and already-Business, one Undo
-  await p.evaluate(() => { go("coins"); listState.sel = new Set(["a", "b", "inh", "old"]); });
+  await p.evaluate(() => go("coins")); await p.waitForTimeout(100); await p.evaluate(() => { listState.sel = new Set(["a", "b", "inh", "old"]); });
   await p.evaluate(() => { actions.bizBulk(); });
   await p.waitForTimeout(150);
   ok("bulk moved the movable ones", await p.evaluate(() => getCoin("a").biz && getCoin("old").biz && getCoin("b").biz && !getCoin("inh").biz));
