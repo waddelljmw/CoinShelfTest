@@ -93,6 +93,8 @@ const actions = {
   toastAction: () => { const t = $("#toast"); t.hidden = true; if (t._action) t._action(); },
   hideSpot: (el) => { const s = settings(); saveSettings({ hideSpot: { ...s.hideSpot, [el.dataset.v]: !el.checked } }); },
   showSold: (el) => saveSettings({ showSold: el.checked, soldAutoDone: true }),
+  idStyle: (el) => saveSettings({ idStyle: ["own", "running", "off"].includes(el.dataset.v) ? el.dataset.v : "app" }),
+  idRenumber: () => idRenumberAsk(),
   shelfStyle: (el) => saveSettings({ shelfStyle: el.dataset.v === "safe" ? "safe" : "bookcase" }),
   hideValues: () => saveSettings({ hideValues: !settings().hideValues }),
   optSec: (el) => { const o = { ...(settings().optOpen || {}) }; if (o[el.dataset.v]) delete o[el.dataset.v]; else o[el.dataset.v] = true; saveSettings({ optOpen: o }); },
@@ -244,7 +246,7 @@ const actions = {
 
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
 const SNAPSHOT_BLOCK = new Set(("edit editSale sell unsell delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
-  "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale shelfStyle shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
+  "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale shelfStyle idStyle idRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums sortAlbumsDate moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const goEl = e.target.closest("[data-go]");
@@ -280,6 +282,17 @@ document.addEventListener("input", (e) => {
   if (el.dataset.setting) {
     clearTimeout(spotTimer);
     spotTimer = setTimeout(() => saveSettings({ [el.dataset.setting]: el.value.trim() }, true), 700);
+    return;
+  }
+  if (el.dataset.idown || el.dataset.idrun) { // Coin ID style boxes: save quietly (a redraw would close the box you're typing in)
+    clearTimeout(spotTimer);
+    spotTimer = setTimeout(() => {
+      if (el.dataset.idrun) { saveSettings({ idRun: { ...(settings().idRun || {}), [el.dataset.idrun]: el.value.trim() } }, true); return; }
+      const own = { ...(settings().idOwn || {}) }, b = el.dataset.idown, cur = { ...(own[b] || {}) };
+      cur[el.dataset.part] = el.dataset.part === "code" ? idCode(el.value) : el.value.replace(/\D/g, "");
+      if (!cur.code && !cur.start) delete own[b]; else own[b] = cur;
+      saveSettings({ idOwn: own }, true);
+    }, 600);
     return;
   }
   if (el.dataset.spot) {

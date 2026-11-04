@@ -4,8 +4,8 @@ function openEditId(id, msg) {
   const c = getCoin(id);
   if (!c) return;
   openSheet(`<div class="sheet-head"><h2>Coin ID</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
-  <p class="small muted">The ID is what you write on the flip. Two coins can't share one.</p>
-  <form id="idForm" data-id="${esc(c.id)}"><label class="f"><span>ID</span><input type="text" name="cid" value="${esc(c.cid || "")}" autocapitalize="characters"></label>
+  <p class="small muted">The ID is what you write on the flip. Type anything you like, such as A17. Two coins can't share one.</p>
+  <form id="idForm" data-id="${esc(c.id)}"><label class="f"><span>ID</span><input type="text" name="cid" value="${esc(c.cid || "")}" autocapitalize="off" maxlength="40"></label>
   ${msg ? `<div class="hint" style="color:var(--bad)">${esc(msg)}</div>` : ""}
   <div class="btn-row"><button class="btn primary" type="submit">Save ID</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div></form>`);
 }

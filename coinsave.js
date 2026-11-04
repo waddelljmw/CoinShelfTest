@@ -23,6 +23,8 @@ async function saveDraft() {
   c.trackNo = String(c.trackNo || "").replace(/\s+/g, "");
   ["seller", "knownVar", "receiptNo", "catNo", "trackCarrier"].forEach((k) => { c[k] = String(c[k] || "").trim(); });
   BUY_EXTRAS.forEach((k) => { c[k] = num(c[k]) == null ? "" : String(Math.max(0, num(c[k]))); });
+  const idBad = typeof checkTypedId === "function" ? checkTypedId(c) : ""; // a flip label typed on the form
+  if (idBad) { toast(idBad); return; }
   const prev = !d._isNew && getCoin(c.id);
   if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
   const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);

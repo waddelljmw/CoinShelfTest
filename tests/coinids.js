@@ -21,10 +21,10 @@ const { chromium } = require("./_compat");
   console.log("after delete, next Morgan:", nm); if (nm !== "MD-003") console.log("FAIL reuse");
   const dup = await p.evaluate(() => setCoinId("old1", "MD-001")); console.log("duplicate:", dup); if (!/already used/.test(dup)) console.log("FAIL duplicate");
   console.log("edit ok:", JSON.stringify(await p.evaluate(() => [setCoinId("old1", "pd-050"), getCoin("old1").cid, settings().idNext.PD])));
-  console.log("bad format:", await p.evaluate(() => setCoinId("old1", "hello")));
+  const typed = await p.evaluate(() => [setCoinId("old1", "  Box 3   #17 "), getCoin("old1").cid]); console.log("typed label:", JSON.stringify(typed)); if (typed[0] !== "" || typed[1] !== "Box 3 #17") console.log("FAIL typed label");
   await p.goto("file://" + require("path").resolve(__dirname, "../index.html") + "#coins"); await p.waitForTimeout(300);
-  await p.fill("#coinSearch", "PD-050"); await p.waitForTimeout(200);
-  const n = await p.locator(".coin-row").count(); console.log("search PD-050 rows:", n); if (n !== 1) console.log("FAIL search");
+  await p.fill("#coinSearch", "box 3 #17"); await p.waitForTimeout(200);
+  const n = await p.locator(".coin-row").count(); console.log("search typed label rows:", n); if (n !== 1) console.log("FAIL search");
   // Review fixes (session 8): padding duplicates, restores keep/refresh IDs, re-add drops the ID
   const fx = await p.evaluate(async () => {
     const out = {};

@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.49.0": [
+    "Options > Coin ID style: keep the app's codes, use your own letters, use one running number (like JW-1050), or turn automatic IDs off. Changing it only affects coins you add from now on.",
+    "Any label can now be typed as a coin's ID (like A17 or Box 3 #17). Spreadsheet import reads an ID column, and an optional \u201CRenumber my coins\u201D keeps each coin's old ID (with Undo). The spreadsheet export now puts the everyday columns first and leaves out empty ones."
+  ],
   "0.48.0": [
     "Empty album spot: new \u201CPut a coin I already have here\u201D lists your coins of that type, year and mint that are not in an album yet. Tap one to place it (Undo is offered).",
     "Options: \u201CSuggest an idea\u201D sits next to Report a problem. The U.S. Mint is now a place you can buy from, and Options > How much to show lists all three levels. The update bar now sits at the top so it never covers Save."
