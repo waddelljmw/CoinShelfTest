@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 24, Sonnet):** build Step 9.2 "Session 24" (honest values, Add coin, Options groups, tuck away).
+**Next session starts here (session 24b, Sonnet):** build Step 9.2 "Session 24b" (seller fixes from review 3).
 
 ## Session plan (one chat per session, done in order)
 
@@ -34,7 +34,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 21 | Sonnet | Build demo mode (Step 9.1) | ✅ merged v0.38.0 |
 | 22 | Sonnet | Three AI test-user reviews (IDEAS 13): first-time collector, heir, coin-show seller. One chat each, read page text, few screenshots | ✅ all 3 done: `reviews/01-first-time-collector.md`, `reviews/02-heir.md`, `reviews/03-coin-show-seller.md` |
 | 23 | Opus | Read the reviews, then the feature audit (IDEAS 22); plan the changes | ✅ plan PR (Step 9.2) |
-| 24 | Sonnet | Step 9.2 session 24: honest values, Add coin, Options groups, tuck away | |
+| 24 | Sonnet | Step 9.2 session 24: honest values, Add coin, Options groups, tuck away | ✅ merged v0.39.0 (PR #109) |
 | 24b | Sonnet | Step 9.2 session 24b: seller fixes from review 3 | |
 | 25 | Sonnet | One-page infographic of the app's best features, for you to show people (not in the app); made as a design you can edit, print or share | |
 | 26 | Opus | Plan inherited coins (locked, value when inherited) + new-user help: plain words, walkthrough, Simple mode | |
@@ -121,17 +121,17 @@ From the three test-user reviews (`reviews/`) and your audit choices (2026-11-03
 **Found, not a bug:** "no Red Book value" for most coins is because only 5 types have Red Book data so far (Morgan, Peace, Franklin, Washington silver and clad). Filling the rest is the parked "With your Red Book" row. Coin ID changing: already fixed v0.38.3.
 
 ### Session 24 (Sonnet): honest values + Add coin + Options
-- [ ] **Metal price prompt (IDEAS 27).** On saving the first silver/gold coin with no price for that metal, a pop-up: "Get live prices" or type it in (works offline). Until a price exists, coin values say "face value, no silver price yet", not cents.
-- [ ] **Price status line on Home** (your worry, 2026-11-03: will people know to refresh, or to type prices when they don't fill in?). Today the automatic fetch fails silently. Under the shelf, one line with a button, three states: **fresh** "Silver $32.10 · updated 2:14 PM ↻" (tap ↻ refreshes right there); **old** (over a day) amber "Prices are 3 days old · Refresh"; **failed or none** "Couldn't get live prices (no internet?) · Type them in" (opens Spot prices, unfolded). The same line sits at the top of the Insurance Report pop-up. Keeps the "Prices updated" date you like.
-- [ ] **Low-total warning.** Home and the Insurance Report show "Totals are low: add a silver (gold) price" with a button, whenever an owned coin's metal has no price.
-- [ ] **No Red Book value (IDEAS 29).** Coin page says "No Red Book value for this date and grade" (or "Add a grade to get a value" when ungraded) instead of quietly showing face value. Reuse `bookLookup`; no values typed in.
-- [ ] **Add another (IDEAS 28).** Saved coin page gets an "Add another" button: fresh Add coin form, same coin type picked.
-- [ ] **Source chips after Grade.** A "Where from" chip row using today's `sourceOptions()` values (Inherited first, then the most used, "More…" opens the full list incl. Other), so saved coins don't change. Purchase details stays folded for the rest. Inherited coins stay locked from For sale (as now).
-- [ ] **Photo fill note** shrinks to one small line under the form title while locked.
-- [ ] **New album form:** brand and album number first, coin-type list after.
-- [ ] **Options in 5 groups** (each folds like today): Prices and values (spot prices, selling/pricing, photo fill) · Look of Home (shelf style, Home shelf, Show on Home) · Adding coins · Your data (backup, spreadsheet, snapshot, recently deleted) · Share and help (share app, demo, report a problem). Seller Mode stays its own group. Old saved open/closed choices just reset.
-- [ ] **Tuck away:** Red Book table moves from Options to the bottom of Coin Value; My Stacks menu item hidden until a stack-type coin exists (page address `#stacks` keeps working).
-- [ ] Tests (`tests/audit.js`): price prompt appears once; warning shows/hides; Source chips save the same value as the old list; Options group order; Stacks hidden/shown. Version: feature (middle number). Screenshots: Add coin and Options at phone width.
+- [x] ✅ **Metal price prompt (IDEAS 27).** On saving the first silver/gold coin with no price for that metal, a pop-up: "Get live prices" or type it in (works offline). Until a price exists, coin values say "face value, no silver price yet", not cents.
+- [x] ✅ **Price status line on Home** (your worry, 2026-11-03: will people know to refresh, or to type prices when they don't fill in?). Today the automatic fetch fails silently. Under the shelf, one line with a button, three states: **fresh** "Silver $32.10 · updated 2:14 PM ↻" (tap ↻ refreshes right there); **old** (over a day) amber "Prices are 3 days old · Refresh"; **failed or none** "Couldn't get live prices (no internet?) · Type them in" (opens Spot prices, unfolded). The same line sits at the top of the Insurance Report pop-up. Keeps the "Prices updated" date you like.
+- [x] ✅ **Low-total warning.** Home and the Insurance Report show "Totals are low: add a silver (gold) price" with a button, whenever an owned coin's metal has no price.
+- [x] ✅ **No Red Book value (IDEAS 29).** Coin page says "No Red Book value for this date and grade" (or "Add a grade to get a value" when ungraded) instead of quietly showing face value. Reuse `bookLookup`; no values typed in.
+- [x] ✅ **Add another (IDEAS 28).** Saved coin page gets an "Add another" button: fresh Add coin form, same coin type picked.
+- [x] ✅ **Source chips after Grade.** A "Where from" chip row using today's `sourceOptions()` values (Inherited first, then the most used, "More…" opens the full list incl. Other), so saved coins don't change. Purchase details stays folded for the rest. Inherited coins stay locked from For sale (as now).
+- [x] ✅ **Photo fill note** shrinks to one small line under the form title while locked.
+- [x] ✅ **New album form:** brand and album number first, coin-type list after.
+- [x] ✅ **Options in 5 groups** (each folds like today): Prices and values (spot prices, selling/pricing, photo fill) · Look of Home (shelf style, Home shelf, Show on Home) · Adding coins · Your data (backup, spreadsheet, snapshot, recently deleted) · Share and help (share app, demo, report a problem). Seller Mode stays its own group. Old saved open/closed choices just reset.
+- [x] ✅ **Tuck away:** Red Book table moves from Options to the bottom of Coin Value; My Stacks menu item hidden until a stack-type coin exists (page address `#stacks` keeps working).
+- [x] ✅ Tests (`tests/audit.js`): price prompt appears once; warning shows/hides; Source chips save the same value as the old list; Options group order; Stacks hidden/shown. Version: feature (middle number). Screenshots: Add coin and Options at phone width.
 
 ### Session 24b (Sonnet): seller fixes (review 3)
 - [ ] **Sold form:** when a show is picked, date defaults to the show's first day (today if it's running); warn on a future date; show Paid with, fees and sales tax up front; remember the last payment method.
