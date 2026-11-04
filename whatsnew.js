@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.47.0": [
+    "New: how much to show. Options now starts with Simple, Collector or Everything. Simple keeps just coins, My Coins and Coin Value. Your app stays on Everything unless you change it, and switching never changes or loses anything you saved."
+  ],
   "0.46.0": [
     "New app, new look at the start: an empty Coin Cabinet now opens with a welcome card. Start your collection, or try the sample coins.",
     "Optional one-minute guide to adding your first coin (also in Options, \u201CGuided first coin\u201D). Skip it any time.",

@@ -123,6 +123,7 @@ function optionsHtml() {
   const s = settings();
   const del = deletedCoins().sort((a, b) => (b.deletedAt || 0) - (a.deletedAt || 0));
   return `<h1>Options</h1>
+    ${typeof levelOptionsHtml === "function" ? levelOptionsHtml() : ""}
     <h2>Spot prices</h2>
     <div class="card"><div class="small muted">Spot price ${wi("spot")}: what a metal is trading for today.</div>
       ${SPOT_METALS.map((m) => `<label class="f"><span>${m.label} ($ per ${m.unit})</span><input type="number" inputmode="decimal" step="0.01" min="0" data-spot="${m.key}" value="${esc(s.spot[m.key] ?? "")}" placeholder="0.00"></label>`).join("")}
@@ -134,7 +135,7 @@ function optionsHtml() {
       <div class="hint">Bookcase: wood shelves; at night only the page around it goes dark. Safe: steel walls, dark all the time.</div></div>
     <h2>Home shelf</h2>
     <div class="card">${typeof shelfOptionsHtml === "function" ? shelfOptionsHtml() : ""}</div>
-    ${typeof sellerOptionsHtml === "function" ? sellerOptionsHtml() : ""}
+    ${typeof sellerOptionsHtml === "function" && levelAtLeast("everything") ? sellerOptionsHtml() : ""}
     ${typeof sellingOptionsHtml === "function" ? sellingOptionsHtml() : ""}
     ${!sampleApi && typeof photoFillOptionsHtml === "function" ? photoFillOptionsHtml() : ""}
     <h2>Show on Home</h2>

@@ -117,7 +117,7 @@ function viewHome() {
     <div class="stat"><div class="k">Cost</div><div class="v">${money(paid, "$0.00")}</div><div class="small muted">Paid, with tax, shipping and fees</div></div>
     <div class="stat"><div class="k">Gain</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Add prices paid" : pct(paid ? gain / paid : null) + " · inherited not counted"}</div></div>
   </div>${typeof bizPlaqueHtml === "function" ? bizPlaqueHtml() : ""}`;
-  if (s.showHistory !== false && typeof historyCard === "function") html += historyCard();
+  if (s.showHistory !== false && levelAtLeast("collector") && typeof historyCard === "function") html += historyCard();
 
   // Melt Value by Metal, only for metals in the collection
   const metalRows = SPOT_METALS.map((m) => {
