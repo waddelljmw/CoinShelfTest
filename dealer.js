@@ -67,17 +67,23 @@ function caseReturn(coins, label) {
   } else toast(label, { label: "Undo", fn: actions.caseUndo });
 }
 
+// Slot order: row, then slot; coins with no numbered spot go last.
+const caseOrder = (a, b) => (+a.boxRow || 1e9) - (+b.boxRow || 1e9) || (+a.boxSlot || 1e9) - (+b.boxSlot || 1e9) || labelOf(a).localeCompare(labelOf(b));
+// Coins in a case that are for sale and have no asking price yet.
+const caseUnpriced = (b) => boxCoins(b).filter((c) => stageOf(c) === "forsale" && num(c.ask) == null && !isInherited(c));
+
 // The dealer case page: how the case behaves, what's inside with Take out, and Return unsold coins.
 function dealerPanel(b) {
-  const inCase = boxCoins(b);
+  const inCase = boxCoins(b).sort(caseOrder); // in slot order
   const on = caseOn(b);
   const rows = inCase.map((c) => {
     const ask = num(c.ask);
-    return `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="muted small">${ask == null ? (stageOf(c) === "forsale" ? "No price" : "") : money(ask)}</span><button class="btn" data-act="caseOut" data-id="${esc(c.id)}">Take out</button></div>${stageOf(c) === "forsale" && typeof askRowHelp === "function" ? askRowHelp(c) : ""}`;
+    return `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${c.boxRow && c.boxSlot ? `<span class="muted small">${esc(c.boxRow)}·${esc(c.boxSlot)}</span> ` : ""}${esc(labelOf(c))}</button><span class="muted small">${ask == null ? (stageOf(c) === "forsale" ? "No price" : "") : money(ask)}</span><button class="btn" data-act="caseOut" data-id="${esc(c.id)}">Take out</button></div>${stageOf(c) === "forsale" && typeof askRowHelp === "function" ? askRowHelp(c) : ""}`;
   }).join("");
   return `<div class="card"><div class="rowline"><b>For sale case</b><span class="muted small">${on ? "On" : "Off"}</span></div>
     <div class="small muted">${on ? "Coins you move in switch to For sale. Take them out and each goes back to where it was." : "Display only: coins keep their status. Take them out and each goes back to where it was."}</div>
     ${rows ? `<div style="margin-top:8px">${rows}</div>` : `<div class="small muted" style="margin-top:6px">Empty. Add a coin, or move coins in with Select many.</div>`}
+    <div class="btn-row"><button class="btn" data-act="caseAskOpen" data-id="${esc(b.id)}" ${inCase.some((c) => stageOf(c) === "forsale") ? "" : "disabled"}>Set asking price for all</button></div>
     <div class="btn-row"><button class="btn" data-act="caseReturnAll" data-id="${esc(b.id)}" ${inCase.length ? "" : "disabled"}>Return unsold coins</button><button class="btn" data-go="shows">Shows</button></div></div>`;
 }
 
@@ -160,6 +166,7 @@ function viewShow(r) {
       ${st.ship ? line("Shipping and insurance paid", "− " + money(st.ship, "$0.00")) : ""}
       ${line("Show costs", "− " + money(st.costs, "$0.00"))}${costLines}
       ${line("<b>Profit</b>", `<b>${st.profit >= 0 ? "" : "− "}${money(Math.abs(st.profit), "$0.00")}</b>`, signCls(st.profit))}
+      ${st.costs ? (() => { const left = r2(-st.profit); return left > 0 ? `<div class="hint"><b>Sell ${money(left, "$0.00")} more to cover show costs.</b> That is profit after coin cost and fees.</div>` : `<div class="hint"><b class="pos">Show costs covered.</b></div>`; })() : ""}
       ${st.tax ? `<div class="hint">Sales tax collected: ${money(st.tax)}. It isn't profit.</div>` : ""}</div>`}
     <h2 style="margin:12px 0 6px">Sold here</h2>
     <div class="card">${st.cs.length ? st.cs.map((c) => `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${qtyOf(c) > 1 ? "×" + qtyOf(c) + " · " : ""}Paid ${costOf(c) == null ? "—" : money(costOf(c))}</span></span><span class="coin-val">${money(saleMoneyIn(c))}</span></button>`).join("") : `<div class="small muted">Nothing sold here yet. When you mark a coin sold, pick this show.</div>`}</div>
@@ -213,6 +220,29 @@ Object.assign(actions, {
     caseLast.before.forEach((c) => put("c_" + c.id, c, true));
     caseLast = null; closeSheet(); render(); toast("Undone.");
   },
+  caseAskOpen: (el) => {
+    const b = getBox(el.dataset.id); if (!b) return;
+    const cs = caseUnpriced(b), p = pricingRates();
+    const n = (k) => cs.filter((c) => suggestAsk(c)[k] != null).length;
+    if (!cs.length) { toast("Every coin for sale in this case already has a price."); return; }
+    const btn = (k, label) => `<button class="btn block" style="margin-top:8px" data-act="caseAskGo" data-id="${esc(b.id)}" data-pick="${k}" ${n(k) ? "" : "disabled"}>${label} (${n(k)} of ${cs.length} coins)</button>`;
+    openSheet(`<div class="sheet-head"><h2>Set asking price for all</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <p class="small">Only coins <b>with no price yet</b> get one. Prices you already set stay. One Undo puts everything back.</p>
+      ${btn("book", "Red Book × " + pctText(p.bookPct) + "%")}${btn("melt", "Melt + " + pctText(p.meltPct) + "%")}
+      <div class="hint">A coin with no Red Book value or metal content is skipped. Change the percentages in Options → Selling.</div>`);
+  },
+  caseAskGo: (el) => {
+    const b = getBox(el.dataset.id), k = el.dataset.pick; if (!b) return;
+    const before = [], skipped = [];
+    caseUnpriced(b).forEach((c0) => {
+      const v = suggestAsk(c0)[k];
+      if (v == null) { skipped.push(c0); return; }
+      before.push(c0); put("c_" + c0.id, { ...JSON.parse(JSON.stringify(c0)), ask: String(v) }, true);
+    });
+    caseLast = { before };
+    closeSheet(); render();
+    toast("Set " + before.length + " price" + (before.length === 1 ? "" : "s") + (skipped.length ? ", skipped " + skipped.length + " with no suggestion" : "") + ".", before.length ? { label: "Undo", fn: actions.caseUndo } : undefined);
+  },
   showNew: () => showForm(null),
   showEdit: (el) => { const s = getShow(el.dataset.id); if (s) showForm(s); },
   showDelete: (el) => {
@@ -227,7 +257,7 @@ Object.assign(actions, {
     });
   },
 });
-if (typeof SNAPSHOT_BLOCK !== "undefined") ["caseOut", "caseReturnAll", "caseUndo", "showNew", "showEdit", "showDelete"].forEach((a) => SNAPSHOT_BLOCK.add(a));
+if (typeof SNAPSHOT_BLOCK !== "undefined") ["caseOut", "caseReturnAll", "caseUndo", "caseAskOpen", "caseAskGo", "showNew", "showEdit", "showDelete"].forEach((a) => SNAPSHOT_BLOCK.add(a));
 
 // The Shows item in the main menu only appears with Seller Mode on.
 function syncShowsMenu() { const st = $("#menuStacks"); if (st) st.hidden = !hasStackItem(); const m = $("#menuShows"); if (m) m.hidden = !sellerOn(); const r = $("#menuReports"); if (r) r.hidden = !sellerOn(); const g = $("#menuBiz"); if (g) g.hidden = !sellerOn(); }

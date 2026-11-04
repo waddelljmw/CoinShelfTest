@@ -198,7 +198,8 @@ function saveBoxForm(form) {
   const name = String(f.get("name") || "").trim();
   const spots = f.get("spots") === "on";
   const rows = spots ? Math.round(+f.get("rows")) : 0, perRow = spots ? Math.round(+f.get("perRow")) : 0;
-  if (!name || (spots && (!(rows >= 1 && rows <= 50) || !(perRow >= 1 && perRow <= 100)))) { toast(spots ? "Add a name, 1–50 rows or columns and 1–100 slots in each." : "Add a name."); return; }
+  const isCase = f.get("type") === "dealer";
+  if (!name || (spots && (!(rows >= 1 && rows <= 50) || !(perRow >= 1 && perRow <= 100)))) { toast(isCase && spots ? "Add a name, and how many rows and spots." : spots ? "Add a name, 1–50 rows or columns and 1–100 slots in each." : "Add a name."); return; }
   const old = id && getBox(id);
   const before = old ? JSON.parse(JSON.stringify(old)) : null;
   let coinsBefore = [];
@@ -259,7 +260,11 @@ Object.assign(actions, {
   },
 });
 document.addEventListener("change", (e) => { // the For sale case switch only shows for a dealer case
-  if (e.target.name === "type" && e.target.closest("#boxForm")) { const r = $("#caseSaleRow"); if (r) r.hidden = e.target.value !== "dealer"; }
+  if (e.target.name === "type" && e.target.closest("#boxForm")) {
+    const r = $("#caseSaleRow"); if (r) r.hidden = e.target.value !== "dealer";
+    const form = e.target.closest("#boxForm"); // a new dealer case starts as 2 rows of 6 (only fills boxes still empty)
+    if (e.target.value === "dealer" && !form.dataset.id && !form.elements.rows.value && !form.elements.perRow.value) { form.elements.rows.value = 2; form.elements.perRow.value = 6; }
+  }
 });
 document.addEventListener("submit", (e) => {
   if (e.target.id === "boxForm") saveBoxForm(e.target);
