@@ -207,7 +207,7 @@ function missingOf(c) {
   else if (costOf(c) == null) m.push("cost");
   return m;
 }
-const needInfoCoins = () => ownedCoins().filter((c) => !c.biz && missingOf(c).length);
+const needInfoCoins = () => countedCoins().filter((c) => missingOf(c).length); // only coins counted in the Home total
 const NEED_NOTE = "Some coins are missing a grade, a cost or the date inherited, so totals are estimates.";
 // The amber line under the Home totals; opens My Coins filtered to coins that need info.
 function needInfoLine() {

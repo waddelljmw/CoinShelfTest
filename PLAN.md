@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 31, Opus):** review of 9.3b–9.3d (they add saved data), fix what it finds.
+**Next session starts here (session 32, Opus):** plan new-user help: plain words, walkthrough, Simple mode.
 
 ## Session plan (one chat per session, done in order)
 
@@ -42,7 +42,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 28 | Sonnet | Step 9.3b: complete profile, Needs info list, inheritances | ✅ merged v0.42.0 (PR #114) |
 | 29 | Sonnet | Step 9.3c: want lists (one want, many lists; missing from album; album wish list) | ✅ v0.43.0 (PR pending merge) |
 | 30 | Sonnet | Step 9.3d: asking price with your cost + tax records | ✅ v0.44.0 (PR pending merge) |
-| 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | |
+| 31 | Opus | Review of 9.3b–9.3d (they add saved data), fix what it finds | ✅ reviewed, 5 fixes + delete confirm, v0.44.1 (PR pending merge) |
 | 32 | Opus | Plan new-user help: plain words, walkthrough, Simple mode | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 

@@ -83,6 +83,11 @@ function mergeRestored(id, body) {
     Object.entries(here.spot || {}).forEach(([m, v]) => { if (v != null && v !== "") out.spot[m] = v; });
     const order = [...(here.albumOrder || []), ...(body.albumOrder || [])];
     if (order.length) out.albumOrder = [...new Set(order)];
+    // Inheritances: keep both lists, joined by id (this device's copy wins when both have the same one).
+    const inh = new Map();
+    [...(body.inheritances || []), ...(here.inheritances || [])].forEach((i) => { if (i && i.id) inh.set(i.id, i); });
+    if (inh.size) out.inheritances = [...inh.values()];
+    out.inhDefault = here.inhDefault || body.inhDefault;
     return out;
   }
   return body;

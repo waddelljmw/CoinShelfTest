@@ -142,7 +142,7 @@ function taxData(year) {
     .sort((a, b) => String(a.sold.date).localeCompare(String(b.sold.date)))
     .map((c) => {
       const s = c.sold, cost = taxCost(c), price = num(s.amount) || 0, fees = num(s.fees) || 0, bought = taxBought(c), soldOn = String(s.date || "").slice(0, 10);
-      return [bought, soldOn, labelOf(c), qtyOf(c), cost, price, fees, cost == null ? "" : r2(price - fees - cost), heldOverYear(bought, soldOn), isInherited(c) ? "Yes" : "No"];
+      return [bought, soldOn, labelOf(c), qtyOf(c), cost, price, fees, cost == null ? "" : r2(price - fees - cost), isInherited(c) ? "Yes" : heldOverYear(bought, soldOn), isInherited(c) ? "Yes" : "No"];
     });
   return rows;
 }
