@@ -352,3 +352,6 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 .miss-tag { display: inline-block; margin-left: 6px; padding: 0 6px; font-size: 11px; font-weight: 600; color: #7a4300; background: #fff1d6; border: 1px solid #f59e0b; border-radius: 6px; }
 .miss-banner { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #fff1d6; border: 1.5px solid #f59e0b; color: #7a4300; }
 .inh-box { margin-top: 8px; padding: 8px 10px; border: 1px solid var(--line, #ddd); border-radius: 10px; }
+
+.slot.sel.on, .slot.full.on { outline: 2px solid var(--accent); }
+.slot.sel.on::after, .slot.full.on::after { content: "✓"; color: var(--accent); }

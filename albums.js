@@ -215,6 +215,7 @@ function viewAlbum(r) {
     </div>
     <div class="bar" style="margin:12px 0 16px"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div>
     ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(a.id) : ""}
+    ${!editing && typeof pageSelHtml === "function" ? pageSelHtml([...st.filled.values(), ...extras]) : ""}
     <div class="btn-row" style="margin:0 0 12px">
       <button class="btn" data-act="addSpot" data-id="${esc(a.id)}">+ Add a spot</button>
       <button class="btn ${editing ? "primary" : ""}" data-act="editSlots" data-id="${esc(a.id)}">${editing ? "Done editing" : "Edit spots"}</button>
@@ -237,10 +238,11 @@ function viewAlbum(r) {
       const onN = spotWants(a, s).length;
       const tag = onN ? `<span class="g" style="color:var(--accent)">★ ${wantedTag(onN)}</span>` : "";
       return hit
-        ? `<button class="slot have" data-act="slotMenu" ${data} data-coin="${esc(hit.id)}">${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${hit.origAlbum ? `<span class="g" style="color:var(--accent)">original</span>` : ""}${tag}</button>`
-        : `<button class="slot" data-act="slotMenu" ${data}>${esc(lab)}${vLine}${tag || `<span class="g">open</span>`}</button>`;
+        ? `<button class="slot have${listState.sel ? " sel" + (listState.sel.has(hit.id) ? " on" : "") : ""}" ${listState.sel ? `data-act="selToggle" data-id="${esc(hit.id)}" aria-pressed="${listState.sel.has(hit.id)}"` : `data-act="slotMenu" ${data} data-coin="${esc(hit.id)}"`}>${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${hit.origAlbum ? `<span class="g" style="color:var(--accent)">original</span>` : ""}${tag}</button>`
+        : `<button class="slot" data-act="slotMenu" ${data}${listState.sel ? " disabled" : ""}>${esc(lab)}${vLine}${tag || `<span class="g">open</span>`}</button>`;
     }).join("")}</div>
-    ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => coinRow(c)).join("")}</div>` : ""}
+    ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c))).join("")}</div>` : ""}
+    ${selFootHtmlSafe()}
     <div class="btn-row">
       ${st.total - st.owned > 0 ? `<button class="btn" data-act="missing" data-id="${esc(a.id)}">★ Add missing to a want list</button>` : ""}
       <button class="btn" data-act="editAlbum" data-id="${esc(a.id)}">Edit album</button>
@@ -359,3 +361,5 @@ function saveSpot(form) {
   toast("Spot added: " + slotLabel(spot) + (spot.v ? " " + spot.v : "") + ".");
 }
 
+
+const selFootHtmlSafe = () => (typeof selFootHtml === "function" ? selFootHtml() : "");
