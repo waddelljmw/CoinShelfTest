@@ -85,19 +85,19 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // move to a display box without spots; to an album (Morgan skipped); to a stack (only junk silver)
   await p.evaluate(() => { listState.family = null; render(); });
-  await p.click("[data-act=selAll]"); await p.click("[data-act=mvOpen]"); await p.selectOption("[data-flt=mv]", "a:lin"); await p.click("[data-act=mvGo]"); await p.waitForTimeout(250);
+  await p.click("[data-act=selStart]"); await p.click("[data-act=selAll]"); await p.click("[data-act=mvOpen]"); await p.selectOption("[data-flt=mv]", "a:lin"); await p.click("[data-act=mvGo]"); await p.waitForTimeout(250);
   ok("album move skips other types", await p.evaluate(() => ownedCoins().filter((c) => c.albumId === "lin").length === 5 && getCoin("m1").albumId === "" && /different coin type|only coins/.test($("#sheet").innerText)));
   ok("album move cleared the box", await p.evaluate(() => !getCoin("w1").boxId));
   await p.evaluate(() => { closeSheet(); });
-  await p.click("[data-act=selAll]"); await p.click("[data-act=mvOpen]"); await p.selectOption("[data-flt=mv]", "s:My Silver Stack"); await p.click("[data-act=mvGo]"); await p.waitForTimeout(250);
+  await p.click("[data-act=selStart]"); await p.click("[data-act=selAll]"); await p.click("[data-act=mvOpen]"); await p.selectOption("[data-flt=mv]", "s:My Silver Stack"); await p.click("[data-act=mvGo]"); await p.waitForTimeout(250);
   ok("stack takes only junk silver", await p.evaluate(() => getCoin("j1").stack === "My Silver Stack" && !getCoin("m1").stack && !getCoin("w1").stack));
   await p.evaluate(() => closeSheet());
-  await p.click("[data-act=selAll]"); await p.click("[data-act=mvOpen]"); await p.selectOption("[data-flt=mv]", "b:disp"); await p.click("[data-act=mvGo]"); await p.waitForTimeout(250);
+  await p.click("[data-act=selStart]"); await p.click("[data-act=selAll]"); await p.click("[data-act=mvOpen]"); await p.selectOption("[data-flt=mv]", "b:disp"); await p.click("[data-act=mvGo]"); await p.waitForTimeout(250);
   ok("display box without spots takes all", await p.evaluate(() => ownedCoins().filter((c) => c.boxId === "disp").length === 7 && !getCoin("w1").boxRow));
   await p.evaluate(() => closeSheet());
 
   // Set holder: coins change, picked ones only
-  await p.click("[data-act=selNone]");
+  await p.click("[data-act=selStart]"); await p.click("[data-act=selNone]");
   await p.evaluate(() => { listState.sel.add("w1"); listState.sel.add("w2"); render(); });
   await p.click("[data-act=hdOpen]"); await p.selectOption("[data-flt=hd]", "Capsule"); await p.click("[data-act=hdGo]"); await p.waitForTimeout(200);
   ok("set holder", await p.evaluate(() => getCoin("w1").holder === "Capsule" && getCoin("w2").holder === "Capsule" && getCoin("w4").holder === "2x2 cardboard flip"));

@@ -283,6 +283,7 @@ Object.assign(actions, {
     const dest = e ? e.value : "";
     if (!dest) { toast("Pick where to move them."); return; }
     bulkApply("Moved", (c, used) => movePlace(c, dest, used));
+    listState.sel = null; render(); // Select closes once the move is done
   },
   hdOpen: () => {
     const picked = pickedCoins();
