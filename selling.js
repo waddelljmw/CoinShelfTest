@@ -100,7 +100,7 @@ function openSell(id, edit) {
   <p><b>${esc(labelOf(c))}</b>${c.cid ? ` <span class="muted small">${esc(c.cid)}</span>` : ""}</p>
   ${isInherited(c) ? `<div class="banner" style="margin:0 0 8px"><span class="dns">Do not sell</span> This coin is inherited. It won't be counted in sold results.</div>` : ""}
   <form id="sellForm" data-id="${esc(c.id)}" ${edit ? 'data-edit="1"' : ""} data-ask="${ask == null ? "" : ask}" data-q="${qtyOf(c)}">
-    ${q > 1 ? `<label class="f"><span>How many sold (of ${q})</span><input type="number" name="n" min="1" max="${q}" value="${q}"></label>` : ""}
+    ${q > 1 ? `<label class="f"><span>How many sold (of ${q})</span><input type="number" inputmode="numeric" name="n" min="1" max="${q}" value="" placeholder="Type any number, 1 to ${q}" required></label><div class="btn-row" style="margin:-4px 0 8px"><button class="btn" type="button" data-act="sellCount" data-n="1">Just 1</button><button class="btn" type="button" data-act="sellCount" data-n="${q}">All ${q}</button></div>` : ""}
     <label class="f"><span>Date sold</span><input type="date" name="date" value="${date0}"></label><div class="hint" id="dateHint"></div>
     <label class="f"><span>Sold for (total, optional)</span><input type="number" inputmode="decimal" step="0.01" name="amount" placeholder="$" value="${fv(amount)}"></label>
     ${typeof showPicker === "function" ? showPicker(c, sv, edit) : ""}
