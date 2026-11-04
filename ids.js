@@ -125,7 +125,6 @@ function checkTypedId(c) {
   return "";
 }
 // "Renumber my coins": owned coins, oldest first, from the style's start. Old IDs are kept (c.oldCids). Returns how many changed.
-let idUndo = null;
 function renumberCoins() {
   if (idStyle() === "off") return 0;
   const all = allCoins();
@@ -148,15 +147,14 @@ function renumberCoins() {
     const olds = c.cid ? [...(c.oldCids || []).filter((x) => idNormKey(x) !== idNormKey(c.cid)), c.cid] : c.oldCids;
     put("c_" + c.id, { ...c, cid: to, ...(olds ? { oldCids: olds } : {}) }, true);
   });
-  idUndo = { undo, prevNext };
-  saveSettings({ idNext: next }, true);
+  saveSettings({ idNext: next, lastRenumber: undo.length ? { undo, prevNext, at: today() } : null }, true); // kept so Undo still works later
   return undo.length;
 }
 function undoRenumber() {
+  const idUndo = settings().lastRenumber;
   if (!idUndo) return;
   idUndo.undo.forEach((u) => { const c = getCoin(u.id); if (!c) return; const b = { ...c, cid: u.cid }; if (u.oldCids) b.oldCids = u.oldCids; else delete b.oldCids; put("c_" + u.id, b, true); });
-  saveSettings({ idNext: idUndo.prevNext }, true);
-  idUndo = null;
+  saveSettings({ idNext: idUndo.prevNext, lastRenumber: null }, true);
 }
 /* --- Options: Coin ID style --- */
 const ID_STYLES = [["app", "App's codes"], ["own", "My own codes"], ["running", "One running number"], ["off", "Off"]];
@@ -178,10 +176,11 @@ function idStyleOptionsHtml() {
           <label class="f"><span>Start at</span><input type="text" inputmode="numeric" placeholder="1" data-idown="${esc(base)}" data-part="start" value="${esc((own[base] || {}).start || "")}"></label></div>`).join("")}</details>` : ""}
       ${st === "off" ? "" : `<div class="hint">Example of the next ID: <b>${esc(sample)}</b></div>
       <div class="btn-row"><button class="btn" data-act="idRenumber">Renumber my coins</button></div>
-      <div class="hint">Optional. Renumbers the coins you own in the order you added them. Each keeps its old ID, so labels already on flips still find it. You can Undo right away.</div>`}
+      ${s.lastRenumber ? `<div class="btn-row"><button class="btn" data-act="idUndoRenumber">Undo last renumber (${s.lastRenumber.undo.length} coin${s.lastRenumber.undo.length === 1 ? "" : "s"}, ${esc(s.lastRenumber.at || "")})</button></div>` : ""}
+      <div class="hint">Optional. Renumbers the coins you own in the order you added them. Each keeps its old ID, so labels already on flips still find it. Undo stays here in Options until you renumber again.</div>`}
     </div>`;
 }
-const idRenumberAsk = () => confirmSheet("Renumber my coins?", "Every coin you own gets a new ID in the order you added it. Its old ID is kept and still found by search. Sold coins keep theirs. Making a Backup first is a good idea. You can Undo right after.", "Renumber", () => {
+const idRenumberAsk = () => confirmSheet("Renumber my coins?", "Every coin you own gets a new ID in the order you added it. Its old ID is kept and still found by search. Sold coins keep theirs. Making a Backup first is a good idea. An Undo button stays in Options.", "Renumber", () => {
   const n = renumberCoins();
   render();
   toast(n ? "Renumbered " + n + " coin" + (n === 1 ? "" : "s") + "." : "Nothing to change.", n ? { label: "Undo", fn: () => { undoRenumber(); render(); toast("Back to the old IDs."); } } : undefined);

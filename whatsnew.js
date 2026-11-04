@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.49.1": [
+    "Renumber my coins: the Undo is now a button that stays in Options > Coin ID style (it used to be a pop-up that vanished after a few seconds).",
+  ],
   "0.49.0": [
     "Options > Coin ID style: keep the app's codes, use your own letters, use one running number (like JW-1050), or turn automatic IDs off. Changing it only affects coins you add from now on.",
     "Any label can now be typed as a coin's ID (like A17 or Box 3 #17). Spreadsheet import reads an ID column, and an optional \u201CRenumber my coins\u201D keeps each coin's old ID (with Undo). The spreadsheet export now puts the everyday columns first and leaves out empty ones."
