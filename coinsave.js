@@ -3,8 +3,9 @@ async function saveDraft() {
   const d = draft;
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._payAuto; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
-  delete c._many; delete c._payMode; delete c._spots; delete c._spotsFor; delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
+  delete c._many; delete c._payMode; delete c._lotMode; delete c._spots; delete c._spotsFor; delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = normHolder(formHolder(d));
+  if (typeof lotOn === "function" && lotOn(d) && num(c.paid) != null) c.paid = String(Math.round(num(c.paid) / (num(d.qty) || 1) * 10000) / 10000); // whole-lot price saved as price each
   const many = typeof manyOn === "function" && manyOn(d);
   if (many) { const m = manyPrep(c, d); if (m) { toast(m); return; } } // several coins: every chosen spot must be free
   if (typeof boxCheck === "function") { const m = boxCheck(c); if (m) { toast(m); return; } }
@@ -118,7 +119,7 @@ async function saveDraft() {
     const old = getCoin(d._replaces);
     if (old) {
       const before = JSON.parse(JSON.stringify(old));
-      await saveCoin({ ...old, prevStatus: old.status, status: "deleted", deletedAt: Date.now() });
+      await saveCoin({ ...old, prevStatus: old.status, status: "deleted", deletedAt: Date.now(), refunds: undefined }); // its refunds moved to the new entry
       toast("Re-added as " + labelOf(c) + ". The old entry is in Recently deleted.", { label: "Undo", fn: () => { remove("c_" + c.id); saveCoin(before); go("coin-" + before.id); } });
       go("coin-" + c.id);
       return;

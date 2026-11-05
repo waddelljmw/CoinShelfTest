@@ -84,7 +84,7 @@ function keptInFields(d) {
   const canStack = it === "coin" && isJunk(d) && d.metal === "Silver";
   const names = [...new Set([...stackNames(), String(d.stack || "").trim()].filter(Boolean))];
   const stacks = canStack ? names.map((x) => opt("s:" + x, "Stack: " + x)).join("") + opt("s:__new", "+ New stack…") : "";
-  return `<label class="f"><span>Kept in ${typeof wi === "function" ? wi("keptin") : ""}</span><select data-kept data-rerender><option value="">Nothing special</option>${albumOpts}${sb}${db}${dl}${stacks}</select></label>
+  return `<label class="f"><span>Kept in ${typeof wi === "function" ? wi("keptin") : ""}</span><select data-kept data-rerender><option value="">Nothing special</option>${albumOpts}${sb}${db}${dl}${stacks}<option value="b:__add">+ Add storage…</option></select></label>
     ${canStack && d._newStack ? `<label class="f"><span>New stack name</span><input type="text" data-f="stack" value="${esc(d.stack || "")}" placeholder="e.g. Junk silver stack"></label>` : ""}
     ${!allBoxes().length ? `<div class="hint">Want to say which box this is in? Add one on the <b>Storage</b> page first.</div>` : ""}`;
 }
@@ -212,9 +212,21 @@ function viewBox(r) {
     ${keptAlbumsHtml(b)}${trayTabs}${tn > 1 && hasSpots(b) ? `<div class="small muted" style="margin:-4px 0 4px">Tray ${tray}: ${L.rows} ${lineWord(b).toLowerCase()}${L.rows === 1 ? "" : "s"} of ${L.perRow} slots</div>` : ""}${body}${typeof selFootHtml === "function" ? selFootHtml() : ""}
     <div class="btn-row"><button class="btn" data-act="boxEdit" data-id="${esc(b.id)}">Edit box</button><button class="btn danger" data-act="boxDelete" data-id="${esc(b.id)}">Delete box</button></div>`;
 }
+// "+ Add storage" on a Kept in list sends you here and brings you back: { kind: "coin" | "form" | "move", stash }.
+let boxReturn = null;
+const stashSheet = () => { const f = $("#sheet form"); return { html: $("#sheet .sheet").innerHTML, vals: f ? [...f.elements].map((e) => (e.type === "checkbox" || e.type === "radio" ? e.checked : e.value)) : [] }; };
+function backFromBox(ret, id) {
+  if (ret.kind === "coin") { applyKept(draft, "b:" + id); renderCoinForm(); return; }
+  if (ret.kind === "move") { actions.mvOpen(); const m = $("[data-flt=mv]"); if (m) m.value = "b:" + id; return; }
+  openSheet(ret.stash.html); // same page, same fields: put back what was typed, then pick the new box
+  const f = $("#sheet form");
+  if (f) [...f.elements].forEach((e, i) => { const v = ret.stash.vals[i]; if (v === undefined) return; if (e.type === "checkbox" || e.type === "radio") e.checked = v; else e.value = v; });
+  const k = $("#sheet [name=keptBox]"); if (k && id) k.value = id;
+}
 function boxForm(b) {
+  const back = boxReturn ? "boxBack" : "closeSheet";
   const cur = b ? b : { type: "storage", look: "black", color: "clear", spots: true };
-  openSheet(`<div class="sheet-head"><h2>${b ? "Edit box" : "New box"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  openSheet(`<div class="sheet-head"><h2>${b ? "Edit box" : "New box"}</h2><button class="x" data-act="${back}" aria-label="Close">✕</button></div>
   <form id="boxForm" data-id="${b ? esc(b.id) : ""}" autocomplete="off">
     <label class="f"><span>Name</span><input type="text" name="name" value="${esc(b ? b.name : "")}" placeholder="e.g. Black box 1" maxlength="40" required></label>
     <div class="grid2"><label class="f"><span>Kind</span><select name="type"><option value="storage" ${cur.type === "storage" ? "selected" : ""}>Storage box</option><option value="display" ${cur.type === "display" ? "selected" : ""}>Display box</option>${sellerOn() || cur.type === "dealer" ? `<option value="dealer" ${cur.type === "dealer" ? "selected" : ""}>Dealer case (show case)</option>` : ""}</select></label>
@@ -228,7 +240,7 @@ function boxForm(b) {
     <label class="f"><span>Slots in each</span><input type="number" inputmode="numeric" name="perRow" min="1" max="100" value="${b && hasSpots(b) ? b.perRow : ""}" placeholder="e.g. 20"></label></div>
     <div id="trayRows">${trayRowsHtml(b ? trayList(b).slice(1) : [], b ? trayList(b)[0] : null)}</div>
     <label class="f"><span>What's inside <span class="muted small">(optional)</span></span><textarea name="inside" rows="3" maxlength="500" placeholder="e.g. ziplock of Bicentennial quarters, pill bottle of halves">${esc(b ? b.inside || "" : "")}</textarea></label>
-    <div class="btn-row"><button type="submit" class="btn primary">${b ? "Save" : "Add box"}</button><button type="button" class="btn" data-act="closeSheet">Cancel</button></div></form>`, "sheet-75");
+    <div class="btn-row"><button type="submit" class="btn primary">${b ? "Save" : "Add box"}</button><button type="button" class="btn" data-act="${back}">Cancel</button></div></form>`, "sheet-75");
 }
 // Trays 2 and up: each copies the tray above unless you press Change.
 function trayRowsHtml(extra, first) {
@@ -285,6 +297,8 @@ function saveBoxForm(form) {
   if (rec.type === "dealer") rec.forSale = f.get("forSale") === "on"; else delete rec.forSale;
   if (f.get("dir") === "cols") rec.cols = true; else delete rec.cols; // switching only relabels: items keep their numbers
   put("b_" + rec.id, rec);
+  const ret = !old && boxReturn; boxReturn = null;
+  if (ret) { backFromBox(ret, rec.id); toast("Box added."); return; }
   closeSheet();
   toast(old ? "Box saved." : "Box added.", old ? { label: "Undo", fn: () => { put("b_" + before.id, before); coinsBefore.forEach((c) => put("c_" + c.id, c)); } } : undefined);
   if (!old) go("box-" + id);
@@ -298,7 +312,8 @@ function missingWheat() {
 Object.assign(actions, {
   boxTray: (el) => { boxTab[el.dataset.id] = +el.dataset.v || 1; render(); },
   trayChange: (el) => { const r = el.closest(".tray-row"); r.querySelector("[data-tr=changed]").value = "1"; r.querySelector("[data-fields]").hidden = false; r.querySelector("[data-same]").hidden = true; el.hidden = true; },
-  boxNew: () => boxForm(null),
+  boxNew: () => { boxReturn = null; boxForm(null); },
+  boxBack: () => { const ret = boxReturn; boxReturn = null; if (!ret) return closeSheet(); if (ret.kind === "coin") return renderCoinForm(); if (ret.kind === "move") return actions.mvOpen(); backFromBox(ret, ""); },
   boxEdit: (el) => { const b = getBox(el.dataset.id); if (b) boxForm(b); },
   boxAdd: (el) => {
     openCoinForm(null);
@@ -367,7 +382,7 @@ function albumKeptText(a) {
 // The "Kept in" field on New album / Edit album.
 function albumKeptField(a) {
   const opts = [...storageBoxes(), ...displayBoxes()].map((b) => `<option value="${esc(b.id)}" ${a && a.keptBox === b.id ? "selected" : ""}>${esc(b.name)}</option>`).join("");
-  return `<label class="f"><span>Kept in ${typeof wi === "function" ? wi("keptin") : ""}</span><select name="keptBox"><option value="">Not in a box</option>${opts}</select></label>
+  return `<label class="f"><span>Kept in ${typeof wi === "function" ? wi("keptin") : ""}</span><select name="keptBox"><option value="">Not in a box</option>${opts}<option value="__add">+ Add storage…</option></select></label>
     <label class="f"><span>Or type a place <span class="muted small">(optional)</span></span><input type="text" name="keptPlace" maxlength="60" value="${esc(a ? a.keptPlace || "" : "")}" placeholder="e.g. safe, top shelf"></label>`;
 }
 // Copies the Kept in fields from a form onto an album record (before it is saved).

@@ -2,7 +2,7 @@
 
 Last updated November 5, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 46, Sonnet):** build Step 9.7a: refund that keeps the record, "Paid for the whole lot", bulk asking price never below cost, Paid with not carried over, check number, black color, Untick all, one Photograde link per screen, "+ Add storage" from Kept in, guide bubble contrast, wording pass. Merge waits for the session 47 Opus review.
+**Next session starts here (session 48, Sonnet):** build Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. Merge waits for the session 49 Opus review. Still open from 9.7a: a full wording read of every screen.
 
 ## Session plan (one chat per session, done in order)
 
@@ -60,8 +60,8 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 22c | Sonnet | Same re-run: the coin-show seller (Seller Mode, all business features, ~10 sales, reports, CSV, tax documents) | ✅ `reviews/05-coin-show-seller-v0.52.md` (★★★★, 11 problems, 10 missing business features) |
 | 22d | Sonnet | Same re-run: the Whatnot live-stream collector/seller (IDEAS 13, same business checks plus stream costs, fees, shipping) | ✅ `reviews/06-whatnot-seller-v0.52.md` (★★★★, 11 problems, 11 missing business features) |
 | 45 | Opus | Read all six reviews + your 2026-11-05 notes, plan the next batch (Step 9.7); planning only | ✅ plan PR |
-| 46 | Sonnet | Step 9.7a: money fixes (refund keeps the record, Paid for the whole lot, bulk price never below cost) + your small notes. **Merge waits for session 47 review** | |
-| 47 | Opus | Short review of 9.7a (refund changes how a sale is saved), fix, merge (ask you first) | |
+| 46 | Sonnet | Step 9.7a: money fixes (refund keeps the record, Paid for the whole lot, bulk price never below cost) + your small notes. **Merge waits for session 47 review** | ✅ built v0.53.0, PR #153 open (not merged) |
+| 47 | Opus | Short review of 9.7a (refund changes how a sale is saved), fix, merge (ask you first) | ✅ reviewed, 6 fixes, merged v0.53.0 (PR #153) |
 | 48 | Sonnet | Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. **Merge waits for session 49 review** | |
 | 49 | Opus | Short review of 9.7b (orders change how sales are saved), fix, merge (ask you first) | |
 | 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | |
@@ -300,21 +300,21 @@ Why: a real album full of coins takes too long one coin at a time; your wooden b
 Why: the reviews found no crashes or lost coins, but a refund erases money you already spent and "Paid each" can give the wrong cost. Your notes add small clean-ups and a pocket album. **Weekly rhythm:** one or two of these sessions per week; stop building at about 70% weekly usage.
 
 ### 9.7a (session 46, Sonnet): money fixes + your small notes. **Refund changes how a sale is saved: Opus review (session 47) before merge.**
-- [ ] **Refund / cancel that keeps the record** (review 6 #5): on a sold coin, "Refund or cancel" puts the coin back in stock (personal or Business, as before) and keeps the sale on record marked **Refunded**: the fee and shipping you paid still count as costs; the sale price no longer counts as a sale. Old sales read as not refunded (convert on read). "Move back to collection" stays for real mistakes.
-- [ ] **"Paid for the whole lot"** (review 6 #6): when Quantity is more than 1, a switch **Price is: each / for the whole lot**, and a live line "Total: $24.50 for 20". Saved as price each, the way it is now (no change to saved data).
-- [ ] **Bulk asking price follows the coin's own rule** (review 5 #1): add "Suggested (never below cost + 10%)" to "Set asking price for all", and offer it from Select on any Business coins, not just a dealer case.
-- [ ] **"Paid with" doesn't carry over** between sales, except within the same show (review 5 #4). Edit sale refills eBay fees when the price changes (review 5 #5).
-- [ ] **Check number:** when Paid with is Check, one optional "Check #" box. Nothing else (no cleared or bounced tracking).
-- [ ] **Black** added to the spine and box colors.
-- [ ] **Untick all** (and Tick all) at the top of the album quick list.
-- [ ] **Photograde, one link per screen:** next to Grade on the coin form, and one link at the top of the quick list (all one coin type). Not on every row.
-- [ ] **"+ Add storage"** at the end of every Kept in list: makes a new box or place, then brings you back to the form you were on, with what you typed kept and the new storage picked.
-- [ ] **Guide bubble:** fix the white text on a very light background and the hard-to-see button (first-open guide, works in a private window too).
-- [ ] **Wording pass:** check capitals, spelling and grammar on every screen so it reads the same everywhere. Also the old lines from reviews 5 and 6: Seller Mode "later dealer cases, shows and reports", a sold coin still showing its old box slot, "Check eBay sold" on a Whatnot sale.
-- [ ] Tests (refund keeps fee, lot price, bulk price floor, Add storage round trip). Version (feature).
+- [x] ✅ **Refund / cancel that keeps the record** (review 6 #5): on a sold coin, "Refund or cancel" puts the coin back in stock (personal or Business, as before) and keeps the sale on record marked **Refunded**: the fee and shipping you paid still count as costs; the sale price no longer counts as a sale. Old sales read as not refunded (convert on read). "Move back to collection" stays for real mistakes.
+- [x] ✅ **"Paid for the whole lot"** (review 6 #6): when Quantity is more than 1, a switch **Price is: each / for the whole lot**, and a live line "Total: $24.50 for 20". Saved as price each, the way it is now (no change to saved data).
+- [x] ✅ **Bulk asking price follows the coin's own rule** (review 5 #1): add "Suggested (never below cost + 10%)" to "Set asking price for all", and offer it from Select on any Business coins, not just a dealer case.
+- [x] ✅ **"Paid with" doesn't carry over** between sales, except within the same show (review 5 #4). Edit sale refills eBay fees when the price changes (review 5 #5).
+- [x] ✅ **Check number:** when Paid with is Check, one optional "Check #" box. Nothing else (no cleared or bounced tracking).
+- [x] ✅ **Black** added to the spine and box colors.
+- [x] ✅ **Untick all** (and Tick all) at the top of the album quick list.
+- [x] ✅ **Photograde, one link per screen:** next to Grade on the coin form, and one link at the top of the quick list (all one coin type). Not on every row.
+- [x] ✅ **"+ Add storage"** at the end of every Kept in list: makes a new box or place, then brings you back to the form you were on, with what you typed kept and the new storage picked.
+- [x] ✅ **Guide bubble:** fix the white text on a very light background and the hard-to-see button (first-open guide, works in a private window too).
+- [ ] **Wording pass (partly done in session 46: the three old lines are fixed and the spellings of Whatnot, eBay, Photograde and Red Book checked; a full read of every screen is still open):** check capitals, spelling and grammar on every screen so it reads the same everywhere. Also the old lines from reviews 5 and 6: Seller Mode "later dealer cases, shows and reports", a sold coin still showing its old box slot, "Check eBay sold" on a Whatnot sale.
+- [x] ✅ Tests (refund keeps fee, lot price, bulk price floor, Add storage round trip). Version (feature).
 
 ### Session 47 (Opus): short review of 9.7a
-- [ ] Review refunds: old sales, refund then sell again, reports and tax CSV after a refund, Undo. Fix, then merge (ask you first).
+- [x] ✅ Review refunds: old sales, refund then sell again, reports and tax CSV after a refund, Undo. Fix, then merge (ask you first).
 
 ### 9.7b (session 48, Sonnet): sales and shows. **Orders change how sales are saved: Opus review (session 49) before merge.**
 - [ ] **One order, several coins** (reviews 5 and 6, top wish): Select → "Sell together": one buyer, one order number, one tracking number, one shipping charge, one flat fee (e.g. one 30¢ Whatnot fee), each coin keeps its own price. Each coin still shows as sold; reports count the order once for fees and shipping. A refund (9.7a) can be for one coin or the whole order.

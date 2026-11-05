@@ -29,6 +29,12 @@ function repData(p) {
   const showCost = {}; SHOW_COSTS.forEach(([k]) => { showCost[k] = r2(sum(shows, (s) => num(s.costs && s.costs[k]))); });
   const showTotal = r2(sum(Object.values(showCost), (x) => x));
   const t = soldTotals(biz);
+  // Refunded sales: the money is given back (not a sale), but the fees and shipping you paid still count as costs.
+  // Counted in the period of the sale, when the fees and shipping were paid.
+  const inPeriod = refundRecs().filter((x) => { const d = String(x.date || "").slice(0, 10); return d >= r.start && d <= r.end; });
+  const addRefunds = (tt, list) => { tt.fees = r2(tt.fees + sum(list, (x) => num(x.fees))); tt.shipPaid = r2(tt.shipPaid + sum(list, (x) => (num(x.shipping) || 0) + (num(x.insurance) || 0))); return tt; };
+  const refunded = inPeriod.filter((x) => x.biz), persRefunded = inPeriod.filter((x) => !x.biz);
+  addRefunds(t, refunded);
   const profit = r2(t.receipts - t.cost - t.fees - t.shipPaid - showTotal);
   // Platforms (Business sales only). Gross includes shipping and sales tax, the way platforms report it on a 1099-K.
   const plat = {};
@@ -43,14 +49,14 @@ function repData(p) {
   const sc = { receipts: t.receipts, cogs: t.cost, gross: r2(t.receipts - t.cost), fees: t.fees, shipping: t.shipPaid, table: showCost.table, travel: r2(showCost.gas + showCost.hotel), meals: showCost.food, other: showCost.other };
   sc.expenses = r2(sc.fees + sc.shipping + sc.table + sc.travel + sc.meals + sc.other);
   sc.net = r2(sc.gross - sc.expenses);
-  return { r, biz, pers, shows, showCost, showTotal, t, profit, platforms, stockCost, stockNow, sc, persT: soldTotals(pers) };
+  return { r, refunded, biz, pers, shows, showCost, showTotal, t, profit, platforms, stockCost, stockNow, sc, persT: addRefunds(soldTotals(pers), persRefunded), persRefunded };
 }
 
 /* ---- the numbers as label/value lists (shared by the screen and the printable page) ---- */
 function repSections(d, fm) {
   const { t, sc } = d;
   return [
-    ["Summary", [["Items sold", String(t.n)], ["Sales", fm(t.sales)], ["Shipping charged", fm(t.ship)], ["Cost of coins sold", fm(t.cost)], ["Platform fees", fm(t.fees)],
+    ["Summary", [["Items sold", String(t.n)], ...(d.refunded && d.refunded.length ? [["Refunded sales (their fees and shipping still count as costs)", String(d.refunded.length)]] : []), ["Sales", fm(t.sales)], ["Shipping charged", fm(t.ship)], ["Cost of coins sold", fm(t.cost)], ["Platform fees", fm(t.fees)],
       ["Shipping and insurance paid", fm(t.shipPaid)], ["Show costs", fm(d.showTotal)], ["Profit", fm(d.profit), "b"]]],
     ["Sales tax collected (not income; kept apart)", [["Sales tax collected", fm(t.tax)]]],
     ["Business stock", [["At cost, at the end of the period", fm(d.stockCost)], ["Value today (Red Book, melt or your value)", fm(d.stockNow)]]],
@@ -72,7 +78,7 @@ function viewReports() {
   const kinds = [["month", "Month"], ["quarter", "Quarter"], ["year", "Year"]];
   const plat = d.platforms.length ? `<div class="card"><b>By platform</b><div class="small muted">Gross includes shipping and sales tax. For 1099-K checks.</div>
       ${d.platforms.map((x) => `<div class="rowline"><span>${esc(x.name)} <span class="muted small">${x.n} sold${x.check ? " · check 1099-K" : ""}</span></span><span class="num">${money(x.gross)} <span class="muted small">fees ${money(x.fees)}</span></span></div>`).join("")}</div>` : "";
-  const pers = d.pers.length ? `<div class="card"><b>Personal sales (not business)</b><div class="small muted">Kept apart; not in the totals above.</div>
+  const pers = d.pers.length || (d.persRefunded || []).length ? `<div class="card"><b>Personal sales (not business)</b><div class="small muted">Kept apart; not in the totals above.</div>
       <div class="rowline"><span>${d.persT.n} sold for</span><span class="num">${money(d.persT.sales)}</span></div><div class="rowline"><span>What you paid</span><span class="num">${money(d.persT.cost)}</span></div>
       <div class="rowline"><span>Fees and shipping paid</span><span class="num">${money(r2(d.persT.fees + d.persT.shipPaid))}</span></div></div>` : "";
   return `<h1>Reports</h1>

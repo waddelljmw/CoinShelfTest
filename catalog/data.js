@@ -251,7 +251,7 @@ const HOLDERS = ["Album", "Slab", "Hard case", "Capsule", "2x2 cardboard flip", 
 const HOLDER_RENAMES = { "2x2": "2x2 cardboard flip", "Flip": "Plastic flip" };
 const normHolder = (h) => HOLDER_RENAMES[h] || h || "";
 // Colors for plastic storage boxes and for "Other" album spines: [key, label, color].
-const BOX_COLORS = [["clear", "Clear", "#dfe9ee"], ["white", "White", "#f4f4f0"], ["red", "Red", "#9a2a2a"], ["dark blue", "Dark blue", "#1f3a66"], ["yellow", "Yellow", "#d8b72a"], ["dark green", "Dark green", "#1f5a38"], ["orange", "Orange", "#d07a22"], ["dark brown", "Dark brown", "#4a2f1c"]];
+const BOX_COLORS = [["clear", "Clear", "#dfe9ee"], ["white", "White", "#f4f4f0"], ["red", "Red", "#9a2a2a"], ["dark blue", "Dark blue", "#1f3a66"], ["yellow", "Yellow", "#d8b72a"], ["dark green", "Dark green", "#1f5a38"], ["orange", "Orange", "#d07a22"], ["dark brown", "Dark brown", "#4a2f1c"], ["black", "Black", "#1c1c1c"]];
 const colorHex = (k, dflt) => (BOX_COLORS.find((x) => x[0] === k) || BOX_COLORS.find((x) => x[0] === dflt) || BOX_COLORS[2])[2];
 // Holders offered for sets and rolls.
 const SET_HOLDERS = ["Hard plastic", "Cellophane", "Mint box", "Other"];

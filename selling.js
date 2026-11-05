@@ -19,6 +19,14 @@ function saleProfit(c) {
   const s = c.sold || {};
   return r2((num(s.amount) || 0) + (num(s.shipCharged) || 0) - (costOf(c) || 0) - (num(s.fees) || 0) - (num(s.shipping) || 0) - (num(s.insurance) || 0));
 }
+/* Refunded sales (Step 9.7a review): one list for every money total. Each refund keeps the group it was sold in
+   (Business or Personal; older refunds use the coin's current group). Deleted and inherited coins are left out, like their sales. */
+function refundRecs() {
+  const out = [];
+  allCoins().filter((c) => c.status !== "deleted" && !isInherited(c)).forEach((c) => (c.refunds || []).forEach((x) => out.push({ ...x, biz: x.biz != null ? !!x.biz : !!c.biz })));
+  return out;
+}
+const refundCost = (x) => (num(x.fees) || 0) + (num(x.shipping) || 0) + (num(x.insurance) || 0); // fees, shipping and insurance you still paid
 const saleMoneyIn = (c) => (num(c.sold && c.sold.amount) || 0) + (num(c.sold && c.sold.shipCharged) || 0);
 
 /* ---- Asking price field (shown when status is For sale) ---- */
@@ -93,8 +101,9 @@ function openSell(id, edit) {
   const sf = !edit && sv.shipping == null ? shipFor(c) : null; // saved shipping cost for this coin type
   const moreOpen = edit && ["shipCharged", "orderNo", "trackNo", "shipping", "insurance", "to"].some((k) => sv[k] != null && sv[k] !== "") || sf != null;
   const mon = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" name="${k}" placeholder="$" value="${fv(k === "shipping" && sf != null ? sf : sv[k])}"></label>`;
-  const payNow = edit ? sv.payMethod : sv.payMethod || settings().lastPay || ""; // a new sale starts with the way you were paid last time
   const sh0 = !edit && typeof showToday === "function" && typeof showPicker === "function" && sellerOn() && !isInherited(c) ? showToday() : null;
+  // "Paid with" starts blank, except within the same show (a table of cash sales stays on Cash).
+  const payNow = edit ? sv.payMethod : sv.payMethod || (sh0 && settings().lastPayShow === sh0.id ? settings().lastPay : "") || "";
   const date0 = edit ? fv(sv.date) : sh0 ? saleDateForShow(sh0) : today();
   openSheet(`<div class="sheet-head"><h2>${edit ? "Edit sale" : "Mark as sold"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <p><b>${esc(labelOf(c))}</b>${c.cid ? ` <span class="muted small">${esc(c.cid)}</span>` : ""}</p>
@@ -106,6 +115,7 @@ function openSell(id, edit) {
     ${typeof showPicker === "function" ? showPicker(c, sv, edit) : ""}
     <div class="grid2">${mon("fees", "Platform fees")}${mon("salesTax", "Sales tax collected")}</div><div class="hint" id="feeHint"></div>
     <label class="f"><span>Paid with</span><select name="payMethod"><option value="">Choose…</option>${PAY_METHODS.map((x) => `<option ${payNow === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+    <label class="f" id="checkRow" ${payNow === "Check" ? "" : "hidden"}><span>Check # (optional)</span><input type="text" name="checkNo" value="${fv(sv.checkNo)}" maxlength="20"></label>
     ${whereFields(!edit && typeof showSaleDefault === "function" && showSaleDefault(c) ? { ...sv, ...showSaleDefault(c) } : sv)}
     <details class="more" ${moreOpen ? "open" : ""}><summary>More details</summary>
       <div class="grid2">${mon("shipCharged", "Shipping you charged")}${mon("shipping", "Shipping you paid (label)")}</div>${sf != null ? `<div class="hint">Shipping paid is filled in from your saved shipping costs. Change it if this one was different.</div>` : ""}
@@ -119,7 +129,10 @@ function openSell(id, edit) {
     <div class="btn-row"><button class="btn primary" type="submit">${edit ? "Save sale" : "Mark sold"}</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
   const f = $("#sellForm");
-  if (edit) f.dataset.feeTouched = "1"; // editing a sale: never change its fee by itself (the estimate shows in the hint)
+  if (edit) { // editing a sale: a fee you typed stays; a fee that is still the estimate follows the price when it changes
+    const e0 = estimateFees(sv.whereType, sv.amount, sv.shipCharged, sv.salesTax);
+    if (!(sv.fees != null && e0 != null && r2(num(sv.fees)) === e0)) f.dataset.feeTouched = "1";
+  }
   sellRecalc(f);
 }
 // A new sale's date at a show: today if the show is running, otherwise the show's first day.
@@ -159,6 +172,7 @@ document.addEventListener("input", (e) => {
 document.addEventListener("change", (e) => {
   const f = e.target.closest && e.target.closest("#sellForm");
   if (e.target.id === "whereType") sellRecalc(f);
+  if (f && e.target.name === "payMethod") { const r = $("#checkRow"); if (r) r.hidden = e.target.value !== "Check"; }
   if (e.target.id === "showId" && f && !f.dataset.edit && !f.dataset.dateTouched && typeof getShow === "function") { // picking a show sets the date, unless you chose one
     f.elements.date.value = e.target.value ? saleDateForShow(getShow(e.target.value)) : today();
     sellRecalc(f);
@@ -174,7 +188,7 @@ function doSell(form) {
   const m = (k) => num(fd.get(k));
   const sold = { at: Date.now(), date: fd.get("date") || today(), amount: m("amount"), shipping: m("shipping"), insurance: m("insurance"),
     shipCharged: m("shipCharged"), fees: m("fees"), salesTax: m("salesTax"), payMethod: String(fd.get("payMethod") || ""),
-    orderNo: String(fd.get("orderNo") || "").trim(), trackNo: String(fd.get("trackNo") || "").replace(/\s+/g, ""),
+    orderNo: String(fd.get("orderNo") || "").trim(), checkNo: String(fd.get("checkNo") || "").trim(), trackNo: String(fd.get("trackNo") || "").replace(/\s+/g, ""),
     ...readWhere(fd), to: String(fd.get("soldTo") || "").trim() };
   if (!form.dataset.edit) { const was = wasKeptIn(c); if (was) sold.keptIn = was; } // where it lived before the sale
   const showId = String(fd.get("showId") || "");
@@ -183,7 +197,8 @@ function doSell(form) {
     const w = !sold.whereType && typeof whereFromShow === "function" ? whereFromShow(getShow(showId)) : null;
     if (w) { Object.assign(sold, w); sold.where = whereText(sold); }
   }
-  if (sold.payMethod && sold.payMethod !== settings().lastPay) saveSettings({ lastPay: sold.payMethod }, true);
+  if (sold.payMethod !== "Check") delete sold.checkNo;
+  if (sold.payMethod && !form.dataset.edit) saveSettings({ lastPay: sold.payMethod, lastPayShow: sold.showId || "" }, true);
   if (form.dataset.edit) {
     const old = c.sold || {}; // keep what the form doesn't show: where it was kept, and its show when the Show field is hidden
     const keep = { keptIn: old.keptIn }; if (!fd.has("showId")) keep.showId = old.showId;
@@ -199,7 +214,7 @@ function doSell(form) {
     const lotId = c.lotId || c.id;
     const ex = splitExtras(c, n); // tax, shipping and fees shared by quantity
     saveCoin({ ...c, ...ex.keep, qty: q - n, lotId, ...(ask != null ? { ask: r2(ask * (q - n) / q) } : {}) });
-    saveCoin({ ...c, ...ex.part, id: uid(), cid: undefined, qty: n, status: "sold", stage: "", sold, splitFrom: c.id, lotId, ...(ask != null ? { ask: r2(ask * n / q) } : {}) });
+    saveCoin({ ...c, ...ex.part, id: uid(), cid: undefined, refunds: undefined, qty: n, status: "sold", stage: "", sold, splitFrom: c.id, lotId, ...(ask != null ? { ask: r2(ask * n / q) } : {}) }); // earlier refunds stay with the piece that kept the stock
   } else {
     saveCoin({ ...c, status: "sold", stage: "", sold });
   }
