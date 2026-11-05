@@ -58,12 +58,14 @@ function brandSpine(a) {
 const SPINES_PER_SHELF = 9, ALBUM_SHELVES = 2, GROUPS_PER_SHELF = 5;
 function shelfAlbums() {
   const units = albumUnits();
-  if (!units.length) return [`<button class="sh-ghost" data-go="albums">No albums yet<br>Tap to add one</button>`];
+  if (!units.length && !pocketAlbums().length) return [`<button class="sh-ghost" data-go="albums">No albums yet<br>Tap to add one</button>`];
   const all = [];
   units.forEach((u, i) => u.items.forEach((a) => { if (itemShown(a.id)) all.push([a, i]); }));
+  pocketAlbums().forEach((b) => { if (itemShown(b.id)) all.push([b, -1]); });
   const cap = SPINES_PER_SHELF * ALBUM_SHELVES;
   const more = all.length > cap ? all.length - (cap - 1) : 0;
   const spines = all.slice(0, more ? cap - 1 : cap).map(([a, i]) => {
+    if (a.type === "pocket") return pocketSpine(a);
     const st = albumStats(a);
     const done = st.total && st.owned === st.total;
     const h = st.total > 120 ? "tall" : st.total < 40 ? "short" : "";

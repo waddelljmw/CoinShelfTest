@@ -2,7 +2,7 @@
 
 Last updated November 5, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 51, Sonnet):** build Step 9.7d: pocket album (flips or capsules, any coin in any pocket, pages with tabs). Merge waits for the session 52 Opus review. Still open from 9.7a: a full wording read of every screen (not done in 9.7c).
+**Next session starts here (session 53, Opus, planning day Tue 2026-11-10 1pm):** adversarial bug review, then sort his notes and IDEAS.md into the week's top 3 (cost rules for CLAUDE.md are one of them). Still open from 9.7a: a full wording read of every screen.
 
 ## Session plan (one chat per session, done in order)
 
@@ -65,8 +65,9 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 48 | Sonnet | Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. **Merge waits for session 49 review** | ✅ built v0.54.0, PR open (not merged) |
 | 49 | Opus | Short review of 9.7b (orders change how sales are saved), fix, merge (ask you first) | ✅ reviewed, 3 fixes, merged v0.54.1 (PR #154) |
 | 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | ✅ merged v0.55.0 |
-| 51 | Sonnet | Step 9.7d: pocket album (flips/capsules in rows and columns). **Merge waits for session 52 review** | |
-| 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | |
+| 51 | Sonnet | Step 9.7d: pocket album (flips/capsules in rows and columns). **Merge waits for session 52 review** | ✅ v0.56.0, PR open (branch `step-9-7d-pocket-album`) |
+| 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | ✅ reviewed, 3 small fixes (pocket album kept in a box, pocket wording), also fixed automatic tests (PR #157) |
+| 53 | Opus | Planning day (Tue 2026-11-10): bug review, sort notes + IDEAS into the week's top 3 | |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
@@ -102,7 +103,7 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - ✅ done v0.31.1 **Session 11: smaller Home chips.** My collection, Inherited, My Silver Stack become thin pills in **one row you swipe left/right**; turned-off ones look gray. Must still be easy to spot.
 
 
-**Starting a new chat** (fast version, no whole-plan read, no test run): paste *"Open my repo waddelljmw/CoinShelfTest. Read CLAUDE.md and IDEAS.md. From PLAN.md read only the "Next session starts here" line, the session table and the next unchecked step, not the whole file. Do a quick check with no test run: last PR merged, checklist ticked, Fix list empty. (Bug reports are not checked while he is the only user; he will say when to start again.) Fix any gap. Tell me which model the next session needs and which model you are (if they differ, tell me to switch and stop). Then say in 1–2 lines what the session will do and wait for my go."*
+**Starting a new chat** (fast version, no whole-plan read, no test run): paste *"Open my repo waddelljmw/CoinShelfTest. Read CLAUDE.md and IDEAS.md. From PLAN.md read only the "Next session starts here" line, the session table and the next unchecked step, not the whole file. Do a quick check with no test run: last PR merged, checklist ticked, Fix list empty. (Bug reports are not checked while he is the only user; he will say when to start again.) Fix any gap. Tell me which model the next session needs and which model you are (if they differ, tell me to switch and stop). Then say in 1–2 lines what the session will do and wait for my go. Never merge a PR marked "merge waits" or with red or unfinished GitHub tests."*
 
 ## After Phase 8 (session 17, Sonnet; kept here so the Fix list stays empty for the start check)
 - [x] ✅ All items below built in v0.36.0 (branch `session-17-tidy`, test `tests/session17.js`). Options sections start folded; "Don't ask before For sale" and the junk silver switch are in Options.
@@ -341,14 +342,15 @@ Why: the reviews found no crashes or lost coins, but a refund erases money you a
 - [x] ✅ Tests. Version (feature).
 
 ### 9.7d (session 51, Sonnet): pocket album. **New kind of album: Opus review (session 52) before merge.**
-- [ ] **New album → "Pocket album (flips or capsules)":** asks pages, pockets across and pockets down (yours: 2 across, 3 down). **Any coin can go in any pocket** (no date list), coins keep their holder (flip, capsule, slab).
-- [ ] Built on the box tray code (pages work like trays), so it's cheap and well tested. The album page shows one page at a time with page tabs; spot pickers and "next free pocket" work the same.
-- [ ] Shows on the Home shelf like other albums; has Kept in and spine color (black included). No "missing" or want-list spots, since it has no set list.
-- [ ] **Old albums unchanged** (they read as hole albums). Backup, restore and CSV carry the page and pocket.
-- [ ] Tests. Version (feature).
+- [x] ✅ **New album → "Pocket album (flips or capsules)":** asks pages, pockets across and pockets down (yours: 2 across, 3 down). **Any coin can go in any pocket** (no date list), coins keep their holder (flip, capsule, slab).
+- [x] ✅ Built on the box tray code (pages work like trays), so it's cheap and well tested. The album page shows one page at a time with page tabs; spot pickers and "next free pocket" work the same.
+- [x] ✅ Shows on the Home shelf like other albums; has Kept in and spine color (black included). No "missing" or want-list spots, since it has no set list.
+- [x] ✅ **Old albums unchanged** (they read as hole albums). Backup, restore and CSV carry the page and pocket.
+- [x] ✅ Tests. Version (feature).
+- Built as a box of type `pocket` (`pockets.js`): pages = trays, rows = pockets down, perRow = across, up to 40 pages. Shows in Albums list, Home shelf spines and Kept-in lists; hidden from the Storage page. Test `tests/pocket97d.js`.
 
 ### Session 52 (Opus): short review of 9.7d
-- [ ] Review pocket albums: old albums and backups, moving a coin between a pocket album and a box, shrinking pages with coins in them, deleting the album. Fix, then merge (ask you first).
+- [x] ✅ Review pocket albums: old albums and backups, moving a coin between a pocket album and a box, shrinking pages with coins in them, deleting the album. Fix, then merge (ask you first).
 
 ### Not now (from the reviews; add only if you ask)
 - Buyer receipt or invoice, to-ship list, stream run sheet, payout match-up, buyer list, giveaways, auction vs buy-it-now, trades, layaway and consignment, mileage rate, stock age.

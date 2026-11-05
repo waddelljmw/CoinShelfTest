@@ -344,7 +344,7 @@ function viewCoin(r) {
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
       ${c.gradeMode === "cert" ? row("Catalog number", esc(c.catNo)) : ""}
       ${row("Holder", esc(holderText(c)))}
-      ${(() => { const bx = c.boxId && getBox(c.boxId); return bx && c.status !== "sold" ? row(bx.type === "display" ? "Display box" : "Storage box", esc(boxText(c))) : ""; })()}
+      ${(() => { const bx = c.boxId && getBox(c.boxId); return bx && c.status !== "sold" ? row(bx.type === "pocket" ? "Pocket album" : bx.type === "display" ? "Display box" : "Storage box", esc(boxText(c))) : ""; })()}
       ${row("COA", c.coa ? "Included" : null)}
       ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
