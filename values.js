@@ -179,8 +179,12 @@ function groupsPresent() {
 }
 const hiddenGroups = () => settings().hiddenGroups || [];
 // Stacks (Step 2.7): bars, rounds and other silver items, plus junk silver coins you put in one. Pure ounces = weight × purity.
-const BULLION_SHAPES = ["Bar", "Round", "Other"];
-const shapeName = (s) => (s === "Other" || s === "Shape" ? "Other silver item" : s || "Bar");
+const BULLION_SHAPES = ["Bar", "Round", "Junk", "Other"];
+const shapeName = (s) => (s === "Other" || s === "Shape" ? "Other silver item" : s === "Junk" ? "Junk silver" : s || "Bar");
+// Junk silver by face value: pure silver (troy oz) per $1 of face value. 90%: dime 0.07234 oz, so $1 = 0.7234 (Numismatic News). 40% Kennedy half 0.14792 oz, so $1 = 0.29584. 35% war nickel 0.05626 oz, so $1 = 1.1252 (Greysheet, dealer specs).
+const JUNK_KINDS = [["90", "90% silver (dimes, quarters, halves to 1964)", 0.7234], ["40", "40% silver (Kennedy halves 1965-1970)", 0.29584], ["35", "35% silver (war nickels 1942-1945)", 1.1252]];
+const junkKindOf = (c) => JUNK_KINDS.find((k) => k[0] === String(c.jKind)) || JUNK_KINDS[0];
+const junkOz = (c) => { const f = num(c.jFace); return f && f > 0 ? Math.round(f * junkKindOf(c)[2] * 100000) / 100000 : 0; };
 const BULLION_HOLDERS = ["Loose", "Capsule", "Tube", "Mint box", "Bag", "Other"];
 const bullionOz = (c) => { const w = num(c.bWeight), p = num(c.bPurity); return w && p ? Math.round(w * p * 100000) / 100000 : 0; };
 const stackOf = (c) => { const s = String(c.stack || "").trim(); return itemOf(c) === "bullion" ? s || "My " + (c.metal || "Silver") + " Stack" : s; };
@@ -190,7 +194,8 @@ const stackNames = () => [...new Set(["My Silver Stack", ...allCoins().map(stack
 const hasStackItem = () => ownedCoins().some((c) => itemOf(c) === "bullion" || itemOf(c) === "roll" || !!stackOf(c));
 const hiddenStacks = () => settings().hiddenStacks || [];
 // A stacked item counts only when its group chip AND its stack chip are on.
-const countedCoins = () => ownedCoins().filter((c) => !c.biz && !hiddenGroups().includes(groupOf(c)) && !hiddenStacks().includes(stackOf(c)));
+const isCounted = (c) => !c.biz && !hiddenGroups().includes(groupOf(c)) && !hiddenStacks().includes(stackOf(c)); // in the Home totals
+const countedCoins = () => ownedCoins().filter(isCounted);
 const isInherited = (c) => (c.source || "").trim().toLowerCase() === "inherited";
 // Inheritances (made in Options): { id, from, date, earlier: [{ who, when }], valueWhen }. A coin points to one with inhId; the first is the default (settings.inhDefault).
 const inheritances = () => (Array.isArray(settings().inheritances) ? settings().inheritances : []);
@@ -202,7 +207,7 @@ const inhValueOf = (c) => { const i = inheritanceOf(c); return num(c.inhValue) ?
 function missingOf(c) {
   if (!c || c.status !== "owned") return [];
   const m = [];
-  if (itemOf(c) === "coin" && !c.grade) m.push("grade");
+  if (itemOf(c) === "coin" && !c.grade && !c.noGrade) m.push("grade");
   if (isInherited(c)) { const i = inheritanceOf(c); if (!(i && String(i.date || "").trim()) && !String(c.acquired || "").trim()) m.push("inherit date"); }
   else if (costOf(c) == null) m.push("cost");
   return m;
@@ -272,10 +277,11 @@ function trackUrl(c) {
 const pastSellers = () => [...new Set(allCoins().map((c) => (c.seller || "").trim()).filter(Boolean))].sort();
 
 function gradeText(c) {
+  if (itemOf(c) === "bullion" && c.bShape === "Junk") return "Junk silver " + junkKindOf(c)[0] + "%" + (num(c.jFace) ? " · " + "$" + num(c.jFace) + " face" : "");
   if (itemOf(c) === "bullion") return [shapeName(c.bShape), barWeightText(c), num(c.bPurity) ? String(num(c.bPurity)).replace(/^0/, "") : ""].filter(Boolean).join(" · ");
   if (itemOf(c) === "set") return holderText(c) || "Set";
   if (itemOf(c) === "roll") return ["Roll of " + rollCountOf(c), c.rollCond, c.bankWrap ? "bank wrap" : ""].filter(Boolean).join(" · ");
-  const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade;
+  const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? "Not graded" : "");
   const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "")
     + (hasProblems(c) ? " Details" : "") + (c.variety ? " · " + c.variety : "") + (c.knownVar ? " · " + c.knownVar : "");
   if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;

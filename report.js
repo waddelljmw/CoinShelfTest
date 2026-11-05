@@ -32,6 +32,7 @@ function openReportForm() {
       <label class="switch"><span>Include where it's kept<div class="small muted">Adds a Kept in column (album, box with row and slot, or stack).</div></span><input type="checkbox" id="repKept"></label>
       <label class="switch"><span>Include photos<div class="small muted">Adds a small picture of each coin. Makes the file larger.</div></span><input type="checkbox" id="repPhotos"></label>
     </div>
+    <label class="f"><span>Order of the list</span><select id="repOrder"><option value="type">Coin type, then year</option><option value="year">Year</option><option value="value">Value, highest first</option><option value="kept">Where it's kept</option></select></label>
     <label class="f"><span>Name on the report (optional)</span><input type="text" id="repName" placeholder="Your name" maxlength="80"></label>
     <div class="btn-row"><button class="btn primary" data-act="makeReport" ${owned.length ? "" : "disabled"}>Create report</button><button class="btn" data-act="closeSheet">Cancel</button></div>
     <div class="hint" id="repMsg">It saves as a file that opens in your browser. From there, print it or save it as a PDF.</div>`);
@@ -80,7 +81,9 @@ const SOURCE_TEXT = { entered: "Owner's value", book: "Red Book", melt: "Melt", 
 
 async function buildReport(opts) {
   const s = settings();
-  const coins = ownedCoins().filter((c) => !opts.ids || opts.ids.has(c.id)).slice().sort((a, b) => familyOf(a).localeCompare(familyOf(b)) || (+a.year || 0) - (+b.year || 0) || normMint(a.mint).localeCompare(normMint(b.mint)));
+  const byType = (a, b) => familyOf(a).localeCompare(familyOf(b)) || (+a.year || 0) - (+b.year || 0) || normMint(a.mint).localeCompare(normMint(b.mint));
+  const order = { type: byType, year: (a, b) => (+a.year || 99999) - (+b.year || 99999) || byType(a, b), value: (a, b) => (bestEach(b) || 0) * qtyOf(b) - (bestEach(a) || 0) * qtyOf(a) || byType(a, b), kept: (a, b) => (keptText(a) || "\uffff").localeCompare(keptText(b) || "\uffff") || byType(a, b) }[opts.order] || byType;
+  const coins = ownedCoins().filter((c) => !opts.ids || opts.ids.has(c.id)).slice().sort(order);
   const totQty = sum(coins, qtyOf);
   const totVal = sum(coins, (c) => (bestEach(c) || 0) * qtyOf(c));
   const totMelt = sum(coins, (c) => (meltEach(c) || 0) * qtyOf(c));
@@ -97,7 +100,7 @@ async function buildReport(opts) {
   const rows = coins.map((c, i) => {
     const v = bestEach(c), q = qtyOf(c), mt = meltEach(c);
     const certLine = c.gradeMode === "cert" && c.cert ? `<div class="sub">Cert ${esc(c.cert)}</div>` : "";
-    const extra = [isInherited(c) ? "Inherited" : "", c.acquired ? "Acquired " + esc(c.acquired) : "", c.variety ? esc(c.variety) : "", c.fbl ? "Full Bell Lines" : "", c.sms ? "Special Mint Set" : ""].filter(Boolean).join(" · ");
+    const inh = inheritanceOf(c), extra = [isInherited(c) ? (inh && (inh.earlier || []).length ? "Inherited: " + esc(inhHistory(inh)) : "Inherited" + (inh ? " from " + esc(inhLabel(inh)) : "")) : "", c.cac ? "CAC " + esc(c.cac) : "", c.acquired ? "Acquired " + esc(c.acquired) : "", c.variety ? esc(c.variety) : "", c.fbl ? "Full Bell Lines" : "", c.sms ? "Special Mint Set" : ""].filter(Boolean).join(" · ");
     return `<tr>
       <td class="n">${i + 1}</td>
       ${opts.photos ? `<td class="ph">${thumbs[c.id] ? `<img src="${thumbs[c.id]}" alt="">` : ""}</td>` : ""}
@@ -172,7 +175,7 @@ ${metalRows ? `<h2>Precious metal content</h2><table><thead><tr><th>Metal</th><t
 }
 
 async function makeReport() {
-  const opts = { kept: !!($("#repKept") || {}).checked, paid: !!($("#repPaid") || {}).checked, photos: !!($("#repPhotos") || {}).checked, name: ($("#repName") || {}).value || "" };
+  const opts = { kept: !!($("#repKept") || {}).checked, paid: !!($("#repPaid") || {}).checked, photos: !!($("#repPhotos") || {}).checked, name: ($("#repName") || {}).value || "", order: ($("#repOrder") || {}).value || "type" };
   const msg = $("#repMsg");
   if (repSel.mode === "pick") {
     const ids = new Set(ownedCoins().filter((c) => repSel.ids.has(c.id)).map((c) => c.id));

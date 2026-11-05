@@ -64,10 +64,12 @@ const actions = {
   delete: (el) => {
     const c = getCoin(el.dataset.id);
     if (!c) return;
-    const prevStatus = c.status;
-    saveCoin({ ...c, status: "deleted", prevStatus, deletedAt: Date.now() });
-    go(coinBackTarget());
-    toast("Coin deleted.", { label: "Undo", fn: () => { const x = getCoin(c.id); if (x) { const n = { ...x, status: prevStatus }; const note = n.status === "owned" ? (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "") : ""; saveCoin(n); toast("Restored." + note); } } });
+    confirmSheet("Delete this coin?", labelOf(c) + " leaves your lists. You can still Undo right after.", "Delete", () => {
+      const prevStatus = c.status;
+      saveCoin({ ...c, status: "deleted", prevStatus, deletedAt: Date.now() });
+      go(coinBackTarget());
+      toast("Coin deleted.", { label: "Undo", fn: () => { const x = getCoin(c.id); if (x) { const n = { ...x, status: prevStatus }; const note = n.status === "owned" ? (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "") : ""; saveCoin(n); toast("Restored." + note); } } });
+    });
   },
   received: (el) => {
     const c = getCoin(el.dataset.id);
@@ -119,6 +121,7 @@ const actions = {
       <div class="btn-row"><button class="btn primary" data-act="forSaleOk" data-id="${esc(c.id)}">Yes, for sale</button><button class="btn" data-act="closeSheet">Cancel</button></div>`);
   },
   forSaleOk: (el) => { const no = $("#fsNoAsk"); if (no && no.checked) saveSettings({ skipForSaleAsk: true }, true); closeSheet(); putForSale(el.dataset.id, true); },
+  sellLater: (el) => { const c = getCoin(el.dataset.id); if (!c) return; const on = !c.sellLater; saveCoin({ ...c, sellLater: on }); toast(on ? "Noted. It stays marked Inherited." : "Note removed."); go("coin-" + c.id); },
   notForSale: (el) => putForSale(el.dataset.id, false),
   homeTog: (el) => saveSettings({ [el.dataset.v]: el.checked }),
   homeSec: (el) => { const c = { ...(settings().homeClosed || {}) }; if (c[el.dataset.v]) delete c[el.dataset.v]; else c[el.dataset.v] = true; saveSettings({ homeClosed: c }); },
@@ -185,11 +188,12 @@ const actions = {
   gmode: (el) => { draft.gradeMode = el.dataset.v; if (draft.gradeMode === "raw" && draft.holder === "Slab") draft.holder = ""; if (draft.gradeMode === "cert" && draft.grade === "Junk") draft.grade = ""; renderCoinForm(); },
   pickType: (el) => pickType(el.dataset.id),
   what: (el) => {
-    const v = el.dataset.v;
+    const junk = el.dataset.v === "junk", v = junk ? "bullion" : el.dataset.v;
     draft._what = v === "roll" ? "us" : v;
     if (v === "set" || v === "roll" || v === "bullion") { draft.item = v; draft.family = v === "set" ? "Sets" : v === "bullion" ? "Bullion" : ""; draft.typeId = ""; draft.mint = ""; }
     else delete draft.item;
     if (v === "bullion") Object.assign(draft, { bShape: "Bar", bPurity: "0.999", metal: "Silver", typeName: "Bullion" });
+    if (junk) Object.assign(draft, { bShape: "Junk", bPurity: "1", bUnit: "oz", jKind: "90", jFace: "", bWeight: "" });
     if (v === "other") { draft.typeId = ""; draft.mint = ""; }
     renderCoinForm();
   },
@@ -257,7 +261,7 @@ const actions = {
 };
 
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
-const SNAPSHOT_BLOCK = new Set(("fillSpots fillGo edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
+const SNAPSHOT_BLOCK = new Set(("fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
   "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums sortAlbumsDate moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
@@ -333,8 +337,9 @@ document.addEventListener("input", (e) => {
   if (f === "_grams" || f === "_purity") gramsToOz(draft);
   if (f === "typeName") { if (!OTHER_KINDS.includes(draft.family)) draft.family = ""; if (TYPE_BY_ID[draft.typeId] && shortName(TYPE_BY_ID[draft.typeId]) !== el.value) draft.typeId = ""; }
   if (!draft.labelEdited) { const li = $("#labelInput"); if (li) li.value = autoLabel(draft); }
+  if (draft.bShape === "Junk" && itemOf(draft) === "bullion" && (f === "jKind" || f === "jFace" || f === "bShape")) { draft.bWeight = junkOz(draft) ? String(junkOz(draft)) : ""; draft.bPurity = "1"; draft.bUnit = "oz"; }
   if (f === "_bAmt") draft.bWeight = num(el.value) ? String(roundTo(num(el.value) / unitFactor(barUnit(draft)), 6)) : "";
-  if (itemOf(draft) === "bullion" && (f === "_bAmt" || f === "bWeight" || f === "bPurity")) draft.oz = bullionOz(draft) ? String(bullionOz(draft)) : "";
+  if (itemOf(draft) === "bullion" && (f === "_bAmt" || f === "bWeight" || f === "bPurity" || f === "jKind" || f === "jFace" || f === "bShape")) draft.oz = bullionOz(draft) ? String(bullionOz(draft)) : "";
   if (f === "oz" && itemOf(draft) === "set") draft._ozEdited = el.value !== "";
   if (f === "rollCount") draft._countEdited = true;
   if (itemOf(draft) === "set" && (f === "year" || f === "setKind")) { autoSetOz(draft); const oi = $("[data-f=oz]"); if (oi && !draft._ozEdited) oi.value = draft.oz; }

@@ -51,6 +51,7 @@ function extraFilter(c) {
   }
   if ((f.probs || []).length && !f.probs.some((k) => fltProb(c, k))) return false;
   if (f.inc && !isIncomplete(c)) return false;
+  if (f.inc === "home" && !isCounted(c)) return false; // the Home line counts only coins in the totals; its list matches
   return true;
 }
 
@@ -71,7 +72,7 @@ function fltChips() {
   if (f.gCustom) add("grade", "Grade: " + f.gCustom);
   else if (f.gFrom || f.gTo) add("grade", "Grade " + (f.gFrom || "any") + " to " + (f.gTo || "any"));
   if (f.vFrom || f.vTo) add("value", "Value " + (f.vFrom ? "$" + f.vFrom : "…") + "–" + (f.vTo ? "$" + f.vTo : "…"));
-  if (f.inc) add("inc", "Needs info");
+  if (f.inc) add("inc", f.inc === "home" ? "Needs info (in Home totals)" : "Needs info");
   if ((f.probs || []).length) add("probs", FLT_PROBS.filter(([k]) => f.probs.includes(k)).map(([, l]) => l).join(" or "));
   return out;
 }
@@ -350,7 +351,7 @@ Object.assign(actions, {
     openFilterPanel();
     toast("Deleted saved filter “" + gone.name + "”.", { label: "Undo", fn: () => { saveSettings({ savedFilters: before }); toast("Back again."); } });
   },
-  needInfo: () => { Object.assign(listState, { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", f: { inc: "1" } }); go("coins"); },
+  needInfo: () => { Object.assign(listState, { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", f: { inc: "home" } }); go("coins"); },
   selStart: () => { listState.sel = new Set(); render(); },
   selDone: () => { listState.sel = null; render(); },
   selToggle: (el) => { const id = el.dataset.id; if (listState.sel.has(id)) listState.sel.delete(id); else listState.sel.add(id); render(); },

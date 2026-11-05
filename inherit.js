@@ -102,9 +102,10 @@ function coinInhHtml(c) {
   const miss = missingOf(c);
   const banner = miss.length ? `<div class="banner miss-banner"><b>Missing: ${esc(miss.join(", "))}</b> <button class="btn" data-act="edit" data-id="${esc(c.id)}">Fill in</button></div>` : "";
   if (!isInherited(c)) return banner;
+  const later = c.sellLater ? `<div class="small muted" style="margin:0 0 6px">You plan to sell this one eventually.</div>` : "";
   const i = inheritanceOf(c), v = inhValueOf(c);
   const row = (k, val) => `<div class="rowline"><span class="muted">${k}</span><span class="num" style="text-align:right">${val}</span></div>`;
-  return banner + `<div class="card"><b>Inherited</b>${i ? row("From", esc(inhLabel(i))) + ((i.earlier || []).length ? row("History", esc(inhHistory(i))) : "") : row("From", `<span class="muted">Inherited (who/when not set)</span>`)}${v != null ? row("Value when inherited", money(v)) : ""}${c.origAlbum ? row("Album", "Original to the album") : ""}</div>`;
+  return banner + `<div class="card"><b>Inherited</b>${later}${i ? row("From", esc(inhLabel(i))) + ((i.earlier || []).length ? row("History", esc(inhHistory(i))) : "") : row("From", `<span class="muted">Inherited (who/when not set)</span>`)}${v != null ? row("Value when inherited", money(v)) : ""}${c.origAlbum ? row("Album", "Original to the album") : ""}</div>`;
 }
 
 /* ---------- Select > Mark inherited ---------- */

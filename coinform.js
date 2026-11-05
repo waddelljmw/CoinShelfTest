@@ -81,6 +81,7 @@ function whatPicker() {
   <button type="button" class="btn block what-btn" data-act="what" data-v="us"><b>US coin</b><small>Cent to dollar, loose or in a holder</small></button>
   <button type="button" class="btn block what-btn" data-act="what" data-v="set"><b>Proof or mint set</b><small>One entry for the whole set</small></button>
   <button type="button" class="btn block what-btn" data-act="what" data-v="roll"><b>Roll of coins</b><small>Bank roll, tube or mint-sealed roll</small></button>
+  <button type="button" class="btn block what-btn" data-act="what" data-v="junk"><b>Junk silver (90%, 40%, 35%)</b><small>Type the face value, like $20 of dimes</small></button>
   <button type="button" class="btn block what-btn" data-act="what" data-v="bullion"><b>Silver bar, round or other item</b><small>Bullion that goes in a stack</small></button>
   <button type="button" class="btn block what-btn" data-act="what" data-v="other"><b>Medal, token or foreign coin</b><small>Anything that isn't a US coin from the Red Book</small></button>`, "sheet-75");
 }
@@ -138,6 +139,7 @@ function renderCoinForm() {
       <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
+      ${!d.grade ? `<label class="switch"><span>Can't grade this one<div class="small muted">For common worn coins. They stop showing under Needs info.</div></span><input type="checkbox" data-fcheck="noGrade" ${d.noGrade ? "checked" : ""}></label>` : ""}
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
       <div class="hint"><a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
@@ -298,15 +300,18 @@ function rollFields(d) {
     <label class="switch"><span>Original bank wrap<div class="small muted">Never opened</div></span><input type="checkbox" data-fcheck="bankWrap" ${d.bankWrap ? "checked" : ""}></label>
     <div class="hint" id="rollHint">${esc(rollHint(d))}</div>`;
 }
-function bullionHint(d) { return bullionOz(d) ? "Pure silver: " + bullionOz(d) + " oz (weight × purity)." : "Pure silver ounces = weight × purity. Pick ounces (troy), grams or kilos; a kilo bar is 32.15 oz."; }
+function bullionHint(d) { if (d.bShape === "Junk") return junkOz(d) ? "Worked out: " + junkOz(d) + " oz of pure silver ($" + num(d.jFace) + " face × " + junkKindOf(d)[2] + " oz per $1). Face value is the total, like $20 of dimes." : "Type the total face value (e.g. $20 of dimes) and the silver ounces are worked out."; return bullionOz(d) ? "Pure silver: " + bullionOz(d) + " oz (weight × purity)." : "Pure silver ounces = weight × purity. Pick ounces (troy), grams or kilos; a kilo bar is 32.15 oz."; }
 function bullionTopHtml(d) {
   const makers = [...new Set(allCoins().filter((c) => itemOf(c) === "bullion").map((c) => (c.bMaker || "").trim()).filter(Boolean))];
   return `<div class="grid2">
-      <label class="f"><span>What is it?</span><select data-f="bShape">${BULLION_SHAPES.map((x) => `<option value="${x}" ${(d.bShape === "Shape" ? "Other" : d.bShape || "Bar") === x ? "selected" : ""}>${esc(shapeName(x))}</option>`).join("")}</select></label>
+      <label class="f"><span>What is it?</span><select data-f="bShape" data-rerender>${BULLION_SHAPES.map((x) => `<option value="${x}" ${(d.bShape === "Shape" ? "Other" : d.bShape || "Bar") === x ? "selected" : ""}>${esc(shapeName(x))}</option>`).join("")}</select></label>
       <label class="f"><span>Maker</span><input type="text" data-f="bMaker" list="makerList" value="${esc(d.bMaker || "")}" placeholder="e.g. Engelhard" maxlength="40"><datalist id="makerList">${makers.map((x) => `<option value="${esc(x)}">`).join("")}</datalist></label></div>
-    <div class="grid2">
+    ${d.bShape === "Junk" ? `<div class="grid2">
+      <label class="f"><span>Silver kind</span><select data-f="jKind" data-rerender>${JUNK_KINDS.map((k) => `<option value="${k[0]}" ${junkKindOf(d)[0] === k[0] ? "selected" : ""}>${esc(k[1])}</option>`).join("")}</select></label>
+      <label class="f"><span>Face value ($)</span><input type="number" inputmode="decimal" step="0.05" min="0" data-f="jFace" value="${esc(d.jFace || "")}" placeholder="20" aria-label="Face value in dollars"></label></div>` : `    <div class="grid2">
       <label class="f"><span>Weight</span><span class="inline-pair"><input type="number" inputmode="decimal" step="0.001" min="0" data-f="_bAmt" value="${esc(barAmount(d))}" placeholder="10" aria-label="Weight"><select data-f="bUnit" data-rerender aria-label="Weight unit">${BAR_UNITS.map((u) => `<option value="${u[0]}" ${barUnit(d) === u[0] ? "selected" : ""}>${u[1]}</option>`).join("")}</select></span></label>
       <label class="f"><span>Purity</span><input type="number" inputmode="decimal" step="0.001" min="0" max="1" data-f="bPurity" value="${esc(d.bPurity || "")}" placeholder="0.999"></label></div>
+`}
     <div class="hint" id="bullionHint">${esc(bullionHint(d))}</div>
     <label class="f"><span>Serial number <span class="muted small">(optional)</span></span><input type="text" data-f="bSerial" value="${esc(d.bSerial || "")}" maxlength="40"></label>
     <label class="f"><span>Stack</span><input type="text" data-f="stack" list="stackList" value="${esc(d.stack || "")}" placeholder="My Silver Stack"><datalist id="stackList">${stackNames().map((x) => `<option value="${esc(x)}">`).join("")}</datalist></label>
