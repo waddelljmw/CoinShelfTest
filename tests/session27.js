@@ -17,7 +17,7 @@ let fails = 0; const ok = (n, c) => { console.log((c ? "PASS " : "FAIL ") + n); 
     go("album-alb1");
   }); await p.waitForTimeout(150);
   await p.click(".slot.have"); await p.click(".sheet [data-go^=coin-]"); await p.waitForTimeout(200);
-  await p.evaluate(() => actions.delete({ dataset: { id: "own1" } })); await p.waitForTimeout(200);
+  await p.evaluate(() => actions.delete({ dataset: { id: "own1" } })); await p.waitForTimeout(200); await p.evaluate(() => actions.confirmOk()); await p.waitForTimeout(200);
   ok("delete returns to the album", (await p.evaluate(() => location.hash)) === "#album-alb1");
   // new album: gray name, search box, inherited
   await p.evaluate(() => openNewAlbum()); await p.waitForTimeout(100);

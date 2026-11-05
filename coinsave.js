@@ -37,8 +37,11 @@ async function saveDraft() {
   if (it === "coin") { delete c.item; delete c.setKind; delete c.rollCount; delete c.rollCond; delete c.bankWrap; }
   if (it !== "coin" || !CASE_HOLDERS.includes(c.holder)) delete c.caseName; else if (c.caseName) c.caseName = c.caseName.trim();
   if (it !== "bullion") { delete c.bShape; delete c.bMaker; delete c.bSerial; delete c.bWeight; delete c.bPurity; delete c.bUnit; }
+  if (it !== "bullion" || c.bShape !== "Junk") { delete c.jKind; delete c.jFace; }
+  if (c.grade || it !== "coin") delete c.noGrade; // "can't grade" only means something while there is no grade
   delete c._bAmt;
   if (it === "bullion") {
+    if (c.bShape === "Junk") { c.jKind = junkKindOf(c)[0]; c.bWeight = junkOz(c) ? String(junkOz(c)) : ""; c.bPurity = "1"; c.bUnit = "oz"; if (!(num(c.jFace) > 0)) { toast("Enter the face value, like 20 for $20."); return; } }
     const w = num(c.bWeight), p = num(c.bPurity);
     if (!w || w <= 0) { toast("Enter the weight."); return; }
     if (!p || p <= 0 || p > 1) { toast("Purity is a number up to 1, like 0.999."); return; }

@@ -66,6 +66,7 @@ const path = require("path");
   await p.click("#menuBtn"); await p.click("#menu [data-go=coins]");
   await p.click(".coin-row:has-text('1944')");
   await p.click("[data-act=delete]");
+  await p.click("[data-act=confirmOk]"); await p.waitForTimeout(200);
   await shot("07-deleted-toast");
   await p.click("#toast button");
   const n = await p.$$eval(".coin-row", (r) => r.length);

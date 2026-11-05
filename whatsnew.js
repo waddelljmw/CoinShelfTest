@@ -1,5 +1,13 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.55.0": [
+    "Junk silver: on Add coin, pick Junk silver, choose 90%, 40% or 35%, and type the face value (like $20 of dimes). The silver ounces are worked out for you.",
+    "Cardboard boxes: a new cardboard box starts with numbered spots off, so no rows or slots are needed. You can still switch them on.",
+    "Counts agree: the Needs info line on Home opens a list with the same coins it counted, and Home's Coins box is now called Items counted, with a note on My Coins when the numbers differ.",
+    "Can't grade this one: for common worn coins, so they stop showing under Needs info.",
+    "Insurance report: pick the order (type, year, value or where kept). It now shows CAC stickers and who you inherited a coin from.",
+    "Home hides Cost and Gain when everything you own is inherited. An inherited coin has an \"I'd like to sell this one eventually\" note. Deleting a coin now asks first (Undo stays).",
+  ],
   "0.54.0": [
     "Sell together: pick two or more coins with Select, tap Sell together, and sell them as one order. One buyer, order number, tracking number, shipping charge and fee for the whole order; each coin keeps its own price. A coin's page shows its order, with Refund whole order.",
     "Profit now reads the same everywhere: Sales (coins only), Shipping charged on its own line, Profit before show costs and Profit after show costs. The Sold here list on a show shows the date, and shipping on its own small line.",

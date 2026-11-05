@@ -114,10 +114,10 @@ function viewHome() {
     fromBook ? `${fromBook} coin${fromBook > 1 ? "s" : ""} valued from the Red Book.` : "",
     leftOut().length ? `Leaving out: ${leftOut().map(esc).join(", ")}.` : "",
     noValue ? `${noValue} coin${noValue > 1 ? "s" : ""} without a value ${noValue > 1 ? "are" : "is"} counted at melt.` : ""].filter(Boolean).join(" ")}</div>` : ""}
-  <div class="stats">
+  ${owned.length && owned.every(isInherited) ? "" : `<div class="stats">
     <div class="stat"><div class="k">Cost</div><div class="v">${money(paid, "$0.00")}</div><div class="small muted">Paid, with tax, shipping and fees</div></div>
     <div class="stat"><div class="k">Gain</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Add prices paid" : pct(paid ? gain / paid : null) + " · inherited not counted"}</div></div>
-  </div>${typeof bizPlaqueHtml === "function" ? bizPlaqueHtml() : ""}`;
+  </div>`}${typeof bizPlaqueHtml === "function" ? bizPlaqueHtml() : ""}`;
   if (s.showHistory !== false && levelAtLeast("collector") && typeof historyCard === "function") html += historyCard();
 
   // Melt Value by Metal, only for metals in the collection
@@ -238,6 +238,7 @@ function viewCoins() {
       <button data-act="status" data-v="sold" class="${listState.status === "sold" ? "on" : ""}">Sold (${sum(soldCoins(), qtyOf)})</button>
       ${goneCoins().length ? `<button data-act="status" data-v="gone" class="${listState.status === "gone" ? "on" : ""}">Gone (${sum(goneCoins(), qtyOf)})</button>` : ""}
     </div>
+    ${listState.status === "owned" && sum(countedCoins(), qtyOf) !== sum(ownedCoins().filter((c) => itemOf(c) !== "bullion"), qtyOf) ? `<div class="small muted" style="margin:-4px 0 8px">Home shows ${sum(countedCoins(), qtyOf)} "items counted" because it adds your silver bars and rounds, and leaves out business stock and hidden shelves.</div>` : ""}
     ${stackedN && listState.status === "owned" ? `<div class="small muted" style="margin:-4px 0 8px">${stackedN} bar${stackedN > 1 ? "s, rounds or other silver items are" : ", round or other silver item is"} in <button class="link-btn" data-go="stacks">My Stacks</button>.</div>` : ""}
     ${stages.length ? `<label class="f" style="margin:-4px 0 8px"><span>Show</span><select data-list="stage"><option value="">All in collection</option>${stages.map(([k, l]) => `<option value="${k}" ${listState.stage === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>` : ""}
     <div class="chips">
@@ -337,7 +338,7 @@ function viewCoin(r) {
       ${row("Status", esc(STATUS_TEXT[statusKey(c)] || "") + (c.upgrade && c.status === "owned" ? " · Upgrade wanted" : ""))}
       ${itemOf(c) === "coin" ? row("Grade", esc(gradeText(c)) + cacBadge(c) + (photoGuideCode(c) ? ` <a class="small" href="${esc(photoGuideUrl(c))}" target="_blank" rel="noopener">PCGS photos ↗</a>` : "")) : ""}
       ${itemOf(c) === "set" ? row("Set", esc(c.typeName)) : ""}
-      ${itemOf(c) === "bullion" ? row("Type", esc(shapeName(c.bShape))) + row("Maker", esc(c.bMaker)) + row("Serial number", esc(c.bSerial)) + row("Weight", num(c.bWeight) ? esc(barWeightText(c)) : null) + row("Purity", esc(c.bPurity)) : ""}
+      ${itemOf(c) === "bullion" ? row("Type", esc(shapeName(c.bShape))) + (c.bShape === "Junk" ? row("Silver kind", junkKindOf(c)[0] + "%") + row("Face value", num(c.jFace) ? "$" + num(c.jFace) : null) + row("Pure silver", num(c.bWeight) ? esc(barWeightText(c)) : null) : row("Maker", esc(c.bMaker)) + row("Serial number", esc(c.bSerial)) + row("Weight", num(c.bWeight) ? esc(barWeightText(c)) : null) + row("Purity", esc(c.bPurity))) : ""}
       ${stackOf(c) ? row("Stack", esc(stackOf(c))) : ""}
       ${itemOf(c) === "roll" ? row("Coins in roll", rollCountOf(c)) + row("Face value", rollFace(c) == null ? null : money(rollFace(c))) + row("Condition", esc([c.rollCond, c.bankWrap ? "Original bank wrap" : ""].filter(Boolean).join(" · "))) : ""}
       ${c.gradeMode === "cert" ? row("Cert number", esc(c.cert)) : ""}
@@ -371,7 +372,7 @@ function viewCoin(r) {
     ${c.status === "owned" && itemOf(c) === "coin" ? `<button class="btn block" style="margin-bottom:8px" data-act="addAnother" data-id="${esc(c.id)}">+ Add another${c.typeId ? " " + esc(shortName(TYPE_BY_ID[c.typeId] || { name: c.typeName })) : ""}</button>` : ""}
     <div class="btn-row">
       <button class="btn primary" data-act="edit" data-id="${esc(c.id)}">Edit</button>
-      ${c.status === "owned" ? `${isInherited(c) ? "" : stageOf(c) === "forsale" ? `<button class="btn" data-act="notForSale" data-id="${esc(c.id)}">Take off For sale</button>` : `<button class="btn" data-act="forSale" data-id="${esc(c.id)}">For sale</button>`}<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>${typeof bizButton === "function" ? bizButton(c) : ""}` : c.status === "gone" ? `<button class="btn" data-act="ungone" data-id="${esc(c.id)}">Move back to collection</button>` : `<button class="btn" data-act="editSale" data-id="${esc(c.id)}">Edit sale</button><button class="btn" data-act="refund" data-id="${esc(c.id)}">Refund or cancel</button><button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}
+      ${c.status === "owned" ? `${isInherited(c) ? `<button class="btn" data-act="sellLater" data-id="${esc(c.id)}">${c.sellLater ? "Remove my sell-eventually note" : "I'd like to sell this one eventually"}</button>` : stageOf(c) === "forsale" ? `<button class="btn" data-act="notForSale" data-id="${esc(c.id)}">Take off For sale</button>` : `<button class="btn" data-act="forSale" data-id="${esc(c.id)}">For sale</button>`}<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>${typeof bizButton === "function" ? bizButton(c) : ""}` : c.status === "gone" ? `<button class="btn" data-act="ungone" data-id="${esc(c.id)}">Move back to collection</button>` : `<button class="btn" data-act="editSale" data-id="${esc(c.id)}">Edit sale</button><button class="btn" data-act="refund" data-id="${esc(c.id)}">Refund or cancel</button><button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}
       <button class="btn danger" data-act="delete" data-id="${esc(c.id)}">Delete</button>
     </div>`;
 }

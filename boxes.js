@@ -355,7 +355,11 @@ document.addEventListener("change", (e) => { // more or fewer trays: keep the on
     for (let i = 0; i < n - 1; i++) { const o = old[i], t = o && o.changed ? { rows: o.rows, perRow: o.perRow } : { ...prev }; list.push(t); prev = t; }
     $("#trayRows").innerHTML = trayRowsHtml(list, first);
   }
-  if (e.target.id === "boxSpots" && e.target.closest("#boxForm")) { const off = !e.target.checked; ["trayCountRow", "trayRows"].forEach((id) => { const x = $("#" + id); if (x) x.hidden = off; }); }
+  if (e.target.id === "boxLook" && e.target.closest("#boxForm")) { // a new cardboard box starts with numbered spots off (a pile needs no rows); an untouched switch follows the look
+    const form = e.target.closest("#boxForm"), sp = $("#boxSpots");
+    if (sp && !form.dataset.id && !form.dataset.spotsTouched) { sp.checked = e.target.value !== "cardboard"; ["trayCountRow", "trayRows"].forEach((id) => { const x = $("#" + id); if (x) x.hidden = !sp.checked; }); }
+  }
+  if (e.target.id === "boxSpots" && e.target.closest("#boxForm")) { e.target.closest("#boxForm").dataset.spotsTouched = "1"; const off = !e.target.checked; ["trayCountRow", "trayRows"].forEach((id) => { const x = $("#" + id); if (x) x.hidden = off; }); }
   if (e.target.name === "type" && e.target.closest("#boxForm")) {
     const r = $("#caseSaleRow"); if (r) r.hidden = e.target.value !== "dealer";
     const form = e.target.closest("#boxForm"); // a new dealer case starts as 2 rows of 6 (only fills boxes still empty)

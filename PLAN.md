@@ -2,7 +2,7 @@
 
 Last updated November 5, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 50, Sonnet):** build Step 9.7c: heir fixes (junk silver by face value, cardboard box without spots, counts agree, can't-grade choice, report order, single-coin delete asks). Still open from 9.7a: a full wording read of every screen.
+**Next session starts here (session 51, Sonnet):** build Step 9.7d: pocket album (flips or capsules, any coin in any pocket, pages with tabs). Merge waits for the session 52 Opus review. Still open from 9.7a: a full wording read of every screen (not done in 9.7c).
 
 ## Session plan (one chat per session, done in order)
 
@@ -64,7 +64,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 47 | Opus | Short review of 9.7a (refund changes how a sale is saved), fix, merge (ask you first) | ✅ reviewed, 6 fixes, merged v0.53.0 (PR #153) |
 | 48 | Sonnet | Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. **Merge waits for session 49 review** | ✅ built v0.54.0, PR open (not merged) |
 | 49 | Opus | Short review of 9.7b (orders change how sales are saved), fix, merge (ask you first) | ✅ reviewed, 3 fixes, merged v0.54.1 (PR #154) |
-| 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | |
+| 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | ✅ merged v0.55.0 |
 | 51 | Sonnet | Step 9.7d: pocket album (flips/capsules in rows and columns). **Merge waits for session 52 review** | |
 | 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
@@ -331,14 +331,14 @@ Why: the reviews found no crashes or lost coins, but a refund erases money you a
 - [x] ✅ Review orders: old single sales, refunding one coin of an order, fees counted once, CSV and tax CSV totals. Fix, then merge (ask you first).
 
 ### 9.7c (session 50, Sonnet): heir fixes (review 4)
-- [ ] **Junk silver by face value:** "Junk silver (90%, 40%, 35%)" on Add coin; type the face value ("$20 of dimes") and the ounces are worked out. Uses the standard silver content per dollar of face value (looked up, not guessed).
-- [ ] **Cardboard box / pile:** numbered spots **off** by default for cardboard boxes, so no rows or slots are needed.
-- [ ] **Counts agree:** Home's "need info" count and the list it opens match; Coins vs My Coins counts are labeled so the difference is clear.
-- [ ] **"Can't grade these":** a choice on common circulated coins so they stop counting as needing info.
-- [ ] **Report:** pick the order (type, year, value, where kept); show CAC and who/when inherited.
-- [ ] Hide Cost and Gain on Home when everything is inherited; a plain "I'd like to sell this one eventually" on an inherited coin.
-- [ ] Single-coin Delete asks "Are you sure?" (Undo stays).
-- [ ] Tests. Version (feature).
+- [x] ✅ **Junk silver by face value:** "Junk silver (90%, 40%, 35%)" on Add coin; type the face value ("$20 of dimes") and the ounces are worked out. Uses the standard silver content per dollar of face value (looked up, not guessed).
+- [x] ✅ **Cardboard box / pile:** numbered spots **off** by default for cardboard boxes, so no rows or slots are needed.
+- [x] ✅ **Counts agree:** Home's "need info" count and the list it opens match; Coins vs My Coins counts are labeled so the difference is clear.
+- [x] ✅ **"Can't grade these":** a choice on common circulated coins so they stop counting as needing info.
+- [x] ✅ **Report:** pick the order (type, year, value, where kept); show CAC and who/when inherited.
+- [x] ✅ Hide Cost and Gain on Home when everything is inherited; a plain "I'd like to sell this one eventually" on an inherited coin.
+- [x] ✅ Single-coin Delete asks "Are you sure?" (Undo stays).
+- [x] ✅ Tests. Version (feature).
 
 ### 9.7d (session 51, Sonnet): pocket album. **New kind of album: Opus review (session 52) before merge.**
 - [ ] **New album → "Pocket album (flips or capsules)":** asks pages, pockets across and pockets down (yours: 2 across, 3 down). **Any coin can go in any pocket** (no date list), coins keep their holder (flip, capsule, slab).
