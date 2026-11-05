@@ -1,8 +1,8 @@
 # Coin Cabinet: Master Plan
 
-Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
+Last updated November 5, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 45, Opus):** plan the next fix batch from the six test-user reviews (`reviews/01`–`06`): pick the top items from the combined ranked wish list (one order with several coins, refund that keeps the record, stream costs by kind, matching profit numbers, CSV columns, Red Book gaps), group them into build sessions, and say which are Sonnet and which Opus. Planning only, no building. (Review 6 done: `reviews/06-whatnot-seller-v0.52.md`. Session 45b "later" row waits for his photos / Red Book.)
+**Next session starts here (session 46, Sonnet):** build Step 9.7a: refund that keeps the record, "Paid for the whole lot", bulk asking price never below cost, Paid with not carried over, check number, black color, Untick all, one Photograde link per screen, "+ Add storage" from Kept in, guide bubble contrast, wording pass. Merge waits for the session 47 Opus review.
 
 ## Session plan (one chat per session, done in order)
 
@@ -59,7 +59,14 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 22b | Sonnet | Test-user re-runs on v0.52.0 (the app changed a lot): the heir | ✅ `reviews/04-heir-v0.52.md` (★★★★, 8 problems, 7 wishes) |
 | 22c | Sonnet | Same re-run: the coin-show seller (Seller Mode, all business features, ~10 sales, reports, CSV, tax documents) | ✅ `reviews/05-coin-show-seller-v0.52.md` (★★★★, 11 problems, 10 missing business features) |
 | 22d | Sonnet | Same re-run: the Whatnot live-stream collector/seller (IDEAS 13, same business checks plus stream costs, fees, shipping) | ✅ `reviews/06-whatnot-seller-v0.52.md` (★★★★, 11 problems, 11 missing business features) |
-| 45 | Opus | Read all six reviews, plan the next fix batch from the combined ranked wish list (Step 9.7); planning only | |
+| 45 | Opus | Read all six reviews + your 2026-11-05 notes, plan the next batch (Step 9.7); planning only | ✅ plan PR |
+| 46 | Sonnet | Step 9.7a: money fixes (refund keeps the record, Paid for the whole lot, bulk price never below cost) + your small notes. **Merge waits for session 47 review** | |
+| 47 | Opus | Short review of 9.7a (refund changes how a sale is saved), fix, merge (ask you first) | |
+| 48 | Sonnet | Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. **Merge waits for session 49 review** | |
+| 49 | Opus | Short review of 9.7b (orders change how sales are saved), fix, merge (ask you first) | |
+| 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | |
+| 51 | Sonnet | Step 9.7d: pocket album (flips/capsules in rows and columns). **Merge waits for session 52 review** | |
+| 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
@@ -287,7 +294,67 @@ Why: a real album full of coins takes too long one coin at a time; your wooden b
 - [x] ✅ Tests (trays, copied layout, old boxes and old backups, album in box still on shelf). Version (feature).
 
 ### Session 44 (Opus): review of 9.6b
-- [ ] One adversarial review: old boxes and backups, moving coins between trays, shrinking a tray with coins in it, add many into trays, album in a box that is deleted. Fix what it finds, then merge (ask you first).
+- [x] ✅ One adversarial review: old boxes and backups, moving coins between trays, shrinking a tray with coins in it, add many into trays, album in a box that is deleted. Fix what it finds, then merge (ask you first).
+
+## Step 9.7: Fixes from the six test-user reviews + your notes (2026-11-05). Planned session 45 (Opus)
+Why: the reviews found no crashes or lost coins, but a refund erases money you already spent and "Paid each" can give the wrong cost. Your notes add small clean-ups and a pocket album. **Weekly rhythm:** one or two of these sessions per week; stop building at about 70% weekly usage.
+
+### 9.7a (session 46, Sonnet): money fixes + your small notes. **Refund changes how a sale is saved: Opus review (session 47) before merge.**
+- [ ] **Refund / cancel that keeps the record** (review 6 #5): on a sold coin, "Refund or cancel" puts the coin back in stock (personal or Business, as before) and keeps the sale on record marked **Refunded**: the fee and shipping you paid still count as costs; the sale price no longer counts as a sale. Old sales read as not refunded (convert on read). "Move back to collection" stays for real mistakes.
+- [ ] **"Paid for the whole lot"** (review 6 #6): when Quantity is more than 1, a switch **Price is: each / for the whole lot**, and a live line "Total: $24.50 for 20". Saved as price each, the way it is now (no change to saved data).
+- [ ] **Bulk asking price follows the coin's own rule** (review 5 #1): add "Suggested (never below cost + 10%)" to "Set asking price for all", and offer it from Select on any Business coins, not just a dealer case.
+- [ ] **"Paid with" doesn't carry over** between sales, except within the same show (review 5 #4). Edit sale refills eBay fees when the price changes (review 5 #5).
+- [ ] **Check number:** when Paid with is Check, one optional "Check #" box. Nothing else (no cleared or bounced tracking).
+- [ ] **Black** added to the spine and box colors.
+- [ ] **Untick all** (and Tick all) at the top of the album quick list.
+- [ ] **Photograde, one link per screen:** next to Grade on the coin form, and one link at the top of the quick list (all one coin type). Not on every row.
+- [ ] **"+ Add storage"** at the end of every Kept in list: makes a new box or place, then brings you back to the form you were on, with what you typed kept and the new storage picked.
+- [ ] **Guide bubble:** fix the white text on a very light background and the hard-to-see button (first-open guide, works in a private window too).
+- [ ] **Wording pass:** check capitals, spelling and grammar on every screen so it reads the same everywhere. Also the old lines from reviews 5 and 6: Seller Mode "later dealer cases, shows and reports", a sold coin still showing its old box slot, "Check eBay sold" on a Whatnot sale.
+- [ ] Tests (refund keeps fee, lot price, bulk price floor, Add storage round trip). Version (feature).
+
+### Session 47 (Opus): short review of 9.7a
+- [ ] Review refunds: old sales, refund then sell again, reports and tax CSV after a refund, Undo. Fix, then merge (ask you first).
+
+### 9.7b (session 48, Sonnet): sales and shows. **Orders change how sales are saved: Opus review (session 49) before merge.**
+- [ ] **One order, several coins** (reviews 5 and 6, top wish): Select → "Sell together": one buyer, one order number, one tracking number, one shipping charge, one flat fee (e.g. one 30¢ Whatnot fee), each coin keeps its own price. Each coin still shows as sold; reports count the order once for fees and shipping. A refund (9.7a) can be for one coin or the whole order.
+- [ ] **Profit numbers agree:** Home, the show page, Sales Reports and the tax CSV use the same words: **Sales** (coins only), **Shipping charged** shown apart, **Profit before show costs** and **Profit after show costs**. The show's "Sold here" list shows the coin price, with shipping on its own small line, in date order.
+- [ ] **CSV columns:** coins CSV gets Business / Personal and Show; sales CSV gets buyer, order and tracking. Business stays apart on My Stacks and Coin Value (review 5 #7).
+- [ ] **Stream costs by kind:** costs offered follow the kind of show: a coin show keeps Table fee, Gas, Hotel, Food, Other; a stream gets Supplies, Equipment, Subscriptions, Other. Supplies gets its own line on the Schedule C summary. Old "Other" amounts stay as they are.
+- [ ] **Attendee shows:** an **Entry fee** line (instead of Table fee). Shows can be turned on for attendees without Seller Mode (one switch in Options, off by default, so the menu stays clean).
+- [ ] **Bought at this show:** on Add coin, Where from → Coin show → pick the show; the date acquired fills in from the show day you pick. The show page lists **Bought here** and **Sold here**. Show costs are **not** spread into each coin's cost (keeps your costs clear).
+- [ ] **Usual shipping you charge** (Options → Selling), filled in on each sale, still changeable.
+- [ ] **Platform fees:** in Options → Selling, a "Fees last checked" date with a link to each site's fee page (the app can't read them for you).
+- [ ] Tests. Version (feature).
+
+### Session 49 (Opus): short review of 9.7b
+- [ ] Review orders: old single sales, refunding one coin of an order, fees counted once, CSV and tax CSV totals. Fix, then merge (ask you first).
+
+### 9.7c (session 50, Sonnet): heir fixes (review 4)
+- [ ] **Junk silver by face value:** "Junk silver (90%, 40%, 35%)" on Add coin; type the face value ("$20 of dimes") and the ounces are worked out. Uses the standard silver content per dollar of face value (looked up, not guessed).
+- [ ] **Cardboard box / pile:** numbered spots **off** by default for cardboard boxes, so no rows or slots are needed.
+- [ ] **Counts agree:** Home's "need info" count and the list it opens match; Coins vs My Coins counts are labeled so the difference is clear.
+- [ ] **"Can't grade these":** a choice on common circulated coins so they stop counting as needing info.
+- [ ] **Report:** pick the order (type, year, value, where kept); show CAC and who/when inherited.
+- [ ] Hide Cost and Gain on Home when everything is inherited; a plain "I'd like to sell this one eventually" on an inherited coin.
+- [ ] Single-coin Delete asks "Are you sure?" (Undo stays).
+- [ ] Tests. Version (feature).
+
+### 9.7d (session 51, Sonnet): pocket album. **New kind of album: Opus review (session 52) before merge.**
+- [ ] **New album → "Pocket album (flips or capsules)":** asks pages, pockets across and pockets down (yours: 2 across, 3 down). **Any coin can go in any pocket** (no date list), coins keep their holder (flip, capsule, slab).
+- [ ] Built on the box tray code (pages work like trays), so it's cheap and well tested. The album page shows one page at a time with page tabs; spot pickers and "next free pocket" work the same.
+- [ ] Shows on the Home shelf like other albums; has Kept in and spine color (black included). No "missing" or want-list spots, since it has no set list.
+- [ ] **Old albums unchanged** (they read as hole albums). Backup, restore and CSV carry the page and pocket.
+- [ ] Tests. Version (feature).
+
+### Session 52 (Opus): short review of 9.7d
+- [ ] Review pocket albums: old albums and backups, moving a coin between a pocket album and a box, shrinking pages with coins in them, deleting the album. Fix, then merge (ask you first).
+
+### Not now (from the reviews; add only if you ask)
+- Buyer receipt or invoice, to-ship list, stream run sheet, payout match-up, buyer list, giveaways, auction vs buy-it-now, trades, layaway and consignment, mileage rate, stock age.
+- Spreading show costs into each coin's cost; check cleared or bounced tracking.
+- **Red Book gaps:** still waits for your Red Book ("later" row).
+- **Shelf:** don't pad it to look full (empty space shows real gaps). Slabs drawn differently from raw coins goes with the shelf look (IDEAS 4).
 
 ## What you want, in short
 
