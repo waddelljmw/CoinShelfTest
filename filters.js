@@ -81,9 +81,8 @@ const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"]
 // The Select bar (shared by My Coins, album pages and box pages): count, Select all / Clear, and the bulk buttons.
 function selBarHtml(picked, shown) {
   const dis = picked.length ? "" : "disabled";
-  return `<div class="card selbar"><b>${picked.length} selected</b>
-      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="selAll">Select all shown (${shown})</button><button class="btn" data-act="selNone">Clear</button></div>
-      <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="hdOpen" ${dis}>Set holder…</button><button class="btn" data-act="inhMark" ${dis}>Mark inherited…</button><button class="btn" data-act="pcOpen" ${dis}>Set purchase info…</button><button class="btn" data-act="orderOpen" ${dis}>Sell together…</button></div>
+  return `<div class="card selbar"><div class="selrow"><b>${picked.length} selected</b><button class="btn" data-act="selAll">Select all (${shown})</button><button class="btn" data-act="selNone">Clear</button></div></div>
+      <div class="card selacts"><div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="hdOpen" ${dis}>Set holder…</button><button class="btn" data-act="inhMark" ${dis}>Mark inherited…</button><button class="btn" data-act="pcOpen" ${dis}>Set purchase info…</button><button class="btn" data-act="orderOpen" ${dis}>Sell together…</button></div>
       ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button><button class="btn" data-act="selAsk" ${dis}>Suggested asking price</button></div>` : ""}</div>`;
 }
 // Bottom copy of Select all · Clear for long lists.
