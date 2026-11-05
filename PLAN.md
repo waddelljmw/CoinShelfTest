@@ -269,7 +269,7 @@ Why: a real album full of coins takes too long one coin at a time; your wooden b
 
 ### 9.6a (session 42, Sonnet): fill a full album + Add coin order
 - [ ] **New album asks "Empty, or already has coins?"** If it has coins: a scrollable **quick list**, one row per spot, every row **ticked "have it"**; untick the empty holes. Each ticked row has a grade dropdown.
-- [ ] **Price on the quick list, your choice:** a switch between **one total for the album, split across the coins** (to the cent, leftover on the first, like add many) or **a price on each row**. Date acquired and source asked once for the whole album.
+- [ ] **Price on the quick list, your choice:** a switch between **one total for the album, split across the coins** (to the cent, leftover on the first, like add many) or **a price on each row** (**default: price on each row**, your choice 2026-11-04). Date acquired and source asked once for the whole album.
 - [ ] Saving makes one coin per ticked spot (own ID, in its album spot). Unticked spots stay empty (they already show on want lists). Undo removes the whole batch. Also offered on an existing album's page for its empty spots ("Fill spots").
 - [ ] **Add coin order (nothing removed):** 1) What is it, type, year, mint 2) Grade 3) Price paid, date, where you got it 4) Where it's kept 5) **Notes** in its own small fold, one tap, right here (you use it often; opens already when the coin has notes) 6) **More details** fold: variety, ID label, status, receipt and the rest. Needs info keeps catching empty important fields.
 - [ ] Simple mode: quick list shows at every level; More details stays hidden where the level hides it today.
