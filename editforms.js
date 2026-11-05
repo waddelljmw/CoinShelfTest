@@ -19,6 +19,7 @@ function openNewAlbum() {
       <label class="f"><span>Album number</span><input type="text" name="number" placeholder="9128"></label>
     </div>
     <div class="hint" id="albumLookupHint"></div>
+    <label class="f"><span>Is the album empty?</span><select name="fill"><option value="empty">Empty, nothing in it yet</option><option value="has">Already has coins in it</option></select></label>
     <label class="f"><span>Find coin type</span><input type="search" id="albumTypeFind" list="albumTypeList" placeholder="Type a few letters, e.g. fra" autocomplete="off"></label>
     <datalist id="albumTypeList">${COIN_TYPES.map((t) => `<option value="${esc(t.name)}">`).join("")}</datalist>
     <label class="f"><span>Name (optional)</span><input type="text" name="name" placeholder="${esc(firstAlbumType().name)}"></label>
@@ -86,6 +87,7 @@ function doNewAlbum(form) {
   types.forEach(touchType);
   closeSheet();
   go("album-" + a.id);
+  if (fd.get("fill") === "has" && typeof openFillAlbum === "function") { fillUi.fresh = true; openFillAlbum(a.id, true); } // already has coins: open the quick list
 }
 // "Part of a series" in Edit album: link this album with another, or unlink it.
 function seriesField(a) {

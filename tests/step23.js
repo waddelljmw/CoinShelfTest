@@ -39,7 +39,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.click("#fab"); await p.click(".what-btn[data-v=other]");
   ok("other: name and face value asked, no type search", await p.isVisible("[data-f=typeName]") && await p.isVisible("[data-f=denom]") && !(await p.isVisible("#typeSearch")));
   await p.fill("[data-f=typeName]", "Casino token"); await p.fill("[data-f=denom]", "$1");
-  await p.click("summary:has-text('Quantity, value and metal')");
+  await p.click("summary:has-text('More details')"); await p.click("summary:has-text('Quantity, value and metal')");
   await p.selectOption("[data-f=metal]", "Silver"); await p.fill("[data-f=oz]", "0.7"); await p.waitForTimeout(100);
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(250);
   const t = await p.evaluate(() => allCoins().find((x) => x.typeName === "Casino token" && x.status !== "deleted"));

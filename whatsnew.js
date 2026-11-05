@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.50.0": [
+    "New album: choose \u201CAlready has coins in it\u201D and a quick list opens with every spot ticked. Untick the empty holes, pick a grade for each coin, and save them all at once. Undo removes the whole batch.",
+    "On any album page, \u201CFill spots\u201D does the same for the spots that are still empty. Price goes on each row, or enter one total for the album and it is split across the coins.",
+    "Add coin is in a calmer order: coin, grade, price and where from, where it is kept, then Notes. Everything else is under \u201CMore details\u201D.",
+  ],
   "0.49.2": [
     "Renumber my coins never hands out a number that is already on any flip, and running it again changes nothing.",
     "Undo after a renumber keeps any ID you typed since. Restoring a backup made before a renumber brings every ID back.",
