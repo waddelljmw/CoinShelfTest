@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 41, Opus):** All planned steps are done except Red Book work (needs your book pages). Plan the next ideas from IDEAS.md together (e.g. 23 fill a full album at once, 33 trays in a storage box). (Session 40 reviewed 9.5: v0.49.2.)
+**Next session starts here (session 42, Sonnet):** Do Step 9.6a of the plan (fill a full album + Add coin order). (Session 41 planned Step 9.6.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -52,6 +52,10 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 38 | Opus | Plan bug #123: your own catalog numbers (turn off auto Coin ID, use your own flip labels, other systems) | ✅ plan PR (Step 9.5) |
 | 39 | Sonnet | Step 9.5: Coin ID style (your own codes, one running number, off), any label typed, IDs in CSV import, renumber with old ID kept | ✅ merged v0.49.0 (PR #135) + v0.49.1 (PR #136, Undo stays in Options) |
 | 40 | Opus | Short review of 9.5 (renumbering changes saved coins), fix what it finds | ✅ reviewed, 5 fixes + 1 small, v0.49.2; renumber skips every number on any flip (your choice) |
+| 41 | Opus | Plan Step 9.6: fill a full album, Add coin order, trays, albums kept in a box | ✅ plan PR |
+| 42 | Sonnet | Step 9.6a: fill a full album (quick list) + Add coin order | |
+| 43 | Sonnet | Step 9.6b: trays in a box + albums kept in a box (merge waits for review) | |
+| 44 | Opus | Review of 9.6b (changes how boxes are saved), fix, merge | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
@@ -259,6 +263,27 @@ Why: sellers and collectors often already have numbers written on their flips, o
 ### Not now
 - A "build your own pattern" tool (year, mint, box codes in the ID). Add only if real users ask.
 - Other ways people bring their own system (checked, already covered): own storage places (Kept in, boxes), own album brands, CSV import of coins, own asking prices.
+
+## Step 9.6: Fill a full album, Add coin order, trays in a box, albums kept in a box (IDEAS 23, 33, 19). Planned session 41 (Opus)
+Why: a real album full of coins takes too long one coin at a time; your wooden box has pullout trays with different layouts; some albums sit in cardboard boxes.
+
+### 9.6a (session 42, Sonnet): fill a full album + Add coin order
+- [ ] **New album asks "Empty, or already has coins?"** If it has coins: a scrollable **quick list**, one row per spot, every row **ticked "have it"**; untick the empty holes. Each ticked row has a grade dropdown.
+- [ ] **Price on the quick list, your choice:** a switch between **one total for the album, split across the coins** (to the cent, leftover on the first, like add many) or **a price on each row**. Date acquired and source asked once for the whole album.
+- [ ] Saving makes one coin per ticked spot (own ID, in its album spot). Unticked spots stay empty (they already show on want lists). Undo removes the whole batch. Also offered on an existing album's page for its empty spots ("Fill spots").
+- [ ] **Add coin order (nothing removed):** 1) What is it, type, year, mint 2) Grade 3) Price paid, date, where you got it 4) Where it's kept 5) **Notes** in its own small fold, one tap, right here (you use it often; opens already when the coin has notes) 6) **More details** fold: variety, ID label, status, receipt and the rest. Needs info keeps catching empty important fields.
+- [ ] Simple mode: quick list shows at every level; More details stays hidden where the level hides it today.
+- [ ] Tests (quick list, untick, split vs. per row, Undo, Fill spots, form order). Version (feature).
+
+### 9.6b (session 43, Sonnet): trays in a box + albums kept in a box. **Changes how boxes are saved: Opus review (session 44) before merge.**
+- [ ] **Trays:** a storage box can have trays. Making a box: "How many trays?" (default 1). Each new tray **copies the layout of the tray above** (rows/columns and slots), with a "Change" button for odd ones (your bottom two). Called **trays**.
+- [ ] A coin's spot becomes tray + row + slot (new `boxTray`). The box page shows one tray at a time with tray tabs; spot pickers, add many, filters and "next free spot" include the tray.
+- [ ] **Old data:** a box without trays reads as one tray with its old layout; a coin without `boxTray` is in tray 1 (convert on read). Backup/restore and CSV carry the tray.
+- [ ] **Album kept in a box:** "Kept in" on New/Edit album: pick a box or type a place ("safe, top shelf"). Just "in this box", no spot number. Shown on the album page and listed on the box page. **The album still shows on the Home shelf** as now.
+- [ ] Tests (trays, copied layout, old boxes and old backups, album in box still on shelf). Version (feature).
+
+### Session 44 (Opus): review of 9.6b
+- [ ] One adversarial review: old boxes and backups, moving coins between trays, shrinking a tray with coins in it, add many into trays, album in a box that is deleted. Fix what it finds, then merge (ask you first).
 
 ## What you want, in short
 
