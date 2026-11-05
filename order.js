@@ -120,7 +120,7 @@ Object.assign(actions, {
       const docs = [];
       cs.forEach((x) => returnToStock({ dataset: { id: x.id } }, true, docs));
       go("coins");
-      toast("Order refunded.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
+      toast("Order refunded.", { label: "Undo", fn: () => { const seen = new Set(); docs.filter((d) => !seen.has(d.id) && seen.add(d.id)).forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
     });
   },
 });

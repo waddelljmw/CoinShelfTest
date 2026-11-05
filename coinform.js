@@ -36,7 +36,7 @@ function applySourceKind(d, v) {
 // "Where from" chips right after Grade: Inherited first, then the three most used, then More… (opens the full list under Purchase details).
 // "Bought at this show": under Where from → Coin Show, once a show exists. Picking one fills the date acquired.
 function boughtShowField(d) {
-  if (d._sourceKind !== "Coin Show" || typeof allShows !== "function" || !allShows().length) return "";
+  if (d._sourceKind !== "Coin Show" || typeof showsOn !== "function" || !showsOn() || typeof allShows !== "function" || !allShows().length) return "";
   return `<label class="f"><span>Which show?</span><select data-f="boughtShowId" data-rerender><option value="">No show picked</option>${allShows().map((s) => `<option value="${esc(s.id)}" ${d.boughtShowId === s.id ? "selected" : ""}>${esc(s.name)} · ${esc(showDates(s))}</option>`).join("")}</select></label>`;
 }
 function sourceChips(d) {

@@ -98,6 +98,18 @@ const ok = (name, v, x) => console.log((v ? "ok   " : "FAIL ") + name + (x != nu
   ok("Coin Value has a Business card and leaves the coin out of the lists", /Business stock/.test(await p.textContent("body")) && !/Biz bar/.test(await p.textContent("body").then((t) => t.split("Business stock")[0])));
   await ev(() => go("stacks")); await p.waitForTimeout(250);
   ok("My Stacks counts Business apart", /Business, counted apart/.test(await p.textContent("body")));
+  // Session 49 review: Edit sale keeps the coin in its order
+  await ev(() => { ["e1", "e2"].forEach((k) => put("c_" + k, { ...blankCoin(), id: k, typeName: "Ed " + k, year: "1995", paid: "5", qty: 1, status: "owned" }, true)); openOrder(["e1", "e2"].map(getCoin)); });
+  await p.fill("#orderForm [name=p_e1]", "10"); await p.fill("#orderForm [name=p_e2]", "10"); await p.click("#orderForm button[type=submit]"); await p.waitForTimeout(200);
+  await ev(() => openSell("e1", true)); await p.fill("#sellForm [name=soldTo]", "new name"); await p.click("#sellForm button[type=submit]"); await p.waitForTimeout(200);
+  ok("Edit sale keeps the order", await ev(() => getCoin("e1").sold.orderId && getCoin("e1").sold.orderId === getCoin("e2").sold.orderId && getCoin("e1").sold.to === "new name"));
+  // Session 49 review: Undo a whole-order refund when two coins rejoin the same lot
+  await ev(() => { put("c_L0", { ...blankCoin(), id: "L0", typeName: "Lot", year: "1964", paid: "3", qty: 2, lotId: "L", status: "owned" }, true); ["L1", "L2"].forEach((k) => put("c_" + k, { ...blankCoin(), id: k, typeName: "Lot", year: "1964", paid: "3", qty: 1, lotId: "L", status: "owned" }, true)); openOrder(["L1", "L2"].map(getCoin)); });
+  await p.fill("#orderForm [name=p_L1]", "5"); await p.fill("#orderForm [name=p_L2]", "5"); await p.click("#orderForm button[type=submit]"); await p.waitForTimeout(200);
+  await ev(() => actions.refundOrder({ dataset: { id: "L1" } })); await ev(() => { const b = document.querySelector("[data-act=confirmOk]"); if (b) b.click(); }); await p.waitForTimeout(200);
+  ok("refund rejoins both into the lot", await ev(() => qtyOf(getCoin("L0")) === 4), await ev(() => qtyOf(getCoin("L0"))));
+  await ev(() => { const b = document.querySelector(".toast button, #toast button"); if (b) b.click(); }); await p.waitForTimeout(200);
+  ok("Undo puts the lot back to 2 and both sales back", await ev(() => qtyOf(getCoin("L0")) === 2 && getCoin("L1").status === "sold" && getCoin("L2").status === "sold"), await ev(() => qtyOf(getCoin("L0"))));
   console.log("errors", JSON.stringify(errors));
   await b.close();
 })();

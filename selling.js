@@ -202,7 +202,7 @@ function doSell(form) {
   if (sold.payMethod && !form.dataset.edit) saveSettings({ lastPay: sold.payMethod, lastPayShow: sold.showId || "" }, true);
   if (form.dataset.edit) {
     const old = c.sold || {}; // keep what the form doesn't show: where it was kept, and its show when the Show field is hidden
-    const keep = { keptIn: old.keptIn }; if (!fd.has("showId")) keep.showId = old.showId;
+    const keep = { keptIn: old.keptIn, orderId: old.orderId }; if (!fd.has("showId")) keep.showId = old.showId;
     Object.keys(keep).forEach((k) => { if (keep[k] == null) delete keep[k]; });
     saveCoin({ ...c, sold: { ...keep, ...sold, at: old.at || sold.at, carrier: old.carrier } });
     closeSheet();
