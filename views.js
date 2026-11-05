@@ -153,13 +153,13 @@ function viewStacks() {
   const add = `<button class="btn block primary" data-act="addBullion" style="margin-top:10px">+ Add a bar, round or other silver item</button>`;
   if (!names.length) return head + `<div class="card empty">No stacks yet. Add a bar or round, or put a junk silver coin in a stack from its Holder section.</div>` + add;
   return head + names.map((n) => {
-    const cs = ownedCoins().filter((c) => stackOf(c) === n);
+    const all = ownedCoins().filter((c) => stackOf(c) === n), cs = all.filter((c) => !c.biz), bz = all.filter((c) => c.biz); // Business items are listed apart and not added in
     const oz = sum(cs, (c) => ozEach(c) * qtyOf(c));
     const melt = cs.some((c) => meltEach(c) == null) ? null : sum(cs, (c) => meltEach(c) * qtyOf(c));
     const val = sum(cs, (c) => (bestEach(c) || 0) * qtyOf(c));
     return `<details class="card"><summary><b>${esc(n)}</b>${hiddenStacks().includes(n) ? ` <span class="muted small">· left out of Home totals</span>` : ""}
-      <div class="small muted">${sum(cs, qtyOf)} item${sum(cs, qtyOf) > 1 ? "s" : ""} · ${oz.toFixed(3)} oz pure · melt ${money(melt)} · value ${money(val)}</div></summary>
-      <div class="list" style="margin-top:8px">${cs.map((c) => coinRow(c)).join("")}</div></details>`;
+      <div class="small muted">${sum(cs, qtyOf)} item${sum(cs, qtyOf) === 1 ? "" : "s"} · ${oz.toFixed(3)} oz pure · melt ${money(melt)} · value ${money(val)}${bz.length ? ` · + ${sum(bz, qtyOf)} Business, counted apart` : ""}</div></summary>
+      <div class="list" style="margin-top:8px">${cs.map((c) => coinRow(c)).join("")}</div>${bz.length ? `<div class="small muted" style="margin:10px 2px 4px"><b>Business stock</b> (not in the totals above)</div><div class="list">${bz.map((c) => coinRow(c)).join("")}</div>` : ""}</details>`;
   }).join("") + add;
 }
 
@@ -171,13 +171,15 @@ function soldCard() {
   const margin = moneyIn ? profit / moneyIn : null;
   return homeSection("soldres", "Sold results", `<div class="stats">
     <div class="stat"><div class="k">Sold</div><div class="v">${sum(sold, qtyOf)}</div><div class="small muted">${money(revenue, "$0.00")} in sales</div></div>
-    <div class="stat"><div class="k">Margin</div><div class="v ${signCls(margin)}">${pct(margin)}</div><div class="small muted">${money(profit, "$0.00")} profit</div></div>
+    <div class="stat"><div class="k">Margin</div><div class="v ${signCls(margin)}">${pct(margin)}</div><div class="small muted">${money(profit, "$0.00")} profit${sellerOn() ? " before show costs" : ""}</div></div>
   </div><div class="small muted" style="margin:6px 0 4px">After what you paid, fees, shipping and insurance${sellerOn() ? ", <b>before show costs</b>" : ""}. Inherited coins aren't counted.</div>`);
 }
 
 function viewValue() {
-  const owned = ownedCoins();
-  if (!owned.length) return `<h1>Coin Value</h1><div class="card empty">Add coins to see what they're worth.</div>` + redBookHtml();
+  const owned = ownedCoins().filter((c) => !c.biz); // Business stock is shown apart, at the bottom
+  const bizN = ownedCoins().filter((c) => c.biz);
+  const bizCard = bizN.length ? `<div class="card"><div class="rowline"><b>Business stock</b><span class="muted small">kept apart, not in the lists above</span></div><div class="small muted">${sum(bizN, qtyOf)} item${sum(bizN, qtyOf) === 1 ? "" : "s"} · value ${money(sum(bizN, (c) => (bestEach(c) || 0) * qtyOf(c)), "$0.00")}</div><button class="link-btn" data-act="bizList">See Business stock</button></div>` : "";
+  if (!owned.length) return `<h1>Coin Value</h1><div class="card empty">Add coins to see what they're worth.</div>` + bizCard + redBookHtml();
   const byFam = {};
   owned.forEach((c) => {
     const f = familyOf(c);
@@ -196,7 +198,7 @@ function viewValue() {
     <div class="list">${top.map((c) => coinRow(c) + `<div class="small" style="text-align:right;margin:-4px 4px 6px"><a href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">eBay sold ↗</a></div>`).join("")}</div>
     ${premium.length ? `<h2>Highest premium over melt</h2><div class="card">${premium.map(({ c, p }) => `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="num ${signCls(p)}">${pct(p)} · <a href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">eBay ↗</a></span></div>`).join("")}</div>` : ""}
     <p class="small muted">Values are the ones you enter, then Red Book values, then melt. Use <b>Check eBay sold</b> on any coin to see recent real sale prices.</p>
-    ${redBookHtml()}`;
+    ${bizCard}${redBookHtml()}`;
 }
 
 /* --- Your Coins --- */
@@ -360,6 +362,7 @@ function viewCoin(r) {
     ${stageOf(c) === "coming" ? `<button class="btn block primary" style="margin-bottom:8px" data-act="received" data-id="${esc(c.id)}">✓ Mark as received</button>` : ""}
     ${c.status === "gone" ? `<div class="card"><b>Gone</b>${row("Why", esc((c.gone && c.gone.reason) || ""))}${row("Date", esc((c.gone && c.gone.date) || ""))}<div class="small muted">Not counted in your totals.</div></div>` : ""}
     ${c.status === "sold" ? `<div class="card"><b>Sold</b>${row("ID", esc(c.cid))}${row("Date", esc(sold.date))}${row("Sold for", money(num(sold.amount)))}${row("Shipping charged", num(sold.shipCharged) == null ? null : money(num(sold.shipCharged)))}${row("Platform fees", num(sold.fees) == null ? null : money(num(sold.fees)))}${row("Shipping paid", num(sold.shipping) == null ? null : money(num(sold.shipping)))}${row("Insurance", num(sold.insurance) == null ? null : money(num(sold.insurance)))}${row("Sales tax collected", num(sold.salesTax) == null ? null : money(num(sold.salesTax)))}${row("Paid with", esc(sold.payMethod))}${row("Check #", esc(sold.checkNo))}${row("Where", esc(whereText(sold)))}${row("Was kept in", esc(sold.keptIn))}${row("Sold to", esc(sold.to))}${row("Order number", esc(sold.orderNo))}${row("Tracking", sold.trackNo ? `<a href="${esc(trackUrl({ trackNo: sold.trackNo, trackCarrier: sold.carrier }))}" target="_blank" rel="noopener">${esc(sold.trackNo)} ↗</a>` : "")}${isInherited(c) ? "" : row("What you paid", costOf(c) == null ? null : money(costOf(c))) + row("Profit", typeof saleProfit === "function" ? `<b class="${signCls(saleProfit(c))}">${money(saleProfit(c))}</b>` : null)}</div>` : ""}
+    ${c.status === "sold" && typeof orderCard === "function" ? orderCard(c) : ""}
     ${(c.refunds || []).length ? `<div class="card"><b>Refunded sales</b>${c.refunds.map((r) => row(esc(r.date || "Sale"), `${money(num(r.amount))} refunded${num(r.fees) || num(r.shipping) ? ` <span class="muted small">· you still paid ${money(r2((num(r.fees) || 0) + (num(r.shipping) || 0) + (num(r.insurance) || 0)))} in fees and shipping</span>` : ""}`)).join("")}</div>` : ""}
     ${caseCard(c)}
     ${typeof askCard === "function" ? askCard(c) : ""}

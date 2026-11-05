@@ -5,6 +5,8 @@
 const sellerOn = () => !!(settings().seller && settings().seller.on);
 const sellerProfile = () => ({ name: "", ein: "", address: "", permit: "", ...((settings().seller || {}).profile || {}) });
 const isBiz = (c) => !!c.biz;
+// Shows (the page, the menu item, "Bought at this show") are on with Seller Mode, or with the one Options switch for people who only visit shows.
+const showsOn = () => sellerOn() || !!settings().attendeeShows;
 const bizCoins = () => ownedCoins().filter(isBiz);
 const saveSeller = (patch, quiet) => saveSettings({ seller: { ...(settings().seller || {}), ...patch } }, quiet);
 
@@ -37,6 +39,7 @@ function sellerOptionsHtml() {
   const inp = (k, label, ph) => `<label class="f"><span>${label}</span><input type="text" data-seller="${k}" value="${esc(p[k])}" placeholder="${esc(ph || "")}" maxlength="${k === "address" ? 160 : 60}"></label>`;
   return `<h2>Seller Mode</h2><div class="card">
     <label class="switch"><span>Seller Mode<div class="small muted">Business stock, dealer cases, shows and reports. Turn it off and they hide; nothing is deleted. ${typeof wi === "function" ? wi("seller") : ""}</div></span><input type="checkbox" data-act="sellerMode" ${on ? "checked" : ""}></label>
+    ${on ? "" : `<label class="switch" style="margin-top:10px"><span>Shows only<div class="small muted">Keep a list of the coin shows you visit: entry fee, gas, hotel, and the coins you bought there. Off by default.</div></span><input type="checkbox" data-act="attendeeShows" ${settings().attendeeShows ? "checked" : ""}></label>`}
     ${hidden ? `<div class="hint">${hidden} item${hidden === 1 ? "" : "s"} tagged Business ${hidden === 1 ? "is" : "are"} kept and stay out of your collection totals.</div>` : ""}
     ${on ? `<details class="more" open><summary>Business profile</summary>
       <div class="hint">Stays on this phone and goes into your backup. Used on reports later.</div>
@@ -69,6 +72,7 @@ function bizButton(c) {
 
 Object.assign(actions, {
   sellerMode: (el) => { saveSeller({ on: !!el.checked }); render(); },
+  attendeeShows: (el) => { saveSettings({ attendeeShows: !!el.checked }); render(); },
   bizList: () => { listState.status = "owned"; listState.family = null; listState.f = { biz: "business" }; go("coins"); },
   bizMove: (el) => bizMoveOne(el.dataset.id, el.dataset.v === "1"),
   // Select many: Move to Business
@@ -98,4 +102,4 @@ Object.assign(actions, {
     });
   },
 });
-if (typeof SNAPSHOT_BLOCK !== "undefined") ["sellerMode", "bizMove", "bizBulk", "bizBulkBack"].forEach((a) => SNAPSHOT_BLOCK.add(a));
+if (typeof SNAPSHOT_BLOCK !== "undefined") ["sellerMode", "attendeeShows", "bizMove", "bizBulk", "bizBulkBack"].forEach((a) => SNAPSHOT_BLOCK.add(a));

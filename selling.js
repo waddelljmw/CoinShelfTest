@@ -98,9 +98,10 @@ function openSell(id, edit) {
   const sv = (edit && c.sold) || {};
   const ask = num(c.ask);
   const amount = edit ? sv.amount : ask != null ? r2(ask) : null; // asking price fills in "Sold for"
+  const chg = !edit && sv.shipCharged == null ? shipChargeDefault() : null; // your usual "Shipping you charged" fills in (still changeable)
   const sf = !edit && sv.shipping == null ? shipFor(c) : null; // saved shipping cost for this coin type
-  const moreOpen = edit && ["shipCharged", "orderNo", "trackNo", "shipping", "insurance", "to"].some((k) => sv[k] != null && sv[k] !== "") || sf != null;
-  const mon = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" name="${k}" placeholder="$" value="${fv(k === "shipping" && sf != null ? sf : sv[k])}"></label>`;
+  const moreOpen = edit && ["shipCharged", "orderNo", "trackNo", "shipping", "insurance", "to"].some((k) => sv[k] != null && sv[k] !== "") || sf != null || chg != null;
+  const mon = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" name="${k}" placeholder="$" value="${fv(k === "shipping" && sf != null ? sf : k === "shipCharged" && chg != null ? chg : sv[k])}"></label>`;
   const sh0 = !edit && typeof showToday === "function" && typeof showPicker === "function" && sellerOn() && !isInherited(c) ? showToday() : null;
   // "Paid with" starts blank, except within the same show (a table of cash sales stays on Cash).
   const payNow = edit ? sv.payMethod : sv.payMethod || (sh0 && settings().lastPayShow === sh0.id ? settings().lastPay : "") || "";
@@ -233,8 +234,11 @@ function sellingOptionsHtml() {
     <div class="hint">Used to fill in fees when you mark a coin sold. Change them when a platform changes its prices. A fee you type yourself is never replaced.</div>
     <b class="small">Whatnot (coins)</b><div class="grid3">${inp("whatnotPct", "Commission %")}${inp("whatnotProcPct", "Processing %")}${inp("whatnotProcFlat", "Processing $")}</div>
     <b class="small">eBay and eBay Live (coins)</b><div class="grid3">${inp("ebayPct", "Fee %")}${inp("ebayFlat", "Per order $")}${inp("ebayFlatSmall", "Order ≤ $10")}</div>
-    <div class="btn-row"><button class="btn" data-act="feeReset">Put back the usual rates</button></div></details>${typeof pricingOptionsHtml === "function" ? pricingOptionsHtml() : ""}${shippingOptionsHtml()}</div>`;
+    <div class="btn-row"><button class="btn" data-act="feeReset">Put back the usual rates</button></div>
+    <label class="f"><span>Fees last checked</span><input type="date" data-feesdate value="${esc(settings().feesChecked || "")}"></label>
+    <div class="hint">The rates above were last checked in the app in November 2026. The app can't read a site's fees for you, so open the fee page, then update the rates and the date. <a href="https://www.google.com/search?q=Whatnot+seller+fees" target="_blank" rel="noopener">Whatnot fees ↗</a> · <a href="https://www.google.com/search?q=eBay+final+value+fees+collectibles" target="_blank" rel="noopener">eBay fees ↗</a></div></details>${typeof pricingOptionsHtml === "function" ? pricingOptionsHtml() : ""}${shippingOptionsHtml()}</div>`;
 }
+document.addEventListener("input", (e) => { if (e.target.dataset && "feesdate" in e.target.dataset) saveSettings({ feesChecked: e.target.value }, true); });
 document.addEventListener("input", (e) => {
   if (!e.target.dataset || !e.target.dataset.fee) return;
   const v = num(e.target.value);
@@ -251,13 +255,15 @@ function wasKeptIn(c) {
 
 /* ---- Options → Selling → Saved shipping costs (settings.shipping = { def, byType: { typeId: amount } }) ---- */
 const shipRates = () => { const s = settings().shipping || {}; return { def: num(s.def), byType: s.byType || {} }; };
+const shipChargeDefault = () => num((settings().shipping || {}).charge);
 function shipFor(c) { const r = shipRates(), t = num(r.byType[c.typeId]); return t != null ? t : r.def; }
 function shippingOptionsHtml() {
   const r = shipRates(), ids = Object.keys(r.byType).filter((id) => TYPE_BY_ID[id]);
   const rows = ids.map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id].name)}</span><span><input type="number" inputmode="decimal" step="0.01" min="0" data-shiptype="${esc(id)}" value="${esc(r.byType[id])}" style="width:90px"> <button class="btn" data-act="shipTypeDel" data-id="${esc(id)}" aria-label="Remove">✕</button></span></div>`).join("");
   return `<details class="more" ${ids.length ? "open" : ""}><summary>Shipping costs</summary>
     <div class="hint">Fills in "Shipping you paid" when you mark a coin sold. You can always change it for one sale.</div>
-    <label class="f"><span>Usual shipping cost</span><input type="number" inputmode="decimal" step="0.01" min="0" data-shipdef value="${esc(r.def == null ? "" : r.def)}" placeholder="$"></label>
+    <label class="f"><span>Usual shipping you charge a buyer</span><input type="number" inputmode="decimal" step="0.01" min="0" data-shipcharge value="${esc(shipChargeDefault() == null ? "" : shipChargeDefault())}" placeholder="$"></label>
+    <label class="f"><span>Usual shipping cost (what the label costs you)</span><input type="number" inputmode="decimal" step="0.01" min="0" data-shipdef value="${esc(r.def == null ? "" : r.def)}" placeholder="$"></label>
     <b class="small">Different for some coin types</b>${rows || `<div class="small muted">None yet.</div>`}
     <label class="f"><span>Add a coin type</span><select data-shipadd><option value="">Choose…</option>${COIN_TYPES.filter((t) => !(t.id in r.byType)).map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("")}</select></label></details>`;
 }
@@ -267,6 +273,7 @@ document.addEventListener("input", (e) => {
   if (!d) return;
   const v = num(e.target.value);
   if ("shipdef" in d) saveShip({ def: v != null && v >= 0 ? v : null });
+  else if ("shipcharge" in d) saveShip({ charge: v != null && v >= 0 ? v : null });
   else if (d.shiptype && v != null && v >= 0) saveShip({ byType: { ...shipRates().byType, [d.shiptype]: v } });
 });
 document.addEventListener("change", (e) => {
