@@ -218,6 +218,7 @@ function viewAlbum(r) {
     ${!editing && typeof pageSelHtml === "function" ? pageSelHtml([...st.filled.values(), ...extras]) : ""}
     <div class="btn-row" style="margin:0 0 12px">
       <button class="btn" data-act="addSpot" data-id="${esc(a.id)}">+ Add a spot</button>
+      ${!editing && st.total > st.owned && typeof openFillAlbum === "function" ? `<button class="btn" data-act="fillSpots" data-id="${esc(a.id)}">Fill spots</button>` : ""}
       <button class="btn ${editing ? "primary" : ""}" data-act="editSlots" data-id="${esc(a.id)}">${editing ? "Done editing" : "Edit spots"}</button>
     </div>
     ${editing ? `<div class="banner" style="margin:0 0 10px">Use ◀ ▶ to put spots in the same order as your album (within each year). Tap a spot to rename its label, or hide or remove it.</div>` : ""}

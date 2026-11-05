@@ -144,6 +144,17 @@ function renderCoinForm() {
     ${sourceChips(d)}
     ${purchaseFields(d)}
 
+    ${sec("holder", (it === "set" ? "Packaging and Kept in" : "Holder and Kept in") + (h ? ` <span class="muted small">· ${esc(h)}</span>` : ""), `${keptInFields(d)}
+    ${d.albumId === "__new" ? `<div class="grid2">
+      <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
+      <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
+      ${d._newAlbum.brand === "Other" ? `<label class="f"><span>Spine color</span><select data-na="color">${BOX_COLORS.filter((x) => x[0] !== "clear").map((x) => `<option value="${x[0]}" ${(d._newAlbum.color || "red") === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>` : ""}
+      <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}
+    ${holderFields(d)}`, d.albumId || d.holder || d.coa || d.packaging || d.stack || d.boxId)}
+
+    ${sec("notes", "Notes", `<label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>`, d.notes)}
+
+    <details data-sec="more" ${(draft._open && draft._open.more) ? "open" : ""}><summary>More details</summary>
     ${sec("value", "Quantity, value and metal", `${typeof manyField === "function" ? manyField(d) : ""}<div class="grid2">
       <label class="f"><span>Quantity</span><input type="number" inputmode="numeric" min="1" data-f="qty" value="${esc(d.qty)}"></label>
       <label class="f"><span>Value${eachWord(d)}</span><input type="number" inputmode="decimal" step="0.01" data-f="value" value="${esc(isJunk(d) ? "" : d.value)}" placeholder="${isJunk(d) ? "melt" : "$"}" ${isJunk(d) ? "disabled" : ""}></label>
@@ -158,24 +169,17 @@ function renderCoinForm() {
 
     ${sec("status", "Status" + (d._status && d._status !== "owned" ? ` <span class="muted small">· ${esc(STATUS_TEXT[d._status] || "")}</span>` : ""), statusFields(d), (d._status && d._status !== "owned") || d.upgrade || d.status === "sold")}
 
-    ${sec("holder", (it === "set" ? "Packaging and Kept in" : "Holder and Kept in") + (h ? ` <span class="muted small">· ${esc(h)}</span>` : ""), `${keptInFields(d)}
-    ${d.albumId === "__new" ? `<div class="grid2">
-      <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
-      <label class="f"><span>${d._newAlbum.brand === "Other" ? "Album name" : "Album number"}</span><input type="text" data-na="number" value="${esc(d._newAlbum.number)}" placeholder="${d._newAlbum.brand === "Dansco" ? "7070" : d._newAlbum.brand === "Whitman" ? "9128" : "My Morgans"}"></label></div>
-      ${d._newAlbum.brand === "Other" ? `<label class="f"><span>Spine color</span><select data-na="color">${BOX_COLORS.filter((x) => x[0] !== "clear").map((x) => `<option value="${x[0]}" ${(d._newAlbum.color || "red") === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>` : ""}
-      <div class="hint">Makes a virtual album for this coin type with every date and mint mark. Change its name or date range later with Edit album on the album's page.</div>` : ""}
-    ${holderFields(d)}`, d.albumId || d.holder || d.coa || d.packaging || d.stack || d.boxId)}
-
     ${it === "coin" ? errorFields(d) : ""}
 
     ${sec("photos", `Photos (${(d.photos || []).length})`, `<div class="photos">${(d.photos || []).map((p, i) => `<div class="ph"><img src="${esc(photoSrc(p))}" alt=""><button type="button" class="rm" data-act="rmPhoto" data-i="${i}" aria-label="Remove photo">✕</button></div>`).join("")}</div>
       <label class="btn file-btn" style="display:inline-block;margin-top:10px">Add photos<input type="file" accept="image/*" multiple id="photoInput"></label>
       <div class="hint" id="photoHint">${store.mode === "db" && !assetsApi ? "Photos can't be saved from this view." : ""}</div>`, (d.photos || []).length)}
 
-    ${sec("notes", "Notes and label", `<label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>
-      <label class="f"><span>Label</span><input type="text" id="labelInput" data-f="label" value="${esc(d.labelEdited ? d.label : autoLabel(d))}"></label>
+    ${sec("label", "Label and ID", `<label class="f"><span>Label</span><input type="text" id="labelInput" data-f="label" value="${esc(d.labelEdited ? d.label : autoLabel(d))}"></label>
       <div class="hint">Fills in as date-mint mark, coin type, denomination. Type over it to use your own.${d.labelEdited ? ` <button type="button" class="link-btn" data-act="resetLabel">Use automatic label</button>` : ""}</div>
       ${typeof idStyle === "function" && idStyle() === "off" ? `<label class="f"><span>ID or flip label (optional)</span><input type="text" data-f="cid" maxlength="40" autocapitalize="off" value="${esc(d.cid || "")}"></label>` : d._isNew && typeof nextIdPreview === "function" ? `<div class="hint">ID: next is <b>${esc(nextIdPreview(d))}</b>. You can change it on the coin's page after saving.</div>` : ""}`, d.notes || d.labelEdited || (typeof idStyle === "function" && idStyle() === "off"))}
+
+    </details>
 
     <div class="btn-row">
       <button type="submit" class="btn primary">${d._isNew ? "Add " + noun : "Save changes"}</button>

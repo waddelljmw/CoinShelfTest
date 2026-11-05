@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 42, Sonnet):** Do Step 9.6a of the plan (fill a full album + Add coin order). (Session 41 planned Step 9.6.)
+**Next session starts here (session 43, Sonnet):** Do Step 9.6b of the plan (trays in a box + albums kept in a box; merge waits for the session 44 Opus review). (Session 42 built Step 9.6a, v0.50.0.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -53,7 +53,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 39 | Sonnet | Step 9.5: Coin ID style (your own codes, one running number, off), any label typed, IDs in CSV import, renumber with old ID kept | ✅ merged v0.49.0 (PR #135) + v0.49.1 (PR #136, Undo stays in Options) |
 | 40 | Opus | Short review of 9.5 (renumbering changes saved coins), fix what it finds | ✅ reviewed, 5 fixes + 1 small, v0.49.2; renumber skips every number on any flip (your choice) |
 | 41 | Opus | Plan Step 9.6: fill a full album, Add coin order, trays, albums kept in a box | ✅ plan PR |
-| 42 | Sonnet | Step 9.6a: fill a full album (quick list) + Add coin order | |
+| 42 | Sonnet | Step 9.6a: fill a full album (quick list) + Add coin order | ✅ v0.50.0 |
 | 43 | Sonnet | Step 9.6b: trays in a box + albums kept in a box (merge waits for review) | |
 | 44 | Opus | Review of 9.6b (changes how boxes are saved), fix, merge | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
@@ -268,12 +268,12 @@ Why: sellers and collectors often already have numbers written on their flips, o
 Why: a real album full of coins takes too long one coin at a time; your wooden box has pullout trays with different layouts; some albums sit in cardboard boxes.
 
 ### 9.6a (session 42, Sonnet): fill a full album + Add coin order
-- [ ] **New album asks "Empty, or already has coins?"** If it has coins: a scrollable **quick list**, one row per spot, every row **ticked "have it"**; untick the empty holes. Each ticked row has a grade dropdown.
-- [ ] **Price on the quick list, your choice:** a switch between **one total for the album, split across the coins** (to the cent, leftover on the first, like add many) or **a price on each row** (**default: price on each row**, your choice 2026-11-04). Date acquired and source asked once for the whole album.
-- [ ] Saving makes one coin per ticked spot (own ID, in its album spot). Unticked spots stay empty (they already show on want lists). Undo removes the whole batch. Also offered on an existing album's page for its empty spots ("Fill spots").
-- [ ] **Add coin order (nothing removed):** 1) What is it, type, year, mint 2) Grade 3) Price paid, date, where you got it 4) Where it's kept 5) **Notes** in its own small fold, one tap, right here (you use it often; opens already when the coin has notes) 6) **More details** fold: variety, ID label, status, receipt and the rest. Needs info keeps catching empty important fields.
-- [ ] Simple mode: quick list shows at every level; More details stays hidden where the level hides it today.
-- [ ] Tests (quick list, untick, split vs. per row, Undo, Fill spots, form order). Version (feature).
+- [x] ✅ **New album asks "Empty, or already has coins?"** If it has coins: a scrollable **quick list**, one row per spot, every row **ticked "have it"**; untick the empty holes. Each ticked row has a grade dropdown.
+- [x] ✅ **Price on the quick list, your choice:** a switch between **one total for the album, split across the coins** (to the cent, leftover on the first, like add many) or **a price on each row** (**default: price on each row**, your choice 2026-11-04). Date acquired and source asked once for the whole album.
+- [x] ✅ Saving makes one coin per ticked spot (own ID, in its album spot). Unticked spots stay empty (they already show on want lists). Undo removes the whole batch. Also offered on an existing album's page for its empty spots ("Fill spots").
+- [x] ✅ **Add coin order (nothing removed):** 1) What is it, type, year, mint 2) Grade 3) Price paid, date, where you got it 4) Where it's kept 5) **Notes** in its own small fold, one tap, right here (you use it often; opens already when the coin has notes) 6) **More details** fold: variety, ID label, status, receipt and the rest. Needs info keeps catching empty important fields.
+- [x] ✅ Simple mode: quick list shows at every level; More details stays hidden where the level hides it today.
+- [x] ✅ Tests (quick list, untick, split vs. per row, Undo, Fill spots, form order). Version (feature).
 
 ### 9.6b (session 43, Sonnet): trays in a box + albums kept in a box. **Changes how boxes are saved: Opus review (session 44) before merge.**
 - [ ] **Trays:** a storage box can have trays. Making a box: "How many trays?" (default 1). Each new tray **copies the layout of the tray above** (rows/columns and slots), with a "Change" button for odd ones (your bottom two). Called **trays**.
