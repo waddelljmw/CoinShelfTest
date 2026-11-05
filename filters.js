@@ -83,7 +83,7 @@ function selBarHtml(picked, shown) {
   return `<div class="card selbar"><b>${picked.length} selected</b>
       <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="selAll">Select all shown (${shown})</button><button class="btn" data-act="selNone">Clear</button></div>
       <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="hdOpen" ${dis}>Set holder…</button><button class="btn" data-act="inhMark" ${dis}>Mark inherited…</button><button class="btn" data-act="pcOpen" ${dis}>Set purchase info…</button></div>
-      ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button></div>` : ""}</div>`;
+      ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button><button class="btn" data-act="selAsk" ${dis}>Suggested asking price</button></div>` : ""}</div>`;
 }
 // Bottom copy of Select all · Clear for long lists.
 const selFootHtml = () => listState.sel ? `<div class="small muted" style="text-align:center;margin:10px 0"><button type="button" class="link-btn" data-act="selAll">Select all</button> · <button type="button" class="link-btn" data-act="selNone">Clear</button></div>` : "";
@@ -256,6 +256,8 @@ function pcPreview() {
 }
 document.addEventListener("input", (e) => { if (e.target.closest && e.target.closest("[data-pc]")) pcPreview(); });
 document.addEventListener("change", (e) => {
+  if (e.target.name === "keptBox" && e.target.value === "__add") { const st = stashSheet(); boxReturn = { kind: "form", stash: st }; boxForm(null); return; }
+  if (e.target.dataset && e.target.dataset.flt === "mv" && e.target.value === "__add") { boxReturn = { kind: "move" }; boxForm(null); return; }
   if (!e.target.matches || !e.target.matches("[data-pc]")) return;
   const o = $("#pcOtherRow"); if (o) o.hidden = ($("#pcSrc") || {}).value !== "Other";
   pcPreview();
@@ -361,7 +363,7 @@ Object.assign(actions, {
       <label class="f"><span>Kept in</span><select data-flt="mv"><option value="">Pick where…</option>${opt("none", "Nothing special")}
         ${albums().map((a) => opt("a:" + a.id, "Album: " + albumTitle(a))).join("")}
         ${storageBoxes().map((b) => opt("b:" + b.id, "Storage box: " + b.name)).join("")}${displayBoxes().map((b) => opt("b:" + b.id, "Display box: " + b.name)).join("")}${(sellerOn() ? dealerBoxes() : []).map((b) => opt("b:" + b.id, "Dealer case: " + b.name)).join("")}
-        ${stackNames().map((s) => opt("s:" + s, "Stack: " + s)).join("")}</select></label>
+        ${stackNames().map((s) => opt("s:" + s, "Stack: " + s)).join("")}<option value="__add">+ Add storage…</option></select></label>
       <div class="hint">Boxes with numbered spots fill the next free spots. Anything that can't go there is skipped and listed. One Undo puts everything back.</div>
       <button class="btn primary block" data-act="mvGo" style="margin-top:10px">Move</button>`);
   },

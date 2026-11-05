@@ -1,5 +1,12 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.53.0": [
+    "Refund or cancel: on a sold coin, this puts it back in stock but keeps the sale on record as Refunded. The fees and shipping you paid still count as costs in your reports. Move back to collection is still there for real mistakes.",
+    "Adding a coin with Quantity above 1: choose whether the price is each or for the whole lot, and see the total as you type.",
+    "Set asking price for all now has a Suggested button (never below your cost plus 10%), and you can use it from Select on any Business coins that are for sale.",
+    "Paid with starts blank on a new sale (it stays the same only within one show). A Check # box appears when you pick Check.",
+    "Black is now a box and spine color. The album quick list has Tick all and Untick all and one Photograde link. Every Kept in list ends with + Add storage. The guide bubble is easier to read.",
+  ],
   "0.50.0": [
     "New album: choose \u201CAlready has coins in it\u201D and a quick list opens with every spot ticked. Untick the empty holes, pick a grade for each coin, and save them all at once. Undo removes the whole batch.",
     "On any album page, \u201CFill spots\u201D does the same for the spots that are still empty. Price goes on each row, or enter one total for the album and it is split across the coins.",

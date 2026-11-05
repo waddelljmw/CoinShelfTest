@@ -29,6 +29,11 @@ function repData(p) {
   const showCost = {}; SHOW_COSTS.forEach(([k]) => { showCost[k] = r2(sum(shows, (s) => num(s.costs && s.costs[k]))); });
   const showTotal = r2(sum(Object.values(showCost), (x) => x));
   const t = soldTotals(biz);
+  // Refunded sales: the money is given back (not a sale), but the fees and shipping you paid still count as costs.
+  const refunded = [];
+  allCoins().filter((c) => isBiz(c) && !isInherited(c)).forEach((c) => (c.refunds || []).forEach((x) => { const d = String(x.date || "").slice(0, 10); if (d >= r.start && d <= r.end) refunded.push(x); }));
+  const refFees = r2(sum(refunded, (x) => num(x.fees))), refShip = r2(sum(refunded, (x) => (num(x.shipping) || 0) + (num(x.insurance) || 0)));
+  t.fees = r2(t.fees + refFees); t.shipPaid = r2(t.shipPaid + refShip);
   const profit = r2(t.receipts - t.cost - t.fees - t.shipPaid - showTotal);
   // Platforms (Business sales only). Gross includes shipping and sales tax, the way platforms report it on a 1099-K.
   const plat = {};
@@ -43,14 +48,14 @@ function repData(p) {
   const sc = { receipts: t.receipts, cogs: t.cost, gross: r2(t.receipts - t.cost), fees: t.fees, shipping: t.shipPaid, table: showCost.table, travel: r2(showCost.gas + showCost.hotel), meals: showCost.food, other: showCost.other };
   sc.expenses = r2(sc.fees + sc.shipping + sc.table + sc.travel + sc.meals + sc.other);
   sc.net = r2(sc.gross - sc.expenses);
-  return { r, biz, pers, shows, showCost, showTotal, t, profit, platforms, stockCost, stockNow, sc, persT: soldTotals(pers) };
+  return { r, refunded, biz, pers, shows, showCost, showTotal, t, profit, platforms, stockCost, stockNow, sc, persT: soldTotals(pers) };
 }
 
 /* ---- the numbers as label/value lists (shared by the screen and the printable page) ---- */
 function repSections(d, fm) {
   const { t, sc } = d;
   return [
-    ["Summary", [["Items sold", String(t.n)], ["Sales", fm(t.sales)], ["Shipping charged", fm(t.ship)], ["Cost of coins sold", fm(t.cost)], ["Platform fees", fm(t.fees)],
+    ["Summary", [["Items sold", String(t.n)], ...(d.refunded && d.refunded.length ? [["Refunded sales (their fees and shipping still count as costs)", String(d.refunded.length)]] : []), ["Sales", fm(t.sales)], ["Shipping charged", fm(t.ship)], ["Cost of coins sold", fm(t.cost)], ["Platform fees", fm(t.fees)],
       ["Shipping and insurance paid", fm(t.shipPaid)], ["Show costs", fm(d.showTotal)], ["Profit", fm(d.profit), "b"]]],
     ["Sales tax collected (not income; kept apart)", [["Sales tax collected", fm(t.tax)]]],
     ["Business stock", [["At cost, at the end of the period", fm(d.stockCost)], ["Value today (Red Book, melt or your value)", fm(d.stockNow)]]],

@@ -23,6 +23,13 @@ function fillRow(a, s, i, mode) {
     ${mode === "each" ? `<input type="number" class="fill-paid" inputmode="decimal" min="0" step="0.01" placeholder="$ paid" aria-label="Price paid for ${esc(slotLabel(s))}" style="flex:none;width:76px">` : ""}
   </div>`;
 }
+// One Photograde link for the whole list, only when every spot is the same coin type.
+function fillGuideLink(a, spots) {
+  const ids = [...new Set(spots.map((s) => slotType(a, s)))];
+  if (ids.length !== 1 || !TYPE_BY_ID[ids[0]]) return "";
+  const c = { typeId: ids[0], typeName: shortName(TYPE_BY_ID[ids[0]]), year: spots[0].y };
+  return `<div class="hint"><a href="${esc(photoGuideUrl(c))}" target="_blank" rel="noopener">${esc(photoGuideText(c))} ↗</a></div>`;
+}
 // Open the quick list for an album (or just its empty spots). `fresh` = a brand-new album that already has coins.
 function openFillAlbum(albumId, fresh) {
   const al = getAlbum(albumId);
@@ -44,6 +51,8 @@ function openFillAlbum(albumId, fresh) {
       <label class="f"><span>Where from</span><input type="text" id="fillSource" list="fillSourceList" value="${esc(a.inherited ? "Inherited" : "")}" placeholder="optional"></label>
     </div>
     <datalist id="fillSourceList">${sourceOptions().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
+    <div class="btn-row" style="margin:6px 0"><button type="button" class="btn" data-act="fillTick" data-v="1">Tick all</button><button type="button" class="btn" data-act="fillTick" data-v="0">Untick all</button></div>
+    ${fillGuideLink(a, spots)}
     <div class="small muted" id="fillCount" style="margin:6px 0"></div>
     <div id="fillRows" style="max-height:50vh;overflow:auto">${spots.map((s, i) => fillRow(a, s, i, mode)).join("")}</div>
     <div class="btn-row" style="margin-top:12px"><button class="btn primary" type="button" data-act="fillGo">Save coins</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
@@ -117,6 +126,7 @@ function fillSave() {
 }
 Object.assign(actions, {
   fillSpots: (el) => { fillUi.fresh = false; fillUi.mode = "each"; openFillAlbum(el.dataset.id, false); },
+  fillTick: (el) => { $$("#fillRows .fill-on").forEach((b) => { b.checked = el.dataset.v === "1"; }); fillCount(); },
   fillMode: (el) => { const id = $("#fillForm").dataset.id; fillUi.mode = el.dataset.v; openFillAlbum(id, undefined); },
   fillGo: fillSave,
 });

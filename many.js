@@ -24,7 +24,13 @@ function manyPayFields(d) {
   const total = d._payMode === "total";
   return `<label class="f"><span>The price I entered is</span><select data-f="_payMode" data-rerender><option value="each" ${total ? "" : "selected"}>Per coin</option><option value="total" ${total ? "selected" : ""}>Total for the group</option></select></label>`;
 }
-const paidLabel = (d) => (manyOn(d) && d._payMode === "total" ? "Paid, total for all " + manyCount(d) : "Paid each");
+// One entry with Quantity above 1: is the price typed each, or for the whole lot? (Saved as price each; converted when you save.)
+const lotOn = (d) => !manyOn(d) && d._lotMode === "lot" && (num(d.qty) || 1) > 1;
+function lotPayFields(d) {
+  if (manyOn(d)) return "";
+  return `<label class="f" id="lotRow" ${(num(d.qty) || 1) < 2 ? "hidden" : ""}><span>Price is</span><select data-f="_lotMode" data-rerender><option value="" ${lotOn(d) ? "" : "selected"}>Each</option><option value="lot" ${lotOn(d) ? "selected" : ""}>For the whole lot</option></select></label>`;
+}
+const paidLabel = (d) => (manyOn(d) && d._payMode === "total" ? "Paid, total for all " + manyCount(d) : lotOn(d) ? "Paid, total for all " + (num(d.qty) || 1) : "Paid each");
 
 // Box spots: tap the spots in order. A tap on a placed coin takes it back out.
 const spotKey = (r, s) => r + "-" + s;

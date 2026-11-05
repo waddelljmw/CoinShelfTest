@@ -24,6 +24,8 @@ function suggestAsk(c) {
   out.top = ["book", "melt", "cost"].reduce((best, k) => (out[k] != null && (best == null || out[k] > out[best]) ? k : best), null);
   return out;
 }
+// One suggestion by name: book, melt, cost, or top (the highest of the three, so never below cost + the minimum markup).
+const askPick = (c, k) => { const s = suggestAsk(c); return k === "top" ? (s.top ? s[s.top] : null) : s[k]; };
 const pctText = (n) => String(Math.round(n * 100) / 100);
 
 // Up to three tap-to-use buttons; the suggested (highest) one is highlighted. `id` is a saved coin (it is saved straight away); without one, it fills the form's asking price.

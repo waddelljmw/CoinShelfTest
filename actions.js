@@ -11,6 +11,37 @@ function toast(msg, action) {
 }
 
 /* ---------- events ---------- */
+// Sold coin back to stock. keepRecord = Refund or cancel (sale kept as Refunded); otherwise a plain move back.
+function returnToStock(el, keepRecord) {
+    const c = getCoin(el.dataset.id);
+    if (!c) return;
+    const gone = keepRecord && c.sold ? [{ ...c.sold, refundedAt: Date.now() }] : []; // the sale, kept as Refunded
+    const refs = (x) => [...(x.refunds || []), ...(x === c ? gone : [])];
+    const lot = c.lotId || c.splitFrom;
+    const same = (x) => ["typeId", "year", "mint", "grade", "gradeMode", "variety", "cert"].every((k) => String(x[k] || "") === String(c[k] || ""));
+    // Another piece of the same lot still in the collection (and not changed since): rejoin it.
+    const home = lot ? allCoins().find((x) => x.id !== c.id && x.status === "owned" && (x.lotId || x.id) === lot && same(x)) : null;
+    const undo = (docs) => toast("Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
+    if (home) {
+      const ask = num(home.ask) != null || num(c.ask) != null ? { ask: String(r2((num(home.ask) || 0) + (num(c.ask) || 0))) } : {};
+      const all = [...refs(home), ...refs(c)];
+      saveCoin({ ...home, ...joinExtras(home, c), ...ask, ...(all.length ? { refunds: all } : {}), qty: qtyOf(home) + qtyOf(c) });
+      remove("c_" + c.id);
+      undo([home, c]);
+      go("coin-" + home.id);
+      return;
+    }
+    const n = { ...c, status: "owned" };
+    delete n.sold;
+    delete n.splitFrom;
+    if (refs(c).length) n.refunds = refs(c);
+    const note = (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "");
+    saveCoin(n);
+    undo([c]);
+    if (note) toast("Back in your collection." + note, { label: "Undo", fn: () => { put("c_" + c.id, c); toast("Undone. The sale is back."); } });
+  
+}
+
 const actions = {
   closeSheet,
   status: (el) => { listState.status = el.dataset.v; render(); },
@@ -26,30 +57,8 @@ const actions = {
   sellCount: (el) => { const f = el.closest("form"); if (f && f.elements.n) { f.elements.n.value = el.dataset.n; sellRecalc(f); } }, // quick 1 / All buttons on Mark as sold
   editId: (el) => openEditId(el.dataset.id),
   feeReset: () => { saveSettings({ feeRates: {} }); toast("Usual fee rates are back."); },
-  unsell: (el) => {
-    const c = getCoin(el.dataset.id);
-    if (!c) return;
-    const lot = c.lotId || c.splitFrom;
-    const same = (x) => ["typeId", "year", "mint", "grade", "gradeMode", "variety", "cert"].every((k) => String(x[k] || "") === String(c[k] || ""));
-    // Another piece of the same lot still in the collection (and not changed since): rejoin it.
-    const home = lot ? allCoins().find((x) => x.id !== c.id && x.status === "owned" && (x.lotId || x.id) === lot && same(x)) : null;
-    const undo = (docs) => toast("Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
-    if (home) {
-      const ask = num(home.ask) != null || num(c.ask) != null ? { ask: String(r2((num(home.ask) || 0) + (num(c.ask) || 0))) } : {};
-      saveCoin({ ...home, ...joinExtras(home, c), ...ask, qty: qtyOf(home) + qtyOf(c) });
-      remove("c_" + c.id);
-      undo([home, c]);
-      go("coin-" + home.id);
-      return;
-    }
-    const n = { ...c, status: "owned" };
-    delete n.sold;
-    delete n.splitFrom;
-    const note = (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "");
-    saveCoin(n);
-    undo([c]);
-    if (note) toast("Back in your collection." + note, { label: "Undo", fn: () => { put("c_" + c.id, c); toast("Undone. The sale is back."); } });
-  },
+  unsell: (el) => returnToStock(el, false),
+  refund: (el) => returnToStock(el, true), // Refund or cancel: back in stock, the sale stays on record as Refunded
   delete: (el) => {
     const c = getCoin(el.dataset.id);
     if (!c) return;
@@ -246,7 +255,7 @@ const actions = {
 };
 
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
-const SNAPSHOT_BLOCK = new Set(("fillSpots fillGo edit editSale sell unsell delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
+const SNAPSHOT_BLOCK = new Set(("fillSpots fillGo edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
   "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums sortAlbumsDate moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
@@ -362,6 +371,7 @@ document.addEventListener("change", (e) => {
     refreshFormHints(); return;
   }
   if (el.hasAttribute("data-kept")) { // the "Kept in" dropdown: one place per item
+    if (el.value === "b:__add") { boxReturn = { kind: "coin" }; boxForm(null); return; } // + Add storage: make a box, then come back here
     applyKept(draft, el.value);
     if (draft._isNew && !draft.typeId && el.value.startsWith("a:")) { const al = getAlbum(el.value.slice(2)); if (al && albumTypes(al).length === 1) { pickType(albumTypes(al)[0]); return; } }
     const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; return;
