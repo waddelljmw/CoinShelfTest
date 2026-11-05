@@ -66,7 +66,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 49 | Opus | Short review of 9.7b (orders change how sales are saved), fix, merge (ask you first) | ✅ reviewed, 3 fixes, merged v0.54.1 (PR #154) |
 | 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | ✅ merged v0.55.0 |
 | 51 | Sonnet | Step 9.7d: pocket album (flips/capsules in rows and columns). **Merge waits for session 52 review** | ✅ v0.56.0, PR open (branch `step-9-7d-pocket-album`) |
-| 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | |
+| 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | ✅ reviewed, 3 small fixes (pocket album kept in a box, pocket wording), also fixed automatic tests (PR #157) |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
@@ -349,7 +349,7 @@ Why: the reviews found no crashes or lost coins, but a refund erases money you a
 - Built as a box of type `pocket` (`pockets.js`): pages = trays, rows = pockets down, perRow = across, up to 40 pages. Shows in Albums list, Home shelf spines and Kept-in lists; hidden from the Storage page. Test `tests/pocket97d.js`.
 
 ### Session 52 (Opus): short review of 9.7d
-- [ ] Review pocket albums: old albums and backups, moving a coin between a pocket album and a box, shrinking pages with coins in them, deleting the album. Fix, then merge (ask you first).
+- [x] ✅ Review pocket albums: old albums and backups, moving a coin between a pocket album and a box, shrinking pages with coins in them, deleting the album. Fix, then merge (ask you first).
 
 ### Not now (from the reviews; add only if you ask)
 - Buyer receipt or invoice, to-ship list, stream run sheet, payout match-up, buyer list, giveaways, auction vs buy-it-now, trades, layaway and consignment, mileage rate, stock age.

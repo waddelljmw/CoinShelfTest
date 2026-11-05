@@ -128,9 +128,9 @@ function boxCheck(c) {
   const tn = trayCount(b), t = tn > 1 ? Math.round(+c.boxTray) || 1 : 1;
   if (t < 1 || t > tn) return "Pick a " + trayWord(b).toLowerCase() + " from 1 to " + tn + ", or choose Nothing special.";
   const L = trayOf(b, t), r = Math.round(+c.boxRow), s = Math.round(+c.boxSlot);
-  if (!(r >= 1 && r <= L.rows) || !(s >= 1 && s <= L.perRow)) return "Pick a " + lineWord(b).toLowerCase() + " from 1 to " + L.rows + " and a slot from 1 to " + L.perRow + (tn > 1 ? " in tray " + t : "") + ", or choose Nothing special.";
+  if (!(r >= 1 && r <= L.rows) || !(s >= 1 && s <= L.perRow)) return "Pick a " + lineWord(b).toLowerCase() + " from 1 to " + L.rows + " and a " + slotWord(b).toLowerCase() + " from 1 to " + L.perRow + (tn > 1 ? " in " + trayWord(b).toLowerCase() + " " + t : "") + ", or choose Nothing special.";
   const other = spotCoin(b.id, r, s, c.id, t);
-  if (other) return (tn > 1 ? trayWord(b) + " " + t + ", " + lineWord(b).toLowerCase() : lineWord(b)) + " " + r + ", slot " + s + " already holds " + labelOf(other) + ". Pick another spot.";
+  if (other) return (tn > 1 ? trayWord(b) + " " + t + ", " + lineWord(b).toLowerCase() : lineWord(b)) + " " + r + ", " + slotWord(b).toLowerCase() + " " + s + " already holds " + labelOf(other) + ". Pick another spot.";
   c.boxRow = String(r); c.boxSlot = String(s);
   if (tn > 1) c.boxTray = String(t); else delete c.boxTray;
   return "";
@@ -328,16 +328,18 @@ Object.assign(actions, {
   boxDelete: (el) => {
     const b = getBox(el.dataset.id);
     if (!b) return;
-    const n = boxCoins(b).length;
-    confirmSheet("Delete " + b.name + "?", n ? (b.type === "dealer" ? "Its " + n + " item" + (n > 1 ? "s go" : " goes") + " back where " + (n > 1 ? "they were" : "it was") + " before the case." : "Its " + n + " item" + (n > 1 ? "s stay" : " stays") + " in your collection. They just lose their box.") : "This box is empty.", "Delete box", () => {
+    const n = boxCoins(b).length, pk = b.type === "pocket";
+    confirmSheet("Delete " + b.name + "?", n ? (b.type === "dealer" ? "Its " + n + " item" + (n > 1 ? "s go" : " goes") + " back where " + (n > 1 ? "they were" : "it was") + " before the case." : "Its " + n + " item" + (n > 1 ? "s stay" : " stays") + " in your collection. They just lose their " + (pk ? "pocket." : "box.")) : pk ? "This album is empty." : "This box is empty.", pk ? "Delete album" : "Delete box", () => {
       const coins = boxCoins(b).map((c) => JSON.parse(JSON.stringify(c)));
       const box = JSON.parse(JSON.stringify(b));
       coins.forEach((c) => { const x = JSON.parse(JSON.stringify(c)); if (b.type === "dealer" && x.caseFrom && typeof caseRestore === "function") caseRestore(x); /* back to its old place and status */ else { delete x.boxId; delete x.boxRow; delete x.boxSlot; delete x.boxTray; } put("c_" + c.id, x); });
       const albs = keptAlbums(b).map((a) => JSON.parse(JSON.stringify(a))); // albums kept in it just lose the box; they stay on the shelf
       albs.forEach((a) => { const x = { ...a }; delete x.keptBox; put("a_" + a.id, x); });
+      const pks = keptPockets(b).map((x) => JSON.parse(JSON.stringify(x)));
+      pks.forEach((x) => { const y = { ...x }; delete y.keptBox; put("b_" + x.id, y); });
       remove("b_" + b.id);
       go("boxes");
-      toast("Box deleted.", { label: "Undo", fn: () => { put("b_" + box.id, box); coins.forEach((c) => put("c_" + c.id, c)); albs.forEach((a) => put("a_" + a.id, a)); toast("Restored."); } });
+      toast(pk ? "Album deleted." : "Box deleted.", { label: "Undo", fn: () => { put("b_" + box.id, box); coins.forEach((c) => put("c_" + c.id, c)); albs.forEach((a) => put("a_" + a.id, a)); pks.forEach((x) => put("b_" + x.id, x)); toast("Restored."); } });
     });
   },
   boxMissing: () => {
@@ -378,10 +380,11 @@ document.addEventListener("submit", (e) => {
 
 // --- Albums kept in a box (Step 9.6b): an album record may have keptBox (a box id) and keptPlace (free text). The album still shows on the Home shelf. ---
 const keptAlbums = (b) => albums().filter((a) => a.keptBox === b.id);
+const keptPockets = (b) => pocketAlbums().filter((x) => x.keptBox === b.id); // pocket albums (Step 9.7d) kept in this box
 function keptAlbumsHtml(b) {
-  const list = keptAlbums(b);
-  if (!list.length) return "";
-  return `<div class="card" style="margin:0 0 10px"><div class="muted small">Albums kept in this box</div>${list.map((a) => `<button class="coin-row" data-go="album-${esc(a.id)}"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span>${a.keptPlace ? `<span class="coin-sub">${esc(a.keptPlace)}</span>` : ""}</span></button>`).join("")}</div>`;
+  const list = keptAlbums(b), pk = keptPockets(b);
+  if (!list.length && !pk.length) return "";
+  return `<div class="card" style="margin:0 0 10px"><div class="muted small">Albums kept in this box</div>${list.map((a) => `<button class="coin-row" data-go="album-${esc(a.id)}"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span>${a.keptPlace ? `<span class="coin-sub">${esc(a.keptPlace)}</span>` : ""}</span></button>`).join("")}${pk.map((x) => `<button class="coin-row" data-go="box-${esc(x.id)}"><span class="coin-main"><span class="coin-label">${esc(x.name)}</span><span class="coin-sub">Pocket album${x.keptPlace ? " · " + esc(x.keptPlace) : ""}</span></span></button>`).join("")}</div>`;
 }
 // "Kept in" text for an album page, or "".
 function albumKeptText(a) {

@@ -41,6 +41,15 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("grows to 4 pages, coins stay", await p.evaluate((id) => trayCount(getBox(id)) === 4 && getCoin("m").boxTray === "2" && getCoin("e").boxRow === "1", id));
   // old box unchanged, delete keeps coins
   ok("old box unchanged", await p.evaluate(() => { const o = getBox("old"); return o.type === "storage" && o.rows === 2 && o.perRow === 3 && trayCount(o) === 1; }));
+  // review fixes (session 52): a pocket album kept in a box shows on that box; deleting the box frees it, Undo puts it back
+  ok("pocket wording in spot messages", await p.evaluate((id) => /pocket 2 already holds/.test(boxCheck({ id: "z", boxId: id, boxTray: "2", boxRow: "3", boxSlot: "2" })), id));
+  await p.evaluate((id) => { const x = getBox(id); put("b_" + id, { ...x, keptBox: "old" }); go("box-old"); }, id); await p.waitForTimeout(150);
+  ok("box page lists the pocket album kept in it", await p.evaluate(() => document.body.innerText.includes("Eagle album") && document.body.innerText.includes("Pocket album")));
+  await p.evaluate(() => actions.boxDelete({ dataset: { id: "old" } })); await p.waitForTimeout(150);
+  await p.evaluate(() => document.querySelector("[data-act=confirmOk]").click()); await p.waitForTimeout(200);
+  ok("deleting the box clears the pocket album's Kept in", await p.evaluate((id) => !getBox("old") && !getBox(id).keptBox, id));
+  await p.evaluate(() => { const u = [...document.querySelectorAll("button")].find((e) => e.textContent === "Undo"); if (u) u.click(); }); await p.waitForTimeout(200);
+  ok("Undo brings both back", await p.evaluate((id) => !!getBox("old") && getBox(id).keptBox === "old", id));
   await p.evaluate((id) => actions.boxDelete({ dataset: { id } }), id); await p.waitForTimeout(200);
   await p.evaluate(() => { const ok = document.querySelector("[data-act=confirmOk]"); if (ok) ok.click(); }); await p.waitForTimeout(250);
   ok("deleting the album keeps its coins", await p.evaluate(() => !pocketAlbums().length && !!getCoin("m") && !!getCoin("e") && !getCoin("m").boxId));
