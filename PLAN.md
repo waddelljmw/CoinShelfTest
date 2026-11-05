@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 40, Opus):** Short review of Step 9.5 (renumbering changes saved coins): restore an old backup, renumber, Undo, CSV import with clashing IDs, add many coins in each style. Fix what it finds. (Session 39 built it as v0.49.0.)
+**Next session starts here (session 40, Opus):** Short review of Step 9.5 (renumbering changes saved coins): restore an old backup, renumber, Undo, CSV import with clashing IDs, add many coins in each style. Fix what it finds. (Session 39 built it as v0.49.0, and v0.49.1 made the renumber Undo stay in Options.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -50,7 +50,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 36 | Opus | Review of 9.4 (9.4a changes many saved coins at once), fix what it finds | ✅ reviewed, 5 fixes, merged v0.47.1 (PR #130); inherited coins keep skipping Date acquired too |
 | 37 | Sonnet | Fix list (your 2026-11-04 notes: update bar, Suggest an idea, existing coin into album spot, U.S. Mint, level lines) | ✅ merged v0.48.0 |
 | 38 | Opus | Plan bug #123: your own catalog numbers (turn off auto Coin ID, use your own flip labels, other systems) | ✅ plan PR (Step 9.5) |
-| 39 | Sonnet | Step 9.5: Coin ID style (your own codes, one running number, off), any label typed, IDs in CSV import, renumber with old ID kept | ✅ built v0.49.0 (PR open, waiting for your OK to merge: it adds a saved field) |
+| 39 | Sonnet | Step 9.5: Coin ID style (your own codes, one running number, off), any label typed, IDs in CSV import, renumber with old ID kept | ✅ merged v0.49.0 (PR #135) + v0.49.1 (PR #136, Undo stays in Options) |
 | 40 | Opus | Short review of 9.5 (renumbering changes saved coins), fix what it finds | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
