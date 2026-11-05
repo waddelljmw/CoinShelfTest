@@ -12,7 +12,7 @@ function toast(msg, action) {
 
 /* ---------- events ---------- */
 // Sold coin back to stock. keepRecord = Refund or cancel (sale kept as Refunded); otherwise a plain move back.
-function returnToStock(el, keepRecord) {
+function returnToStock(el, keepRecord, collect) { // collect (optional list): used by Refund whole order; gathers what Undo must put back and shows no message
     const c = getCoin(el.dataset.id);
     if (!c) return;
     const gone = keepRecord && c.sold ? [{ ...c.sold, refundedAt: Date.now(), biz: !!c.biz }] : []; // the sale, kept as Refunded
@@ -27,6 +27,7 @@ function returnToStock(el, keepRecord) {
       const all = [...refs(home), ...refs(c)];
       saveCoin({ ...home, ...joinExtras(home, c), ...ask, ...(all.length ? { refunds: all } : {}), qty: qtyOf(home) + qtyOf(c) });
       remove("c_" + c.id);
+      if (collect) { collect.push(home, c); return; }
       undo([home, c]);
       go("coin-" + home.id);
       return;
@@ -37,6 +38,7 @@ function returnToStock(el, keepRecord) {
     if (refs(c).length) n.refunds = refs(c);
     const note = (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "");
     saveCoin(n);
+    if (collect) { collect.push(c); return; }
     undo([c]);
     if (note) toast("Back in your collection." + note, { label: "Undo", fn: () => { put("c_" + c.id, c); toast("Undone. The sale is back."); } });
   
@@ -385,6 +387,11 @@ document.addEventListener("change", (e) => {
     if (el.dataset.f === "albumId" && draft._isNew && !draft.source) { const al = getAlbum(el.value); if (al && al.inherited) applySourceKind(draft, "Inherited"); }
     if (el.dataset.f === "albumId" && draft._isNew && !draft.typeId) { const al = getAlbum(el.value); if (al && albumTypes(al).length === 1) { pickType(albumTypes(al)[0]); return; } }
     if (el.dataset.f === "setKind") autoSetOz(draft);
+    if (el.dataset.f === "boughtShowId") { // the show day fills in Date acquired (unless you typed a date yourself)
+      const sh = getShow(el.value);
+      if (!el.value) delete draft.boughtShowId;
+      if (sh && (!draft.acquired || draft.acquired === draft._acqAuto)) { draft.acquired = saleDateForShow(sh); draft._acqAuto = draft.acquired; }
+    }
     if (el.hasAttribute("data-rerender")) {
       const y = $(".sheet").scrollTop;
       renderCoinForm();

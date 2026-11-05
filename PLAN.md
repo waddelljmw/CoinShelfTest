@@ -62,7 +62,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 45 | Opus | Read all six reviews + your 2026-11-05 notes, plan the next batch (Step 9.7); planning only | ✅ plan PR |
 | 46 | Sonnet | Step 9.7a: money fixes (refund keeps the record, Paid for the whole lot, bulk price never below cost) + your small notes. **Merge waits for session 47 review** | ✅ built v0.53.0, PR #153 open (not merged) |
 | 47 | Opus | Short review of 9.7a (refund changes how a sale is saved), fix, merge (ask you first) | ✅ reviewed, 6 fixes, merged v0.53.0 (PR #153) |
-| 48 | Sonnet | Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. **Merge waits for session 49 review** | |
+| 48 | Sonnet | Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. **Merge waits for session 49 review** | ✅ built v0.54.0, PR open (not merged) |
 | 49 | Opus | Short review of 9.7b (orders change how sales are saved), fix, merge (ask you first) | |
 | 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | |
 | 51 | Sonnet | Step 9.7d: pocket album (flips/capsules in rows and columns). **Merge waits for session 52 review** | |
@@ -317,15 +317,15 @@ Why: the reviews found no crashes or lost coins, but a refund erases money you a
 - [x] ✅ Review refunds: old sales, refund then sell again, reports and tax CSV after a refund, Undo. Fix, then merge (ask you first).
 
 ### 9.7b (session 48, Sonnet): sales and shows. **Orders change how sales are saved: Opus review (session 49) before merge.**
-- [ ] **One order, several coins** (reviews 5 and 6, top wish): Select → "Sell together": one buyer, one order number, one tracking number, one shipping charge, one flat fee (e.g. one 30¢ Whatnot fee), each coin keeps its own price. Each coin still shows as sold; reports count the order once for fees and shipping. A refund (9.7a) can be for one coin or the whole order.
-- [ ] **Profit numbers agree:** Home, the show page, Sales Reports and the tax CSV use the same words: **Sales** (coins only), **Shipping charged** shown apart, **Profit before show costs** and **Profit after show costs**. The show's "Sold here" list shows the coin price, with shipping on its own small line, in date order.
-- [ ] **CSV columns:** coins CSV gets Business / Personal and Show; sales CSV gets buyer, order and tracking. Business stays apart on My Stacks and Coin Value (review 5 #7).
-- [ ] **Stream costs by kind:** costs offered follow the kind of show: a coin show keeps Table fee, Gas, Hotel, Food, Other; a stream gets Supplies, Equipment, Subscriptions, Other. Supplies gets its own line on the Schedule C summary. Old "Other" amounts stay as they are.
-- [ ] **Attendee shows:** an **Entry fee** line (instead of Table fee). Shows can be turned on for attendees without Seller Mode (one switch in Options, off by default, so the menu stays clean).
-- [ ] **Bought at this show:** on Add coin, Where from → Coin show → pick the show; the date acquired fills in from the show day you pick. The show page lists **Bought here** and **Sold here**. Show costs are **not** spread into each coin's cost (keeps your costs clear).
-- [ ] **Usual shipping you charge** (Options → Selling), filled in on each sale, still changeable.
-- [ ] **Platform fees:** in Options → Selling, a "Fees last checked" date with a link to each site's fee page (the app can't read them for you).
-- [ ] Tests. Version (feature).
+- [x] ✅ **One order, several coins** (reviews 5 and 6, top wish): Select → "Sell together": one buyer, one order number, one tracking number, one shipping charge, one flat fee (e.g. one 30¢ Whatnot fee), each coin keeps its own price. Each coin still shows as sold; reports count the order once for fees and shipping. A refund (9.7a) can be for one coin or the whole order.
+- [x] ✅ **Profit numbers agree:** Home, the show page, Sales Reports and the tax CSV use the same words: **Sales** (coins only), **Shipping charged** shown apart, **Profit before show costs** and **Profit after show costs**. The show's "Sold here" list shows the coin price, with shipping on its own small line, in date order.
+- [x] ✅ **CSV columns:** coins CSV gets Business / Personal and Show; sales CSV gets buyer, order and tracking. Business stays apart on My Stacks and Coin Value (review 5 #7).
+- [x] ✅ **Stream costs by kind:** costs offered follow the kind of show: a coin show keeps Table fee, Gas, Hotel, Food, Other; a stream gets Supplies, Equipment, Subscriptions, Other. Supplies gets its own line on the Schedule C summary. Old "Other" amounts stay as they are.
+- [x] ✅ **Attendee shows:** an **Entry fee** line (instead of Table fee). Shows can be turned on for attendees without Seller Mode (one switch in Options, off by default, so the menu stays clean).
+- [x] ✅ **Bought at this show:** on Add coin, Where from → Coin show → pick the show; the date acquired fills in from the show day you pick. The show page lists **Bought here** and **Sold here**. Show costs are **not** spread into each coin's cost (keeps your costs clear).
+- [x] ✅ **Usual shipping you charge** (Options → Selling), filled in on each sale, still changeable.
+- [x] ✅ **Platform fees:** in Options → Selling, a "Fees last checked" date with a link to each site's fee page (the app can't read them for you).
+- [x] ✅ Tests. Version (feature).
 
 ### Session 49 (Opus): short review of 9.7b
 - [ ] Review orders: old single sales, refunding one coin of an order, fees counted once, CSV and tax CSV totals. Fix, then merge (ask you first).

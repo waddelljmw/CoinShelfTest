@@ -98,7 +98,9 @@ function dealerPanel(b) {
 
 /* ---------- shows ---------- */
 const SHOW_KINDS = [["coinshow", "Coin show"], ["whatnot", "Whatnot live"], ["ebaylive", "eBay Live"], ["other", "Other"]];
-const SHOW_COSTS = [["table", "Table fee"], ["gas", "Gas / mileage"], ["hotel", "Hotel"], ["food", "Food"], ["other", "Other"]];
+const SHOW_COSTS = [["table", "Table fee"], ["entry", "Entry fee"], ["gas", "Gas / mileage"], ["hotel", "Hotel"], ["food", "Food"], ["supplies", "Supplies"], ["equipment", "Equipment"], ["subscriptions", "Subscriptions"], ["other", "Other"]];
+// Which costs the form offers: a coin show keeps its usual list, a stream gets its own, an attendee pays an entry fee instead of a table fee.
+const showCostKeys = (type, role) => role === "attendee" ? ["entry", "gas", "hotel", "food", "other"] : type === "whatnot" || type === "ebaylive" ? ["supplies", "equipment", "subscriptions", "other"] : ["table", "gas", "hotel", "food", "other"];
 const showKindText = (k) => (SHOW_KINDS.find((x) => x[0] === k) || SHOW_KINDS[0])[1];
 const getShow = (id) => (id ? store.docs.get("sh_" + id) : null);
 const allShows = () => [...store.docs.values()].filter((d) => d.kind === "show").sort((a, b) => String(b.start || "").localeCompare(String(a.start || "")) || (b.createdAt || 0) - (a.createdAt || 0));
@@ -116,16 +118,18 @@ function whereFromShow(s) {
   return w || null;
 }
 // Sales made at a show. Inherited coins are never counted in sold results.
+const showBought = (s) => allCoins().filter((c) => c.status !== "deleted" && c.boughtShowId === s.id);
 const showSales = (s) => soldCoins().filter((c) => c.sold && c.sold.showId === s.id && !isInherited(c));
 const isAttendee = (s) => s.role === "attendee";
 function showStats(s) {
   const cs = showSales(s);
-  const sales = r2(sum(cs, saleMoneyIn)), cost = r2(sum(cs, (c) => costOf(c) || 0));
+  const sales = r2(sum(cs, (c) => num(c.sold.amount))), shipIn = r2(sum(cs, (c) => num(c.sold.shipCharged))), cost = r2(sum(cs, (c) => costOf(c) || 0));
   let fees = r2(sum(cs, (c) => num(c.sold.fees))), ship = r2(sum(cs, (c) => (num(c.sold.shipping) || 0) + (num(c.sold.insurance) || 0)));
   const rf = refundRecs().filter((x) => x.showId === s.id); // refunded sales here: their fees and shipping still count
   fees = r2(fees + sum(rf, (x) => num(x.fees))); ship = r2(ship + sum(rf, (x) => (num(x.shipping) || 0) + (num(x.insurance) || 0)));
   const tax = r2(sum(cs, (c) => num(c.sold.salesTax))), costs = showCostTotal(s);
-  return { att: isAttendee(s), n: sum(cs, qtyOf), cs, sales, cost, fees, ship, tax, costs, profit: r2(sales - cost - fees - ship - costs) };
+  const before = r2(sales + shipIn - cost - fees - ship); // profit before show costs
+  return { att: isAttendee(s), n: sum(cs, qtyOf), cs, sales, shipIn, cost, fees, ship, tax, costs, before, profit: r2(before - costs) };
 }
 
 // In the Mark as sold form (Seller Mode only, and only once a show exists).
@@ -172,31 +176,45 @@ function viewShow(r) {
     <div class="small muted" style="margin:-8px 0 12px">${esc(showKindText(s.type))} · ${esc(showDates(s))}${s.place ? " · " + esc(s.place) : ""}</div>
     ${st.att ? `<div class="card"><b>Going as an attendee</b>${line("Coins sold here", String(st.n))}${st.costs ? line("Show costs", money(st.costs, "$0.00")) : ""}${costLines}<div class="hint">No table fee or profit math for attendee shows.</div></div>` : `<div class="card"><b>Profit for the show</b>
       ${line("Sales (" + st.n + " sold)", money(st.sales, "$0.00"))}
+      ${st.shipIn ? line("Shipping charged", money(st.shipIn, "$0.00")) : ""}
       ${line("Coin cost", "− " + money(st.cost, "$0.00"))}
       ${line("Fees", "− " + money(st.fees, "$0.00"))}
       ${st.ship ? line("Shipping and insurance paid", "− " + money(st.ship, "$0.00")) : ""}
+      ${line("<b>Profit before show costs</b>", `<b>${st.before >= 0 ? "" : "− "}${money(Math.abs(st.before), "$0.00")}</b>`, signCls(st.before))}
       ${line("Show costs", "− " + money(st.costs, "$0.00"))}${costLines}
-      ${line("<b>Profit</b>", `<b>${st.profit >= 0 ? "" : "− "}${money(Math.abs(st.profit), "$0.00")}</b>`, signCls(st.profit))}
+      ${line("<b>Profit after show costs</b>", `<b>${st.profit >= 0 ? "" : "− "}${money(Math.abs(st.profit), "$0.00")}</b>`, signCls(st.profit))}
       ${st.costs ? (() => { const left = r2(-st.profit); return left > 0 ? `<div class="hint"><b>Sell ${money(left, "$0.00")} more to cover show costs.</b> That is profit after coin cost and fees.</div>` : `<div class="hint"><b class="pos">Show costs covered.</b></div>`; })() : ""}
       ${st.tax ? `<div class="hint">Sales tax collected: ${money(st.tax)}. It isn't profit.</div>` : ""}</div>`}
+    ${showBoughtHtml(s)}
     <h2 style="margin:12px 0 6px">Sold here</h2>
-    <div class="card">${st.cs.length ? st.cs.map((c) => `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${qtyOf(c) > 1 ? "×" + qtyOf(c) + " · " : ""}Paid ${costOf(c) == null ? "—" : money(costOf(c))}</span></span><span class="coin-val">${money(saleMoneyIn(c))}</span></button>`).join("") : `<div class="small muted">Nothing sold here yet. When you mark a coin sold, pick this show.</div>`}</div>
+    <div class="card">${st.cs.length ? [...st.cs].sort((a, b) => String(a.sold.date || "").localeCompare(String(b.sold.date || "")) || (a.sold.at || 0) - (b.sold.at || 0)).map((c) => `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(c.sold.date || "")} · ${qtyOf(c) > 1 ? "×" + qtyOf(c) + " · " : ""}Paid ${costOf(c) == null ? "—" : money(costOf(c))}</span></span><span class="coin-val">${money(num(c.sold.amount))}${num(c.sold.shipCharged) ? `<div class="small muted">+ ${money(num(c.sold.shipCharged))} shipping</div>` : ""}</span></button>`).join("") : `<div class="small muted">Nothing sold here yet. When you mark a coin sold, pick this show.</div>`}</div>
     <div class="btn-row"><button class="btn" data-act="showEdit" data-id="${esc(s.id)}">Edit show</button><button class="btn danger" data-act="showDelete" data-id="${esc(s.id)}">Delete show</button></div>`;
 }
+// The cost boxes for a show's kind and role. `vals` = what is typed or saved so far.
+function showCostFields(cur, vals) {
+  const v = vals || cur.costs || {}, keys = showCostKeys(cur.type, cur.role);
+  const mon = (k) => `<label class="f"><span>${(SHOW_COSTS.find((x) => x[0] === k) || [k, k])[1]}</span><input type="number" inputmode="decimal" step="0.01" min="0" name="c_${k}" placeholder="$" value="${esc(v[k] == null ? "" : v[k])}"></label>`;
+  return `<div class="grid2">${keys.map(mon).join("")}</div>`;
+}
+function showBoughtHtml(s) {
+  const cs = showBought(s);
+  if (!cs.length) return "";
+  const paid = r2(sum(cs, (c) => costOf(c) || 0));
+  return `<h2 style="margin:12px 0 6px">Bought here</h2><div class="card">${cs.map((c) => `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(c.acquired || "")}${qtyOf(c) > 1 ? " · ×" + qtyOf(c) : ""}</span></span><span class="coin-val">${costOf(c) == null ? "—" : money(costOf(c))}</span></button>`).join("")}<div class="small muted">${cs.length} bought · ${money(paid, "$0.00")} paid. Show costs are not added to each coin's cost.</div></div>`;
+}
 function showForm(s) {
-  const cur = s || { type: "coinshow", start: today(), costs: {} };
-  const mon = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" name="c_${k}" placeholder="$" value="${esc((cur.costs || {})[k] == null ? "" : cur.costs[k])}"></label>`;
+  let cur = s || { type: "coinshow", start: today(), costs: {} };
+  if (!sellerOn()) cur = { ...cur, role: "attendee" }; // without Seller Mode a show is always a visit
   openSheet(`<div class="sheet-head"><h2>${s ? "Edit show" : "New show"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <form id="showForm" data-id="${s ? esc(s.id) : ""}" autocomplete="off">
     <label class="f"><span>Name</span><input type="text" name="name" value="${esc(s ? s.name : "")}" placeholder="e.g. Baltimore Expo" maxlength="60" required></label>
-    <label class="f"><span>Going as</span><select name="role" id="showRole"><option value="seller" ${cur.role !== "attendee" ? "selected" : ""}>Seller (I have a table or I'm live)</option><option value="attendee" ${cur.role === "attendee" ? "selected" : ""}>Attendee (just visiting)</option></select></label>
+    ${sellerOn() ? `<label class="f"><span>Going as</span><select name="role" id="showRole"><option value="seller" ${cur.role !== "attendee" ? "selected" : ""}>Seller (I have a table or I'm live)</option><option value="attendee" ${cur.role === "attendee" ? "selected" : ""}>Attendee (just visiting)</option></select></label>` : `<input type="hidden" name="role" value="attendee">`}
     <div class="grid2"><label class="f"><span>Kind</span><select name="type">${SHOW_KINDS.map(([k, t]) => `<option value="${k}" ${cur.type === k ? "selected" : ""}>${t}</option>`).join("")}</select></label>
     <label class="f"><span>Place</span><input type="text" name="place" value="${esc(cur.place || "")}" placeholder="City, or app" maxlength="60"></label></div>
     <div class="grid2"><label class="f"><span>First day</span><input type="date" name="start" value="${esc(cur.start || "")}" required></label>
     <label class="f"><span>Last day <span class="muted small">(if more than one)</span></span><input type="date" name="end" value="${esc(cur.end || "")}"></label></div>
     <b class="small">What the show cost you</b>
-    <div class="grid2"><span id="tableFeeBox" ${cur.role === "attendee" ? "hidden" : ""}>${mon("table", "Table fee")}</span>${mon("gas", "Gas / mileage")}</div>
-    <div class="grid2">${mon("hotel", "Hotel")}${mon("food", "Food")}</div>${mon("other", "Other")}
+    <div id="costBox">${showCostFields(cur)}</div>
     <div class="btn-row"><button type="submit" class="btn primary">${s ? "Save" : "Add show"}</button><button type="button" class="btn" data-act="closeSheet">Cancel</button></div></form>`, "sheet-75");
 }
 function saveShowForm(form) {
@@ -208,8 +226,12 @@ function saveShowForm(form) {
   if (!old) id = uid();
   const costs = {};
   const role = f.get("role") === "attendee" ? "attendee" : "seller";
-  SHOW_COSTS.forEach(([k]) => { const v = num(f.get("c_" + k)); if (v != null && v >= 0 && !(role === "attendee" && k === "table")) costs[k] = v; });
-  const rec = { ...(old || { kind: "show", id, createdAt: Date.now() }), name, start, type: SHOW_KINDS.some((x) => x[0] === f.get("type")) ? f.get("type") : "coinshow", place: String(f.get("place") || "").trim(), role, costs };
+  const type = SHOW_KINDS.some((x) => x[0] === f.get("type")) ? f.get("type") : "coinshow";
+  SHOW_COSTS.forEach(([k]) => { // a cost the form no longer offers (the kind or role changed) keeps its saved amount
+    const v = f.has("c_" + k) ? num(f.get("c_" + k)) : old && old.costs ? num(old.costs[k]) : null;
+    if (v != null && v >= 0) costs[k] = v;
+  });
+  const rec = { ...(old || { kind: "show", id, createdAt: Date.now() }), name, start, type, place: String(f.get("place") || "").trim(), role, costs };
   if (end && end !== start) rec.end = end; else delete rec.end;
   put("sh_" + rec.id, rec);
   closeSheet();
@@ -217,7 +239,14 @@ function saveShowForm(form) {
   if (!old) go("show-" + id);
 }
 document.addEventListener("submit", (e) => { if (e.target.id === "showForm") saveShowForm(e.target); });
-document.addEventListener("change", (e) => { if (e.target.id === "showRole") { const b = document.getElementById("tableFeeBox"); if (b) b.hidden = e.target.value === "attendee"; } });
+// Changing the kind or role swaps the cost boxes, keeping what is already typed.
+document.addEventListener("change", (e) => {
+  const f = e.target.closest && e.target.closest("#showForm");
+  if (!f || !(e.target.id === "showRole" || e.target.name === "type")) return;
+  const typed = {}; [...f.querySelectorAll("#costBox input")].forEach((i) => { typed[i.name.slice(2)] = i.value; });
+  const old = f.dataset.id && getShow(f.dataset.id), vals = { ...((old && old.costs) || {}), ...typed };
+  $("#costBox").innerHTML = showCostFields({ type: f.elements.type.value, role: f.elements.role.value }, vals);
+});
 
 Object.assign(actions, {
   caseOut: (el) => { const c = getCoin(el.dataset.id); if (c && c.status === "owned") caseReturn([c], labelOf(c) + " taken out."); },
@@ -271,4 +300,4 @@ Object.assign(actions, {
 if (typeof SNAPSHOT_BLOCK !== "undefined") ["caseOut", "caseReturnAll", "caseUndo", "caseAskOpen", "caseAskGo", "showNew", "showEdit", "showDelete"].forEach((a) => SNAPSHOT_BLOCK.add(a));
 
 // The Shows item in the main menu only appears with Seller Mode on.
-function syncShowsMenu() { const st = $("#menuStacks"); if (st) st.hidden = !hasStackItem(); const m = $("#menuShows"); if (m) m.hidden = !sellerOn(); const r = $("#menuReports"); if (r) r.hidden = !sellerOn(); const g = $("#menuBiz"); if (g) g.hidden = !sellerOn(); if (typeof syncLevelMenu === "function") syncLevelMenu(); }
+function syncShowsMenu() { const st = $("#menuStacks"); if (st) st.hidden = !hasStackItem(); const m = $("#menuShows"); if (m) m.hidden = !showsOn(); const r = $("#menuReports"); if (r) r.hidden = !sellerOn(); const g = $("#menuBiz"); if (g) g.hidden = !sellerOn(); if (typeof syncLevelMenu === "function") syncLevelMenu(); }

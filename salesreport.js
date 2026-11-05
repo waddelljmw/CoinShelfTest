@@ -46,8 +46,8 @@ function repData(p) {
   const stockCost = r2(sum(stockCoins, (c) => costOf(c) || 0));
   const stockNow = r2(sum(bizCoins(), (c) => (bestEach(c) || 0) * qtyOf(c)));
   // Schedule C style groups.
-  const sc = { receipts: t.receipts, cogs: t.cost, gross: r2(t.receipts - t.cost), fees: t.fees, shipping: t.shipPaid, table: showCost.table, travel: r2(showCost.gas + showCost.hotel), meals: showCost.food, other: showCost.other };
-  sc.expenses = r2(sc.fees + sc.shipping + sc.table + sc.travel + sc.meals + sc.other);
+  const sc = { receipts: t.receipts, cogs: t.cost, gross: r2(t.receipts - t.cost), fees: t.fees, shipping: t.shipPaid, table: showCost.table, travel: r2(showCost.gas + showCost.hotel), meals: showCost.food, supplies: showCost.supplies, other: r2(showCost.other + showCost.equipment + showCost.subscriptions + showCost.entry) };
+  sc.expenses = r2(sc.fees + sc.shipping + sc.table + sc.travel + sc.meals + sc.supplies + sc.other);
   sc.net = r2(sc.gross - sc.expenses);
   return { r, refunded, biz, pers, shows, showCost, showTotal, t, profit, platforms, stockCost, stockNow, sc, persT: addRefunds(soldTotals(pers), persRefunded), persRefunded };
 }
@@ -57,12 +57,12 @@ function repSections(d, fm) {
   const { t, sc } = d;
   return [
     ["Summary", [["Items sold", String(t.n)], ...(d.refunded && d.refunded.length ? [["Refunded sales (their fees and shipping still count as costs)", String(d.refunded.length)]] : []), ["Sales", fm(t.sales)], ["Shipping charged", fm(t.ship)], ["Cost of coins sold", fm(t.cost)], ["Platform fees", fm(t.fees)],
-      ["Shipping and insurance paid", fm(t.shipPaid)], ["Show costs", fm(d.showTotal)], ["Profit", fm(d.profit), "b"]]],
+      ["Shipping and insurance paid", fm(t.shipPaid)], ["Profit before show costs", fm(r2(d.profit + d.showTotal)), "b"], ["Show costs", fm(d.showTotal)], ["Profit after show costs", fm(d.profit), "b"]]],
     ["Sales tax collected (not income; kept apart)", [["Sales tax collected", fm(t.tax)]]],
     ["Business stock", [["At cost, at the end of the period", fm(d.stockCost)], ["Value today (Red Book, melt or your value)", fm(d.stockNow)]]],
     ["Schedule C style summary", [["Gross receipts (sales + shipping charged)", fm(sc.receipts)], ["Cost of goods sold", fm(sc.cogs)], ["Gross profit", fm(sc.gross), "b"],
       ["Commissions and fees", fm(sc.fees)], ["Shipping and insurance", fm(sc.shipping)], ["Show table fees", fm(sc.table)], ["Travel (gas, mileage, hotel)", fm(sc.travel)],
-      ["Meals", fm(sc.meals)], ["Other show costs", fm(sc.other)], ["Total expenses", fm(sc.expenses)], ["Net profit", fm(sc.net), "b"]]],
+      ["Meals", fm(sc.meals)], ["Supplies", fm(sc.supplies)], ["Other show costs (equipment, subscriptions, other)", fm(sc.other)], ["Total expenses", fm(sc.expenses)], ["Net profit", fm(sc.net), "b"]]],
   ];
 }
 const REP_NOTES = ["Figures come from the sales you recorded in Coin Cabinet. This is a summary for your records, not tax advice; check it with your accountant.",
@@ -122,8 +122,8 @@ ${d.pers.length ? `<h2>Personal sales (not business, not in the totals)</h2><tab
 
 /* ---- the spreadsheet: one row per sale, then the summary ---- */
 function buildSalesReportCsv(d) {
-  const cols = ["Type", "Date", "Item", "Qty", "Where", "Show", "Sold for", "Shipping charged", "Sales tax collected", "Platform fees", "Shipping paid", "Insurance", "Cost", "Profit"];
-  const line = (type) => (c) => { const s = c.sold, sh = s.showId && typeof getShow === "function" ? getShow(s.showId) : null; return [type, s.date, labelOf(c), qtyOf(c), whereText(s), sh ? sh.name : "", num(s.amount), num(s.shipCharged), num(s.salesTax), num(s.fees), num(s.shipping), num(s.insurance), costOf(c), saleProfit(c)]; };
+  const cols = ["Type", "Date", "Item", "Qty", "Where", "Show", "Sold for", "Shipping charged", "Sales tax collected", "Platform fees", "Shipping paid", "Insurance", "Cost", "Profit", "Buyer", "Order number", "Tracking number"];
+  const line = (type) => (c) => { const s = c.sold, sh = s.showId && typeof getShow === "function" ? getShow(s.showId) : null; return [type, s.date, labelOf(c), qtyOf(c), whereText(s), sh ? sh.name : "", num(s.amount), num(s.shipCharged), num(s.salesTax), num(s.fees), num(s.shipping), num(s.insurance), costOf(c), saleProfit(c), s.to || "", s.orderNo || "", s.trackNo || ""]; };
   const order = (l) => [...l].sort((a, b) => String(a.sold.date).localeCompare(String(b.sold.date)));
   const rows = [[`Sales report ${d.r.label}`], cols, ...order(d.biz).map(line("Business")), ...order(d.pers).map(line("Personal")), [],
     ...repSections(d, (n) => n).flatMap(([title, list]) => [[title], ...list.map(([k, v]) => [k, v])]),

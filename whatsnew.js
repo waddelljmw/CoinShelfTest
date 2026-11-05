@@ -1,5 +1,13 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.54.0": [
+    "Sell together: pick two or more coins with Select, tap Sell together, and sell them as one order. One buyer, order number, tracking number, shipping charge and fee for the whole order; each coin keeps its own price. A coin's page shows its order, with Refund whole order.",
+    "Profit now reads the same everywhere: Sales (coins only), Shipping charged on its own line, Profit before show costs and Profit after show costs. The Sold here list on a show shows the date, and shipping on its own small line.",
+    "Show costs follow the kind of show: a stream gets Supplies, Equipment and Subscriptions, a coin show keeps Table fee, Gas, Hotel and Food, and a visit has an Entry fee. Old amounts stay.",
+    "Add coin: Where from \u2192 Coin Show lets you pick the show, and the show day fills in Date acquired. A show page lists what you bought there.",
+    "Options: usual shipping you charge fills in on each sale, a Fees last checked date, and a Shows only switch for people who visit shows but don't sell.",
+    "The coins spreadsheet has Business / Personal, Show and Bought at show columns. The sales spreadsheet has Buyer, Order number and Tracking number.",
+  ],
   "0.53.0": [
     "Refund or cancel: on a sold coin, this puts it back in stock but keeps the sale on record as Refunded. The fees and shipping you paid still count as costs in your reports. Move back to collection is still there for real mistakes.",
     "Adding a coin with Quantity above 1: choose whether the price is each or for the whole lot, and see the total as you type.",

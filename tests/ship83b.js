@@ -48,9 +48,9 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("no place means no line", await ev(() => !getCoin("n").sold.keptIn));
   // ---- Going as ----
   await ev(() => { showForm(); }); await p.waitForTimeout(150);
-  ok("table fee shows for a seller", await p.locator("#tableFeeBox").isVisible());
+  ok("table fee shows for a seller", await p.locator("#showForm [name=c_table]").isVisible());
   await p.selectOption("#showRole", "attendee"); await p.waitForTimeout(100);
-  ok("table fee hides for an attendee", !(await p.locator("#tableFeeBox").isVisible()));
+  ok("table fee hides for an attendee", !(await p.locator("#showForm [name=c_table]").isVisible()));
   await p.fill('#showForm [name=name]', "Visit show");
   await p.fill('#showForm [name=c_gas]', "20");
   await p.locator('#showForm button[type=submit]').click(); await p.waitForTimeout(200);
