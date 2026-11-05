@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 22c, Sonnet):** AI test-user review 5 of 6 on v0.52.0: the coin-show seller (Seller Mode, every business feature, ~25 items, ~10 sales; list business features it looked for but couldn't find). Then session 22d: the Whatnot live-stream seller (IDEAS 13). (Heir re-run done: `reviews/04-heir-v0.52.md`. Session 45b "later" row waits for his photos / Red Book.)
+**Next session starts here (session 22d, Sonnet):** AI test-user review 6 of 6 on v0.52.0: the Whatnot live-stream collector/seller (IDEAS 13; same business checks plus stream costs, Whatnot fees, shipping and tracking). After saving it, summarize all the reviews (heir, coin-show seller, Whatnot seller, plus the earlier ones): what's useful, what's broken or confusing, one ranked wish list. (Coin-show seller re-run done: `reviews/05-coin-show-seller-v0.52.md`. Session 45b "later" row waits for his photos / Red Book.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -57,7 +57,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 43 | Sonnet | Step 9.6b: trays in a box + albums kept in a box (merge waits for review) | ✅ v0.51.0, PR open |
 | 44 | Opus | Review of 9.6b (changes how boxes are saved), fix, merge | ✅ reviewed, 2 fixes (coins returning to a removed tray or spot), v0.51.1 |
 | 22b | Sonnet | Test-user re-runs on v0.52.0 (the app changed a lot): the heir | ✅ `reviews/04-heir-v0.52.md` (★★★★, 8 problems, 7 wishes) |
-| 22c | Sonnet | Same re-run: the coin-show seller (Seller Mode, all business features, ~10 sales, reports, CSV, tax documents) | |
+| 22c | Sonnet | Same re-run: the coin-show seller (Seller Mode, all business features, ~10 sales, reports, CSV, tax documents) | ✅ `reviews/05-coin-show-seller-v0.52.md` (★★★★, 11 problems, 10 missing business features) |
 | 22d | Sonnet | Same re-run: the Whatnot live-stream collector/seller (IDEAS 13, same business checks plus stream costs, fees, shipping) | |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
