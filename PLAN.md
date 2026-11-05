@@ -2,7 +2,7 @@
 
 Last updated November 5, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 48, Sonnet):** build Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. Merge waits for the session 49 Opus review. Still open from 9.7a: a full wording read of every screen.
+**Next session starts here (session 50, Sonnet):** build Step 9.7c: heir fixes (junk silver by face value, cardboard box without spots, counts agree, can't-grade choice, report order, single-coin delete asks). Still open from 9.7a: a full wording read of every screen.
 
 ## Session plan (one chat per session, done in order)
 
@@ -63,7 +63,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 46 | Sonnet | Step 9.7a: money fixes (refund keeps the record, Paid for the whole lot, bulk price never below cost) + your small notes. **Merge waits for session 47 review** | ✅ built v0.53.0, PR #153 open (not merged) |
 | 47 | Opus | Short review of 9.7a (refund changes how a sale is saved), fix, merge (ask you first) | ✅ reviewed, 6 fixes, merged v0.53.0 (PR #153) |
 | 48 | Sonnet | Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. **Merge waits for session 49 review** | ✅ built v0.54.0, PR open (not merged) |
-| 49 | Opus | Short review of 9.7b (orders change how sales are saved), fix, merge (ask you first) | |
+| 49 | Opus | Short review of 9.7b (orders change how sales are saved), fix, merge (ask you first) | ✅ reviewed, 3 fixes, merged v0.54.1 (PR #154) |
 | 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | |
 | 51 | Sonnet | Step 9.7d: pocket album (flips/capsules in rows and columns). **Merge waits for session 52 review** | |
 | 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | |
@@ -328,7 +328,7 @@ Why: the reviews found no crashes or lost coins, but a refund erases money you a
 - [x] ✅ Tests. Version (feature).
 
 ### Session 49 (Opus): short review of 9.7b
-- [ ] Review orders: old single sales, refunding one coin of an order, fees counted once, CSV and tax CSV totals. Fix, then merge (ask you first).
+- [x] ✅ Review orders: old single sales, refunding one coin of an order, fees counted once, CSV and tax CSV totals. Fix, then merge (ask you first).
 
 ### 9.7c (session 50, Sonnet): heir fixes (review 4)
 - [ ] **Junk silver by face value:** "Junk silver (90%, 40%, 35%)" on Add coin; type the face value ("$20 of dimes") and the ounces are worked out. Uses the standard silver content per dollar of face value (looked up, not guessed).
