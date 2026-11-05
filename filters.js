@@ -200,11 +200,12 @@ function movePlace(c, dest, used) {
     if (c.boxId === b.id && (!hasSpots(b) || c.boxRow)) return "already in it";
     let spot = null;
     if (hasSpots(b)) {
-      for (let r = 1; r <= b.rows && !spot; r++) for (let s = 1; s <= b.perRow && !spot; s++) if (!spotCoin(b.id, r, s, c.id) && !used.has(b.id + ":" + r + ":" + s)) spot = { r, s };
+      for (let t = 1; t <= trayCount(b) && !spot; t++) { const L = trayOf(b, t);
+        for (let r = 1; r <= L.rows && !spot; r++) for (let s = 1; s <= L.perRow && !spot; s++) if (!spotCoin(b.id, r, s, c.id, t) && !used.has(b.id + ":" + t + ":" + r + ":" + s)) spot = { t, r, s }; }
       if (!spot) return "no free spot left in " + b.name;
     }
     applyKept(c, dest);
-    if (spot) { c.boxRow = String(spot.r); c.boxSlot = String(spot.s); used.add(b.id + ":" + spot.r + ":" + spot.s); }
+    if (spot) { c.boxRow = String(spot.r); c.boxSlot = String(spot.s); if (trayCount(b) > 1) c.boxTray = String(spot.t); used.add(b.id + ":" + spot.t + ":" + spot.r + ":" + spot.s); }
     return "";
   }
   // a stack: only bars and junk silver coins

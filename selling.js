@@ -230,7 +230,7 @@ document.addEventListener("input", (e) => {
 function wasKeptIn(c) {
   const f = c.caseFrom, box = c.boxId && getBox(c.boxId);
   if (box && box.type === "dealer" && !f) return ""; // a coin first added straight to a case has no old place
-  const place = box && box.type === "dealer" ? { ...c, albumId: f.albumId || "", boxId: f.boxId || "", boxRow: f.boxRow || "", boxSlot: f.boxSlot || "", stack: f.stack || "" } : c;
+  const place = box && box.type === "dealer" ? { ...c, albumId: f.albumId || "", boxId: f.boxId || "", boxRow: f.boxRow || "", boxSlot: f.boxSlot || "", boxTray: f.boxTray || "", stack: f.stack || "" } : c;
   return typeof keptText === "function" ? keptText(place) : "";
 }
 

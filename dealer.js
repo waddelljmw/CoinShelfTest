@@ -18,7 +18,7 @@ function caseOnPut(prev, c) {
   if (pb && pb.type === "dealer") return; // already inside (a move between cases keeps the first place)
   if (c.caseFrom) return; // Undo or a restore: the memory is already there
   const from = prev || {}; // a brand-new coin had no earlier place
-  c.caseFrom = { albumId: from.albumId || "", slotId: from.slotId || "", boxId: from.boxId || "", boxRow: from.boxRow || "", boxSlot: from.boxSlot || "", stack: from.stack || "",
+  c.caseFrom = { albumId: from.albumId || "", slotId: from.slotId || "", boxId: from.boxId || "", boxRow: from.boxRow || "", boxSlot: from.boxSlot || "", boxTray: from.boxTray || "", stack: from.stack || "",
     status: (prev || c).status || "owned", stage: (prev || c).stage || "" };
   if (nb.forSale !== false && c.status === "owned" && !isInherited(c)) c.stage = "forsale";
 }
@@ -28,7 +28,7 @@ function caseRestore(c) {
   const f = c.caseFrom || {};
   let note = "";
   delete c.caseFrom;
-  c.boxId = ""; c.boxRow = ""; c.boxSlot = ""; c.albumId = ""; delete c.slotId;
+  c.boxId = ""; c.boxRow = ""; c.boxSlot = ""; delete c.boxTray; c.albumId = ""; delete c.slotId;
   c.stage = f.stage || "";
   if (f.albumId) {
     const taken = f.slotId && ownedCoins().find((o) => o.id !== c.id && o.albumId === f.albumId && o.slotId === f.slotId);
@@ -39,11 +39,20 @@ function caseRestore(c) {
     const ob = getBox(f.boxId);
     if (!ob) note = "its old box is gone";
     else if (ob.type === "dealer") note = "";
-    else if (hasSpots(ob) && f.boxRow && spotCoin(ob.id, f.boxRow, f.boxSlot, c.id)) note = "its old spot (" + ob.name + " · " + lineWord(ob) + " " + f.boxRow + " · Slot " + f.boxSlot + ") now holds " + labelOf(spotCoin(ob.id, f.boxRow, f.boxSlot, c.id));
-    else { c.boxId = ob.id; if (hasSpots(ob)) { c.boxRow = f.boxRow || ""; c.boxSlot = f.boxSlot || ""; } }
+    else {
+      const t = trayCount(ob) > 1 ? String(Math.round(+f.boxTray) || 1) : "1"; // the tray it will really go into
+      const gone = hasSpots(ob) && f.boxRow && !spotExists(ob, t, f.boxRow, f.boxSlot);
+      const other = hasSpots(ob) && f.boxRow && !gone && spotCoin(ob.id, f.boxRow, f.boxSlot, c.id, t);
+      if (other) note = "its old spot (" + ob.name + (trayCount(ob) > 1 ? " · Tray " + t : "") + " · " + lineWord(ob) + " " + f.boxRow + " · Slot " + f.boxSlot + ") now holds " + labelOf(other);
+      else {
+        c.boxId = ob.id;
+        if (gone) note = "its old spot no longer exists, so it's in " + ob.name + " with no numbered spot";
+        else if (hasSpots(ob)) { c.boxRow = f.boxRow || ""; c.boxSlot = f.boxSlot || ""; if (trayCount(ob) > 1 && t !== "1") c.boxTray = t; }
+      }
+    }
   }
   if (!f.albumId && !f.boxId && f.stack) c.stack = f.stack;
-  if (!c.boxId) { delete c.boxRow; delete c.boxSlot; }
+  if (!c.boxId) { delete c.boxRow; delete c.boxSlot; delete c.boxTray; }
   if (!c.albumId) delete c.albumId;
   return note;
 }
