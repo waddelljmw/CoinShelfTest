@@ -38,6 +38,7 @@ const SHEET_COLS = [
   { key: "caseName", head: "Case name", names: ["casename", "case"] },
   { key: "box", head: "Storage box", names: ["storagebox", "box", "2x2box"] },
   { key: "keptIn", head: "Kept in", exportOnly: true, names: [] },
+  { key: "boxTray", head: "Box tray", names: ["boxtray"] },
   { key: "boxRow", head: "Box row", names: ["boxrow"] },
   { key: "boxSlot", head: "Box slot", names: ["boxslot"] },
   { key: "holder", head: "Holder", names: ["holder", "holdertype", "storage", "housing"] },
@@ -98,7 +99,7 @@ function coinToRow(c) {
   const m = meltEach(c);
   const rb = bookPrice(c);
   return {
-    cid: c.cid || "", label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : itemOf(c) === "bullion" ? shapeName(c.bShape) : "Coin", bWeight: itemOf(c) === "bullion" ? c.bWeight || "" : "", bPurity: itemOf(c) === "bullion" ? c.bPurity || "" : "", bMaker: c.bMaker || "", bSerial: c.bSerial || "", stack: stackOf(c), kind: !c.typeId && itemOf(c) === "coin" && OTHER_KINDS.includes(c.family) ? c.family : "", group: String(c.group || "").trim(), caseName: c.caseName || "", box: c.boxId && typeof getBox === "function" && getBox(c.boxId) ? getBox(c.boxId).name : "", boxRow: c.boxId ? c.boxRow || "" : "", boxSlot: c.boxId ? c.boxSlot || "" : "", trackCarrier: c.trackCarrier || "", goneReason: c.status === "gone" && c.gone ? c.gone.reason || "" : "", goneDate: c.status === "gone" && c.gone ? c.gone.date || "" : "", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
+    cid: c.cid || "", label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : itemOf(c) === "bullion" ? shapeName(c.bShape) : "Coin", bWeight: itemOf(c) === "bullion" ? c.bWeight || "" : "", bPurity: itemOf(c) === "bullion" ? c.bPurity || "" : "", bMaker: c.bMaker || "", bSerial: c.bSerial || "", stack: stackOf(c), kind: !c.typeId && itemOf(c) === "coin" && OTHER_KINDS.includes(c.family) ? c.family : "", group: String(c.group || "").trim(), caseName: c.caseName || "", box: c.boxId && typeof getBox === "function" && getBox(c.boxId) ? getBox(c.boxId).name : "", boxTray: c.boxId && c.boxTray ? c.boxTray : "", boxRow: c.boxId ? c.boxRow || "" : "", boxSlot: c.boxId ? c.boxSlot || "" : "", trackCarrier: c.trackCarrier || "", goneReason: c.status === "gone" && c.gone ? c.gone.reason || "" : "", goneDate: c.status === "gone" && c.gone ? c.gone.date || "" : "", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
     catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
@@ -284,7 +285,7 @@ function rowToCoin(get) {
     }
   } else if (txt("stack") && c.gradeMode === "raw" && c.grade === "Junk" && c.metal === "Silver") c.stack = txt("stack");
   if (itemOf(c) === "coin" && CASE_HOLDERS.includes(c.holder) && txt("caseName")) c.caseName = txt("caseName");
-  if (txt("box")) { c._boxName = txt("box"); c.boxRow = txt("boxRow"); c.boxSlot = txt("boxSlot"); }
+  if (txt("box")) { c._boxName = txt("box"); c.boxRow = txt("boxRow"); c.boxSlot = txt("boxSlot"); c.boxTray = txt("boxTray"); }
   const lab = String(get("label") || "").trim();
   if (lab && lab !== autoLabel(c)) { c.label = lab; c.labelEdited = true; }
   if (statusSold) {
@@ -411,8 +412,8 @@ async function doImport() {
     // Into a 2x2 storage box by name, only if that spot is free.
     const bn = c._boxName; delete c._boxName;
     const bx = bn && typeof allBoxes === "function" && allBoxes().find((b) => squash(b.name) === squash(bn));
-    if (bx) { c.boxId = bx.id; if (boxCheck(c)) { delete c.boxId; delete c.boxRow; delete c.boxSlot; noSpot++; } }
-    else { delete c.boxRow; delete c.boxSlot; }
+    if (bx) { c.boxId = bx.id; if (boxCheck(c)) { delete c.boxId; delete c.boxRow; delete c.boxSlot; delete c.boxTray; noSpot++; } }
+    else { delete c.boxRow; delete c.boxSlot; delete c.boxTray; }
     if (c.cid) c.cid = idTidy(c.cid);
     if (c.cid) {
       const k = idNormKey(c.cid);

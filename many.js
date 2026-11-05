@@ -30,23 +30,27 @@ const paidLabel = (d) => (manyOn(d) && d._payMode === "total" ? "Paid, total for
 const spotKey = (r, s) => r + "-" + s;
 function manySpots(d, b) {
   const n = manyCount(d);
-  if (d._spotsFor !== d.boxId) { d._spotsFor = d.boxId; d._spots = []; }
+  const tn = trayCount(b);
+  if (tn > 1 && !(+d.boxTray >= 1 && +d.boxTray <= tn)) d.boxTray = "1";
+  const tray = tn > 1 ? +d.boxTray : 1, L = trayOf(b, tray);
+  const sig = d.boxId + "/" + tray; // a different box or tray starts with no spots picked
+  if (d._spotsFor !== sig) { d._spotsFor = sig; d._spots = []; }
   d._spots = (d._spots || []).slice(0, n);
   const chosen = d._spots, free = [];
-  for (let r = 1; r <= b.rows; r++) for (let s = 1; s <= b.perRow; s++) if (!spotCoin(b.id, r, s)) free.push(spotKey(r, s));
+  for (let r = 1; r <= L.rows; r++) for (let s = 1; s <= L.perRow; s++) if (!spotCoin(b.id, r, s, undefined, tray)) free.push(spotKey(r, s));
   const cells = [];
-  for (let r = 1; r <= b.rows; r++) for (let s = 1; s <= b.perRow; s++) {
-    const k = spotKey(r, s), taken = spotCoin(b.id, r, s), at = chosen.indexOf(k);
+  for (let r = 1; r <= L.rows; r++) for (let s = 1; s <= L.perRow; s++) {
+    const k = spotKey(r, s), taken = spotCoin(b.id, r, s, undefined, tray), at = chosen.indexOf(k);
     cells.push(`<button type="button" class="btn" data-act="manySpot" data-r="${r}" data-s="${s}" ${taken ? "disabled" : ""}
       style="padding:4px 0;font-size:11px;min-height:34px;overflow:hidden;${at >= 0 ? "background:#2f6f3e;color:#fff;font-weight:700" : ""}${taken ? "opacity:.45" : ""}"
       title="${lineWord(b)} ${r}, slot ${s}">${at >= 0 ? at + 1 : taken ? esc(slotDate(taken)) : s}</button>`);
   }
   const short = free.length < n;
-  return `<div class="card" style="margin:8px 0"><b>Place the coins in ${esc(b.name)}</b>
+  return `<div class="card" style="margin:8px 0"><b>Place the coins in ${esc(b.name)}</b>${trayPick(d, b)}
     <div class="hint">Tap spots in the order the coins sit. Tap a green spot to take it back out. Gray spots are already used. ${lineWord(b)}s run top to bottom, slots left to right.</div>
     ${short ? `<div class="hint"><b>This box has only ${free.length} free spot${free.length === 1 ? "" : "s"}.</b> Lower the number, or pick another box.</div>` : ""}
     <div class="small" style="margin:6px 0"><b>${chosen.length} of ${n}</b> placed</div>
-    <div style="display:grid;grid-template-columns:repeat(${b.perRow},minmax(0,1fr));gap:3px">${cells.join("")}</div>
+    <div style="display:grid;grid-template-columns:repeat(${L.perRow},minmax(0,1fr));gap:3px">${cells.join("")}</div>
     <div class="btn-row" style="margin-top:8px"><button type="button" class="btn" data-act="manyFill" ${short || chosen.length >= n ? "disabled" : ""}>Fill the rest for me</button>
       <button type="button" class="btn" data-act="manyClearSpots" ${chosen.length ? "" : "disabled"}>Clear spots</button></div></div>`;
 }
@@ -57,7 +61,7 @@ Object.assign(actions, {
     if (!b) return;
     const k = spotKey(+el.dataset.r, +el.dataset.s), at = (draft._spots || []).indexOf(k);
     draft._spots = draft._spots || [];
-    if (at < 0 && spotCoin(b.id, +el.dataset.r, +el.dataset.s)) { toast("That spot already holds a coin."); return; }
+    if (at < 0 && spotCoin(b.id, +el.dataset.r, +el.dataset.s, undefined, +draft.boxTray || 1)) { toast("That spot already holds a coin."); return; }
     if (at >= 0) draft._spots.splice(at, 1);
     else if (draft._spots.length >= n) { toast("All " + n + " spots are picked. Tap a green spot to take it back out."); return; }
     else draft._spots.push(k);
@@ -67,9 +71,10 @@ Object.assign(actions, {
     const b = getBox(draft.boxId), n = manyCount(draft);
     if (!b) return;
     const have = new Set(draft._spots || []);
-    for (let r = 1; r <= b.rows && have.size < n; r++) for (let s = 1; s <= b.perRow && have.size < n; s++) {
+    const tr = trayCount(b) > 1 ? +draft.boxTray || 1 : 1, L = trayOf(b, tr);
+    for (let r = 1; r <= L.rows && have.size < n; r++) for (let s = 1; s <= L.perRow && have.size < n; s++) {
       const k = spotKey(r, s);
-      if (!have.has(k) && !spotCoin(b.id, r, s)) { have.add(k); draft._spots.push(k); }
+      if (!have.has(k) && !spotCoin(b.id, r, s, undefined, tr)) { have.add(k); draft._spots.push(k); }
     }
     if (have.size < n) toast("Not enough free spots in this box.");
     manyRedraw();
@@ -83,17 +88,18 @@ function manyPrep(c, d) {
   if (!b || !hasSpots(b)) return "";
   const spots = (d._spots || []).slice(0, n);
   if (spots.length < n) return "Tap " + (n - spots.length) + " more spot" + (n - spots.length === 1 ? "" : "s") + " in " + b.name + ", or press Fill the rest for me.";
-  const seen = new Set();
+  const seen = new Set(), tn = trayCount(b), tr = tn > 1 ? +d.boxTray || 1 : 1, L = trayOf(b, tr);
   for (const k of spots) {
     const [r, s] = k.split("-").map(Number);
-    if (!(r >= 1 && r <= b.rows && s >= 1 && s <= b.perRow)) return "One of the chosen spots is outside the box. Clear the spots and pick again.";
+    if (!(r >= 1 && r <= L.rows && s >= 1 && s <= L.perRow)) return "One of the chosen spots is outside the box. Clear the spots and pick again.";
     if (seen.has(k)) return "A spot was picked twice. Clear the spots and pick again.";
     seen.add(k);
-    const o = spotCoin(b.id, r, s);
+    const o = spotCoin(b.id, r, s, undefined, tr);
     if (o) return lineWord(b) + " " + r + ", slot " + s + " already holds " + labelOf(o) + ". Pick another spot.";
   }
   const [r0, s0] = spots[0].split("-");
   c.boxRow = r0; c.boxSlot = s0;
+  if (tn > 1) c.boxTray = String(tr);
   return "";
 }
 // Split an amount (dollars) into n parts to the cent. Any leftover cents go on the first part.

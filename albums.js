@@ -207,6 +207,7 @@ function viewAlbum(r) {
   return `<button class="link-btn" data-go="albums">← My Albums</button>
     <h1 style="margin-top:10px">${esc(albumTitle(a))}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</h1>
     <div class="small muted" style="margin:-8px 0 12px">${esc([a.brand, a.number && "No. " + a.number, isSetAlbum(a) ? "Type set" : albumTypeText(a)].filter(Boolean).join(" · "))}${a.start ? " · " + a.start + "–" + a.end : ""}</div>
+    ${typeof albumKeptText === "function" && albumKeptText(a) ? `<div class="small" style="margin:-6px 0 10px">Kept in: ${a.keptBox && getBox(a.keptBox) ? `<button class="link-btn" data-go="box-${esc(a.keptBox)}">${esc(albumKeptText(a))}</button>` : esc(albumKeptText(a))}</div>` : ""}
     <div class="stats">
       <div class="stat"><div class="k">Owned</div><div class="v">${st.owned}/${st.total}</div></div>
       <div class="stat"><div class="k">Missing</div><div class="v">${st.total - st.owned}</div><button class="link-btn small" data-act="missing" data-id="${esc(a.id)}">Show missing</button></div>

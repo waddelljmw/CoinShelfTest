@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 43, Sonnet):** Do Step 9.6b of the plan (trays in a box + albums kept in a box; merge waits for the session 44 Opus review). (Session 42 built Step 9.6a, v0.50.0.)
+**Next session starts here (session 44, Opus):** Review Step 9.6b (trays + albums kept in a box, v0.51.0, PR open and NOT merged): one adversarial review of old boxes/backups, moving coins between trays, shrinking a tray, add many into trays, album in a deleted box; fix what it finds, then ask before merging. (Session 43 built 9.6b.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -54,7 +54,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 40 | Opus | Short review of 9.5 (renumbering changes saved coins), fix what it finds | ✅ reviewed, 5 fixes + 1 small, v0.49.2; renumber skips every number on any flip (your choice) |
 | 41 | Opus | Plan Step 9.6: fill a full album, Add coin order, trays, albums kept in a box | ✅ plan PR |
 | 42 | Sonnet | Step 9.6a: fill a full album (quick list) + Add coin order | ✅ v0.50.0 |
-| 43 | Sonnet | Step 9.6b: trays in a box + albums kept in a box (merge waits for review) | |
+| 43 | Sonnet | Step 9.6b: trays in a box + albums kept in a box (merge waits for review) | ✅ v0.51.0, PR open |
 | 44 | Opus | Review of 9.6b (changes how boxes are saved), fix, merge | |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
@@ -276,10 +276,10 @@ Why: a real album full of coins takes too long one coin at a time; your wooden b
 - [x] ✅ Tests (quick list, untick, split vs. per row, Undo, Fill spots, form order). Version (feature).
 
 ### 9.6b (session 43, Sonnet): trays in a box + albums kept in a box. **Changes how boxes are saved: Opus review (session 44) before merge.**
-- [ ] **Trays:** a storage box can have trays. Making a box: "How many trays?" (default 1). Each new tray **copies the layout of the tray above** (rows/columns and slots), with a "Change" button for odd ones (your bottom two). Called **trays**.
+- [x] ✅ **Trays:** a storage box can have trays. Making a box: "How many trays?" (default 1). Each new tray **copies the layout of the tray above** (rows/columns and slots), with a "Change" button for odd ones (your bottom two). Called **trays**.
 - [ ] A coin's spot becomes tray + row + slot (new `boxTray`). The box page shows one tray at a time with tray tabs; spot pickers, add many, filters and "next free spot" include the tray.
-- [ ] **Old data:** a box without trays reads as one tray with its old layout; a coin without `boxTray` is in tray 1 (convert on read). Backup/restore and CSV carry the tray.
-- [ ] **Album kept in a box:** "Kept in" on New/Edit album: pick a box or type a place ("safe, top shelf"). Just "in this box", no spot number. Shown on the album page and listed on the box page. **The album still shows on the Home shelf** as now.
+- [x] ✅ **Old data:** a box without trays reads as one tray with its old layout; a coin without `boxTray` is in tray 1 (convert on read). Backup/restore and CSV carry the tray.
+- [x] ✅ **Album kept in a box:** "Kept in" on New/Edit album: pick a box or type a place ("safe, top shelf"). Just "in this box", no spot number. Shown on the album page and listed on the box page. **The album still shows on the Home shelf** as now.
 - [ ] Tests (trays, copied layout, old boxes and old backups, album in box still on shelf). Version (feature).
 
 ### Session 44 (Opus): review of 9.6b
