@@ -6,6 +6,7 @@ async function saveDraft() {
   delete c._many; delete c._payMode; delete c._spots; delete c._spotsFor; delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = normHolder(formHolder(d));
   const many = typeof manyOn === "function" && manyOn(d);
+  if (typeof lotTotal === "function" && lotTotal(d)) c.paid = lotEach(d); // "for the whole lot" is saved as price each
   if (many) { const m = manyPrep(c, d); if (m) { toast(m); return; } } // several coins: every chosen spot must be free
   if (typeof boxCheck === "function") { const m = boxCheck(c); if (m) { toast(m); return; } }
   if (c.gradeMode !== "cert") { c.cac = ""; c.catNo = ""; }

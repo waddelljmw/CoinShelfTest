@@ -60,7 +60,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   await p.click("[data-act=boxEdit]");
   await p.fill("#boxForm [name=trays]", "1"); await p.dispatchEvent("#boxForm [name=trays]", "change");
   ok("1 tray form check", await p.evaluate(() => document.querySelectorAll("#boxForm .tray-row").length === 0));
-  await p.click("[data-act=closeSheet]");
+  await p.click("[data-act=boxCancel]");
   // CSV carries the tray
   ok("export has a Box tray column", await p.evaluate(() => SHEET_COLS.some((c) => c.key === "boxTray")));
   // albums kept in a box

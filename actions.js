@@ -33,22 +33,25 @@ const actions = {
     const same = (x) => ["typeId", "year", "mint", "grade", "gradeMode", "variety", "cert"].every((k) => String(x[k] || "") === String(c[k] || ""));
     // Another piece of the same lot still in the collection (and not changed since): rejoin it.
     const home = lot ? allCoins().find((x) => x.id !== c.id && x.status === "owned" && (x.lotId || x.id) === lot && same(x)) : null;
-    const undo = (docs) => toast("Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
+    // "Refund or cancel" keeps the sale on record (data-refund); "Move back to collection" erases it as a mistake.
+    const rec = el.dataset.refund ? { ...c.sold, qty: qtyOf(c), biz: !!c.biz, refundedOn: today() } : null;
+    const rf = (...cs) => { const l = cs.flatMap(refundsOf).concat(rec && cs[cs.length - 1] === c ? [rec] : []); return l.length ? { refunds: l } : {}; };
+    const undo = (docs) => toast(rec ? "Refund recorded. Back in stock." : "Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
     if (home) {
       const ask = num(home.ask) != null || num(c.ask) != null ? { ask: String(r2((num(home.ask) || 0) + (num(c.ask) || 0))) } : {};
-      saveCoin({ ...home, ...joinExtras(home, c), ...ask, qty: qtyOf(home) + qtyOf(c) });
+      saveCoin({ ...home, ...joinExtras(home, c), ...ask, ...rf(home, c), qty: qtyOf(home) + qtyOf(c) });
       remove("c_" + c.id);
       undo([home, c]);
       go("coin-" + home.id);
       return;
     }
-    const n = { ...c, status: "owned" };
+    const n = { ...c, status: "owned", ...rf(c) };
     delete n.sold;
     delete n.splitFrom;
     const note = (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "");
     saveCoin(n);
     undo([c]);
-    if (note) toast("Back in your collection." + note, { label: "Undo", fn: () => { put("c_" + c.id, c); toast("Undone. The sale is back."); } });
+    if (note) toast((rec ? "Refund recorded. Back in stock." : "Back in your collection.") + note, { label: "Undo", fn: () => { put("c_" + c.id, c); toast("Undone. The sale is back."); } });
   },
   delete: (el) => {
     const c = getCoin(el.dataset.id);
@@ -362,6 +365,7 @@ document.addEventListener("change", (e) => {
     refreshFormHints(); return;
   }
   if (el.hasAttribute("data-kept")) { // the "Kept in" dropdown: one place per item
+    if (el.value === "__newbox") { keptReturn = draft; boxForm(null); return; } // + Add storage…
     applyKept(draft, el.value);
     if (draft._isNew && !draft.typeId && el.value.startsWith("a:")) { const al = getAlbum(el.value.slice(2)); if (al && albumTypes(al).length === 1) { pickType(albumTypes(al)[0]); return; } }
     const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; return;

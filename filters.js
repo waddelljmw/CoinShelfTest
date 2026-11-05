@@ -83,7 +83,7 @@ function selBarHtml(picked, shown) {
   return `<div class="card selbar"><b>${picked.length} selected</b>
       <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="selAll">Select all shown (${shown})</button><button class="btn" data-act="selNone">Clear</button></div>
       <div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="hdOpen" ${dis}>Set holder…</button><button class="btn" data-act="inhMark" ${dis}>Mark inherited…</button><button class="btn" data-act="pcOpen" ${dis}>Set purchase info…</button></div>
-      ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button></div>` : ""}</div>`;
+      ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button><button class="btn" data-act="bizAskAll" ${dis}>Set suggested asking price</button></div>` : ""}</div>`;
 }
 // Bottom copy of Select all · Clear for long lists.
 const selFootHtml = () => listState.sel ? `<div class="small muted" style="text-align:center;margin:10px 0"><button type="button" class="link-btn" data-act="selAll">Select all</button> · <button type="button" class="link-btn" data-act="selNone">Clear</button></div>` : "";

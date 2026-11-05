@@ -19,12 +19,26 @@ function manyField(d) {
     <div class="hint">${n > 1 ? "Each of the " + n + " coins is saved on its own, with its own ID, so Quantity stays 1. They all share this form and photo." : "Have lots of the same coin? Enter how many and they are all added at once (up to " + MANY_MAX + ")."}</div>`;
 }
 // Price: per coin or one total for the group.
+// One coin entry with Quantity above 1 (not "many separate coins"): is the price each, or for the whole lot?
+const lotTotal = (d) => !manyOn(d) && qtyOf(d) > 1 && d._payMode === "total";
+const lotEach = (d) => { const p = num(d.paid); return p == null ? "" : String(Math.round(p / qtyOf(d) * 10000) / 10000); }; // saved as price each
+function lotPayFields(d) {
+  if (manyOn(d)) return "";
+  const t = lotTotal(d); // always drawn, hidden until Quantity is above 1, so typing the quantity never redraws the form
+  return `<div id="lotBox" ${qtyOf(d) > 1 ? "" : "hidden"}><label class="f"><span>Price is</span><select data-f="_payMode" data-rerender><option value="each" ${t ? "" : "selected"}>Each</option><option value="total" ${t ? "selected" : ""}>For the whole lot</option></select></label>
+    <div class="hint" id="lotHint">${lotHintText(d)}</div></div>`;
+}
+function lotHintText(d) {
+  const p = num(d.paid), q = qtyOf(d);
+  if (p == null || !(q > 1) || manyOn(d)) return "";
+  return "Total: " + money(lotTotal(d) ? p : r2(p * q)) + " for " + q;
+}
 function manyPayFields(d) {
-  if (!manyOn(d)) return "";
+  if (!manyOn(d)) return lotPayFields(d);
   const total = d._payMode === "total";
   return `<label class="f"><span>The price I entered is</span><select data-f="_payMode" data-rerender><option value="each" ${total ? "" : "selected"}>Per coin</option><option value="total" ${total ? "selected" : ""}>Total for the group</option></select></label>`;
 }
-const paidLabel = (d) => (manyOn(d) && d._payMode === "total" ? "Paid, total for all " + manyCount(d) : "Paid each");
+const paidLabel = (d) => (manyOn(d) && d._payMode === "total" ? "Paid, total for all " + manyCount(d) : lotTotal(d) ? "Paid, total for the whole lot" : "Paid each");
 
 // Box spots: tap the spots in order. A tap on a placed coin takes it back out.
 const spotKey = (r, s) => r + "-" + s;

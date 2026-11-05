@@ -44,6 +44,8 @@ function openFillAlbum(albumId, fresh) {
       <label class="f"><span>Where from</span><input type="text" id="fillSource" list="fillSourceList" value="${esc(a.inherited ? "Inherited" : "")}" placeholder="optional"></label>
     </div>
     <datalist id="fillSourceList">${sourceOptions().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
+    ${(() => { const ts = albumTypes(a), t = ts.length === 1 ? TYPE_BY_ID[ts[0]] : null; return t ? `<div class="hint"><a href="${esc(photoGuideUrl({ typeId: t.id, typeName: t.name }))}" target="_blank" rel="noopener">${esc(photoGuideText({ typeId: t.id, typeName: t.name }))} ↗</a></div>` : ""; })()}
+    <div class="btn-row" style="margin:6px 0"><button type="button" class="btn" data-act="fillTick" data-v="0">Untick all</button><button type="button" class="btn" data-act="fillTick" data-v="1">Tick all</button></div>
     <div class="small muted" id="fillCount" style="margin:6px 0"></div>
     <div id="fillRows" style="max-height:50vh;overflow:auto">${spots.map((s, i) => fillRow(a, s, i, mode)).join("")}</div>
     <div class="btn-row" style="margin-top:12px"><button class="btn primary" type="button" data-act="fillGo">Save coins</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
@@ -119,5 +121,6 @@ Object.assign(actions, {
   fillSpots: (el) => { fillUi.fresh = false; fillUi.mode = "each"; openFillAlbum(el.dataset.id, false); },
   fillMode: (el) => { const id = $("#fillForm").dataset.id; fillUi.mode = el.dataset.v; openFillAlbum(id, undefined); },
   fillGo: fillSave,
+  fillTick: (el) => { $$("#fillRows .fill-on").forEach((c) => { c.checked = el.dataset.v === "1"; }); fillCount(); },
 });
 document.addEventListener("change", (e) => { if (e.target.classList && e.target.classList.contains("fill-on")) fillCount(); });

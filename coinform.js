@@ -191,7 +191,7 @@ function renderCoinForm() {
 
 // Status picker. Sold is set with Mark as sold on the coin's page.
 function statusFields(d) {
-  if (d.status === "sold") return `<div class="hint">Status: <b>Sold</b>. To change it, use Edit sale or Move back to collection on the coin's page.</div>`;
+  if (d.status === "sold") return `<div class="hint">Status: <b>Sold</b>. To change it, use Edit sale, Refund or cancel, or Move back to collection on the coin's page.</div>`;
   const inh = isInherited(d);
   if (inh && d._status === "forsale") d._status = "owned";
   const opts = ["owned", "coming", "forsale", "gone"].filter((k) => !(k === "forsale" && inh));
@@ -215,7 +215,7 @@ function purchaseFields(d) {
   const has = d.seller || d.paid || d.acquired || BUY_EXTRAS.some((k) => num(d[k]) != null) || d.payMethod || d.receiptNo || (d.receiptPhotos || []).length || (d.source && !d._isNew);
   const money$ = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="0.01" min="0" data-f="${k}" value="${esc(d[k] || "")}" placeholder="$"></label>`;
   return sec("purchase", "Purchase details" + (d.source ? ` <span class="muted small">· ${esc(d.source)}</span>` : ""), `${typeof manyPayFields === "function" ? manyPayFields(d) : ""}<div class="grid2">
-      <label class="f"><span>${typeof paidLabel === "function" ? paidLabel(d) : "Paid each"}</span><input type="number" inputmode="decimal" step="0.01" data-f="paid" value="${esc(d.paid)}" placeholder="$"></label>
+      <label class="f"><span id="paidLabel">${typeof paidLabel === "function" ? paidLabel(d) : "Paid each"}</span><input type="number" inputmode="decimal" step="0.01" data-f="paid" value="${esc(d.paid)}" placeholder="$"></label>
       <label class="f"><span>Date acquired</span><input type="date" data-f="acquired" value="${esc(d.acquired)}"></label>
     </div>
     <label class="f"><span>Source</span><select data-f="_sourceKind" data-rerender><option value="">Choose…</option>${sourceOptions().map((s) => `<option value="${esc(s)}" ${d._sourceKind === s ? "selected" : ""}>${esc(s)}</option>`).join("")}<option value="Other" ${d._sourceKind === "Other" ? "selected" : ""}>Other…</option></select></label>
@@ -234,7 +234,7 @@ function purchaseFields(d) {
       <label class="btn file-btn" style="display:inline-block;margin-top:6px">${(d.receiptPhotos || []).length ? "Add another receipt photo" : "Add receipt photo"}<input type="file" accept="image/*" id="receiptInput"></label>`, has);
 }
 function costHintText(d) {
-  const c = costOf(d);
+  const c = costOf(typeof lotTotal === "function" && lotTotal(d) ? { ...d, paid: lotEach(d) } : d);
   if (c == null) return BUY_EXTRAS.some((k) => num(d[k]) != null) ? "Enter Paid each to see the total cost." : "Tax, shipping and fees are for this whole entry.";
   return "Total cost: " + money(c) + (qtyOf(d) > 1 ? " for " + qtyOf(d) + " coins" : "") + ". Used for your gains.";
 }
@@ -401,6 +401,8 @@ function refreshFormHints() {
   const rh = $("#rollHint"); if (rh) rh.textContent = rollHint(draft);
   const mh = $("#meltHint"); if (mh) mh.textContent = meltHintText(draft);
   const ch = $("#costHint"); if (ch) ch.textContent = costHintText(draft);
+  const lb = $("#lotBox"); if (lb && typeof lotTotal === "function") { lb.hidden = !(qtyOf(draft) > 1); const pl = $("#paidLabel"); if (pl) pl.textContent = paidLabel(draft); }
+  const lh = $("#lotHint"); if (lh && typeof lotHintText === "function") lh.textContent = lotHintText(draft);
   const kh = $("#kvHint"); if (kh) kh.textContent = knownVarHint(draft);
   const kl = $("#kvList"); if (kl) { const h = knownVarieties(draft).map((x) => `<option value="${esc(x)}">`).join(""); if (kl.innerHTML !== h) kl.innerHTML = h; }
   const sb = $("#smsBox");

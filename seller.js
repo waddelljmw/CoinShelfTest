@@ -36,7 +36,7 @@ function sellerOptionsHtml() {
   const on = sellerOn(), p = sellerProfile(), hidden = bizCoins().length;
   const inp = (k, label, ph) => `<label class="f"><span>${label}</span><input type="text" data-seller="${k}" value="${esc(p[k])}" placeholder="${esc(ph || "")}" maxlength="${k === "address" ? 160 : 60}"></label>`;
   return `<h2>Seller Mode</h2><div class="card">
-    <label class="switch"><span>Seller Mode<div class="small muted">Business stock, and later dealer cases, shows and reports. Turn it off and they hide; nothing is deleted. ${typeof wi === "function" ? wi("seller") : ""}</div></span><input type="checkbox" data-act="sellerMode" ${on ? "checked" : ""}></label>
+    <label class="switch"><span>Seller Mode<div class="small muted">Business stock, dealer cases, shows and reports. Turn it off and they hide; nothing is deleted. ${typeof wi === "function" ? wi("seller") : ""}</div></span><input type="checkbox" data-act="sellerMode" ${on ? "checked" : ""}></label>
     ${hidden ? `<div class="hint">${hidden} item${hidden === 1 ? "" : "s"} tagged Business ${hidden === 1 ? "is" : "are"} kept and stay out of your collection totals.</div>` : ""}
     ${on ? `<details class="more" open><summary>Business profile</summary>
       <div class="hint">Stays on this phone and goes into your backup. Used on reports later.</div>
@@ -80,6 +80,18 @@ Object.assign(actions, {
       c.biz = true; return "";
     });
   },
+  // Selected Business coins with no asking price yet get the suggested one (never below cost + the minimum markup). Undo in the bulk toast.
+  bizAskAll: () => {
+    bulkApply("Set suggested asking price", (c) => {
+      if (c.status !== "owned") return "not in your collection";
+      if (!isBiz(c)) return "not Business stock";
+      if (isInherited(c)) return "inherited coins can't be priced";
+      if (num(c.ask) != null) return "already has a price";
+      const v = askPick(c, "top");
+      if (v == null) return "nothing to suggest a price from";
+      c.ask = String(v); return "";
+    });
+  },
   bizBulkBack: () => {
     bulkApply("Moved to Personal", (c) => {
       if (c.status !== "owned") return "not in your collection";
@@ -88,4 +100,4 @@ Object.assign(actions, {
     });
   },
 });
-if (typeof SNAPSHOT_BLOCK !== "undefined") ["sellerMode", "bizMove", "bizBulk", "bizBulkBack"].forEach((a) => SNAPSHOT_BLOCK.add(a));
+if (typeof SNAPSHOT_BLOCK !== "undefined") ["sellerMode", "bizMove", "bizBulk", "bizBulkBack", "bizAskAll"].forEach((a) => SNAPSHOT_BLOCK.add(a));

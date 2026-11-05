@@ -142,6 +142,7 @@ function gotAlbumWant(id) {
 
 /* ---------- creating a list ---------- */
 function sheetDismiss() {
+  if ($("#boxForm") && typeof keptReturn !== "undefined" && keptReturn) { keptBack(null); return true; } // Escape on New box (opened from Kept in) goes back to the coin form
   if (!$("#wlForm") || !wlReturn) return false;
   actions.wlCancel();
   return true;

@@ -79,6 +79,8 @@ function caseReturn(coins, label) {
 // Slot order: row, then slot; coins with no numbered spot go last.
 const caseOrder = (a, b) => (+a.boxRow || 1e9) - (+b.boxRow || 1e9) || (+a.boxSlot || 1e9) - (+b.boxSlot || 1e9) || labelOf(a).localeCompare(labelOf(b));
 // Coins in a case that are for sale and have no asking price yet.
+// One suggestion for a coin: "top" is the suggested one (the highest, so never below cost + the minimum markup).
+const askPick = (c, k) => { const s = suggestAsk(c); return k === "top" ? (s.top ? s[s.top] : null) : s[k]; };
 const caseUnpriced = (b) => boxCoins(b).filter((c) => stageOf(c) === "forsale" && num(c.ask) == null && !isInherited(c));
 
 // The dealer case page: how the case behaves, what's inside with Take out, and Return unsold coins.
@@ -121,7 +123,8 @@ const isAttendee = (s) => s.role === "attendee";
 function showStats(s) {
   const cs = showSales(s);
   const sales = r2(sum(cs, saleMoneyIn)), cost = r2(sum(cs, (c) => costOf(c) || 0));
-  const fees = r2(sum(cs, (c) => num(c.sold.fees))), ship = r2(sum(cs, (c) => (num(c.sold.shipping) || 0) + (num(c.sold.insurance) || 0)));
+  const rf = allRefunds().filter((x) => x.showId === s.id); // refunded sales still cost their fee and shipping
+  const fees = r2(sum(cs, (c) => num(c.sold.fees)) + sum(rf, (x) => num(x.fees))), ship = r2(sum(cs, (c) => (num(c.sold.shipping) || 0) + (num(c.sold.insurance) || 0)) + sum(rf, (x) => (num(x.shipping) || 0) + (num(x.insurance) || 0)));
   const tax = r2(sum(cs, (c) => num(c.sold.salesTax))), costs = showCostTotal(s);
   return { att: isAttendee(s), n: sum(cs, qtyOf), cs, sales, cost, fees, ship, tax, costs, profit: r2(sales - cost - fees - ship - costs) };
 }
@@ -232,19 +235,19 @@ Object.assign(actions, {
   caseAskOpen: (el) => {
     const b = getBox(el.dataset.id); if (!b) return;
     const cs = caseUnpriced(b), p = pricingRates();
-    const n = (k) => cs.filter((c) => suggestAsk(c)[k] != null).length;
+    const n = (k) => cs.filter((c) => askPick(c, k) != null).length;
     if (!cs.length) { toast("Every coin for sale in this case already has a price."); return; }
     const btn = (k, label) => `<button class="btn block" style="margin-top:8px" data-act="caseAskGo" data-id="${esc(b.id)}" data-pick="${k}" ${n(k) ? "" : "disabled"}>${label} (${n(k)} of ${cs.length} coins)</button>`;
     openSheet(`<div class="sheet-head"><h2>Set asking price for all</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
       <p class="small">Only coins <b>with no price yet</b> get one. Prices you already set stay. One Undo puts everything back.</p>
-      ${btn("book", "Red Book × " + pctText(p.bookPct) + "%")}${btn("melt", "Melt + " + pctText(p.meltPct) + "%")}
+      ${btn("top", "Suggested (never below cost + " + pctText(p.costPct) + "%)")}${btn("book", "Red Book × " + pctText(p.bookPct) + "%")}${btn("melt", "Melt + " + pctText(p.meltPct) + "%")}
       <div class="hint">A coin with no Red Book value or metal content is skipped. Change the percentages in Options → Selling.</div>`);
   },
   caseAskGo: (el) => {
     const b = getBox(el.dataset.id), k = el.dataset.pick; if (!b) return;
     const before = [], skipped = [];
     caseUnpriced(b).forEach((c0) => {
-      const v = suggestAsk(c0)[k];
+      const v = askPick(c0, k);
       if (v == null) { skipped.push(c0); return; }
       before.push(c0); put("c_" + c0.id, { ...JSON.parse(JSON.stringify(c0)), ask: String(v) }, true);
     });

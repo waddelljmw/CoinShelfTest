@@ -29,6 +29,11 @@ function repData(p) {
   const showCost = {}; SHOW_COSTS.forEach(([k]) => { showCost[k] = r2(sum(shows, (s) => num(s.costs && s.costs[k]))); });
   const showTotal = r2(sum(Object.values(showCost), (x) => x));
   const t = soldTotals(biz);
+  // Refunded Business sales: no sale, but the fee and shipping you paid still count as costs (by the date of the sale).
+  const refs = allRefunds().filter((x) => x.biz && refundDay(x) >= r.start && refundDay(x) <= r.end);
+  t.refunds = refs.length;
+  t.fees = r2(t.fees + sum(refs, (x) => num(x.fees)));
+  t.shipPaid = r2(t.shipPaid + sum(refs, (x) => (num(x.shipping) || 0) + (num(x.insurance) || 0)));
   const profit = r2(t.receipts - t.cost - t.fees - t.shipPaid - showTotal);
   // Platforms (Business sales only). Gross includes shipping and sales tax, the way platforms report it on a 1099-K.
   const plat = {};
@@ -50,7 +55,7 @@ function repData(p) {
 function repSections(d, fm) {
   const { t, sc } = d;
   return [
-    ["Summary", [["Items sold", String(t.n)], ["Sales", fm(t.sales)], ["Shipping charged", fm(t.ship)], ["Cost of coins sold", fm(t.cost)], ["Platform fees", fm(t.fees)],
+    ["Summary", [["Items sold", String(t.n)], ...(t.refunds ? [["Refunded sales (not counted; their fees and shipping are)", String(t.refunds)]] : []), ["Sales", fm(t.sales)], ["Shipping charged", fm(t.ship)], ["Cost of coins sold", fm(t.cost)], ["Platform fees", fm(t.fees)],
       ["Shipping and insurance paid", fm(t.shipPaid)], ["Show costs", fm(d.showTotal)], ["Profit", fm(d.profit), "b"]]],
     ["Sales tax collected (not income; kept apart)", [["Sales tax collected", fm(t.tax)]]],
     ["Business stock", [["At cost, at the end of the period", fm(d.stockCost)], ["Value today (Red Book, melt or your value)", fm(d.stockNow)]]],
