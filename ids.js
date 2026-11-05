@@ -129,13 +129,15 @@ function renumberCoins() {
   if (idStyle() === "off") return 0;
   const all = allCoins();
   const owned = all.filter((c) => c.status === "owned").sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0) || String(a.id).localeCompare(String(b.id)));
+  // Every label any coin has or had stays reserved (it may be written on a flip). A coin may keep its own current ID.
   const fixed = new Set();
-  all.filter((c) => c.status !== "owned").forEach((c) => [c.cid, ...(c.oldCids || [])].filter(Boolean).forEach((x) => fixed.add(idNormKey(x))));
-  owned.forEach((c) => (c.oldCids || []).forEach((x) => fixed.add(idNormKey(x))));
-  const cnt = {}, plan = [];
+  all.forEach((c) => [c.cid, ...(c.oldCids || [])].filter(Boolean).forEach((x) => fixed.add(idNormKey(x))));
+  const cnt = {}, plan = [], given = new Set();
   owned.forEach((c) => {
-    const pl = idPlan(c); let n = cnt[pl.key] ?? pl.start;
-    while (fixed.has(idNormKey(pl.text(n)))) n++;
+    const pl = idPlan(c), mine = c.cid ? idNormKey(c.cid) : ""; let n = cnt[pl.key] ?? pl.start;
+    const free = (k) => !given.has(k) && (k === mine || !fixed.has(k));
+    while (!free(idNormKey(pl.text(n)))) n++;
+    given.add(idNormKey(pl.text(n)));
     cnt[pl.key] = n + 1; plan.push({ c, to: pl.text(n) });
   });
   const prevNext = settings().idNext || {}, next = { ...prevNext };
@@ -143,17 +145,19 @@ function renumberCoins() {
   const undo = [];
   plan.forEach(({ c, to }) => {
     if (c.cid === to) return;
-    undo.push({ id: c.id, cid: c.cid, oldCids: c.oldCids });
+    undo.push({ id: c.id, cid: c.cid, oldCids: c.oldCids, to });
     const olds = c.cid ? [...(c.oldCids || []).filter((x) => idNormKey(x) !== idNormKey(c.cid)), c.cid] : c.oldCids;
     put("c_" + c.id, { ...c, cid: to, ...(olds ? { oldCids: olds } : {}) }, true);
   });
-  saveSettings({ idNext: next, lastRenumber: undo.length ? { undo, prevNext, at: today() } : null }, true); // kept so Undo still works later
+  saveSettings({ idNext: next, ...(undo.length ? { lastRenumber: { undo, prevNext, at: today() } } : {}) }, true); // kept so Undo still works later; a renumber that changes nothing keeps the last Undo
   return undo.length;
 }
 function undoRenumber() {
   const idUndo = settings().lastRenumber;
   if (!idUndo) return;
-  idUndo.undo.forEach((u) => { const c = getCoin(u.id); if (!c) return; const b = { ...c, cid: u.cid }; if (u.oldCids) b.oldCids = u.oldCids; else delete b.oldCids; put("c_" + u.id, b, true); });
+  idUndo.undo.forEach((u) => { const c = getCoin(u.id); if (!c) return;
+    if (u.to && idNormKey(c.cid || "") !== idNormKey(u.to)) return; // ID changed by hand since: keep it
+    const b = { ...c, cid: u.cid }; if (u.oldCids) b.oldCids = u.oldCids; else delete b.oldCids; put("c_" + u.id, b, true); });
   saveSettings({ idNext: idUndo.prevNext, lastRenumber: null }, true);
 }
 /* --- Options: Coin ID style --- */

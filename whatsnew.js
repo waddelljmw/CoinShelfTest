@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.49.2": [
+    "Renumber my coins never hands out a number that is already on any flip, and running it again changes nothing.",
+    "Undo after a renumber keeps any ID you typed since. Restoring a backup made before a renumber brings every ID back.",
+  ],
   "0.49.1": [
     "Renumber my coins: the Undo is now a button that stays in Options > Coin ID style (it used to be a pop-up that vanished after a few seconds).",
   ],
