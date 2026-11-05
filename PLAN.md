@@ -2,7 +2,7 @@
 
 Last updated November 5, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 51, Sonnet):** build Step 9.7d: pocket album (flips or capsules, any coin in any pocket, pages with tabs). Merge waits for the session 52 Opus review. Still open from 9.7a: a full wording read of every screen (not done in 9.7c).
+**Next session starts here (session 53, Opus, planning day Tue 2026-11-10 1pm):** adversarial bug review, then sort his notes and IDEAS.md into the week's top 3 (cost rules for CLAUDE.md are one of them). Still open from 9.7a: a full wording read of every screen.
 
 ## Session plan (one chat per session, done in order)
 
@@ -67,6 +67,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | ✅ merged v0.55.0 |
 | 51 | Sonnet | Step 9.7d: pocket album (flips/capsules in rows and columns). **Merge waits for session 52 review** | ✅ v0.56.0, PR open (branch `step-9-7d-pocket-album`) |
 | 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | ✅ reviewed, 3 small fixes (pocket album kept in a box, pocket wording), also fixed automatic tests (PR #157) |
+| 53 | Opus | Planning day (Tue 2026-11-10): bug review, sort notes + IDEAS into the week's top 3 | |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
