@@ -24,6 +24,8 @@ const trayList = (b) => (b && b.trays && b.trays.length > 1 ? b.trays : [{ rows:
 const trayCount = (b) => trayList(b).length;
 const trayNo = (c) => Math.max(1, Math.round(+c.boxTray) || 1);
 const trayOf = (b, t) => trayList(b)[Math.max(1, Math.round(+t) || 1) - 1] || trayList(b)[0];
+// Does this tray/row/slot still exist in the box? (a box can shrink while a coin is sold, deleted or in a dealer case)
+const spotExists = (b, t, r, s) => { const n = Math.round(+t) || 1, L = trayList(b)[n - 1]; return !!L && n <= trayCount(b) && +r >= 1 && +r <= L.rows && +s >= 1 && +s <= L.perRow; };
 const totalSlots = (b) => trayList(b).reduce((n, t) => n + t.rows * t.perRow, 0);
 // Spots can run in rows (default) or in columns ("cols": true). Saved items keep boxRow = the row or column number, boxSlot = the spot in it.
 const lineWord = (b) => (b && b.cols ? "Column" : "Row");
@@ -132,6 +134,7 @@ function boxCheck(c) {
 // A coin coming back (Undo, Restore, Move back) whose box spot was filled meanwhile leaves the box. Returns a note for the toast.
 function freeSpotOnReturn(c) {
   if (!c.boxId || !hasSpots(getBox(c.boxId)) || !c.boxRow) return "";
+  if (!spotExists(getBox(c.boxId), trayNo(c), c.boxRow, c.boxSlot)) { const where = boxText(c); delete c.boxRow; delete c.boxSlot; delete c.boxTray; return " Its box spot (" + where + ") no longer exists, so it's in the box with no numbered spot."; }
   const other = spotCoin(c.boxId, c.boxRow, c.boxSlot, c.id, trayNo(c));
   if (!other) return "";
   const where = boxText(c);
@@ -181,7 +184,7 @@ function viewBox(r) {
   if (hasSpots(b) && b.cols) { // columns side by side, like the real box seen from above; scrolls sideways when there are many
     const heads = Array.from({ length: L.rows }, (_, i) => `<div class="col-head">Col ${i + 1}<span class="muted small"> · ${inTray.filter((c) => +c.boxRow === i + 1).length}/${L.perRow}</span></div>`).join("");
     const cells = Array.from({ length: L.perRow }, (_, j) => Array.from({ length: L.rows }, (_, i) => cell(i + 1, j + 1)).join("")).join("");
-    const loose = inBox.filter((c) => { const o = spotCoin(b.id, c.boxRow, c.boxSlot, undefined, trayNo(c)); return !o || o.id !== c.id; });
+    const loose = inBox.filter((c) => { if (!spotExists(b, trayNo(c), c.boxRow, c.boxSlot)) return true; const o = spotCoin(b.id, c.boxRow, c.boxSlot, undefined, trayNo(c)); return !o || o.id !== c.id; });
     body = `<div class="slots-scroll"><div class="slots cols" style="grid-template-columns:repeat(${L.rows},minmax(64px,1fr))">${heads}${cells}</div></div>` + (loose.length ? `<h2 style="margin:14px 0 6px">No numbered spot</h2><div class="card">${loose.map(itemRow).join("")}</div>` : "");
   } else if (hasSpots(b)) {
     const rowsHtml = Array.from({ length: L.rows }, (_, i) => {
@@ -193,7 +196,7 @@ function viewBox(r) {
       }).join("");
       return `<h2 style="margin:14px 0 6px">Row ${row} <span class="muted small">· ${inTray.filter((c) => +c.boxRow === row).length}/${L.perRow}</span></h2><div class="slots">${cells}</div>`;
     }).join("");
-    const loose = inBox.filter((c) => { const o = spotCoin(b.id, c.boxRow, c.boxSlot, undefined, trayNo(c)); return !o || o.id !== c.id; });
+    const loose = inBox.filter((c) => { if (!spotExists(b, trayNo(c), c.boxRow, c.boxSlot)) return true; const o = spotCoin(b.id, c.boxRow, c.boxSlot, undefined, trayNo(c)); return !o || o.id !== c.id; });
     body = rowsHtml + (loose.length ? `<h2 style="margin:14px 0 6px">No numbered spot</h2><div class="card">${loose.map(itemRow).join("")}</div>` : "");
   } else {
     body = b.type === "dealer" ? `<button class="btn block" style="margin-top:8px" data-act="boxAdd" data-box="${esc(b.id)}">+ Add a coin to this case</button>` : `<div class="card">${inBox.length ? inBox.map(itemRow).join("") : `<div class="small muted">Nothing here yet. When you add a coin, pick <b>Kept in</b> and choose this box.</div>`}</div>

@@ -89,6 +89,36 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("coin form offers a tray pick", await p.evaluate(() => { const d = { boxId: "w2", _spotAsk: "yes" }; return boxFields(d).includes('data-f="boxTray"'); }));
   ok("add many saves the chosen tray", await p.evaluate(() => { const d = { boxId: "w2", boxTray: "2", _spots: ["1-1", "1-2"], qty: 2, _many: 2 }; const c = { boxId: "w2" }; Object.assign(window, { manyCount: () => 2 }); const msg = manyPrep(c, d); return msg === "" && c.boxTray === "2" && c.boxRow === "1" && c.boxSlot === "1"; }));
   ok("old backup coin (no boxTray) in a tray box lands in tray 1", await p.evaluate(() => { put("c_ob", { kind: "coin", id: "ob", status: "owned", typeId: COIN_TYPES[0].id, year: 1949, boxId: "w2", boxRow: "1", boxSlot: "3", createdAt: 21 }); return boxText(getCoin("ob")).includes("Tray 1") && !!spotCoin("w2", 1, 3, undefined, 1) && !spotCoin("w2", 1, 3, undefined, 2); }));
+  // review fixes (session 44): a coin coming back into a tray/spot that no longer exists stays in the box with no numbered spot
+  ok("restore into a removed tray: no numbered spot, shown on page", await p.evaluate(async () => {
+    put("b_rv", { kind: "box", id: "rv", name: "Wood", rows: 1, perRow: 4, spots: true, type: "storage", look: "wood", trays: [{ rows: 2, perRow: 4 }, { rows: 1, perRow: 4 }, { rows: 1, perRow: 4 }], createdAt: 30 });
+    put("c_rx", { kind: "coin", id: "rx", status: "owned", typeId: COIN_TYPES[0].id, year: 1950, boxId: "rv", boxRow: "1", boxSlot: "1", boxTray: "3", createdAt: 31 });
+    saveCoin({ ...getCoin("rx"), status: "deleted", prevStatus: "owned" });
+    const bx = getBox("rv"); bx.trays = bx.trays.slice(0, 2); put("b_rv", bx);
+    actions.restore({ dataset: { id: "rx" } });
+    const c = getCoin("rx"); go("box-rv"); await new Promise((r) => setTimeout(r, 50)); boxTab.rv = 1; render();
+    return c.status === "owned" && c.boxId === "rv" && !c.boxRow && !c.boxTray && document.body.innerHTML.includes('data-go="coin-rx"');
+  }));
+  ok("old coin left at a removed tray is listed under No numbered spot", await p.evaluate(async () => {
+    put("c_ry", { kind: "coin", id: "ry", status: "owned", typeId: COIN_TYPES[0].id, year: 1951, boxId: "rv", boxRow: "1", boxSlot: "1", boxTray: "3", createdAt: 32 });
+    go("box-rv"); await new Promise((r) => setTimeout(r, 50)); boxTab.rv = 1; render();
+    return document.body.innerHTML.includes("No numbered spot") && document.body.innerHTML.includes('data-go="coin-ry"');
+  }));
+  ok("back from a dealer case never doubles up a spot", await p.evaluate(() => {
+    put("b_dc", { kind: "box", id: "dc", name: "Case", rows: 2, perRow: 6, spots: true, type: "dealer", forSale: true, createdAt: 40 });
+    put("b_vv", { kind: "box", id: "vv", name: "V", rows: 1, perRow: 2, spots: true, type: "storage", trays: [{ rows: 1, perRow: 2 }, { rows: 1, perRow: 2 }], createdAt: 41 });
+    put("c_dy", { kind: "coin", id: "dy", status: "owned", typeId: COIN_TYPES[0].id, year: 1952, boxId: "vv", boxRow: "1", boxSlot: "1", boxTray: "2", createdAt: 42 });
+    const prev = JSON.parse(JSON.stringify(getCoin("dy"))); const y2 = { ...prev, boxId: "dc", boxRow: "1", boxSlot: "1", boxTray: "" }; caseOnPut(prev, y2); put("c_dy", y2);
+    const v = getBox("vv"); delete v.trays; put("b_vv", v);
+    put("c_dz", { kind: "coin", id: "dz", status: "owned", typeId: COIN_TYPES[0].id, year: 1953, boxId: "vv", boxRow: "1", boxSlot: "1", createdAt: 43 });
+    const c = JSON.parse(JSON.stringify(getCoin("dy"))); const note = caseRestore(c); put("c_dy", c);
+    const same = ownedCoins().filter((k) => k.boxId === "vv" && trayNo(k) === 1 && k.boxRow === "1" && k.boxSlot === "1");
+    // second case: box still has trays but fewer than remembered
+    put("b_v3", { kind: "box", id: "v3", name: "V3", rows: 1, perRow: 2, spots: true, type: "storage", trays: [{ rows: 1, perRow: 2 }, { rows: 1, perRow: 2 }], createdAt: 44 });
+    const c3 = { id: "d3", kind: "coin", status: "owned", typeId: COIN_TYPES[0].id, year: 1954, boxId: "dc", caseFrom: { boxId: "v3", boxRow: "1", boxSlot: "1", boxTray: "3" } };
+    const n3 = caseRestore(c3);
+    return same.length === 1 && !!note && c3.boxId === "v3" && !c3.boxRow && !c3.boxTray && /no longer exists/.test(n3);
+  }));
   ok("no page errors", errors.length === 0);
   if (errors.length) console.log(errors);
   await b.close();

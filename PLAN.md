@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 44, Opus):** Review Step 9.6b (trays + albums kept in a box, v0.51.0, PR open and NOT merged): one adversarial review of old boxes/backups, moving coins between trays, shrinking a tray, add many into trays, album in a deleted box; fix what it finds, then ask before merging. (Session 43 built 9.6b.)
+**Next session starts here (session 45, Sonnet):** Do the "later" row of the session plan, starting with the Morgan 1878 album spots (his page-1 order is written in that row). (Session 44 reviewed 9.6b: 2 fixes, v0.51.1.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -55,7 +55,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 41 | Opus | Plan Step 9.6: fill a full album, Add coin order, trays, albums kept in a box | ✅ plan PR |
 | 42 | Sonnet | Step 9.6a: fill a full album (quick list) + Add coin order | ✅ v0.50.0 |
 | 43 | Sonnet | Step 9.6b: trays in a box + albums kept in a box (merge waits for review) | ✅ v0.51.0, PR open |
-| 44 | Opus | Review of 9.6b (changes how boxes are saved), fix, merge | |
+| 44 | Opus | Review of 9.6b (changes how boxes are saved), fix, merge | ✅ reviewed, 2 fixes (coins returning to a removed tray or spot), v0.51.1 |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
