@@ -12,7 +12,7 @@ function lookupAlbum(brand, number) {
   const types = e.types.filter((id) => TYPE_BY_ID[id]);
   if (!types.length) return null;
   const last = Math.max(...types.map((id) => typeLastYear(TYPE_BY_ID[id])));
-  return { brand, number: n, name: e.name, types, start: e.start, end: e.end || last, proofs: e.proofs || "", toDate: !e.end };
+  return { brand, number: n, name: e.name, types, start: e.start, end: e.end || last, proofs: e.proofs || "", toDate: !e.end, spotVarieties: e.spotVarieties || null };
 }
 // Proofs only apply if the app has proof dates for these types. Returns "", "s" or "all".
 const lookupProofs = (info) => (info.proofs && hasProofs(info.types) ? info.proofs : "");
