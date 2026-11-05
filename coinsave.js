@@ -91,7 +91,7 @@ async function saveDraft() {
     else if (info && info.types.includes(c.typeId)) {
       const pf = lookupProofs(info);
       const a = { kind: "album", id: uid(), brand: na.brand, number: info.number, name: info.name, typeId: info.types[0], typeIds: info.types, layout: "dates", start: info.start, end: info.end, proofs: pf, removed: [], createdAt: Date.now() };
-      a.slots = buildAlbumSlots(info.types, "dates", info.start, info.end, pf);
+      a.slots = buildAlbumSlots(info.types, "dates", info.start, info.end, pf, info.spotVarieties);
       put("a_" + a.id, a);
       c.albumId = a.id;
     } else {

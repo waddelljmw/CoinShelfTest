@@ -32,13 +32,14 @@ function spotFromEl(a, el) {
   return (d.sid && ss.find((x) => x.id === d.sid)) || ss.find((x) => String(x.y) === String(d.y) && (x.m || "") === (d.m || "") && (x.v || "") === (d.v || "")) || { y: num(d.y), m: d.m || "", v: d.v || "" };
 }
 // Every standard spot for these types: dates and mint marks inside the years, or one spot per type for a type set.
-function buildAlbumSlots(types, layout, start, end, proofs) {
+// extra (optional): this album's own variety spots, { typeId: { "1878|": [names] } }, from the album catalog.
+function buildAlbumSlots(types, layout, start, end, proofs, extra) {
   if (layout === "set") return types.map((id) => ({ id: uid(), set: true, t: id, y: "", m: "" }));
   const out = [], seen = new Set();
   types.forEach((id) => {
     const t = TYPE_BY_ID[id];
     if (!t) return;
-    buildSlots(id, Math.max(start, t.start), Math.min(end, typeLastYear(t))).forEach((s) => {
+    buildSlots(id, Math.max(start, t.start), Math.min(end, typeLastYear(t)), extra && extra[id]).forEach((s) => {
       const k = s.y + "|" + s.m;
       out.push(seen.has(k) ? { ...s, t: id, tx: true } : { ...s, t: id });
       seen.add(k);
@@ -81,7 +82,7 @@ function withSlotIds(a) {
   put("a_" + b.id, b);
   return b;
 }
-function buildSlots(typeId, start, end) {
+function buildSlots(typeId, start, end, extraVarieties) {
   const t = TYPE_BY_ID[typeId];
   if (!t) return [];
   const out = [];
@@ -90,7 +91,8 @@ function buildSlots(typeId, start, end) {
       if (y < start || y > end) return;
       ms.split(" ").forEach((m) => {
         // Some dates have a spot per variety (e.g. 1909 VDB, the four 2009 designs); "" is the plain spot.
-        const vs = (t.varieties && t.varieties[y + "|" + normMint(m)]) || [""];
+        const k = y + "|" + normMint(m);
+        const vs = (extraVarieties && extraVarieties[k]) || (t.varieties && t.varieties[k]) || [""];
         vs.forEach((v) => out.push(v ? { id: uid(), y, m: normMint(m), v } : { id: uid(), y, m: normMint(m) }));
       });
     });

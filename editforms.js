@@ -84,7 +84,7 @@ function doNewAlbum(form) {
   const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: info0 ? info0.number : (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), inherited: !!fd.get("inherited"), typeId: types[0], typeIds: types, layout, start, end, proofs, removed: [], createdAt: Date.now() };
   if (fd.get("brand") === "Other") a.color = String(fd.get("color") || "red");
   if (typeof applyAlbumKept === "function") applyAlbumKept(a, fd);
-  a.slots = buildAlbumSlots(types, layout, start, end, proofs);
+  a.slots = buildAlbumSlots(types, layout, start, end, proofs, info0 && info0.spotVarieties);
   put("a_" + a.id, a);
   types.forEach(touchType);
   closeSheet();

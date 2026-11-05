@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 45, Sonnet):** Do the "later" row of the session plan, starting with the Morgan 1878 album spots (his page-1 order is written in that row). (Session 44 reviewed 9.6b: 2 fixes, v0.51.1.)
+**Next session starts here (session 45b, Sonnet):** Do the rest of the "later" row: Morgan 1878 spots for Dansco and Littleton (needs his photos, never guess), then Red Book items when he has the book. (Whitman 9128 page-1 spots done, v0.52.0.) (Session 44 reviewed 9.6b: 2 fixes, v0.51.1.)
 
 ## Session plan (one chat per session, done in order)
 

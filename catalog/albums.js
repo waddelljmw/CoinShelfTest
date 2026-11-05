@@ -21,7 +21,9 @@ const ALBUM_DB = {
   "Whitman|9125": { name: "Walking Liberty Half Dollars 1916–1947", types: ["walking-liberty-half"], start: 1916, end: 1947 },
   "Whitman|9126": { name: "Franklin Half Dollars 1948–1963", types: ["franklin-half"], start: 1948, end: 1963 },
   "Whitman|9127": { name: "Kennedy Half Dollars 1964–2002", types: ["kennedy-90", "kennedy-40", "kennedy-clad"], start: 1964, end: 2002, proofs: "all" },
-  "Whitman|9128": { name: "Morgan Dollars Vol. 1, 1878–1891", types: ["morgan-dollar"], start: 1878, end: 1891 },
+  "Whitman|9128": { name: "Morgan Dollars Vol. 1, 1878–1891", types: ["morgan-dollar"], start: 1878, end: 1891,
+    // Page 1 of this album has three 1878 Philadelphia spots (from the owner's photo, 2026-11-04), in this order.
+    spotVarieties: { "morgan-dollar": { "1878|": ["8 Tail Feathers", "7 Over 8 Tail Feathers", "7 Tail Feathers"] } } },
   "Whitman|9129": { name: "Morgan Dollars Vol. 2, 1892–1921", types: ["morgan-dollar"], start: 1892, end: 1921 },
   "Whitman|9130": { name: "Peace Dollars 1921–1935", types: ["peace-dollar"], start: 1921, end: 1935 },
   "Whitman|9131": { name: "Eisenhower Dollars 1971–1978", types: ["ike-clad", "ike-40"], start: 1971, end: 1978 },
