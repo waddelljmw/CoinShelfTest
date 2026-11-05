@@ -63,7 +63,10 @@ const { chromium } = require("./_compat");
   await p.evaluate(() => { go("coin-c1"); }); await p.waitForTimeout(200);
   ok("coin page shows old ID", new RegExp("old ID").test(await p.textContent("main")));
   ok("old ID can't be handed to another coin", /already used/.test(await p.evaluate((o) => setCoinId("c5", o), before.c1)));
+  await p.evaluate(() => { go("options"); }); await p.waitForTimeout(150);
+  ok("Undo button waits in Options", (await p.evaluate(() => idStyleOptionsHtml())).includes("idUndoRenumber"));
   await p.evaluate(() => undoRenumber());
+  ok("Undo button gone after undo", !(await p.evaluate(() => idStyleOptionsHtml())).includes("idUndoRenumber"));
   const back = await p.evaluate(() => Object.fromEntries(allCoins().map((c) => [c.id, [c.cid || "", (c.oldCids || []).length]])));
   ok("undo restores IDs and drops old IDs", Object.keys(before).every((k) => back[k][0] === before[k] && back[k][1] === 0));
 
