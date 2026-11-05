@@ -261,7 +261,7 @@ const actions = {
 };
 
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
-const SNAPSHOT_BLOCK = new Set(("fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
+const SNAPSHOT_BLOCK = new Set(("pocketNew fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
   "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup reorderAlbums sortAlbumsDate moveAlbum").split(" "));
 document.addEventListener("click", (e) => {

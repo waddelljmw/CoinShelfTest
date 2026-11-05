@@ -5,14 +5,15 @@
    An item sits in a box with boxId (and boxRow, boxSlot when the box has numbered spots). */
 function normBox(b) {
   if (b && b.kind === "box") {
-    if (b.type !== "display" && b.type !== "dealer") b.type = "storage";
+    if (b.type !== "display" && b.type !== "dealer" && b.type !== "pocket") b.type = "storage";
+    if (b.type === "pocket") b.spots = true; // a pocket album (Step 9.7d) always has numbered pockets; its pages are the trays
     if (b.type === "dealer") b.forSale = b.forSale !== false; else delete b.forSale;
     if (!["black", "cardboard", "plastic", "wood"].includes(b.look)) b.look = "black";
     if (b.look === "plastic" && !BOX_COLORS.some((x) => x[0] === b.color)) b.color = "clear";
     if (b.spots !== false) b.spots = true;
     // Trays (Step 9.6b): b.trays = [{ rows, perRow }, ...]. rows/perRow always mirror tray 1, so old readers keep working.
     if (Array.isArray(b.trays) && b.trays.length > 1 && b.spots && b.type !== "dealer") {
-      b.trays = b.trays.slice(0, 12).map((t) => ({ rows: Math.max(1, Math.round(+t.rows) || 1), perRow: Math.max(1, Math.round(+t.perRow) || 1) }));
+      b.trays = b.trays.slice(0, b.type === "pocket" ? 40 : 12).map((t) => ({ rows: Math.max(1, Math.round(+t.rows) || 1), perRow: Math.max(1, Math.round(+t.perRow) || 1) }));
       b.rows = b.trays[0].rows; b.perRow = b.trays[0].perRow;
     } else delete b.trays;
   }
@@ -31,7 +32,11 @@ const totalSlots = (b) => trayList(b).reduce((n, t) => n + t.rows * t.perRow, 0)
 const lineWord = (b) => (b && b.cols ? "Column" : "Row");
 const getBox = (id) => normBox(store.docs.get("b_" + id));
 const allBoxes = () => [...store.docs.values()].filter((d) => d.kind === "box").map(normBox).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-const storageBoxes = () => allBoxes().filter((b) => b.type !== "display" && b.type !== "dealer");
+const storageBoxes = () => allBoxes().filter((b) => b.type !== "display" && b.type !== "dealer" && b.type !== "pocket");
+const pocketAlbums = () => allBoxes().filter((b) => b.type === "pocket");
+// Pocket albums say Page and Pocket where boxes say Tray and Slot.
+const trayWord = (b) => (b && b.type === "pocket" ? "Page" : "Tray");
+const slotWord = (b) => (b && b.type === "pocket" ? "Pocket" : "Slot");
 const displayBoxes = () => allBoxes().filter((b) => b.type === "display");
 const boxCoins = (b) => ownedCoins().filter((c) => c.boxId === b.id);
 const boxFind = { q: "" };
@@ -47,7 +52,7 @@ function nextFreeSpot(b, exceptId, from) {
 function boxText(c) {
   const b = c.boxId && getBox(c.boxId);
   if (!b) return "";
-  return hasSpots(b) && c.boxRow && c.boxSlot ? b.name + (trayCount(b) > 1 ? " · Tray " + trayNo(c) : "") + " · " + lineWord(b) + " " + c.boxRow + " · Slot " + c.boxSlot : b.name;
+  return hasSpots(b) && c.boxRow && c.boxSlot ? b.name + (trayCount(b) > 1 ? " · " + trayWord(b) + " " + trayNo(c) : "") + " · " + lineWord(b) + " " + c.boxRow + " · " + slotWord(b) + " " + c.boxSlot : b.name;
 }
 const slotDate = (c) => (c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : (c.label || "Coin").slice(0, 8));
 
@@ -79,7 +84,7 @@ function keptInFields(d) {
   const opt = (v, label) => `<option value="${esc(v)}" ${cur === v ? "selected" : ""}>${esc(label)}</option>`;
   const albumOpts = it === "coin" ? albumsForCoin(d).map((a) => opt("a:" + a.id, "Album: " + albumTitle(a))).join("") + opt("__new", "+ New album…") : "";
   const sb = storageBoxes().map((x) => opt("b:" + x.id, "Storage box: " + x.name)).join("");
-  const db = displayBoxes().map((x) => opt("b:" + x.id, "Display box: " + x.name)).join("");
+  const db = displayBoxes().map((x) => opt("b:" + x.id, "Display box: " + x.name)).join("") + pocketAlbums().map((x) => opt("b:" + x.id, "Pocket album: " + x.name)).join("");
   const dl = (typeof dealerBoxes === "function" ? dealerBoxes() : []).filter((x) => sellerOn() || cur === "b:" + x.id).map((x) => opt("b:" + x.id, "Dealer case: " + x.name)).join("");
   const canStack = it === "coin" && isJunk(d) && d.metal === "Silver";
   const names = [...new Set([...stackNames(), String(d.stack || "").trim()].filter(Boolean))];
@@ -92,7 +97,7 @@ function keptInFields(d) {
 function trayPick(d, b) {
   const tn = trayCount(b);
   if (tn < 2) return "";
-  return `<label class="f"><span>Tray (1–${tn})</span><select data-f="boxTray" data-rerender>${Array.from({ length: tn }, (_, i) => `<option value="${i + 1}" ${+d.boxTray === i + 1 ? "selected" : ""}>Tray ${i + 1}</option>`).join("")}</select></label>`;
+  return `<label class="f"><span>${trayWord(b)} (1–${tn})</span><select data-f="boxTray" data-rerender>${Array.from({ length: tn }, (_, i) => `<option value="${i + 1}" ${+d.boxTray === i + 1 ? "selected" : ""}>${trayWord(b)} ${i + 1}</option>`).join("")}</select></label>`;
 }
 function boxFields(d) {
   const b = d.boxId && getBox(d.boxId);
@@ -110,7 +115,7 @@ function boxFields(d) {
   if (!hasSpot && d._spotAsk === "no") { const n = nextFreeSpot(b, d.id, d.boxTray); if (n) { d.boxRow = String(n.row); d.boxSlot = String(n.slot); if (tn > 1) d.boxTray = String(n.tray); } } // suggests the next empty spot
   const L2 = trayOf(b, d.boxTray);
   return `${trayPick(d, b)}<div class="grid2"><label class="f"><span>${lineWord(b)} (1–${L2.rows})</span><input type="number" inputmode="numeric" min="1" max="${L2.rows}" data-f="boxRow" value="${esc(d.boxRow || "")}"></label>
-    <label class="f"><span>Slot (1–${L2.perRow})</span><input type="number" inputmode="numeric" min="1" max="${L2.perRow}" data-f="boxSlot" value="${esc(d.boxSlot || "")}"></label></div>
+    <label class="f"><span>${slotWord(b)} (1–${L2.perRow})</span><input type="number" inputmode="numeric" min="1" max="${L2.perRow}" data-f="boxSlot" value="${esc(d.boxSlot || "")}"></label></div>
     <div class="hint">${d._spotAsk === "yes" && !hasSpot ? "Type the row and slot where this really sits." : "Change the spot if this goes elsewhere."}</div>`;
 }
 // Called when an item is saved: tidies the box fields, and returns a message if the spot can't be used.
@@ -121,11 +126,11 @@ function boxCheck(c) {
   if (typeof caseOn === "function" && caseOn(b) && isInherited(c) && c.status === "owned") return "Inherited coins can't go in a for-sale dealer case. Turn off \u201cFor sale case\u201d on the case, or pick another place.";
   if (!hasSpots(b)) { delete c.boxRow; delete c.boxSlot; delete c.boxTray; return ""; }
   const tn = trayCount(b), t = tn > 1 ? Math.round(+c.boxTray) || 1 : 1;
-  if (t < 1 || t > tn) return "Pick a tray from 1 to " + tn + ", or choose Nothing special.";
+  if (t < 1 || t > tn) return "Pick a " + trayWord(b).toLowerCase() + " from 1 to " + tn + ", or choose Nothing special.";
   const L = trayOf(b, t), r = Math.round(+c.boxRow), s = Math.round(+c.boxSlot);
   if (!(r >= 1 && r <= L.rows) || !(s >= 1 && s <= L.perRow)) return "Pick a " + lineWord(b).toLowerCase() + " from 1 to " + L.rows + " and a slot from 1 to " + L.perRow + (tn > 1 ? " in tray " + t : "") + ", or choose Nothing special.";
   const other = spotCoin(b.id, r, s, c.id, t);
-  if (other) return (tn > 1 ? "Tray " + t + ", " + lineWord(b).toLowerCase() : lineWord(b)) + " " + r + ", slot " + s + " already holds " + labelOf(other) + ". Pick another spot.";
+  if (other) return (tn > 1 ? trayWord(b) + " " + t + ", " + lineWord(b).toLowerCase() : lineWord(b)) + " " + r + ", slot " + s + " already holds " + labelOf(other) + ". Pick another spot.";
   c.boxRow = String(r); c.boxSlot = String(s);
   if (tn > 1) c.boxTray = String(t); else delete c.boxTray;
   return "";
@@ -144,8 +149,8 @@ function freeSpotOnReturn(c) {
 
 // --- pages ---
 const boxStats = (b) => { const n = boxCoins(b).length; return { filled: n, total: hasSpots(b) ? totalSlots(b) : n }; };
-const boxKindText = (b) => (b.type === "dealer" ? "Dealer case" : b.type === "display" ? "Display box" : "Storage box");
-const boxLookText = (b) => (b.look === "plastic" ? (b.color === "clear" ? "Clear plastic" : "Plastic · " + b.color) : b.look === "cardboard" ? "Cardboard" : b.look === "wood" ? "Wooden" : "Black");
+const boxKindText = (b) => (b.type === "pocket" ? "Pocket album" : b.type === "dealer" ? "Dealer case" : b.type === "display" ? "Display box" : "Storage box");
+const boxLookText = (b) => (b.type === "pocket" ? "Spine " + (b.color && b.color !== "clear" ? b.color : "black") : b.look === "plastic" ? (b.color === "clear" ? "Clear plastic" : "Plastic · " + b.color) : b.look === "cardboard" ? "Cardboard" : b.look === "wood" ? "Wooden" : "Black");
 function boxCard(b) {
   const st = boxStats(b);
   return `<button class="card" style="display:block;width:100%;text-align:left" data-go="box-${esc(b.id)}">
@@ -154,7 +159,7 @@ function boxCard(b) {
 }
 function viewBoxes() {
   const sellOn = sellerOn(), dl = sellOn && typeof dealerBoxes === "function" ? dealerBoxes() : [];
-  const bs = allBoxes().filter((b) => b.type !== "dealer" || sellOn), sb = storageBoxes(), db = displayBoxes();
+  const bs = allBoxes().filter((b) => b.type !== "pocket" && (b.type !== "dealer" || sellOn)), sb = storageBoxes(), db = displayBoxes();
   const q = boxFind.q.trim();
   const nq = q.toLowerCase().replace(/[^a-z0-9]/g, "");
   const hits = nq ? ownedCoins().filter((c) => c.boxId && getBox(c.boxId) && labelOf(c).toLowerCase().replace(/[^a-z0-9]/g, "").includes(nq)) : [];
@@ -174,7 +179,7 @@ function viewBox(r) {
   const tn = trayCount(b), tray = hasSpots(b) ? Math.min(tn, Math.max(1, boxTab[b.id] || 1)) : 1, L = trayOf(b, tray);
   const inTray = inBox.filter((c) => trayNo(c) === tray);
   const here = (row, slot) => spotCoin(b.id, row, slot, undefined, tray);
-  const trayTabs = tn > 1 && hasSpots(b) ? `<div class="seg" role="tablist" style="margin:0 0 10px;overflow-x:auto">${Array.from({ length: tn }, (_, i) => `<button type="button" class="${i + 1 === tray ? "on" : ""}" data-act="boxTray" data-id="${esc(b.id)}" data-v="${i + 1}" role="tab" aria-selected="${i + 1 === tray}" style="white-space:nowrap;min-width:64px">Tray ${i + 1}<span class="small"> ${inBox.filter((c) => trayNo(c) === i + 1).length}</span></button>`).join("")}</div>` : "";
+  const trayTabs = tn > 1 && hasSpots(b) ? `<div class="seg" role="tablist" style="margin:0 0 10px;overflow-x:auto">${Array.from({ length: tn }, (_, i) => `<button type="button" class="${i + 1 === tray ? "on" : ""}" data-act="boxTray" data-id="${esc(b.id)}" data-v="${i + 1}" role="tab" aria-selected="${i + 1 === tray}" style="white-space:nowrap;min-width:64px">${trayWord(b)} ${i + 1}<span class="small"> ${inBox.filter((c) => trayNo(c) === i + 1).length}</span></button>`).join("")}</div>` : "";
   const sel = listState.sel;
   const itemRow = (c) => sel ? selRow(c) : `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(holderText(c) || "")}</span></span></button>`;
   let body;
@@ -204,13 +209,13 @@ function viewBox(r) {
   }
   return `<button class="link-btn" data-go="boxes">← Storage</button>
     <h1 style="margin-top:10px">${esc(b.name)}</h1>
-    <div class="small muted" style="margin:-8px 0 12px">${boxKindText(b)} · ${esc(boxLookText(b))} · ${hasSpots(b) ? st.filled + " of " + st.total + " slots filled · " + (tn > 1 ? tn + " trays" : b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow) : st.filled + " item" + (st.filled === 1 ? "" : "s")}</div>
+    <div class="small muted" style="margin:-8px 0 12px">${boxKindText(b)} · ${esc(boxLookText(b))} · ${hasSpots(b) ? st.filled + " of " + st.total + (b.type === "pocket" ? " pockets" : " slots") + " filled · " + (tn > 1 ? tn + (b.type === "pocket" ? " pages" : " trays") : b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow) : st.filled + " item" + (st.filled === 1 ? "" : "s")}</div>
     ${b.inside ? `<div class="card"><div class="muted small">What's inside</div><div style="white-space:pre-wrap">${esc(b.inside)}</div></div>` : ""}
     ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(b.id) : ""}
     ${typeof pageSelHtml === "function" ? pageSelHtml(inBox) : ""}
     ${b.type === "dealer" && typeof dealerPanel === "function" ? dealerPanel(b) : ""}
-    ${keptAlbumsHtml(b)}${trayTabs}${tn > 1 && hasSpots(b) ? `<div class="small muted" style="margin:-4px 0 4px">Tray ${tray}: ${L.rows} ${lineWord(b).toLowerCase()}${L.rows === 1 ? "" : "s"} of ${L.perRow} slots</div>` : ""}${body}${typeof selFootHtml === "function" ? selFootHtml() : ""}
-    <div class="btn-row"><button class="btn" data-act="boxEdit" data-id="${esc(b.id)}">Edit box</button><button class="btn danger" data-act="boxDelete" data-id="${esc(b.id)}">Delete box</button></div>`;
+    ${b.type === "pocket" ? pocketKeptHtml(b) : ""}${keptAlbumsHtml(b)}${trayTabs}${tn > 1 && hasSpots(b) ? `<div class="small muted" style="margin:-4px 0 4px">${trayWord(b)} ${tray}: ${L.rows} ${lineWord(b).toLowerCase()}${L.rows === 1 ? "" : "s"} of ${L.perRow} slots</div>` : ""}${body}${typeof selFootHtml === "function" ? selFootHtml() : ""}
+    <div class="btn-row"><button class="btn" data-act="boxEdit" data-id="${esc(b.id)}">${b.type === "pocket" ? "Edit album" : "Edit box"}</button><button class="btn danger" data-act="boxDelete" data-id="${esc(b.id)}">${b.type === "pocket" ? "Delete album" : "Delete box"}</button></div>`;
 }
 // "+ Add storage" on a Kept in list sends you here and brings you back: { kind: "coin" | "form" | "move", stash }.
 let boxReturn = null;
@@ -314,7 +319,7 @@ Object.assign(actions, {
   trayChange: (el) => { const r = el.closest(".tray-row"); r.querySelector("[data-tr=changed]").value = "1"; r.querySelector("[data-fields]").hidden = false; r.querySelector("[data-same]").hidden = true; el.hidden = true; },
   boxNew: () => { boxReturn = null; boxForm(null); },
   boxBack: () => { const ret = boxReturn; boxReturn = null; if (!ret) return closeSheet(); if (ret.kind === "coin") return renderCoinForm(); if (ret.kind === "move") return actions.mvOpen(); backFromBox(ret, ""); },
-  boxEdit: (el) => { const b = getBox(el.dataset.id); if (b) boxForm(b); },
+  boxEdit: (el) => { const b = getBox(el.dataset.id); if (b) (b.type === "pocket" ? pocketForm : boxForm)(b); },
   boxAdd: (el) => {
     openCoinForm(null);
     Object.assign(draft, { _what: "us", holder: "2x2 cardboard flip", boxId: el.dataset.box, boxRow: el.dataset.row || "", boxSlot: el.dataset.slot || "", boxTray: el.dataset.tray || "" });

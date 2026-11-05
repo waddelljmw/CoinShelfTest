@@ -195,8 +195,9 @@ function viewAlbums() {
   };
   return `<h1>My Albums</h1>
     <button class="btn primary block" data-act="newAlbum">+ New album</button>
+    <button class="btn block" style="margin-top:8px" data-act="pocketNew">+ New pocket album (flips or capsules)</button>
     ${list.length > 1 ? `<div style="text-align:right;margin-top:8px"><button class="link-btn" data-act="reorderAlbums">Reorder albums</button></div>` : ""}
-    <div style="margin-top:12px">${list.length ? units.map((u) => u.key ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b></div>${u.items.map(card).join("")}</div>` : card(u.items[0])).join("") : `<div class="card empty">No albums yet. Make one here, or pick an album number when you add a coin.</div>`}</div>`;
+    <div style="margin-top:12px">${list.length ? units.map((u) => u.key ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b></div>${u.items.map(card).join("")}</div>` : card(u.items[0])).join("") : pocketAlbums().length ? "" : `<div class="card empty">No albums yet. Make one here, or pick an album number when you add a coin.</div>`}${pocketCards()}</div>`;
 }
 const albumEdit = { id: null };
 function viewAlbum(r) {
