@@ -65,13 +65,16 @@ async function doBackup() {
 }
 
 // Settings and value history are combined with what's on this device, not replaced.
-let restoreRenumbered = 0;
+let restoreRenumbered = 0, restoreIncoming = new Set(), restoreDone = new Set();
 function mergeRestored(id, body) {
   const here = store.docs.get(id);
   if (id.startsWith("c_")) {
     // Coin IDs: keep the one on this device if the backup has none; drop one another coin already uses (it gets a fresh number).
     if (here && here.cid && !body.cid) body = { ...body, cid: here.cid };
-    if (body.cid && typeof idOwner === "function" && idOwner(body.cid, body.id || id.slice(2))) { const { cid, ...rest } = body; body = rest; restoreRenumbered++; }
+    // Only a clash with a coin that stays: coins in this backup are about to be replaced (unless already restored).
+    const me = body.id || id.slice(2), k = body.cid && typeof idNormKey === "function" ? idNormKey(body.cid) : "";
+    if (k && allCoins().some((o) => o.id !== me && (!restoreIncoming.has(o.id) || restoreDone.has(o.id)) && [o.cid, ...(o.oldCids || [])].some((x) => x && idNormKey(x) === k))) { const { cid, ...rest } = body; body = rest; restoreRenumbered++; }
+    restoreDone.add(me);
     return body;
   }
   if (!here) return body;
@@ -128,7 +131,8 @@ async function doRestore() {
     } catch (e) { failed++; }
   }
   const fix = (p) => { const k = p && (p.lid ? "lid:" + p.lid : p.id ? "id:" + p.id : null); return (k && newRef.get(k)) || p; };
-  restoreRenumbered = 0;
+  restoreRenumbered = 0; restoreDone = new Set();
+  restoreIncoming = new Set(data.docs.filter((x) => x && x.id && x.id.startsWith("c_")).map((x) => (x.data && x.data.id) || x.id.slice(2)));
   // 2) Records, one at a time so large backups don't overwhelm saving.
   for (const { id, data: d } of data.docs) {
     if (!id || !d) continue;

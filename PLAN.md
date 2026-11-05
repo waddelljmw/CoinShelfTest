@@ -2,7 +2,7 @@
 
 Last updated November 3, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 40, Opus):** Short review of Step 9.5 (renumbering changes saved coins): restore an old backup, renumber, Undo, CSV import with clashing IDs, add many coins in each style. Fix what it finds. (Session 39 built it as v0.49.0, and v0.49.1 made the renumber Undo stay in Options.)
+**Next session starts here (session 41, Opus):** All planned steps are done except Red Book work (needs your book pages). Plan the next ideas from IDEAS.md together (e.g. 23 fill a full album at once, 33 trays in a storage box). (Session 40 reviewed 9.5: v0.49.2.)
 
 ## Session plan (one chat per session, done in order)
 
@@ -51,7 +51,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 37 | Sonnet | Fix list (your 2026-11-04 notes: update bar, Suggest an idea, existing coin into album spot, U.S. Mint, level lines) | ✅ merged v0.48.0 |
 | 38 | Opus | Plan bug #123: your own catalog numbers (turn off auto Coin ID, use your own flip labels, other systems) | ✅ plan PR (Step 9.5) |
 | 39 | Sonnet | Step 9.5: Coin ID style (your own codes, one running number, off), any label typed, IDs in CSV import, renumber with old ID kept | ✅ merged v0.49.0 (PR #135) + v0.49.1 (PR #136, Undo stays in Options) |
-| 40 | Opus | Short review of 9.5 (renumbering changes saved coins), fix what it finds | |
+| 40 | Opus | Short review of 9.5 (renumbering changes saved coins), fix what it finds | ✅ reviewed, 5 fixes + 1 small, v0.49.2; renumber skips every number on any flip (your choice) |
 | later | Sonnet / Opus | Morgan 1878 album spots (8 TF, 7/8 TF, 7 TF: send photos of your album's first page). With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
@@ -254,7 +254,7 @@ Why: sellers and collectors often already have numbers written on their flips, o
 - [x] ✅ Tests (each style, typed labels, duplicates, renumber + old ID search + Undo, CSV import IDs, old backup restores). Version (feature).
 
 ### Session 40 (Opus): short review
-- [ ] One adversarial review of 9.5 (renumbering changes saved coins): restore an old backup, renumber, Undo, CSV import with clashing IDs, add many coins in each style. Fix what it finds. An AI test-user run as **(g) a seller with labeled flips** (IDEAS 13) only if budget allows.
+- [x] ✅ v0.49.2 One adversarial review of 9.5 (renumbering changes saved coins): restore an old backup, renumber, Undo, CSV import with clashing IDs, add many coins in each style. Fix what it finds. An AI test-user run as **(g) a seller with labeled flips** (IDEAS 13) only if budget allows.
 
 ### Not now
 - A "build your own pattern" tool (year, mint, box codes in the ID). Add only if real users ask.

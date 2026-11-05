@@ -413,6 +413,7 @@ async function doImport() {
     const bx = bn && typeof allBoxes === "function" && allBoxes().find((b) => squash(b.name) === squash(bn));
     if (bx) { c.boxId = bx.id; if (boxCheck(c)) { delete c.boxId; delete c.boxRow; delete c.boxSlot; noSpot++; } }
     else { delete c.boxRow; delete c.boxSlot; }
+    if (c.cid) c.cid = idTidy(c.cid);
     if (c.cid) {
       const k = idNormKey(c.cid);
       if (seenId.has(k) || idOwner(c.cid)) { delete c.cid; idClash++; } else { seenId.add(k); idBump(c.cid); }
