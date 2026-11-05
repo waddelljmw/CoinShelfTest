@@ -15,7 +15,7 @@ function toast(msg, action) {
 function returnToStock(el, keepRecord) {
     const c = getCoin(el.dataset.id);
     if (!c) return;
-    const gone = keepRecord && c.sold ? [{ ...c.sold, refundedAt: Date.now() }] : []; // the sale, kept as Refunded
+    const gone = keepRecord && c.sold ? [{ ...c.sold, refundedAt: Date.now(), biz: !!c.biz }] : []; // the sale, kept as Refunded
     const refs = (x) => [...(x.refunds || []), ...(x === c ? gone : [])];
     const lot = c.lotId || c.splitFrom;
     const same = (x) => ["typeId", "year", "mint", "grade", "gradeMode", "variety", "cert"].every((k) => String(x[k] || "") === String(c[k] || ""));

@@ -119,7 +119,7 @@ async function saveDraft() {
     const old = getCoin(d._replaces);
     if (old) {
       const before = JSON.parse(JSON.stringify(old));
-      await saveCoin({ ...old, prevStatus: old.status, status: "deleted", deletedAt: Date.now() });
+      await saveCoin({ ...old, prevStatus: old.status, status: "deleted", deletedAt: Date.now(), refunds: undefined }); // its refunds moved to the new entry
       toast("Re-added as " + labelOf(c) + ". The old entry is in Recently deleted.", { label: "Undo", fn: () => { remove("c_" + c.id); saveCoin(before); go("coin-" + before.id); } });
       go("coin-" + c.id);
       return;

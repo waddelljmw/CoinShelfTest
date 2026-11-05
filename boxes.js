@@ -221,7 +221,7 @@ function backFromBox(ret, id) {
   openSheet(ret.stash.html); // same page, same fields: put back what was typed, then pick the new box
   const f = $("#sheet form");
   if (f) [...f.elements].forEach((e, i) => { const v = ret.stash.vals[i]; if (v === undefined) return; if (e.type === "checkbox" || e.type === "radio") e.checked = v; else e.value = v; });
-  const k = $("#sheet [name=keptBox]"); if (k) k.value = id;
+  const k = $("#sheet [name=keptBox]"); if (k && id) k.value = id;
 }
 function boxForm(b) {
   const back = boxReturn ? "boxBack" : "closeSheet";

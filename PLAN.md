@@ -2,7 +2,7 @@
 
 Last updated November 5, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 47, Opus):** short review of 9.7a (PR #153 open, v0.53.0: refunds save a `refunds` list on the coin). Check old sales, refund then sell again, reports and tax CSV after a refund, Undo, the Add storage round trip; fix, then merge (ask him first). Still open from 9.7a: a full wording read of every screen.
+**Next session starts here (session 48, Sonnet):** build Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. Merge waits for the session 49 Opus review. Still open from 9.7a: a full wording read of every screen.
 
 ## Session plan (one chat per session, done in order)
 
@@ -61,7 +61,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 22d | Sonnet | Same re-run: the Whatnot live-stream collector/seller (IDEAS 13, same business checks plus stream costs, fees, shipping) | ✅ `reviews/06-whatnot-seller-v0.52.md` (★★★★, 11 problems, 11 missing business features) |
 | 45 | Opus | Read all six reviews + your 2026-11-05 notes, plan the next batch (Step 9.7); planning only | ✅ plan PR |
 | 46 | Sonnet | Step 9.7a: money fixes (refund keeps the record, Paid for the whole lot, bulk price never below cost) + your small notes. **Merge waits for session 47 review** | ✅ built v0.53.0, PR #153 open (not merged) |
-| 47 | Opus | Short review of 9.7a (refund changes how a sale is saved), fix, merge (ask you first) | |
+| 47 | Opus | Short review of 9.7a (refund changes how a sale is saved), fix, merge (ask you first) | ✅ reviewed, 6 fixes, merged v0.53.0 (PR #153) |
 | 48 | Sonnet | Step 9.7b: one order with several coins, matching profit numbers, CSV columns, shows (entry fee, bought at this show), stream costs by kind. **Merge waits for session 49 review** | |
 | 49 | Opus | Short review of 9.7b (orders change how sales are saved), fix, merge (ask you first) | |
 | 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | |
@@ -314,7 +314,7 @@ Why: the reviews found no crashes or lost coins, but a refund erases money you a
 - [x] ✅ Tests (refund keeps fee, lot price, bulk price floor, Add storage round trip). Version (feature).
 
 ### Session 47 (Opus): short review of 9.7a
-- [ ] Review refunds: old sales, refund then sell again, reports and tax CSV after a refund, Undo. Fix, then merge (ask you first).
+- [x] ✅ Review refunds: old sales, refund then sell again, reports and tax CSV after a refund, Undo. Fix, then merge (ask you first).
 
 ### 9.7b (session 48, Sonnet): sales and shows. **Orders change how sales are saved: Opus review (session 49) before merge.**
 - [ ] **One order, several coins** (reviews 5 and 6, top wish): Select → "Sell together": one buyer, one order number, one tracking number, one shipping charge, one flat fee (e.g. one 30¢ Whatnot fee), each coin keeps its own price. Each coin still shows as sold; reports count the order once for fees and shipping. A refund (9.7a) can be for one coin or the whole order.

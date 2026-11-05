@@ -19,6 +19,14 @@ function saleProfit(c) {
   const s = c.sold || {};
   return r2((num(s.amount) || 0) + (num(s.shipCharged) || 0) - (costOf(c) || 0) - (num(s.fees) || 0) - (num(s.shipping) || 0) - (num(s.insurance) || 0));
 }
+/* Refunded sales (Step 9.7a review): one list for every money total. Each refund keeps the group it was sold in
+   (Business or Personal; older refunds use the coin's current group). Deleted and inherited coins are left out, like their sales. */
+function refundRecs() {
+  const out = [];
+  allCoins().filter((c) => c.status !== "deleted" && !isInherited(c)).forEach((c) => (c.refunds || []).forEach((x) => out.push({ ...x, biz: x.biz != null ? !!x.biz : !!c.biz })));
+  return out;
+}
+const refundCost = (x) => (num(x.fees) || 0) + (num(x.shipping) || 0) + (num(x.insurance) || 0); // fees, shipping and insurance you still paid
 const saleMoneyIn = (c) => (num(c.sold && c.sold.amount) || 0) + (num(c.sold && c.sold.shipCharged) || 0);
 
 /* ---- Asking price field (shown when status is For sale) ---- */

@@ -167,7 +167,7 @@ function soldCard() {
   const sold = soldCoins().filter((c) => !isInherited(c));
   const revenue = sum(sold, (c) => num(c.sold && c.sold.amount));
   const moneyIn = sum(sold, saleMoneyIn); // sold for + shipping charged
-  const profit = sum(sold, saleProfit);
+  const profit = sum(sold, saleProfit) - sum(refundRecs(), refundCost); // refunds: the fees and shipping you paid still count
   const margin = moneyIn ? profit / moneyIn : null;
   return homeSection("soldres", "Sold results", `<div class="stats">
     <div class="stat"><div class="k">Sold</div><div class="v">${sum(sold, qtyOf)}</div><div class="small muted">${money(revenue, "$0.00")} in sales</div></div>

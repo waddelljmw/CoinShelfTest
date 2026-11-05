@@ -121,7 +121,9 @@ const isAttendee = (s) => s.role === "attendee";
 function showStats(s) {
   const cs = showSales(s);
   const sales = r2(sum(cs, saleMoneyIn)), cost = r2(sum(cs, (c) => costOf(c) || 0));
-  const fees = r2(sum(cs, (c) => num(c.sold.fees))), ship = r2(sum(cs, (c) => (num(c.sold.shipping) || 0) + (num(c.sold.insurance) || 0)));
+  let fees = r2(sum(cs, (c) => num(c.sold.fees))), ship = r2(sum(cs, (c) => (num(c.sold.shipping) || 0) + (num(c.sold.insurance) || 0)));
+  const rf = refundRecs().filter((x) => x.showId === s.id); // refunded sales here: their fees and shipping still count
+  fees = r2(fees + sum(rf, (x) => num(x.fees))); ship = r2(ship + sum(rf, (x) => (num(x.shipping) || 0) + (num(x.insurance) || 0)));
   const tax = r2(sum(cs, (c) => num(c.sold.salesTax))), costs = showCostTotal(s);
   return { att: isAttendee(s), n: sum(cs, qtyOf), cs, sales, cost, fees, ship, tax, costs, profit: r2(sales - cost - fees - ship - costs) };
 }

@@ -256,7 +256,8 @@ function pcPreview() {
 }
 document.addEventListener("input", (e) => { if (e.target.closest && e.target.closest("[data-pc]")) pcPreview(); });
 document.addEventListener("change", (e) => {
-  if (e.target.name === "keptBox" && e.target.value === "__add") { const st = stashSheet(); boxReturn = { kind: "form", stash: st }; boxForm(null); return; }
+  // "+ Add storage": put the list back as it was first, so Cancel keeps the old choice
+  if (e.target.name === "keptBox" && e.target.value === "__add") { e.target.value = (e.target.querySelector("option[selected]") || { value: "" }).value; const st = stashSheet(); boxReturn = { kind: "form", stash: st }; boxForm(null); return; }
   if (e.target.dataset && e.target.dataset.flt === "mv" && e.target.value === "__add") { boxReturn = { kind: "move" }; boxForm(null); return; }
   if (!e.target.matches || !e.target.matches("[data-pc]")) return;
   const o = $("#pcOtherRow"); if (o) o.hidden = ($("#pcSrc") || {}).value !== "Other";
