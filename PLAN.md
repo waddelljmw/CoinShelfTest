@@ -277,10 +277,10 @@ Why: a real album full of coins takes too long one coin at a time; your wooden b
 
 ### 9.6b (session 43, Sonnet): trays in a box + albums kept in a box. **Changes how boxes are saved: Opus review (session 44) before merge.**
 - [x] ✅ **Trays:** a storage box can have trays. Making a box: "How many trays?" (default 1). Each new tray **copies the layout of the tray above** (rows/columns and slots), with a "Change" button for odd ones (your bottom two). Called **trays**.
-- [ ] A coin's spot becomes tray + row + slot (new `boxTray`). The box page shows one tray at a time with tray tabs; spot pickers, add many, filters and "next free spot" include the tray.
+- [x] ✅ A coin's spot becomes tray + row + slot (new `boxTray`). The box page shows one tray at a time with tray tabs; spot pickers, add many, filters and "next free spot" include the tray.
 - [x] ✅ **Old data:** a box without trays reads as one tray with its old layout; a coin without `boxTray` is in tray 1 (convert on read). Backup/restore and CSV carry the tray.
 - [x] ✅ **Album kept in a box:** "Kept in" on New/Edit album: pick a box or type a place ("safe, top shelf"). Just "in this box", no spot number. Shown on the album page and listed on the box page. **The album still shows on the Home shelf** as now.
-- [ ] Tests (trays, copied layout, old boxes and old backups, album in box still on shelf). Version (feature).
+- [x] ✅ Tests (trays, copied layout, old boxes and old backups, album in box still on shelf). Version (feature).
 
 ### Session 44 (Opus): review of 9.6b
 - [ ] One adversarial review: old boxes and backups, moving coins between trays, shrinking a tray with coins in it, add many into trays, album in a box that is deleted. Fix what it finds, then merge (ask you first).
