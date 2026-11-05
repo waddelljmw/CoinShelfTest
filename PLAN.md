@@ -136,7 +136,7 @@ Your choices (2026-11-03): made-up coins only, simple drawn coin pictures, opene
 - [x] ✅ **Drawn coin pictures.** One small function draws a coin (metal color, size, denomination and year on it), so no picture files. Never a copy of a real coin design.
 - [x] ✅ **Photo fill showcase** (still locked in the real app). One demo coin marked "Filled in from photos". On Add coin in demo, a "See photo fill in action" button fills the form one field at a time from two drawn photos, labeled **Example**. No API key, no outside service.
 - [x] ✅ **Tests** (`tests/demo.js`): demo opens from the button and from `?demo`; adding/deleting a coin in demo leaves the real saved coins unchanged after Exit; every demo coin passes `yearProblem`; demo.js stays under the size limit.
-- [ ] Version: feature (middle number).
+- [x] ✅ Version: feature (middle number), v0.38.0.
 
 ## Step 9.2: Feature audit and review changes (IDEAS 22). Planned session 23 (Opus); build sessions 24 and 24b (Sonnet)
 From the three test-user reviews (`reviews/`) and your audit choices (2026-11-03). Nothing here changes saved coin data.
