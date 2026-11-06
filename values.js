@@ -30,6 +30,8 @@ function metalsMissingPrice() {
 const metalWords = (list) => list.map((m) => m.label.toLowerCase()).join(" and ");
 const isJunk = (c) => c.gradeMode === "raw" && c.grade === "Junk";
 /* ---------- Red Book values ---------- */
+// Full-strike tick: Franklin halves say Full Bell Lines (FBL), Mercury dimes say Full Bands (FB).
+const fbTag = (typeId) => (typeId === "mercury-dime" ? "FB" : "FBL");
 const hasSms = (c) => { const s = PRICE_BOOK.series[c.typeId]; return !!(s && s.sms && c.year && s.sms.rows[String(c.year)]); };
 const gradeRank = (g) => GRADES.indexOf(g);
 const isProofGrade = (g) => /^PR-/.test(g || "");
@@ -81,7 +83,7 @@ function bookLookup(c) {
 }
 function bookLookupIn(c, bt) {
   const r = gradeRank(c.grade);
-  const priceIn = (row) => { let best = null; bt.t.grades.forEach((g, i) => { if (gradeRank(g) <= r && row[i] != null) best = { price: row[i], grade: g, kind: bt.kind }; }); return best; };
+  const priceIn = (row) => { let best = null; bt.t.grades.forEach((g, i) => { if (gradeRank(g) <= r && row[i] != null) best = { price: row[i], grade: g, kind: bt.kind, tag: fbTag(c.typeId) }; }); return best; };
   const row = bt.t.rows[bookKey(c, bt.kind)];
   if (!row) {
     // No variety chosen, but the book only lists this date by variety (e.g. 1878 Morgan):
@@ -138,7 +140,7 @@ function bookText(b) {
   if (b.none) return "Red Book" + ed + " has no listing for this date" + (b.kind === "proof" ? " and variety." : ".");
   if (b.below) return "Red Book" + ed + " prices start at " + b.lowest + ". Below that it's worth about melt.";
   if (b.atLeast) return "Red Book" + ed + " starts at " + b.grade.replace(/^PR/, "PF") + ": at least " + money(b.price) + " for a proof (yours is " + b.asked.replace(/^PR/, "PF") + ")";
-  return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " FBL" : b.kind === "sms" ? " SMS" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "")
+  return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " " + (b.tag || "FBL") : b.kind === "sms" ? " SMS" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "")
     + (b.guess ? ". No variety picked, so this is the lowest-priced variety for this date. Pick the variety for an exact value" : "");
 }
 
@@ -282,7 +284,7 @@ function gradeText(c) {
   if (itemOf(c) === "set") return holderText(c) || "Set";
   if (itemOf(c) === "roll") return ["Roll of " + rollCountOf(c), c.rollCond, c.bankWrap ? "bank wrap" : ""].filter(Boolean).join(" · ");
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? "Not graded" : "");
-  const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " FBL" : "")
+  const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " " + fbTag(c.typeId) : "")
     + (hasProblems(c) ? " Details" : "") + (c.variety ? " · " + c.variety : "") + (c.knownVar ? " · " + c.knownVar : "");
   if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;
   return (g ? "Raw " + g : "Raw") + extra;
@@ -303,7 +305,7 @@ function ebayUrl(c) {
     const date = c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : "";
     q = [date, c.typeName, gradeText(c)].filter(Boolean).join(" ");
   } else {
-    q = labelOf(c) + (c.fbl && !isProofGrade(c.grade) ? " FBL" : "") + (isProofGrade(c.grade) ? " proof" : "");
+    q = labelOf(c) + (c.fbl && !isProofGrade(c.grade) ? " " + fbTag(c.typeId) : "") + (isProofGrade(c.grade) ? " proof" : "");
   }
   return "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(q) + "&LH_Sold=1&LH_Complete=1";
 }

@@ -31,6 +31,7 @@ Nothing here is promised or scheduled. When you mention a new idea, I'll ask if 
 44. **Redo for Undo.** Only if it stays simple; may be confusing.
 45. **Seller-mode sample data and tailored infographics.** When Seller Mode is on in demo, fill the Business pages with sample sales. Extends idea 8; one-page infographics aimed at Lukas (devops, no coin background), Tim (ancient Roman collector), Chris (bars/rounds, limited phone space), Tim's son (Whatnot seller), Dave (pawn shop; maybe an AI reviewer). Ask for more about each person first.
 46. **Remove from album: move or delete?** (your note 2026-11-05) After selecting several coins, there's no clear way to take them out of an album. Today Move to… → "Nothing special" does it, but the name hides that. Decide first what "remove" should mean: the coin stays in your collection as loose (moved), or the coin record is deleted (with Undo). Then name the button to match.
+47. **OGP tick (original government packaging).** A box to check on a coin that is still in the Mint's own box or case (proof sets, mint sets, Silver Eagles in Mint packaging, anything sold by the Mint). Needs a one-line explanation next to the box. Then the Red Book OGP column for Silver Eagles (left out of 0.57.0) can be used, and it may apply to other Mint-sold items. Check the cost before building.
 
 ## Done (kept so nothing is lost; planning sessions can skip this part)
 Numbers stay the same so PLAN.md references still work.
