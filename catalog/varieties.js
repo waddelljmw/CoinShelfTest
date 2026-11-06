@@ -38,3 +38,13 @@ const COIN_PROBLEMS = ["Cleaned", "Scratched", "Holed", "Bent", "Corroded", "Env
 const GONE_REASONS = ["Traded", "Gifted", "Lost", "Spent", "Other"];
 // How a purchase was paid for.
 const PAY_METHODS = ["Cash", "Card", "PayPal", "Check", "Venmo", "Zelle", "Trade", "Other"];
+
+// Proof years from the Red Book (2026) for types with no price rows yet, so an album can build proof spots. Years only, no prices.
+// Philadelphia proofs (1959-1964, no mint mark) then San Francisco (S) from 1968. The four 2009-S Bicentennial proofs are
+// not listed on purpose: a spot per design is added by hand. 1979 and 1981 have two proof varieties; the second is added by hand.
+const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+const PROOF_YEARS_NO_PRICES = {
+  "lincoln-memorial-copper": [...range(1959, 1964), ...range(1968, 1982)],
+  "lincoln-memorial-zinc": range(1983, 2008),
+  "lincoln-shield": range(2010, 2025),
+};

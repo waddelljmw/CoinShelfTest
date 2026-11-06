@@ -9,8 +9,8 @@ const albumTitle = (a) => a.name || [a.brand, a.number].filter(Boolean).join(" "
 const slotKey = (s) => (s.set ? "set:" + s.t : s.y + "|" + s.m) + (s.v ? "|" + s.v : "") + (s.pf ? "|PF" : "") + (s.tx ? "#" + s.t : "");
 const slotLabel = (s) => (s.set ? (TYPE_BY_ID[s.t] ? shortName(TYPE_BY_ID[s.t]) : "Coin") : s.y + (s.m ? "-" + s.m : "") + (s.pf ? " Proof" : ""));
 // Years Red Book lists proofs for a type. US proofs moved from Philadelphia (no mint mark) to San Francisco in 1968.
-const proofYears = (typeId) => { const p = PRICE_BOOK.series[typeId] && PRICE_BOOK.series[typeId].proof; return p ? [...new Set(Object.keys(p.rows).map((k) => +k.split("|")[0].split("-")[0]))].sort((x, y) => x - y) : []; };
-const proofMint = (typeId, y) => { const p = PRICE_BOOK.series[typeId].proof.rows; const k = Object.keys(p).find((x) => x.split("|")[0].startsWith(y + "-")); return k ? normMint(k.split("|")[0].split("-")[1]) : y >= 1968 ? "S" : ""; };
+const proofYears = (typeId) => { const p = PRICE_BOOK.series[typeId] && PRICE_BOOK.series[typeId].proof; const priced = p ? Object.keys(p.rows).map((k) => +k.split("|")[0].split("-")[0]) : []; return [...new Set([...priced, ...(PROOF_YEARS_NO_PRICES[typeId] || [])])].sort((x, y) => x - y); };
+const proofMint = (typeId, y) => { const p = (PRICE_BOOK.series[typeId] && PRICE_BOOK.series[typeId].proof && PRICE_BOOK.series[typeId].proof.rows) || {}; const k = Object.keys(p).find((x) => x.split("|")[0].startsWith(y + "-")); return k ? normMint(k.split("|")[0].split("-")[1]) : y >= 1968 ? "S" : ""; };
 const hasProofs = (types) => types.some((id) => proofYears(id).length);
 // An album can hold several coin types (e.g. Washington silver 1932–1964 and clad 1965 on, or a type set).
 const albumTypes = (a) => (a && a.typeIds && a.typeIds.length ? a.typeIds : a && a.typeId ? [a.typeId] : []).filter((id) => TYPE_BY_ID[id]);
