@@ -2,6 +2,8 @@
 
 A private app for keeping track of a coin collection: what you own, where it is, what it's worth, and its melt value. Built for a phone first.
 
+> **Personal use only.** This is one person's private coin-tracking project, not for distribution or use by others. It includes hand-typed Red Book figures for the owner's own reference. See [NOTICE.md](NOTICE.md).
+
 ## What it does
 
 - **Your coins:** add a coin in a few taps. Pick a known coin type and the app fills in the denomination, metal and silver or gold weight. Raw or certified (PCGS, NGC and others), proof or regular, with photos.

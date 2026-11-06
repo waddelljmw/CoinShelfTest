@@ -7,7 +7,7 @@ const { chromium } = require("./_compat");
   const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
   const r = await p.evaluate(() => {
     const price = (c) => { const x = bookLookup(c); return x && x.price != null ? x.price : null; };
-    const series = ["roosevelt-silver", "roosevelt-clad", "kennedy-90", "kennedy-40", "kennedy-clad", "silver-eagle", "indian-2-5"];
+    const series = ["mercury-dime", "roosevelt-silver", "roosevelt-clad", "kennedy-90", "kennedy-40", "kennedy-clad", "silver-eagle", "indian-2-5"];
     const problems = [];
     series.forEach((id) => Object.entries(PRICE_BOOK.series[id]).forEach(([kind, t]) => {
       t.grades.forEach((g) => { if (!GRADES.includes(g)) problems.push("bad grade " + id + " " + g); });
@@ -20,7 +20,7 @@ const { chromium } = require("./_compat");
     }));
     // every date and mint the album builder offers for a regular-strike series has a price row
     const missing = [];
-    ["roosevelt-silver", "roosevelt-clad", "kennedy-40", "kennedy-clad"].forEach((id) => {
+    ["mercury-dime", "roosevelt-silver", "roosevelt-clad", "kennedy-40", "kennedy-clad"].forEach((id) => {
       (EXACT_SLOTS[id] || []).forEach(([y, ms]) => {
         if (y > 2025) return;
         ms.split(" ").forEach((m) => { const k = y + (m === "P" ? "" : "-" + m); if (!PRICE_BOOK.series[id].circ.rows[k]) missing.push(id + " " + k); });
@@ -43,6 +43,12 @@ const { chromium } = require("./_compat");
       eagleProof: price(T("silver-eagle", 2017, "S", "PR-70", "San Francisco (S)")),
       indian: price(T("indian-2-5", 1911, "D", "MS-63", "Strong D")),
       indianProof: price(T("indian-2-5", 1908, "P", "PR-65")),
+      merc16D: price(T("mercury-dime", 1916, "D", "MS-63")),
+      merc42: price(T("mercury-dime", 1942, "P", "MS-65", "2 Over 1")),
+      mercFb: price({ ...T("mercury-dime", 1945, "S", "MS-65", "Micro S"), fbl: true }),
+      mercFbText: bookText(bookLookup({ ...T("mercury-dime", 1945, "S", "MS-65", "Micro S"), fbl: true })),
+      mercFbForFranklin: bookText(bookLookup({ ...T("franklin-half", 1953, "S", "MS-65"), fbl: true })),
+      mercProof: price(T("mercury-dime", 1936, "P", "PR-63")),
       mint1: mintageInfo(T("roosevelt-silver", 1950, "S", "MS-63")) && mintageInfo(T("roosevelt-silver", 1950, "S", "MS-63")).text,
     };
   });
@@ -63,6 +69,10 @@ const { chromium } = require("./_compat");
   ok("2017-S Silver Eagle proof PF-70 = $145", r.eagleProof === 145);
   ok("1911-D Strong D Indian quarter eagle MS-63 = $13,000", r.indian === 13000);
   ok("1908 Indian quarter eagle proof PF-65 = $29,000", r.indianProof === 29000);
+  ok("1916-D Mercury MS-63 = $18,000", r.merc16D === 18000);
+  ok("1942 2 Over 1 Mercury MS-65 = $10,500", r.merc42 === 10500);
+  ok("Micro S Full Bands MS-65 = $625 and says FB (Franklins still say FBL)", r.mercFb === 625 && / FB\)/.test(r.mercFbText) && / FBL\)/.test(r.mercFbForFranklin));
+  ok("1936 Mercury proof PF-63 = $750", r.mercProof === 750);
   ok("1950-S dime mintage shows the 1950 proof/regular mintage", r.mint1 === "20,440,000");
   console.log("errors", JSON.stringify(errors)); await b.close();
 })();
