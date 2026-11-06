@@ -42,10 +42,14 @@ const { chromium } = require("./_compat");
   ok("Dansco 7104 runs to date", await p.evaluate(() => document.querySelector("#albumStart").value === "2010" && +document.querySelector("#albumEnd").value >= 2026));
   await p.fill("#albumForm [name=number]", "7100"); await p.waitForTimeout(80);
   ok("Dansco 7100 has 4 Lincoln types", await p.evaluate(() => document.querySelectorAll("#albumTypes select").length === 4));
-  // proofs unavailable → no proof spots, hint says so
+  // proofs available (Kennedy has Red Book proof dates since 0.57.0) -> proof spots are switched on
   await p.fill("#albumForm [name=number]", "8166"); await p.waitForTimeout(80);
+  const k = await p.evaluate(() => ({ pf: document.querySelector("#albumForm [name=proofs]").value, hint: document.querySelector("#albumLookupHint").textContent }));
+  ok("proofs available for Kennedy: select is on and hint has no warning", k.pf !== "" && !/proof dates/.test(k.hint));
+  // proofs unavailable -> no proof spots, hint says so (State Quarters have no proof dates yet)
+  await p.selectOption("#albumForm [name=brand]", "Littleton"); await p.fill("#albumForm [name=number]", "LCA17"); await p.waitForTimeout(80);
   const t = await p.evaluate(() => ({ pf: document.querySelector("#albumForm [name=proofs]").value, hint: document.querySelector("#albumLookupHint").textContent }));
-  ok("proofs not available for Kennedy yet: select stays None and hint says so", t.pf === "" && /proof dates/.test(t.hint));
+  ok("proofs not available for State Quarters yet: select stays None and hint says so", t.pf === "" && /proof dates/.test(t.hint));
   await p.evaluate(() => closeSheet());
   // Edit album on an existing album: lookup is offered, not forced
   await p.evaluate(() => { const a = { kind: "album", id: "old", brand: "Whitman", number: "", name: "Mine", typeId: "washington-silver", start: 1932, end: 1964, removed: [], createdAt: 1 }; a.slots = buildSlots("washington-silver", 1932, 1964); put("a_old", a); go("album-old"); });
