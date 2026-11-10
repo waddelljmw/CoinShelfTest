@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 55, Sonnet, Step 10.1: new coin types + "Other coin"):** blueprint done 2026-11-10 (`reviews/11-saved-data-blueprint.md`; 6 decisions waiting for him at its end). First, if Fable usage is left, the optional step 1b; then step 2 (use the free reset). Planning day done 2026-11-10 (minutes: `reviews/10-planning-minutes-2026-11-10.md`). App is v0.58.6. Follow the **This week** steps below in order, whenever he has time. Still open from `reviews/08`: #2 and #4 (this week), #10 (Nov 17).
+**Next session starts here (session 55, Sonnet, Step 10.1: new coin types + "Other coin"):** blueprint done 2026-11-10 (`reviews/11-saved-data-blueprint.md`; his 6 decisions recorded at its end; C2 Cull grade and G fresh-start repo added). First, if Fable usage is left, the optional step 1b; then step 2 (use the free reset). Planning day done 2026-11-10 (minutes: `reviews/10-planning-minutes-2026-11-10.md`). App is v0.58.6. Follow the **This week** steps below in order, whenever he has time. Still open from `reviews/08`: #2 and #4 (this week), #10 (Nov 17).
 
 ## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
