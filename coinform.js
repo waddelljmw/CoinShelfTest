@@ -7,6 +7,17 @@ function blankCoin() {
     stage: "", upgrade: false, seller: "", buyTax: "", buyShip: "", buyFees: "", payMethod: "", receiptNo: "", receiptPhotos: [],
     knownVar: "", mintErrors: [], problems: [], errorNote: "", catNo: "", createdAt: Date.now() };
 }
+// A half-filled NEW coin is kept in sessionStorage so it survives Android closing the app (e.g. while the camera is open).
+const DRAFT_KEY = "coinDraft";
+function stashDraft() { try { if (draft && draft._isNew) sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (e) { /* storage blocked: skip */ } }
+function clearStash() { try { sessionStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignore */ } }
+function restoreDraft() {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY); if (!raw || draft) return false;
+    const d = JSON.parse(raw); if (!d || !d._isNew || !d.id) return false;
+    draft = d; renderCoinForm(); toast("Picking up the coin you were adding."); return true;
+  } catch (e) { clearStash(); return false; }
+}
 function openCoinForm(id) {
   const existing = id ? getCoin(id) : null;
   draft = existing ? JSON.parse(JSON.stringify(existing)) : blankCoin();
@@ -87,6 +98,7 @@ function whatPicker() {
 }
 function renderCoinForm() {
   if (typeof wordsReset === "function") wordsReset(); // the form redraws often; keep its ⓘ help
+  stashDraft();
   const d = draft;
   const it = itemOf(d);
   const noun = it === "set" ? "set" : it === "roll" ? "roll" : "coin";
