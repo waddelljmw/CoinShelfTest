@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.58.0": [
+    "Mercury dimes now have Red Book values.",
+  ],
   "0.56.0": [
     "Pocket albums: on My Albums, tap New pocket album for an album with flips or capsules. Pick pages, pockets across and pockets down; any coin can go in any pocket. It has page tabs, a spine color (black too) and Kept in, and shows on the Home shelf.",
   ],
