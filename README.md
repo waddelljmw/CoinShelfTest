@@ -15,7 +15,7 @@ A private app for keeping track of a coin collection: what you own, where it is,
 
 ## Where your coins are kept
 
-For now, coins are saved to your Claude account and are private to you. The plan (see `PLAN.md`) moves the app onto your phone so it works offline, with a Backup file you control.
+On the phone app, coins and photos are saved inside Chrome on your phone, for this app's web address only, and are private to you. Clearing Chrome's site data or uninstalling the home-screen app deletes them, so save a Backup file now and then (Options → Backup and restore). A new web address starts empty until you restore a Backup.
 
 ## Files, in plain words
 
