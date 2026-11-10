@@ -10,12 +10,14 @@ One design for every planned change to how coins are saved, so each build sessio
 | A | Red Book prices off the public site | 1 new record, `pricebook`, on the phone | copied to the phone first | **High** if rushed | L = M + M | Sonnet, Opus review before part 2 |
 | B | Containers inside containers (red box) | `keptBox` on storage boxes (same name albums use) | untouched | Low-medium | M | Sonnet |
 | C | Stack AND container | none (rule change only) | untouched | Medium | M | Sonnet, Opus review |
+| C2 | Cull + "Worn, not graded" grades; grade no longer decides stacking | none (one new grade word, `Worn`) | "Junk" shows as "Cull"; nothing rewritten | Medium | M | Sonnet, Opus review (with C) |
 | D1 | Pounds on bars (72) | none (`bUnit` gets "lb") | untouched | Low | S | Sonnet |
 | D2 | More kinds of stacks (71) | none (`metal` stops being forced to Silver; one new junk kind) | missing metal = Silver | Medium | M | Sonnet, light Opus look |
 | D3 | Groups inside a stack (18) | none (worked out on screen) | untouched | Low | M | Sonnet |
 | E | Year or "too worn" tick (60) | `noDate`, `yearAbout` on coins | not asked, not changed | Low | M (was L) | Sonnet |
 | F1 | Fix a hand-typed type name (58) | none | untouched | Low | S | Sonnet |
 | F2 | Change a catalog type (58) | `typeWas` | untouched | High | L | Opus, **wait** |
+| G | Fresh-start repo (clean history) | none | phone data stays (same web address) | Medium | S | Sonnet guides his taps |
 
 **Good news:** only A, E and F2 add anything new to saved data. B, C and D reuse fields that already exist, so old backups keep working with no conversion.
 
@@ -26,9 +28,10 @@ One design for every planned change to how coins are saved, so each build sessio
      │
      ├─► D1 pounds, F1 fix typed name      (small, any week)
      │
-     └─► B nesting ─► C stack + container ─► D2 more stacks ─► D3 stack groups
+     └─► B nesting ─► C + C2 stack, container, Cull ─► D2 more stacks ─► D3 stack groups
                                                    E year / worn   (with "year first", idea 77)
                                                    F2 change catalog type (only if still wanted)
+ A2 + about a week ─► G fresh-start repo
 ```
 Why this order:
 - **0 first:** every later step is checked against one frozen old backup.
@@ -120,11 +123,29 @@ Removing the files doesn't remove them from the repo's past versions (or from br
 
 **Old data:** coins with only a stack look the same. Coins that already have both (the app allowed this until the next edit) simply become normal.
 
-**Decision needed:** may a junk coin be in an album and a stack? Lean yes; one rule (stack is separate from place) is simpler than exceptions.
+**Decided 2026-11-10:** a coin may be in an album and a stack, but only because he put it in the stack (see C2).
 
 **Tests:** junk coin with a stack, pick a box, both saved · Home total counts it once · its stack total and its box total both include it · old stack-only coin unchanged after an edit · move-many keeps stacks · dealer case round trip · spreadsheet export and import keep both.
 
 **Risk:** medium. It touches the save code and bulk moves; the danger is counting a coin twice or silently dropping a stack.
+
+## C2. Cull and "Worn, not graded" (added 2026-11-10, his idea) (M, build with C)
+
+**Why:** he graded worn album coins "Junk" to skip choosing G-4 or G-6. The app then treated them as scrap: melt value only, and new silver ones were auto-added to My Silver Stack (`junkStack` setting, coinsave.js line 57). Condition, purpose and place were tangled.
+
+**Three questions, three fields, never mixed:** grade = what shape it's in · stack = why he has it · kept in = where it is.
+
+**What's saved:**
+- The saved grade word `Junk` stays as it is and is **shown** as "Cull" (holed, bent, corroded or worn nearly smooth; worth its metal). No rename inside saved data.
+- One new grade word, `Worn`, shown as "Worn, not graded": a decent worn coin he hasn't graded. Valued at melt when it has silver, otherwise no value; never a Red Book value (the grade is unknown; don't guess one).
+- **Grade no longer puts a coin in a stack.** The Stack row is offered on bars and on silver coins; a coin joins a stack only when he picks one. The `junkStack` setting goes away (ignored if present).
+- "Junk silver" remains only as the stacking term for silver bought for its metal (the bar/round/junk-by-face-value flow).
+
+**Old data:** nothing rewritten. Cull coins keep the stack they have. The existing "Can't grade this one" tick (`noGrade`) overlaps with Worn: builder checks whether to read it as Worn (lean yes, one idea instead of two). A Coins filter "Cull coins in albums" lets him switch his album ones to Worn and take them out of the stack in one go, with Undo.
+
+**Tests:** old Junk coin shows "Cull", same value, same stack · new Cull silver coin is not auto-stacked · Worn silver coin shows melt, no Red Book value, stays in its album spot · bulk switch + Undo · grade hints read right · step-0 backup unchanged.
+
+**Risk:** medium. Changes what a grade means for value and stacking; totals must not move for coins he doesn't touch.
 
 ## D. Stacks: pounds (72), more kinds (71), groups (18)
 
@@ -167,10 +188,13 @@ Removing the files doesn't remove them from the repo's past versions (or from br
 
 ---
 
-## Decisions for you (answer in one message)
-1. **Host:** stay on GitHub Pages? (recommended)
-2. **Repo history:** leave it, or fresh start after A2? (lean: fresh start, later)
-3. **Demo link** shows no Red Book values: OK?
-4. **Junk coin in an album and a stack:** allow? (lean yes)
-5. **Year rule** applies to new coins only; old ones aren't forced: OK?
-6. **F2** waits until F1 has been used a while: OK?
+## G. Fresh-start repo (S, Sonnet guides; about a week after A2)
+Makes the public repo as if the price files were never there. Steps: he exports a backup · rename this repo and make it private (his taps) · create a new public repo with the **same name** from the cleaned code · turn Pages back on · re-set the `test` and `merge-gate` rules and the `waits for review` label. Same web address, so the phone keeps its coins and the installed app. Keep the old private repo about a month (it holds `backup-before-shelf`), then he may delete it. Limit: copies anyone made while it was public can't be undone. Check after: app opens, Update now works, coins and photos all there.
+
+## Decisions (his answers, 2026-11-10)
+1. **Host:** stay on GitHub Pages. ✅
+2. **Repo history:** fresh start (step G), late November. ✅
+3. **Demo link** shows no Red Book values. ✅ (also what a published app would need)
+4. **Album and stack together:** yes, through C2. ✅
+5. **Year rule** for new coins only; old ones not forced. ✅
+6. **Type edits:** build F1, use it about a month, plan F2 only if still needed. ✅
