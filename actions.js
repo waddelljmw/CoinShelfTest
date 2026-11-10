@@ -404,6 +404,7 @@ document.addEventListener("change", (e) => {
     }
   }
 });
+["input", "change"].forEach((ev) => document.addEventListener(ev, () => setTimeout(() => { if (draft) stashDraft(); }, 0))); // keep the stashed new coin current as he types
 document.addEventListener("toggle", (e) => { // remember which sections you opened, so redrawing the form keeps them open
   const k = e.target.dataset && e.target.dataset.sec;
   if (k && draft) (draft._open = draft._open || {})[k] = e.target.open;
@@ -424,4 +425,4 @@ document.addEventListener("submit", (e) => {
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { dismissSheet(); closeMenu(); } });
 
 // Start once every script (sheets.js, photofill.js) has loaded.
-document.addEventListener("DOMContentLoaded", () => { render(); Promise.resolve(initStore()).then(() => { try { maybeShowWhatsNew(); } catch (e) { /* never block the app */ } }); });
+document.addEventListener("DOMContentLoaded", () => { render(); Promise.resolve(initStore()).then(() => { try { if (!restoreDraft()) maybeShowWhatsNew(); } catch (e) { /* never block the app */ } }); });

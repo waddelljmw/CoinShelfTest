@@ -204,6 +204,7 @@ function closeSheet() {
   w.innerHTML = "";
   document.body.style.overflow = "";
   draft = null;
+  if (typeof clearStash === "function") clearStash();
 }
 // Escape or tapping outside: some pop-ups (like New want list) go back instead of closing.
 function dismissSheet() { if (typeof sheetDismiss === "function" && sheetDismiss()) return; closeSheet(); }
