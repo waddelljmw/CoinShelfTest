@@ -1,18 +1,27 @@
 # Working on Coin Cabinet
 
-Read this, then `IDEAS.md` (short; just don't build from it unless asked), then only the **next unchecked step** in `PLAN.md` (don't read the whole plan).
+Read this, then only the **This week** box in `PLAN.md` (don't read the whole plan). **Only planning sessions read `IDEAS.md`.**
 
 **Ideas:** when he mentions a new idea, ask if it should go on `IDEAS.md`. Add it only if he says yes.
 
 ## The person
 - Coin collector, **no app-building background**. Plain words.
 - **Token-conscious.** Short replies (aim for under 150 words). No recaps of steps already shown. Don't repeat merge/branch instructions he already knows beyond the two links.
-- **Start prompt (fast):** at the start of a session read only CLAUDE.md, IDEAS.md, and from PLAN.md the "Next session starts here" line, the session table and the next unchecked step. The check is quick git/gh looks (PR merged, checklist ticked, Fix list empty), **no test run**. The exact prompt is on the "Starting a new chat" line in PLAN.md; give that one. **If an open PR already holds the step on the "Next session starts here" line** (that line only updates on merge), the next session is the one after it in the session table.
+- **Start prompt (fast):** at the start of a session read only CLAUDE.md and from PLAN.md the "Next session starts here" line, the session table and the next unchecked step. The check is quick git/gh looks (PR merged, checklist ticked, Fix list empty), **no test run**. The exact prompt is on the "Starting a new chat" line in PLAN.md; give that one. **If an open PR already holds the step on the "Next session starts here" line** (that line only updates on merge), the next session is the one after it in the session table.
 - **End every finished task with the exact next prompt to copy** (and the model), plus 1–2 plain lines on **what that next step will do** (from `PLAN.md`), so he knows before he says go. After each merge, update the "Next session starts here" line in `PLAN.md` and mark finished items with ✅ (`- [x] ✅`); a weekly reminder reads it.
 - **When he says he's ending the session:** reply with only (1) anything unfinished (e.g. a PR not merged yet), (2) Sonnet or Opus for the next session, (3) the exact prompt to paste, taken from the Session plan in `PLAN.md`. (4) 1–2 lines on what that session will do.
 - **Session-end check:** At the end of each session, check the PR is merged, the checklist is ticked, the Fix list is empty; open bug reports are not checked while he is the only user (turn back on if he says so); if all is clear, give a short start prompt that skips the check, otherwise give the full one.
 - **Work smarter:** whenever a GitHub feature, test automation, splitting files, or another setup would save tokens, speed up work or improve the code (within good coding practice), tell him in one line and do it. Anything touching his saved coin data still needs his OK first.
 - **Say which model to use before each next step.** Opus: planning, reviews, anything that reshapes stored data. Sonnet: building, routine fixes, data entry (album lists, coin dates).
+
+## Cost rules (agreed 2026-11-04, written in 2026-11-10)
+- Keep build chats short; **new chat after each merge**. Side ideas go to his phone notes, not discussed in build chats.
+- Models: **Opus** for planning, reviews and changes to how coins are saved; **Sonnet** for everything else. **Fable** only for one-off deep planning when he has free Fable usage.
+- GitHub runs the full test suite on every PR; while working, run only the related tests.
+- Reviews: one reviewer, deep on recent changes, light elsewhere; every 2–3 weeks or after big features.
+- Read page text, not screenshots. Group quick questions into one message.
+- **Costly to change later?** Ask it for every design choice and flag it when yes (build for his own use now, but so selling, other languages or reskins later need no rework).
+- **Planning day** writes minutes to `reviews/NN-planning-minutes-DATE.md` (decisions and reasons); PLAN.md keeps only the decisions.
 
 ## Doing a change (keep it cheap)
 0. **Stay small:** don't change unrelated files; reuse existing helpers before writing new ones; if a request has a risk (breaks old data, touches many files), say so in one line *before* building.
