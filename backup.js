@@ -9,7 +9,9 @@ const blobToDataUrl = (blob) => new Promise((res, rej) => { const r = new FileRe
 const dataUrlToBlob = async (u) => (await fetch(u)).blob();
 
 // Every photo a record points to, as a data: URL keyed the way the record points to it.
+let backupSkipped = 0; // photos the last backup couldn't read
 async function collectPhotos(onProgress) {
+  backupSkipped = 0;
   const refs = new Map();
   store.docs.forEach((d) => photoRefsOf(d).forEach((p) => { if (p) { const k = p.lid ? "lid:" + p.lid : p.id ? "id:" + p.id : null; if (k) refs.set(k, p); } }));
   const out = {};
@@ -17,7 +19,7 @@ async function collectPhotos(onProgress) {
   for (const [k, p] of refs) {
     n++;
     if (onProgress) onProgress(n, refs.size);
-    try { const blob = await (await fetch(photoSrc(p))).blob(); out[k] = await blobToDataUrl(blob); } catch (e) { /* a missing photo doesn't stop the backup */ }
+    try { const blob = await (await fetch(photoSrc(p))).blob(); out[k] = await blobToDataUrl(blob); } catch (e) { backupSkipped++; /* a missing photo doesn't stop the backup, but we count it and say so */ }
   }
   return out;
 }
@@ -61,7 +63,7 @@ async function doBackup() {
     await downloadsApi.save({ filename: name, data: JSON.stringify(data), type: "application/json" });
   } catch (e) { say(e && e.code === "declined" ? "Not saved." : "Couldn't save the file. Try again."); return; }
   saveSettings({ lastBackup: today() });
-  say("Saved " + name + " (" + data.counts.coins + " coins, " + data.counts.photos + " photos).");
+  say("Saved " + name + " (" + data.counts.coins + " coins, " + data.counts.photos + " photos)." + (backupSkipped ? " Warning: " + backupSkipped + " photo" + (backupSkipped === 1 ? "" : "s") + " couldn't be added." : ""));
 }
 
 // Settings and value history are combined with what's on this device, not replaced.
