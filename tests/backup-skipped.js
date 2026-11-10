@@ -15,6 +15,8 @@ const { chromium } = require("./_compat");
   ok("two unreadable photos are counted", r.skipped === 2 && r.saved === 0);
   const src = require("fs").readFileSync(require("path").resolve(__dirname, "../backup.js"), "utf8");
   ok("message warns about skipped photos", /couldn't be added/.test(src));
+  const n = await p.evaluate(async () => { put("b_pkx", { kind: "box", id: "pkx", type: "pocket", name: "P", createdAt: 1 }); put("a_alx", { kind: "album", id: "alx", brand: "Whitman", number: "1", slots: [], createdAt: 1 }); return (await buildBackup()).counts.albums; });
+  ok("backup album count includes pocket albums", n === 2);
   ok("no page errors", errors.length === 0);
   await b.close();
 })();
