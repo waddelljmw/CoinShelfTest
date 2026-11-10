@@ -9,6 +9,7 @@ const blobToDataUrl = (blob) => new Promise((res, rej) => { const r = new FileRe
 const dataUrlToBlob = async (u) => (await fetch(u)).blob();
 
 // Every photo a record points to, as a data: URL keyed the way the record points to it.
+const isPocketDoc = (d) => !!d && d.kind === "box" && d.type === "pocket"; // pocket albums count as albums
 let backupSkipped = 0; // photos the last backup couldn't read
 async function collectPhotos(onProgress) {
   backupSkipped = 0;
@@ -29,7 +30,7 @@ async function buildBackup(onProgress) {
   const photos = await collectPhotos(onProgress);
   return {
     kind: BACKUP_KIND, format: 1, appVersion: APP_VERSION, made: today(),
-    counts: { coins: allCoins().filter((c) => c.status !== "deleted").length, albums: albums().length, photos: Object.keys(photos).length },
+    counts: { coins: allCoins().filter((c) => c.status !== "deleted").length, albums: albums().length + docs.filter((d) => isPocketDoc(d.data)).length, photos: Object.keys(photos).length },
     docs, photos,
   };
 }
@@ -111,7 +112,7 @@ async function readRestoreFile(file) {
   const coins = data.docs.filter((d) => d.data && d.data.kind === "coin" && d.data.status !== "deleted").length;
   const replaces = data.docs.filter((d) => d.data && d.data.kind === "coin" && store.docs.has(d.id)).length;
   confirmSheet("Restore this backup?",
-    `Backup from ${String(data.made || "").slice(0, 10) || "an unknown date"}: ${coins} coins, ${data.docs.filter((d) => d.data && d.data.kind === "album").length} albums, ${Object.keys(data.photos || {}).length} photos.` +
+    `Backup from ${String(data.made || "").slice(0, 10) || "an unknown date"}: ${coins} coins, ${data.docs.filter((d) => d.data && (d.data.kind === "album" || isPocketDoc(d.data))).length} albums, ${Object.keys(data.photos || {}).length} photos.` +
     (replaces ? ` ${replaces} coin${replaces === 1 ? " is" : "s are"} already here and will be replaced by the backup's copy.` : "") +
     " Albums and want lists that are in both are replaced by the backup's copy too. Your settings and value history here are kept and combined with the backup's. Nothing here is deleted.",
     "Restore", () => doRestore());
