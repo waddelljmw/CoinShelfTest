@@ -1,8 +1,44 @@
 # Coin Cabinet: Master Plan
 
-Last updated November 5, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
+Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 53, Opus, planning day Tue 2026-11-10 1pm):** the app is v0.58.5; bug-review fixes #1, #3, #5, #6, #8 are merged (PRs #167-#171); still open from `reviews/08`: #2, #4, #7 (this line), #9 (done in the next PR), #10. Sort his notes and IDEAS.md into the week's top 3 (cost rules for CLAUDE.md are one of them). First read `reviews/07-consultant-notes-2026-11-06.md` (short ChatGPT review; use the Keep list). Then read `reviews/08-bug-review-v0.58.0-2026-11-07.md` (bug list with a suggested fix order) and `reviews/09-tuesday-pack-2026-11-07.md` (this week's picks, backlog, decisions). GitHub suspension ended 2026-11-09; code was unchanged during it. Still to write in: PMBOK-light plan, Red Book prices out of public files. Also done Thu 2026-11-05 (v0.56.2, PR #160): Lincoln S proof years so New/Edit album builds proof spots. Still open from 9.7a: a full wording read of every screen.
+**Next session starts here (session 54, Fable, saved-data blueprint; by Sun 2026-11-16):** planning day done 2026-11-10 (minutes: `reviews/10-planning-minutes-2026-11-10.md`). App is v0.58.6. Follow the **This week** steps below in order, whenever he has time. Still open from `reviews/08`: #2 and #4 (this week), #10 (Nov 17).
+
+## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
+He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
+
+| Step | Guide day | Model | What | Done |
+|---|---|---|---|---|
+| 1 | Wed | **Fable** | Session 54: saved-data blueprint (no building) | |
+| 1b | by Sun | **Fable** | Optional, only if Fable is left: (a) layout + wording audit 66/67, (b) full-app review with the lenses, (c) detailed Nov 17 plan. New chat each. | |
+| 2 | after Fable | you | **Use the reset:** Settings > Usage > Limit resets > "Reset for free" | |
+| 3 | Thu | Sonnet | Session 55: Step 10.1 (new coin types + "Other coin") | |
+| 4 | Fri | Sonnet | Session 56: Step 10.2 (Back button, restore settings, box totals) | |
+| 5 | Fri–Sun | you | Try it in `?demo`, then enter coins | |
+
+### Step 10.1 (session 55, Sonnet): new coin types + "Other coin" (M)
+Options 1 + 2 from `reviews/09-tuesday-pack-2026-11-07.md`; **no change to how coins are saved** (option 3, "date as written", is not built).
+- [ ] Add the missing types (half cents, large cents, 2-cent, 3-cent, half dimes, Capped Bust, Seated Liberty, Trade dollar, 20-cent, 2004-05 Westward Journey nickels, 2018+ American Innovation dollars). Dates and mints looked up, never guessed; no Red Book values unless he sends pages.
+- [ ] Built-in "Other coin" type (like "Other set"): real year, typed name + country, no Red Book value.
+- **His checks:** finds "Trade dollar" in the type list · adds an Other coin (e.g. a Canadian coin) and it saves with its name and no value · his old coins look the same.
+
+### Step 10.2 (session 56, Sonnet): Back button + restore + box totals (M + S + S)
+- [ ] Back button (IDEAS 53): Back on the "i" popup closes only the popup and keeps what was typed; Back after "+" in an album returns to the album; check every popup and form.
+- [ ] Restore keeps settings (bug #2): a setting counts as "set on this phone" only if it differs from `DEFAULT_SETTINGS`. Test: fresh app, restore, `shelfStyle`/`shelfLayout`/folded sections come back.
+- [ ] Box totals (bug #4): Storage shows albums as their own number, e.g. "3 coins · 1 album".
+- **His checks:** Back on "i" keeps his typing · restore in a private window keeps Recently added folded · a box with albums shows them on Storage.
+
+### Next 3 weeks (tentative; minutes have the reasons)
+- **Nov 17:** L = Red Book prices out of public files + host decision; S = 54 (contrast).
+- **Nov 24:** M = 52 (walkthrough) + M = 77 (year first); S = 55, 56. *Likely to change.*
+- **Dec 1:** L = red box nested containers, or 58/60. *Depends on the blueprint.*
+
+### How we run the project (PMBOK-light, agreed 2026-11-06)
+- **Scope:** IDEAS.md (backlog) → planning day picks the week's update (S/M/L budget) → steps here.
+- **Acceptance:** each item has 2–3 "his checks" he ticks on his phone (his SaaS contract model).
+- **Quality:** tests on every PR (GitHub enforces); Opus review before changes to how coins are saved; count bugs found after merge, more than 2 in a week means the next update gets a review.
+- **Risk:** for every design choice ask "costly to change later?" and flag it.
+- **Record:** minutes each planning day in `reviews/NN-planning-minutes-DATE.md`; standards change only on planning day.
 
 ## Session plan (one chat per session, done in order)
 
@@ -67,7 +103,10 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 50 | Sonnet | Step 9.7c: heir fixes (junk silver by face value, counts agree, report sort, can't-grade choice) | ✅ merged v0.55.0 |
 | 51 | Sonnet | Step 9.7d: pocket album (flips/capsules in rows and columns). **Merge waits for session 52 review** | ✅ v0.56.0, PR open (branch `step-9-7d-pocket-album`) |
 | 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | ✅ reviewed, 3 small fixes (pocket album kept in a box, pocket wording), also fixed automatic tests (PR #157) |
-| 53 | Opus | Planning day (Tue 2026-11-10): bug review, sort notes + IDEAS into the week's top 3 | |
+| 53 | Opus | Planning day (Tue 2026-11-10): bug review, sort notes + IDEAS into the week's top 3 | ✅ minutes `reviews/10` |
+| 54 | **Fable** | Saved-data blueprint (no building), see This week | |
+| 55 | Sonnet | Step 10.1: new coin types + "Other coin" | |
+| 56 | Sonnet | Step 10.2: Back button, restore settings, box totals | |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
@@ -103,7 +142,7 @@ Claude adds items here when they wait. Session 11 cleared the open ones.
 - ✅ done v0.31.1 **Session 11: smaller Home chips.** My collection, Inherited, My Silver Stack become thin pills in **one row you swipe left/right**; turned-off ones look gray. Must still be easy to spot.
 
 
-**Starting a new chat** (fast version, no whole-plan read, no test run): paste *"Open my repo waddelljmw/CoinShelfTest. Read CLAUDE.md and IDEAS.md. From PLAN.md read only the "Next session starts here" line, the session table and the next unchecked step, not the whole file. Do a quick check with no test run: last PR merged, checklist ticked, Fix list empty. (Bug reports are not checked while he is the only user; he will say when to start again.) Fix any gap. Tell me which model the next session needs and which model you are (if they differ, tell me to switch and stop). Then say in 1–2 lines what the session will do and wait for my go. Never merge a PR marked "merge waits" or with red or unfinished GitHub tests."*
+**Starting a new chat** (fast version, no whole-plan read, no test run): paste *"Open my repo waddelljmw/CoinShelfTest. Read CLAUDE.md. From PLAN.md read only the "Next session starts here" line and the "This week" box, not the whole file. Do a quick check with no test run: last PR merged, checklist ticked, Fix list empty. (Bug reports are not checked while he is the only user; he will say when to start again.) Fix any gap. Tell me which model the next session needs and which model you are (if they differ, tell me to switch and stop). Then say in 1–2 lines what the session will do and wait for my go. Never merge a PR marked "merge waits" or with red or unfinished GitHub tests."*
 
 ## After Phase 8 (session 17, Sonnet; kept here so the Fix list stays empty for the start check)
 - [x] ✅ All items below built in v0.36.0 (branch `session-17-tidy`, test `tests/session17.js`). Options sections start folded; "Don't ask before For sale" and the junk silver switch are in Options.
