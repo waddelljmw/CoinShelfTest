@@ -21,7 +21,7 @@ const listNameOf = (w) => { const l = getWantList(w.listId || DEFAULT_LIST_ID); 
 const spotFindWant = (a, s, listId) => findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v, listId, s.pf);
 const wantLabel = (w) => [w.year ? String(w.year) + (w.mint ? "-" + w.mint : "") : "", w.typeName, w.denom, w.pf ? "Proof" : ""].filter(Boolean).join(" ") + (w.variety ? " · " + w.variety : "");
 // A pretend coin, so Red Book, eBay and mintage lookups work for a want.
-const wantAsCoin = (w) => ({ typeId: w.typeId, typeName: w.typeName, denom: w.denom, year: w.year, mint: w.mint, variety: w.variety || "", gradeMode: "raw", grade: w.grade || "", label: "" });
+const wantAsCoin = (w) => ({ typeId: w.typeId, typeName: w.typeName, denom: w.denom, year: w.year, mint: w.mint, variety: w.variety || "", gradeMode: "raw", grade: w.grade || "", label: "", snapBook: w.snapBook });
 
 function newWant(fields) {
   const t = TYPE_BY_ID[fields.typeId];
@@ -79,7 +79,7 @@ function wantRow(w) {
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
       <span class="coin-main"><span class="coin-label">${esc(wantLabel(w))}${n > 1 ? ` <button class="link-btn small" data-act="wantWhere" data-id="${esc(w.id)}" title="Tap to see which lists">${wantedTag(n)}</button>` : ""}</span><span class="coin-sub">${esc(sub)}</span>
         ${w.notes ? `<span class="coin-sub" style="white-space:normal">${esc(w.notes)}</span>` : ""}</span>
-      <span class="coin-val">${rb != null ? money(rb) + `<div class="melt">Red Book ${esc(w.grade)}</div>` : ""}</span>
+      <span class="coin-val">${rb != null ? money(rb) + `<div class="melt">${esc(bookName())} ${esc(w.grade)}</div>` : ""}</span>
     </div>
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:14px">
       <a href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>

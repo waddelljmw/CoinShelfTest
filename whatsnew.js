@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.59.0": [
+    "Red Book prices are now kept on this phone with your coins, and go into your backups. Options, Coin Value shows the line \"Red Book prices on this phone\". Your values stay the same.",
+  ],
   "0.58.0": [
     "Mercury dimes now have Red Book values.",
   ],

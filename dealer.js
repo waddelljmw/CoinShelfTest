@@ -268,8 +268,8 @@ Object.assign(actions, {
     const btn = (k, label) => `<button class="btn block" style="margin-top:8px" data-act="caseAskGo" data-id="${esc(b.id)}" data-pick="${k}" ${n(k) ? "" : "disabled"}>${label} (${n(k)} of ${cs.length} coins)</button>`;
     openSheet(`<div class="sheet-head"><h2>Set asking price for all</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
       <p class="small">Only coins <b>with no price yet</b> get one. Prices you already set stay. One Undo puts everything back.</p>
-      ${btn("top", "Suggested (never below cost + " + pctText(p.costPct) + "%)")}${btn("book", "Red Book × " + pctText(p.bookPct) + "%")}${btn("melt", "Melt + " + pctText(p.meltPct) + "%")}
-      <div class="hint">A coin with no Red Book value or metal content is skipped. Change the percentages in Options → Selling.</div>`);
+      ${btn("top", "Suggested (never below cost + " + pctText(p.costPct) + "%)")}${btn("book", bookName() + " × " + pctText(p.bookPct) + "%")}${btn("melt", "Melt + " + pctText(p.meltPct) + "%")}
+      <div class="hint">A coin with no ${esc(bookName())} value or metal content is skipped. Change the percentages in Options → Selling.</div>`);
   },
   caseAskGo: (el) => {
     const b = getBox(el.dataset.id), k = el.dataset.pick; if (!b) return;

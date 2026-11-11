@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.58.10";
+const APP_VERSION = "0.59.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -60,6 +60,34 @@ function showBanner(text) {
   b.hidden = false;
 }
 
+/* ---------- the price list (Step 11.2) ----------
+   Prices live in ONE saved record on the phone, key "pricebook":
+   { kind: "pricebook", format: 1, source, edition, series, mintage, savedAt }.
+   The copy shipped with the app (SHIPPED_PRICE_BOOK) is only used to fill that record the first time. */
+const emptyBook = () => ({ source: "Red Book", edition: "", series: {}, mintage: {} });
+let PRICE_BOOK = emptyBook();
+const shippedBook = () => (typeof SHIPPED_PRICE_BOOK !== "undefined" && SHIPPED_PRICE_BOOK && Object.keys(SHIPPED_PRICE_BOOK.series || {}).length ? SHIPPED_PRICE_BOOK : null);
+const usableBook = (r) => !!(r && r.series && typeof r.series === "object");
+// The name printed next to a value ("Red Book" today). Another value source later only changes the record.
+const bookName = () => PRICE_BOOK.source || "Red Book";
+// Called at the end of every start path. canSave is false while the Claude copy has only shown its cached records.
+function loadPriceBook(canSave) {
+  const m = store.mode, rec = store.docs.get("pricebook"), ship = shippedBook();
+  if (m === "demo") { PRICE_BOOK = emptyBook(); return; } // the demo shows no book values
+  if (m === "snapshot") { PRICE_BOOK = { ...emptyBook(), ...((window.COIN_SNAPSHOT && window.COIN_SNAPSHOT.book) || {}) }; return; } // values are stamped on each coin
+  if (m === "local" || m === "db") {
+    if (usableBook(rec)) { PRICE_BOOK = { ...emptyBook(), ...rec }; return; }
+    // Copy ONLY when there is no record. Never overwrite one, so a price file loaded later always wins.
+    // ...and only a whole copy: if one of the two shipped files didn't arrive, save nothing and try again next time.
+    if (ship && ship.complete && canSave !== false && !store.bookCopyTried) {
+      store.bookCopyTried = true;
+      put("pricebook", { kind: "pricebook", format: 1, source: ship.source || "Red Book", edition: ship.edition || "", series: ship.series, mintage: ship.mintage || {}, savedAt: new Date().toISOString() }, true);
+      return; // put() sets PRICE_BOOK
+    }
+  }
+  PRICE_BOOK = ship ? { ...emptyBook(), ...ship } : emptyBook(); // private window: use the shipped copy, save nothing
+}
+
 // Demo mode (Step 9.1): made-up coins, kept in memory only. catalog/demo.js is fetched only when the demo opens.
 async function startDemo() {
   await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "catalog/demo.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
@@ -69,11 +97,12 @@ async function startDemo() {
   document.body.classList.add("demo");
   $("#banner").innerHTML = `Demo: these aren't real coins. <button class="link-btn" data-act="exitDemo">Exit demo</button>`;
   $("#banner").hidden = false;
+  loadPriceBook();
   render();
 }
 async function initStore() {
   if (/[?&]demo(=|&|$)/.test(location.search)) { // the link .../CoinShelfTest/?demo
-    try { await startDemo(); } catch (e) { store.mode = "memory"; showBanner("Couldn't open the demo. Check your connection and try again."); render(); }
+    try { await startDemo(); } catch (e) { store.mode = "memory"; showBanner("Couldn't open the demo. Check your connection and try again."); loadPriceBook(); render(); }
     return;
   }
   // View-only snapshot: a copy of someone's coins baked into the page (for showing friends).
@@ -82,12 +111,14 @@ async function initStore() {
     window.COIN_SNAPSHOT.docs.forEach((d) => store.docs.set(d.id, d.data));
     document.body.classList.add("readonly");
     showBanner("View-only snapshot of a coin collection, taken " + window.COIN_SNAPSHOT.taken + ". You can try adding a coin with +, but nothing is saved.");
+    loadPriceBook();
     render();
     return;
   }
   if (!window.claude || typeof window.claude.use !== "function") {
     // On its own (not inside Claude): save on this device.
     if (typeof initLocalStore === "function" && await initLocalStore()) {
+      loadPriceBook();
       if (typeof scheduleHistory === "function") scheduleHistory();
       render();
       fetchSpotPrices(true); // refreshes prices each time the app opens (when online)
@@ -95,6 +126,7 @@ async function initStore() {
     }
     store.mode = "memory";
     showBanner("This browser can't save (it may be a private window). Practice mode: nothing typed here is kept.");
+    loadPriceBook();
     render();
     return;
   }
@@ -109,6 +141,7 @@ async function initStore() {
       clearTimeout(loadTimer);
       store.mode = "memory";
       showBanner("Sign in to Claude to save your coins. Practice mode: nothing typed here is kept.");
+      loadPriceBook();
       render();
       return;
     }
@@ -124,6 +157,7 @@ async function initStore() {
           if (!store.historyChecked && typeof scheduleHistory === "function") { store.historyChecked = true; scheduleHistory(); }
         }
         store.mode = "db";
+        loadPriceBook(!snap.metadata.fromCache);
         render();
       },
       (err) => {
@@ -135,6 +169,7 @@ async function initStore() {
     clearTimeout(loadTimer);
     store.mode = "memory";
     showBanner("Couldn't open your saved coins. Practice mode: nothing typed here is kept.");
+    loadPriceBook();
     render();
   }
 }
@@ -153,6 +188,7 @@ function put(key, obj, quiet) {
   const body = JSON.parse(JSON.stringify(obj));
   if (key.startsWith("c_") && typeof caseOnPut === "function") caseOnPut(store.docs.get(key), body); // dealer case: remember the old place
   store.docs.set(key, body);
+  if (key === "pricebook" && usableBook(body)) PRICE_BOOK = { ...emptyBook(), ...body }; // first copy, restore, or (later) a loaded price file
   if (key !== "history" && typeof scheduleHistory === "function") scheduleHistory(); // value over time
   // Queue the save BEFORE redrawing: the redraw may add a coin ID (ensureIds) and queue its own save of this coin,
   // which must come after this one or the plain copy would overwrite the ID on disk.

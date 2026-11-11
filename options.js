@@ -79,13 +79,23 @@ function askMetalPrice(c) {
     <div class="btn-row"><button class="btn" data-act="ppSave" data-v="${k}">Save this price</button><button class="btn" data-act="closeSheet">Later</button></div>
     <div class="hint">No internet? Typing it works fine. You can change prices any time in Options.</div>`);
 }
-// The Red Book table list and edition box. Lives at the bottom of Coin Value.
+// The value-book section: what's saved on this phone, the table list and the edition box. Lives at the bottom of Coin Value.
+// The words "Red Book" come from the saved price record (bookName), so another value source needs no rewording.
+function bookStatusLine() {
+  const n = Object.keys(PRICE_BOOK.series || {}).length, name = bookName(), rec = store.docs.get("pricebook");
+  if (store.mode === "snapshot") return name + " values in this file were worked out when it was made.";
+  if (!n) return "No " + name + " prices on this phone.";
+  const head = [PRICE_BOOK.edition, n + " series"].filter(Boolean).join(" · ");
+  if (!rec || (store.mode !== "local" && store.mode !== "db")) return name + " prices in this window (not saved): " + head;
+  const d = rec.savedAt ? new Date(rec.savedAt) : null;
+  return name + " prices on this phone: " + head + (d && !isNaN(d) ? " · saved " + d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "");
+}
 function redBookHtml() {
-  const s = settings();
-  return `<h2>Red Book values</h2>
-    <div class="card">${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof", sms: "SMS" }[k] || k)).join(" · ")}</span></div>`).join("")}
-      <label class="f"><span>Red Book edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
-      <div class="hint">A coin with no value typed in uses its Red Book ${wi("redbook")} value. Coins below the lowest listed grade use melt.</div></div>`;
+  const s = settings(), name = esc(bookName());
+  return `<h2>${name} values</h2>
+    <div class="card"><div class="small" id="bookStatus" style="margin-bottom:8px"><b>${esc(bookStatusLine())}</b></div>${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof", sms: "SMS" }[k] || k)).join(" · ")}</span></div>`).join("")}
+      <label class="f"><span>${name} edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
+      <div class="hint">A coin with no value typed in uses its ${name} ${wi("redbook")} value. Coins below the lowest listed grade use melt.</div></div>`;
 }
 // Options: every section folds shut (closed by default, remembered). Splits the page at each heading.
 // Options sections sit under five group headings (Seller Mode keeps its own). Each section still folds on its own.

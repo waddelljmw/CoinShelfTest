@@ -2,7 +2,7 @@
 // Private details are left out unless you tick them. Loaded after app.js.
 "use strict";
 
-const SNAP_FILES = ["styles.css", "catalog/data.js", "catalog/bookfacts.js", "catalog/pricebook.js", "catalog/pricebook-modern.js", "catalog/albums.js", "catalog/varieties.js", "app.js", "values.js", "views.js", "albums.js", "options.js", "coinform.js", "coinsave.js", "editforms.js", "actions.js", "sheets.js", "photofill.js", "history.js", "wants.js", "boxes.js", "pockets.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "whatsnew.js", "inherit.js", "welcome.js", "levels.js"];
+const SNAP_FILES = ["styles.css", "catalog/data.js", "catalog/bookfacts.js", "catalog/albums.js", "catalog/varieties.js", "app.js", "values.js", "views.js", "albums.js", "options.js", "coinform.js", "coinsave.js", "editforms.js", "actions.js", "sheets.js", "photofill.js", "history.js", "wants.js", "boxes.js", "pockets.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "whatsnew.js", "inherit.js", "welcome.js", "levels.js"];
 const SNAP_PRIVATE = [
   ["paid", "What you paid"],
   ["source", "Where you got each coin"],
@@ -29,8 +29,11 @@ function openSnapshotForm() {
 async function snapshotDocs(inc) {
   const out = [];
   for (const [id, d0] of store.docs) {
-    if (!d0) continue;
+    if (!d0 || id === "pricebook") continue; // the price list never goes into a shared file
     const d = JSON.parse(JSON.stringify(d0));
+    // Stamp the worked-out value and mintage on the coin (or want) instead.
+    const asCoin = id.startsWith("c_") ? d0 : id.startsWith("w_") && typeof wantAsCoin === "function" ? wantAsCoin(d0) : null;
+    if (asCoin) { const book = bookLookup(asCoin), mint = mintageInfo(asCoin); if (book || mint) d.snapBook = { sig: snapSig(asCoin), book, mint }; }
     if (id.startsWith("c_")) {
       if (d.status === "deleted") continue;
       if (!inc.paid) { delete d.paid; ["buyTax", "buyShip", "buyFees", "seller", "payMethod", "receiptNo", "trackNo", "trackCarrier"].forEach((k) => delete d[k]); }
@@ -62,7 +65,7 @@ async function buildSnapshot(inc) {
   body.className = "";
   body.querySelector("#view").innerHTML = "";
   ["#sheet", "#toast", "#banner"].forEach((q) => { const el = body.querySelector(q); if (el) { el.innerHTML = ""; el.hidden = true; } });
-  const snap = { taken: today(), docs: await snapshotDocs(inc) };
+  const snap = { taken: today(), book: { source: bookName(), edition: PRICE_BOOK.edition || "" }, docs: await snapshotDocs(inc) };
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Coin Cabinet snapshot</title><style>${safe(css)}</style></head>

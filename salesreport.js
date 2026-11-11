@@ -59,7 +59,7 @@ function repSections(d, fm) {
     ["Summary", [["Items sold", String(t.n)], ...(d.refunded && d.refunded.length ? [["Refunded sales (their fees and shipping still count as costs)", String(d.refunded.length)]] : []), ["Sales", fm(t.sales)], ["Shipping charged", fm(t.ship)], ["Cost of coins sold", fm(t.cost)], ["Platform fees", fm(t.fees)],
       ["Shipping and insurance paid", fm(t.shipPaid)], ["Profit before show costs", fm(r2(d.profit + d.showTotal)), "b"], ["Show costs", fm(d.showTotal)], ["Profit after show costs", fm(d.profit), "b"]]],
     ["Sales tax collected (not income; kept apart)", [["Sales tax collected", fm(t.tax)]]],
-    ["Business stock", [["At cost, at the end of the period", fm(d.stockCost)], ["Value today (Red Book, melt or your value)", fm(d.stockNow)]]],
+    ["Business stock", [["At cost, at the end of the period", fm(d.stockCost)], ["Value today (" + bookName() + ", melt or your value)", fm(d.stockNow)]]],
     ["Schedule C style summary", [["Gross receipts (sales + shipping charged)", fm(sc.receipts)], ["Cost of goods sold", fm(sc.cogs)], ["Gross profit", fm(sc.gross), "b"],
       ["Commissions and fees", fm(sc.fees)], ["Shipping and insurance", fm(sc.shipping)], ["Show table fees", fm(sc.table)], ["Travel (gas, mileage, hotel)", fm(sc.travel)],
       ["Meals", fm(sc.meals)], ["Supplies", fm(sc.supplies)], ["Other show costs (equipment, subscriptions, other)", fm(sc.other)], ["Total expenses", fm(sc.expenses)], ["Net profit", fm(sc.net), "b"]]],

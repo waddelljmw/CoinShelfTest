@@ -76,8 +76,13 @@ function applyYearMetal(d) {
   if (mb) { d.metal = mb[0]; d.oz = mb[1] || ""; }
   else if (d.metal === "Steel") { d.metal = t.metal; d.oz = t.oz || ""; }
 }
+// View-only file (Step 11.2): it holds no price table. Each coin carries the value and mintage worked out when the file was made;
+// the stamp only counts while the coin still has the same date, mint, variety and grade.
+const snapSig = (c) => [c.typeId, c.year, c.mint, c.variety, c.gradeMode, c.grade, c.fbl ? 1 : 0, c.sms ? 1 : 0].map((x) => x == null ? "" : x).join("|");
+const snapStamp = (c) => (c && c.snapBook && c.snapBook.sig === snapSig(c) ? c.snapBook : null);
 // Returns {price, grade, kind} for the highest listed grade at or below the coin's grade.
 function bookLookup(c) {
+  if (store.mode === "snapshot") { const st = snapStamp(c); return st ? st.book || null : null; }
   if (!c.year || !c.grade || c.grade === "Other" || c.grade === "Junk") return null;
   const bt = bookTable(c);
   if (!bt) return null;
@@ -113,6 +118,7 @@ function bookLookupIn(c, bt) {
 }
 // Mintage from the same Red Book rows. "*" means the variety is counted in the date's total.
 function mintageInfo(c) {
+  if (store.mode === "snapshot") { const st = snapStamp(c); return st ? st.mint || null : null; }
   const bt = bookTable(c);
   const all = PRICE_BOOK.mintage && PRICE_BOOK.mintage[c.typeId];
   if (!bt || !all || !c.year) return null;
@@ -138,18 +144,18 @@ function mintageLine(c) {
 // Plain note for the coin page when the Red Book gives no value (instead of quietly showing face value).
 function noBookNote(c) {
   if (itemOf(c) !== "coin" || isJunk(c) || hasProblems(c) || num(c.value) != null) return "";
-  if (!c.grade || c.grade === "Other") return "Add a grade to get a Red Book value.";
+  if (!c.grade || c.grade === "Other") return "Add a grade to get a " + bookName() + " value.";
   const b = bookLookup(c);
-  return b && b.price != null ? "" : "No Red Book value for this date and grade.";
+  return b && b.price != null ? "" : "No " + bookName() + " value for this date and grade.";
 }
 const bookPrice = (c) => { const b = bookLookup(c); return b && b.price != null ? b.price : null; };
 function bookText(b) {
   if (!b) return "";
   const edName = settings().bookEdition || PRICE_BOOK.edition; const ed = edName ? " " + edName : "";
-  if (b.none) return "Red Book" + ed + " has no listing for this date" + (b.kind === "proof" ? " and variety." : ".");
-  if (b.below) return "Red Book" + ed + " prices start at " + b.lowest + ". Below that it's worth about melt.";
-  if (b.atLeast) return "Red Book" + ed + " starts at " + b.grade.replace(/^PR/, "PF") + ": at least " + money(b.price) + " for a proof (yours is " + b.asked.replace(/^PR/, "PF") + ")";
-  return "Red Book" + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " " + (b.tag || "FBL") : b.kind === "sms" ? " SMS" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "")
+  if (b.none) return bookName() + ed + " has no listing for this date" + (b.kind === "proof" ? " and variety." : ".");
+  if (b.below) return bookName() + ed + " prices start at " + b.lowest + ". Below that it's worth about melt.";
+  if (b.atLeast) return bookName() + ed + " starts at " + b.grade.replace(/^PR/, "PF") + ": at least " + money(b.price) + " for a proof (yours is " + b.asked.replace(/^PR/, "PF") + ")";
+  return bookName() + ed + ": " + money(b.price) + " (" + b.grade.replace(/^PR/, "PF") + (b.kind === "fbl" ? " " + (b.tag || "FBL") : b.kind === "sms" ? " SMS" : "") + ")" + (b.asked && b.asked !== b.grade ? ", the closest listed price below " + b.asked.replace(/^PR/, "PF") : "")
     + (b.guess ? ". No variety picked, so this is the lowest-priced variety for this date. Pick the variety for an exact value" : "");
 }
 

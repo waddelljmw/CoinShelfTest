@@ -32,14 +32,14 @@ const pctText = (n) => String(Math.round(n * 100) / 100);
 function askButtons(c, id) {
   const s = suggestAsk(c), p = pricingRates();
   const b = (kind, label, v) => (v == null ? "" : `<button type="button" class="btn${s.top === kind ? " primary" : ""}" data-act="askUse" data-pick="${kind}" ${id ? `data-id="${esc(id)}"` : ""}>${label}: ${money(v)}</button>`);
-  const html = b("book", `Red Book × ${pctText(p.bookPct)}%`, s.book) + b("melt", `Melt + ${pctText(p.meltPct)}%`, s.melt) + b("cost", `Your cost + ${pctText(p.costPct)}%`, s.cost);
+  const html = b("book", `${bookName()} × ${pctText(p.bookPct)}%`, s.book) + b("melt", `Melt + ${pctText(p.meltPct)}%`, s.melt) + b("cost", `Your cost + ${pctText(p.costPct)}%`, s.cost);
   return html ? `<div class="btn-row" style="flex-wrap:wrap">${html}</div><div class="small muted">The highlighted one is suggested: the highest, so never below your cost + ${pctText(p.costPct)}%.</div>` : "";
 }
 
 // In the coin form, under the asking price box.
 function askHelp(d) {
   const html = askButtons(d, "");
-  return `<div class="hint">${html ? "Suggested asking price (tap one to use it):" : "No Red Book value, metal content or cost to suggest a price from. Type your own."}</div>${html}`;
+  return `<div class="hint">${html ? "Suggested asking price (tap one to use it):" : "No " + bookName() + " value, metal content or cost to suggest a price from. Type your own."}</div>${html}`;
 }
 
 // On a coin's page: the asking price and the suggestions. Tap-to-use only while the coin is For sale
@@ -48,7 +48,7 @@ function askCard(c) {
   if (c.status !== "owned" || isInherited(c)) return "";
   const forSale = stageOf(c) === "forsale", ask = num(c.ask), s = suggestAsk(c), p = pricingRates();
   if (s.top == null && ask == null) return "";
-  const plain = [s.book != null ? `Red Book × ${pctText(p.bookPct)}% = ${money(s.book)}` : "", s.melt != null ? `Melt + ${pctText(p.meltPct)}% = ${money(s.melt)}` : "", s.cost != null ? `Your cost + ${pctText(p.costPct)}% = ${money(s.cost)}` : ""].filter(Boolean).join(" · ");
+  const plain = [s.book != null ? `${bookName()} × ${pctText(p.bookPct)}% = ${money(s.book)}` : "", s.melt != null ? `Melt + ${pctText(p.meltPct)}% = ${money(s.melt)}` : "", s.cost != null ? `Your cost + ${pctText(p.costPct)}% = ${money(s.cost)}` : ""].filter(Boolean).join(" · ");
   return `<div class="card"><div class="rowline"><b>Asking price</b><span class="muted small">${forSale ? (ask == null ? "Not set" : money(ask)) : "Not for sale"}</span></div>
     <div class="small muted">Suggested${qtyOf(c) > 1 ? " for all ×" + qtyOf(c) : ""}${forSale ? ". Tap one to use it." : " if you list it: " + plain}</div>${forSale ? askButtons(c, c.id) : ""}</div>`;
 }
@@ -62,7 +62,7 @@ function pricingOptionsHtml() {
   const inp = (k, label) => `<label class="f"><span>${label}</span><input type="number" inputmode="decimal" step="1" min="0" data-price="${k}" value="${esc(p[k])}"></label>`;
   return `<details class="more"><summary>Asking price rules</summary>
     <div class="hint">Used for the suggested asking prices. You can always type your own.</div>
-    <div class="grid2">${inp("bookPct", "Red Book price × this %")}${inp("meltPct", "Melt value + this %")}${inp("costPct", "Your cost + this % (the lowest you'd go)")}</div>
+    <div class="grid2">${inp("bookPct", bookName() + " price × this %")}${inp("meltPct", "Melt value + this %")}${inp("costPct", "Your cost + this % (the lowest you'd go)")}</div>
     <div class="btn-row"><button class="btn" data-act="priceReset">Put back 90%, 10% and 10%</button></div></details>`;
 }
 document.addEventListener("input", (e) => {
