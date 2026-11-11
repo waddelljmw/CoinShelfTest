@@ -20,7 +20,8 @@ jobs:
       - name: Download test browser (skipped when cached)
         if: steps.pw-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium
-      - name: Browser system packages (retries if the network blips)
+      - name: Browser system packages (retries; skipped if the mirror is down)
+        continue-on-error: true
         run: |
           n=0
           until npx playwright install-deps chromium; do
