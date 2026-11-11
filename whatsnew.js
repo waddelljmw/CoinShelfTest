@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.60.0": [
+    "New coin types on Add coin: half cent, large cent, two-cent, three-cent (silver and nickel), half dimes, Capped Bust and Seated Liberty coins, twenty-cent, Trade dollar, Westward Journey nickels (2004–05) and American Innovation dollars. They have no Red Book values yet. For anything else, pick Medal, token or foreign coin.",
+  ],
   "0.59.0": [
     "Red Book prices are now kept on this phone with your coins, and go into your backups. Options, Coin Value shows the line \"Red Book prices on this phone\". Your values stay the same.",
   ],
