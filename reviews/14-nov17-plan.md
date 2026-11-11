@@ -61,7 +61,9 @@ As blueprint step 0, unchanged: `tests/fixtures/backup-v058.json` + `tests/oldba
 - **Costly to change later?** No. Dates and variety names are coin facts the app already keeps for 34 types.
 
 ## 11.2 A1: copy prices to the phone (M, Sonnet; asks you before merging)
-**Saved:** one new record, key `pricebook`: `{ kind: "pricebook", format: 1, edition, series, mintage, savedAt }`.
+**Saved:** one new record, key `pricebook`: `{ kind: "pricebook", format: 1, source, edition, series, mintage, savedAt }`.
+
+**Source name (added 2026-11-10, IDEAS 79b):** `source` is "Red Book" today. Every place that prints "Red Book" for a value reads it from the record (one helper), so another value source later needs no rewording. The private price file carries `source` too. **Costly to change later?** Yes if skipped: the words are hard-wired in many places.
 
 Builder notes:
 - Shipped files rename their object to `SHIPPED_PRICE_BOOK`. `app.js` gets `let PRICE_BOOK` (empty shape) and `loadPriceBook()`, called at the end of every start path and inside the `db` sync callback.
@@ -71,7 +73,7 @@ Builder notes:
 - **Restore rule:** in `mergeRestored`, for `pricebook` keep the one with the later `savedAt`; if the backup has none, keep the phone's.
 - Check that nothing listing coins or albums trips over the new record (lists already go by key or `kind`). 🟥
 - **Options › Red Book values:** "Red Book prices on this phone: 2026 · 13 series · saved Nov 18", or "No Red Book prices on this phone."
-- **Private copy:** Claude builds `coin-cabinet-prices-2026.json` (`{ kind: "coin-cabinet-prices", format: 1, edition, series, mintage }`) and sends it in the chat. Never committed.
+- **Private copy:** Claude builds `coin-cabinet-prices-2026.json` (`{ kind: "coin-cabinet-prices", format: 1, source, edition, series, mintage }`) and sends it in the chat. Never committed.
 - 🟥 The Claude test copy may refuse a 67 KB record. If so it just shows no Red Book values there; don't spend time on it.
 
 **Tests:** fresh start saves a record equal to the shipped one · block both shipped files and reload: a known coin shows the same value · a record that differs from the shipped one wins · demo shows none · the snapshot file holds no price table and a coin in it shows the same value · restore keeps the newer one · 11.0 test still green.
