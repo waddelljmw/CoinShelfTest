@@ -150,13 +150,16 @@ function freeSpotOnReturn(c) {
 // --- pages ---
 const boxStats = (b) => { const n = boxCoins(b).length; return { filled: n, total: hasSpots(b) ? totalSlots(b) : n }; };
 // One place for a box's number: coins (or filled/total spots), then albums kept in it as their own number (never added to the coin count).
-const boxCountText = (b) => { const st = boxStats(b), na = keptAlbums(b).length + keptPockets(b).length; return (hasSpots(b) ? st.filled + "/" + st.total : st.filled + " item" + (st.filled === 1 ? "" : "s")) + (na ? " · " + na + " album" + (na === 1 ? "" : "s") : ""); };
+const boxAlbumCount = (b) => keptAlbums(b).length + keptPockets(b).length;
+const boxCountText = (b) => { const st = boxStats(b), na = boxAlbumCount(b); return (hasSpots(b) ? st.filled + "/" + st.total : st.filled + " item" + (st.filled === 1 ? "" : "s")) + (na ? " · " + na + " album" + (na === 1 ? "" : "s") : ""); };
+// Storage card: the albums number sits on its own line under the coin count.
+const boxCountHtml = (b) => { const na = boxAlbumCount(b), t = boxCountText(b); return na ? esc(t.split(" · ")[0]) + `<span style="display:block;text-align:right;white-space:nowrap">${na} album${na === 1 ? "" : "s"}</span>` : esc(t); };
 const boxKindText = (b) => (b.type === "pocket" ? "Pocket album" : b.type === "dealer" ? "Dealer case" : b.type === "display" ? "Display box" : "Storage box");
 const boxLookText = (b) => (b.type === "pocket" ? "Spine " + (b.color && b.color !== "clear" ? b.color : "black") : b.look === "plastic" ? (b.color === "clear" ? "Clear plastic" : "Plastic · " + b.color) : b.look === "cardboard" ? "Cardboard" : b.look === "wood" ? "Wooden" : "Black");
 function boxCard(b) {
   const st = boxStats(b);
   return `<button class="card" style="display:block;width:100%;text-align:left" data-go="box-${esc(b.id)}">
-    <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(b.name)}</b><span class="num">${boxCountText(b)}</span></div>
+    <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(b.name)}</b><span class="num" style="text-align:right">${boxCountHtml(b)}</span></div>
     <div class="small muted">${hasSpots(b) ? (trayCount(b) > 1 ? trayCount(b) + " trays · " : b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow + " slots · ") : ""}${esc(boxLookText(b))}</div>${hasSpots(b) ? `<div class="bar"><i style="width:${st.total ? (st.filled / st.total) * 100 : 0}%"></i></div>` : ""}</button>`;
 }
 function viewBoxes() {
