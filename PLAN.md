@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 56, **Fable**, step 11.2 from `reviews/14-nov17-plan.md`: copy prices to the phone; PR gets `waits for review`, no merge):** 11.0 (old-backup test, `tests/oldbackup.js`) and 11.1 (dates split from prices, `catalog/bookfacts.js`, `tests/nobook.js`) are merged. Order changed 2026-11-11: the first half of the Red Book price move runs this week so the forced few-day wait on his phone starts now. Follow the **This week** steps below in order. Blueprint: `reviews/11` (6 decisions at its end). Reviews 12, 13, 14 done; review 13's extra fixes are not scheduled (planning day picks). App is v0.58.10. Still open from `reviews/08`: #10 (Nov 17).
+**Next session starts here (session 58, **Sonnet**, Step 10.1: new coin types + "Other coin"):** 11.0, 11.1 and 11.2 are merged (PR #190, reviewed in session 57: two fixes, a half price list is never saved; view-only file wording). **His 5-minute phone steps from `reviews/14` are open:** Update now, Options line, back up, Drive file, open the app once on Jinny's phone; 11.3 (week of Nov 17) may not start before he confirms them. Follow the **This week** steps below in order. Blueprint: `reviews/11` (6 decisions at its end). Reviews 12, 13, 14 done; review 13's extra fixes are not scheduled (planning day picks). App is v0.59.0. Still open from `reviews/08`: #10 (Nov 17).
 
 ## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
@@ -12,8 +12,8 @@ He works when he can (baby); days are a guide only. Deadlines: Fable + reset by 
 | 1 | Wed | **Fable** | Session 54: saved-data blueprint (no building) | ✅ `reviews/11` |
 | 1b | by Sun | **Fable** | Optional, only if Fable is left: (a) ✅ layout + wording audit 66/67 (`reviews/12-layout-wording-audit.md`), (b) ✅ full-app review with the lenses (`reviews/13-full-app-review.md`), (c) ✅ detailed Nov 17 plan (`reviews/14-nov17-plan.md`). New chat each. | ✅ |
 | 2 | Wed | Sonnet | Session 55: **11.0 + 11.1** from `reviews/14` (old-backup safety test; dates split from prices). Two PRs, merge on green. Nothing he can see changes. | ✅ |
-| 3 | Wed–Thu | **Fable A** | Session 56: **11.2** copy prices to the phone (one new saved record). PR gets `waits for review`, no merge. Sends him the private price file. | |
-| 4 | next chat | **Fable B** | Session 57: review the 11.2 PR (reproduced problems only), fix, his OK, merge. Then he does the 5-minute phone steps in `reviews/14` (Update now, Options line, back up, Drive file, open the app once on Jinny's phone). | |
+| 3 | Wed–Thu | **Fable A** | Session 56: **11.2** copy prices to the phone (one new saved record). PR gets `waits for review`, no merge. Sends him the private price file. | ✅ |
+| 4 | next chat | **Fable B** | Session 57: review the 11.2 PR (reproduced problems only), fix, his OK, merge. Then he does the 5-minute phone steps in `reviews/14` (Update now, Options line, back up, Drive file, open the app once on Jinny's phone). | ✅ |
 | 5 | Thu–Fri | Sonnet | Session 58: Step 10.1 (new coin types + "Other coin") | |
 | 6 | by Sun, optional | **Fable C** | Only if weekly is under ~55% and Fable is left: check 10.1's dates and mints against sources, light look at its code. | |
 | 7 | Fri+ | Sonnet | Session 59: Step 10.2 (Back button). First thing to slide to next week if weekly nears 70%. | |
@@ -111,8 +111,8 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 53 | Opus | Planning day (Tue 2026-11-10): bug review, sort notes + IDEAS into the week's top 3 | ✅ minutes `reviews/10` |
 | 54 | **Fable** | Saved-data blueprint (no building), see This week | ✅ `reviews/11-saved-data-blueprint.md` |
 | 55 | Sonnet | 11.0 + 11.1 (`reviews/14`): old-backup test, dates split from prices | ✅ |
-| 56 | **Fable** | 11.2 copy prices to the phone. **Merge waits for session 57 review** | |
-| 57 | **Fable** | Review 11.2, fix, merge (ask him first) | |
+| 56 | **Fable** | 11.2 copy prices to the phone. **Merge waits for session 57 review** | ✅ |
+| 57 | **Fable** | Review 11.2, fix, merge (ask him first) | ✅ |
 | 58 | Sonnet | Step 10.1: new coin types + "Other coin" | |
 | 59 | Sonnet | Step 10.2: Back button (restore settings and box totals already done) | |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
