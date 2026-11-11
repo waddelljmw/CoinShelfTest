@@ -12,6 +12,10 @@ const ID_CODES = {
   "gold-eagle-quarter": "G4", "gold-eagle-tenth": "GT", "gold-buffalo": "GB", "platinum-eagle": "PE", "gold-dollar": "GD",
   "liberty-2-5": "L2", "indian-2-5": "I2", "liberty-5": "L5", "indian-5": "I5", "liberty-10": "LX", "indian-10": "IX",
   "liberty-20": "LT", "saint-gaudens-20": "SG",
+  "half-cent": "HC", "large-cent": "LG", "two-cent": "2C", "three-cent-silver": "3S", "three-cent-nickel": "3N",
+  "half-dime-early": "HE", "half-dime-capped": "HK", "half-dime-seated": "HS", "capped-bust-dime": "CM", "seated-dime": "XD",
+  "twenty-cent": "TW", "capped-bust-quarter": "CQ", "seated-quarter": "XQ", "capped-bust-half": "CF", "seated-half": "XH",
+  "seated-dollar": "XS", "trade-dollar": "TD", "jefferson-westward": "WJ", "innovation-dollar": "AI",
 };
 // Things that are not a catalog coin type.
 const ID_CODES_OTHER = { bar: "BR", round: "RD", silverItem: "OS", set: "ST", roll: "RL", medal: "MT", foreign: "FC", coin: "OC" };

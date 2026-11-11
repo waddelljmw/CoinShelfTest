@@ -15,6 +15,16 @@ const CU = { cent: 0.09499, nickel: 0.12057, flyingEagle: 0.13213 };
 // family = the filter chip a type belongs to.
 // mints = the mint marks the type was struck at (P means no mint mark on most older coins).
 const COIN_TYPES = [
+  // Early copper and small odd coins (dates and mints checked against dealer and Mint pages, Nov 2026; no Red Book values yet)
+  { id: "half-cent", name: "Half Cent", family: "Half cent", denom: "0.5C", face: 0.005, start: 1793, end: 1857, mints: ["P"], metal: "Copper", melt: "copper", oz: 0,
+    note: "Made 1793–1797, 1800–1808, 1809–1836 and 1840–1857, all at Philadelphia. Its weight changed over the years, so melt isn't figured here." },
+  { id: "large-cent", name: "Large Cent", family: "Large cent", denom: "1C", face: 0.01, start: 1793, end: 1857, mints: ["P"], metal: "Copper", melt: "copper", oz: 0,
+    note: "Flowing Hair, Liberty Cap, Draped Bust, Classic Head, Coronet and Braided Hair designs, all Philadelphia. Its weight changed over the years, so melt isn't figured here." },
+  { id: "two-cent", name: "Two-Cent Piece", family: "Two-cent piece", denom: "2C", face: 0.02, start: 1864, end: 1873, mints: ["P"], metal: "Copper", melt: "copper", oz: 0,
+    note: "The first coin with IN GOD WE TRUST. 1873 was made only as a collector proof." },
+  { id: "three-cent-silver", name: "Three-Cent Silver (trime)", family: "Three-cent piece", denom: "3C", face: 0.03, start: 1851, end: 1873, mints: ["P", "O"], metal: "Silver", melt: "silver", oz: 0,
+    note: "The 1851 was also struck at New Orleans (O)." + " Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
+  { id: "three-cent-nickel", name: "Three-Cent Nickel", family: "Three-cent piece", denom: "3C", face: 0.03, start: 1865, end: 1889, mints: ["P"], metal: "Copper-nickel", melt: "copper", oz: 0.04678 },
   // Cents
   { id: "flying-eagle-cent", name: "Flying Eagle Cent", family: "Flying Eagle cent", denom: "1C", face: 0.01, start: 1856, end: 1858, mints: ["P"], metal: "Copper-nickel", melt: "copper", oz: CU.flyingEagle },
   { id: "indian-cent", name: "Indian Head Cent", family: "Indian Head cent", denom: "1C", face: 0.01, start: 1859, end: 1909, mints: ["P", "S"], metal: "Copper", melt: "copper", oz: CU.cent },
@@ -32,13 +42,25 @@ const COIN_TYPES = [
   { id: "liberty-nickel", name: "Liberty Head V Nickel", family: "Liberty nickel", denom: "5C", face: 0.05, start: 1883, end: 1912, mints: ["P", "D", "S"], metal: "Copper-nickel", melt: "copper", oz: CU.nickel },
   { id: "buffalo-nickel", name: "Buffalo Nickel", family: "Buffalo nickel", denom: "5C", face: 0.05, start: 1913, end: 1938, mints: ["P", "D", "S"], metal: "Copper-nickel", melt: "copper", oz: CU.nickel },
   { id: "jefferson-nickel", name: "Jefferson Nickel", family: "Jefferson nickel", denom: "5C", face: 0.05, start: 1938, end: 2026, mints: ["P", "D", "S"], metal: "Copper-nickel", melt: "copper", oz: CU.nickel },
+  { id: "jefferson-westward", name: "Jefferson Westward Journey Nickel (2004–05)", family: "Jefferson nickel", denom: "5C", face: 0.05, start: 2004, end: 2005, mints: ["P", "D", "S"], metal: "Copper-nickel", melt: "copper", oz: CU.nickel,
+    note: "Four designs: Peace Medal and Keelboat (2004), Bison and Ocean in View (2005). Philadelphia and Denver for circulation; S coins are proofs." },
   { id: "jefferson-war-nickel", name: "Jefferson War Nickel (35% silver)", family: "Jefferson nickel", denom: "5C", face: 0.05, start: 1942, end: 1945, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.warNickel, note: "War nickels have a large mint mark above Monticello, including P." },
+  // Half dimes
+  { id: "half-dime-early", name: "Half Dime (Flowing Hair / Draped Bust)", family: "Half dime", denom: "5C", face: 0.05, start: 1794, end: 1805, mints: ["P"], metal: "Silver", melt: "silver", oz: 0, note: "Made 1794–1795 and 1796–1805." + " Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
+  { id: "half-dime-capped", name: "Capped Bust Half Dime", family: "Half dime", denom: "5C", face: 0.05, start: 1829, end: 1837, mints: ["P"], metal: "Silver", melt: "silver", oz: 0, note: "Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
+  { id: "half-dime-seated", name: "Seated Liberty Half Dime", family: "Half dime", denom: "5C", face: 0.05, start: 1837, end: 1873, mints: ["P", "O", "S"], metal: "Silver", melt: "silver", oz: 0, note: "Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
   // Dimes
+  { id: "capped-bust-dime", name: "Capped Bust Dime", family: "Capped Bust dime", denom: "10C", face: 0.10, start: 1809, end: 1837, mints: ["P"], metal: "Silver", melt: "silver", oz: 0, note: "Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
+  { id: "seated-dime", name: "Seated Liberty Dime", family: "Seated Liberty dime", denom: "10C", face: 0.10, start: 1837, end: 1891, mints: ["P", "O", "S", "CC"], metal: "Silver", melt: "silver", oz: 0, note: "Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
   { id: "barber-dime", name: "Barber Dime", family: "Barber dime", denom: "10C", face: 0.10, start: 1892, end: 1916, mints: ["P", "O", "S", "D"], metal: "Silver", melt: "silver", oz: AG.dime },
   { id: "mercury-dime", name: "Mercury Dime", family: "Mercury dime", denom: "10C", face: 0.10, start: 1916, end: 1945, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.dime },
   { id: "roosevelt-silver", name: "Roosevelt Dime (silver)", family: "Roosevelt dime", denom: "10C", face: 0.10, start: 1946, end: 1964, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.dime },
   { id: "roosevelt-clad", name: "Roosevelt Dime (clad)", family: "Roosevelt dime", denom: "10C", face: 0.10, start: 1965, end: 2026, mints: ["P", "D", "S", "W"], metal: "Clad", melt: null, oz: 0 },
   // Quarters
+  { id: "twenty-cent", name: "Twenty-Cent Piece", family: "Twenty-cent piece", denom: "20C", face: 0.20, start: 1875, end: 1878, mints: ["P", "CC", "S"], metal: "Silver", melt: "silver", oz: 0.14468,
+    note: "Made for circulation only in 1875 and 1876; 1877 and 1878 are proofs." },
+  { id: "capped-bust-quarter", name: "Capped Bust Quarter", family: "Capped Bust quarter", denom: "25C", face: 0.25, start: 1815, end: 1838, mints: ["P"], metal: "Silver", melt: "silver", oz: 0, note: "Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
+  { id: "seated-quarter", name: "Seated Liberty Quarter", family: "Seated Liberty quarter", denom: "25C", face: 0.25, start: 1838, end: 1891, mints: ["P", "O", "S", "CC"], metal: "Silver", melt: "silver", oz: 0, note: "Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
   { id: "barber-quarter", name: "Barber Quarter", family: "Barber quarter", denom: "25C", face: 0.25, start: 1892, end: 1916, mints: ["P", "O", "S", "D"], metal: "Silver", melt: "silver", oz: AG.quarter },
   { id: "standing-liberty-quarter", name: "Standing Liberty Quarter", family: "Standing Liberty quarter", denom: "25C", face: 0.25, start: 1916, end: 1930, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.quarter },
   { id: "washington-silver", name: "Washington Quarter (silver)", family: "Washington quarter", denom: "25C", face: 0.25, start: 1932, end: 1964, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.quarter },
@@ -47,6 +69,8 @@ const COIN_TYPES = [
   { id: "atb-quarter", name: "America the Beautiful Quarter", family: "Washington quarter", denom: "25C", face: 0.25, start: 2010, end: 2021, mints: ["P", "D", "S", "W"], metal: "Clad", melt: null, oz: 0 },
   { id: "women-quarter", name: "American Women Quarter", family: "Washington quarter", denom: "25C", face: 0.25, start: 2022, end: 2025, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0 },
   // Halves
+  { id: "capped-bust-half", name: "Capped Bust Half Dollar", family: "Capped Bust half", denom: "50C", face: 0.50, start: 1807, end: 1839, mints: ["P", "O"], metal: "Silver", melt: "silver", oz: 0, note: "The O mint mark appears only on 1838 and 1839. Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
+  { id: "seated-half", name: "Seated Liberty Half Dollar", family: "Seated Liberty half", denom: "50C", face: 0.50, start: 1839, end: 1891, mints: ["P", "O", "S", "CC"], metal: "Silver", melt: "silver", oz: 0, note: "Its silver weight changed over the years, so melt isn't figured here: type the weight in grams and purity to get it." },
   { id: "barber-half", name: "Barber Half Dollar", family: "Barber half", denom: "50C", face: 0.50, start: 1892, end: 1915, mints: ["P", "O", "S", "D"], metal: "Silver", melt: "silver", oz: AG.half },
   { id: "walking-liberty-half", name: "Walking Liberty Half Dollar", family: "Walking Liberty half", denom: "50C", face: 0.50, start: 1916, end: 1947, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.half },
   { id: "franklin-half", name: "Franklin Half Dollar", family: "Franklin half", denom: "50C", face: 0.50, start: 1948, end: 1963, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.half },
@@ -54,6 +78,9 @@ const COIN_TYPES = [
   { id: "kennedy-40", name: "Kennedy Half Dollar (40% silver)", family: "Kennedy half", denom: "50C", face: 0.50, start: 1965, end: 1970, mints: ["P", "D"], metal: "Silver", melt: "silver", oz: AG.half40 },
   { id: "kennedy-clad", name: "Kennedy Half Dollar (clad)", family: "Kennedy half", denom: "50C", face: 0.50, start: 1971, end: 2026, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0 },
   // Dollars
+  { id: "seated-dollar", name: "Seated Liberty Dollar", family: "Seated Liberty dollar", denom: "$1", face: 1, start: 1840, end: 1873, mints: ["P", "O", "S", "CC"], metal: "Silver", melt: "silver", oz: AG.dollar },
+  { id: "trade-dollar", name: "Trade Dollar", family: "Trade dollar", denom: "$1", face: 1, start: 1873, end: 1885, mints: ["P", "CC", "S"], metal: "Silver", melt: "silver", oz: 0.7874,
+    note: "Business strikes 1873–1878; 1879–1885 are proofs only. Weighs 420 grains, .900 silver." },
   { id: "morgan-dollar", name: "Morgan Dollar", family: "Morgan dollar", denom: "$1", face: 1, start: 1878, end: 1921, mints: ["P", "CC", "O", "S", "D"], metal: "Silver", melt: "silver", oz: AG.dollar },
   { id: "peace-dollar", name: "Peace Dollar", family: "Peace dollar", denom: "$1", face: 1, start: 1921, end: 1935, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.dollar },
   { id: "morgan-modern", proofMints: ["S", "P"], name: "Morgan Dollar (2021 on, .999 silver)", family: "Morgan dollar", denom: "$1", face: 1, start: 2021, end: 2026, mints: ["P", "D", "S", "O", "CC", "W"], metal: "Silver", melt: "silver", oz: 0.858,
@@ -65,6 +92,8 @@ const COIN_TYPES = [
   { id: "sba-dollar", name: "Susan B. Anthony Dollar", family: "Small dollar", denom: "$1", face: 1, start: 1979, end: 1999, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0 },
   { id: "sacagawea-dollar", name: "Sacagawea / Native American Dollar", family: "Small dollar", denom: "$1", face: 1, start: 2000, end: 2026, mints: ["P", "D", "S"], metal: "Other", melt: null, oz: 0 },
   { id: "presidential-dollar", name: "Presidential Dollar", family: "Small dollar", denom: "$1", face: 1, start: 2007, end: 2020, mints: ["P", "D", "S"], metal: "Other", melt: null, oz: 0 },
+  { id: "innovation-dollar", name: "American Innovation Dollar", family: "Small dollar", denom: "$1", face: 1, start: 2018, end: 2026, mints: ["P", "D", "S"], metal: "Other", melt: null, oz: 0,
+    note: "An introductory coin in 2018, then new designs each year. P and D are Mint-sold uncirculated coins; S coins are proofs and reverse proofs. No 2022 coins turned up on the lists checked." },
   { id: "silver-commem-dollar", proofMints: ["P", "S", "W"], name: "Modern Commemorative Silver Dollar", family: "Commemorative", denom: "$1", face: 1, start: 1983, end: 2026, mints: ["P", "D", "S", "W"], metal: "Silver", melt: "silver", oz: AG.dollar },
   // Bullion
   { id: "silver-eagle", proofMints: ["P", "S", "W"], name: "American Silver Eagle", family: "American Silver Eagle", denom: "$1", face: 1, start: 1986, end: 2026, mints: ["P", "S", "W"], metal: "Silver", melt: "silver", oz: 1.0 },

@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 58, **Sonnet**, Step 10.1: new coin types + "Other coin"):** 11.0, 11.1 and 11.2 are merged (PR #190, reviewed in session 57: two fixes, a half price list is never saved; view-only file wording). **His 5-minute phone steps from `reviews/14` are open:** Update now, Options line, back up, Drive file, open the app once on Jinny's phone; 11.3 (week of Nov 17) may not start before he confirms them. Follow the **This week** steps below in order. Blueprint: `reviews/11` (6 decisions at its end). Reviews 12, 13, 14 done; review 13's extra fixes are not scheduled (planning day picks). App is v0.59.0. Still open from `reviews/08`: #10 (Nov 17).
+**Next session starts here (session 59, **Sonnet**, Step 10.2: Back button):** 10.1 is merged (v0.60.0: 19 new coin types; "Other coin" already existed as "Medal, token or foreign coin", no country field added). 11.0, 11.1 and 11.2 are merged (PR #190, reviewed in session 57: two fixes, a half price list is never saved; view-only file wording). **His 5-minute phone steps from `reviews/14` are open:** Update now, Options line, back up, Drive file, open the app once on Jinny's phone; 11.3 (week of Nov 17) may not start before he confirms them. Follow the **This week** steps below in order. Blueprint: `reviews/11` (6 decisions at its end). Reviews 12, 13, 14 done; review 13's extra fixes are not scheduled (planning day picks). App is v0.60.0. Still open from `reviews/08`: #10 (Nov 17).
 
 ## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
@@ -14,7 +14,7 @@ He works when he can (baby); days are a guide only. Deadlines: Fable + reset by 
 | 2 | Wed | Sonnet | Session 55: **11.0 + 11.1** from `reviews/14` (old-backup safety test; dates split from prices). Two PRs, merge on green. Nothing he can see changes. | ✅ |
 | 3 | Wed–Thu | **Fable A** | Session 56: **11.2** copy prices to the phone (one new saved record). PR gets `waits for review`, no merge. Sends him the private price file. | ✅ |
 | 4 | next chat | **Fable B** | Session 57: review the 11.2 PR (reproduced problems only), fix, his OK, merge. Then he does the 5-minute phone steps in `reviews/14` (Update now, Options line, back up, Drive file, open the app once on Jinny's phone). | ✅ |
-| 5 | Thu–Fri | Sonnet | Session 58: Step 10.1 (new coin types + "Other coin") | |
+| 5 | Thu–Fri | Sonnet | Session 58: Step 10.1 (new coin types + "Other coin") | ✅ v0.60.0 |
 | 6 | by Sun, optional | **Fable C** | Only if weekly is under ~55% and Fable is left: check 10.1's dates and mints against sources, light look at its code. | |
 | 7 | Fri+ | Sonnet | Session 59: Step 10.2 (Back button). First thing to slide to next week if weekly nears 70%. | |
 | 8 | Fri–Sun | you | Try it in `?demo`, then enter coins | |
@@ -23,8 +23,8 @@ He works when he can (baby); days are a guide only. Deadlines: Fable + reset by 
 
 ### Step 10.1 (session 58, Sonnet): new coin types + "Other coin" (M)
 Options 1 + 2 from `reviews/09-tuesday-pack-2026-11-07.md`; **no change to how coins are saved** (option 3, "date as written", is not built).
-- [ ] Add the missing types (half cents, large cents, 2-cent, 3-cent, half dimes, Capped Bust, Seated Liberty, Trade dollar, 20-cent, 2004-05 Westward Journey nickels, 2018+ American Innovation dollars). Dates and mints looked up, never guessed; no Red Book values unless he sends pages.
-- [ ] Built-in "Other coin" type (like "Other set"): real year, typed name + country, no Red Book value.
+- [x] ✅ Add the missing types (half cents, large cents, 2-cent, 3-cent, half dimes, Capped Bust, Seated Liberty, Trade dollar, 20-cent, 2004-05 Westward Journey nickels, 2018+ American Innovation dollars). Dates and mints looked up, never guessed; no Red Book values unless he sends pages.
+- [x] ✅ (already there as "Medal, token or foreign coin": typed name, kind, face value, year, no Red Book value; a separate country box not added, name carries it) Built-in "Other coin" type (like "Other set"): real year, typed name + country, no Red Book value.
 - **His checks:** finds "Trade dollar" in the type list · adds an Other coin (e.g. a Canadian coin) and it saves with its name and no value · his old coins look the same.
 
 ### Step 10.2 (session 59, Sonnet): Back button + restore + box totals (M + S + S)
@@ -113,7 +113,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 55 | Sonnet | 11.0 + 11.1 (`reviews/14`): old-backup test, dates split from prices | ✅ |
 | 56 | **Fable** | 11.2 copy prices to the phone. **Merge waits for session 57 review** | ✅ |
 | 57 | **Fable** | Review 11.2, fix, merge (ask him first) | ✅ |
-| 58 | Sonnet | Step 10.1: new coin types + "Other coin" | |
+| 58 | Sonnet | Step 10.1: new coin types + "Other coin" | ✅ |
 | 59 | Sonnet | Step 10.2: Back button (restore settings and box totals already done) | |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
