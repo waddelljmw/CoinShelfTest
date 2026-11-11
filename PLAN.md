@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 55, Sonnet, Step 10.1: new coin types + "Other coin"):** blueprint done 2026-11-10 (`reviews/11-saved-data-blueprint.md`; his 6 decisions recorded at its end; C2 Cull grade and G fresh-start repo added). First, if Fable usage is left, the rest of optional step 1b (1b(a) audit done: `reviews/12-layout-wording-audit.md`, fixes not scheduled yet; planning day picks); then step 2 (use the free reset). Planning day done 2026-11-10 (minutes: `reviews/10-planning-minutes-2026-11-10.md`). App is v0.58.6. Follow the **This week** steps below in order, whenever he has time. Still open from `reviews/08`: #2 and #4 (this week), #10 (Nov 17).
+**Next session starts here (session 55, Sonnet, Step 10.1: new coin types + "Other coin"):** blueprint done 2026-11-10 (`reviews/11-saved-data-blueprint.md`; his 6 decisions recorded at its end; C2 Cull grade and G fresh-start repo added). First, if Fable usage is left, the rest of optional step 1b (1b(a) audit done: `reviews/12-layout-wording-audit.md`; 1b(b) full-app review done: `reviews/13-full-app-review.md`, 22 problems, it suggests adding K5 + D1 to session 55 and T5c + D2 + D3 to session 56 if he agrees; other fixes not scheduled yet, planning day picks; only 1b(c) is left); then step 2 (use the free reset). Planning day done 2026-11-10 (minutes: `reviews/10-planning-minutes-2026-11-10.md`). App is v0.58.6. Follow the **This week** steps below in order, whenever he has time. Still open from `reviews/08`: #2 and #4 (this week), #10 (Nov 17).
 
 ## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
@@ -10,7 +10,7 @@ He works when he can (baby); days are a guide only. Deadlines: Fable + reset by 
 | Step | Guide day | Model | What | Done |
 |---|---|---|---|---|
 | 1 | Wed | **Fable** | Session 54: saved-data blueprint (no building) | ✅ `reviews/11` |
-| 1b | by Sun | **Fable** | Optional, only if Fable is left: (a) ✅ layout + wording audit 66/67 (`reviews/12-layout-wording-audit.md`), (b) full-app review with the lenses, (c) detailed Nov 17 plan. New chat each. | |
+| 1b | by Sun | **Fable** | Optional, only if Fable is left: (a) ✅ layout + wording audit 66/67 (`reviews/12-layout-wording-audit.md`), (b) ✅ full-app review with the lenses (`reviews/13-full-app-review.md`), (c) detailed Nov 17 plan. New chat each. | |
 | 2 | after Fable | you | **Use the reset:** Settings > Usage > Limit resets > "Reset for free" | |
 | 3 | Thu | Sonnet | Session 55: Step 10.1 (new coin types + "Other coin") | |
 | 4 | Fri | Sonnet | Session 56: Step 10.2 (Back button, restore settings, box totals) | |
