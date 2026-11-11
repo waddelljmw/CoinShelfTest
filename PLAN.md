@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 55, Sonnet, Step 10.1: new coin types + "Other coin"):** blueprint done 2026-11-10 (`reviews/11-saved-data-blueprint.md`; his 6 decisions recorded at its end; C2 Cull grade and G fresh-start repo added). First, if Fable usage is left, the rest of optional step 1b (1b(a) audit done: `reviews/12-layout-wording-audit.md`; 1b(b) full-app review done: `reviews/13-full-app-review.md`, 22 problems, it suggests adding K5 + D1 to session 55 and T5c + D2 + D3 to session 56 if he agrees; other fixes not scheduled yet, planning day picks; 1b(c) done: `reviews/14-nov17-plan.md`, steps 11.0–11.6 with start prompts, it asks planning day 4 questions and suggests spreading the price move over Nov 17 + Nov 24). Step 1b is finished; **next is step 2 (use the free reset)**, then session 55. Planning day done 2026-11-10 (minutes: `reviews/10-planning-minutes-2026-11-10.md`). App is v0.58.6. Follow the **This week** steps below in order, whenever he has time. Still open from `reviews/08`: #10 (Nov 17). #4 fixed in v0.58.7, #2 fixed in v0.58.9.
+**Next session starts here (session 55, Sonnet, steps 11.0 + 11.1 from `reviews/14-nov17-plan.md`):** order changed 2026-11-11 (his call, with Fable about 48% left): the first half of the Red Book price move is pulled into this week so the forced few-day wait on his phone runs now and the removal can land the week of Nov 17. Fable goes to the one step that changes what is saved (11.2) and its review; Sonnet does the routine builds. Follow the **This week** steps below in order. Blueprint: `reviews/11` (6 decisions at its end). Reviews 12, 13, 14 done; review 13's extra fixes are not scheduled (planning day picks). App is v0.58.9. Still open from `reviews/08`: #10 (Nov 17).
 
 ## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
@@ -11,25 +11,30 @@ He works when he can (baby); days are a guide only. Deadlines: Fable + reset by 
 |---|---|---|---|---|
 | 1 | Wed | **Fable** | Session 54: saved-data blueprint (no building) | ✅ `reviews/11` |
 | 1b | by Sun | **Fable** | Optional, only if Fable is left: (a) ✅ layout + wording audit 66/67 (`reviews/12-layout-wording-audit.md`), (b) ✅ full-app review with the lenses (`reviews/13-full-app-review.md`), (c) ✅ detailed Nov 17 plan (`reviews/14-nov17-plan.md`). New chat each. | ✅ |
-| 2 | after Fable | you | **Use the reset:** Settings > Usage > Limit resets > "Reset for free" | |
-| 3 | Thu | Sonnet | Session 55: Step 10.1 (new coin types + "Other coin") | |
-| 4 | Fri | Sonnet | Session 56: Step 10.2 (Back button, restore settings, box totals) | |
-| 5 | Fri–Sun | you | Try it in `?demo`, then enter coins | |
+| 2 | Wed | Sonnet | Session 55: **11.0 + 11.1** from `reviews/14` (old-backup safety test; dates split from prices). Two PRs, merge on green. Nothing he can see changes. | |
+| 3 | Wed–Thu | **Fable A** | Session 56: **11.2** copy prices to the phone (one new saved record). PR gets `waits for review`, no merge. Sends him the private price file. | |
+| 4 | next chat | **Fable B** | Session 57: review the 11.2 PR (reproduced problems only), fix, his OK, merge. Then he does the 5-minute phone steps in `reviews/14` (Update now, Options line, back up, Drive file, open the app once on Jinny's phone). | |
+| 5 | Thu–Fri | Sonnet | Session 58: Step 10.1 (new coin types + "Other coin") | |
+| 6 | by Sun, optional | **Fable C** | Only if weekly is under ~55% and Fable is left: check 10.1's dates and mints against sources, light look at its code. | |
+| 7 | Fri+ | Sonnet | Session 59: Step 10.2 (Back button). First thing to slide to next week if weekly nears 70%. | |
+| 8 | Fri–Sun | you | Try it in `?demo`, then enter coins | |
 
-### Step 10.1 (session 55, Sonnet): new coin types + "Other coin" (M)
+**Usage notes:** Fable is not free: each Fable point has cost about half a weekly point. Start a Fable chat only with the session meter under ~50% (they have cost 20–50 session points). **Free Fable reset:** he uses it after the last Fable chat (B, or C if it runs) and does **not** use Fable after it; Opus and Sonnet only from then on. So all Fable work comes before the reset. Not pulled forward: 11.3 removal (needs the wait), 11.5, 11.6.
+
+### Step 10.1 (session 58, Sonnet): new coin types + "Other coin" (M)
 Options 1 + 2 from `reviews/09-tuesday-pack-2026-11-07.md`; **no change to how coins are saved** (option 3, "date as written", is not built).
 - [ ] Add the missing types (half cents, large cents, 2-cent, 3-cent, half dimes, Capped Bust, Seated Liberty, Trade dollar, 20-cent, 2004-05 Westward Journey nickels, 2018+ American Innovation dollars). Dates and mints looked up, never guessed; no Red Book values unless he sends pages.
 - [ ] Built-in "Other coin" type (like "Other set"): real year, typed name + country, no Red Book value.
 - **His checks:** finds "Trade dollar" in the type list · adds an Other coin (e.g. a Canadian coin) and it saves with its name and no value · his old coins look the same.
 
-### Step 10.2 (session 56, Sonnet): Back button + restore + box totals (M + S + S)
+### Step 10.2 (session 59, Sonnet): Back button + restore + box totals (M + S + S)
 - [ ] Back button (IDEAS 53): Back on the "i" popup closes only the popup and keeps what was typed; Back after "+" in an album returns to the album; check every popup and form.
 - [x] ✅ Restore keeps settings (bug #2, v0.58.9): a setting counts as "set on this phone" only if it differs from `DEFAULT_SETTINGS`. Test: fresh app, restore, `shelfStyle`/`shelfLayout`/folded sections come back.
 - [x] ✅ Box totals (bug #4, v0.58.7): Storage shows albums as their own number, e.g. "3 coins · 1 album". Write the total as one function that can later walk down nested containers (blueprint B).
 - **His checks:** Back on "i" keeps his typing · restore in a private window keeps Recently added folded · a box with albums shows them on Storage.
 
 ### Next 3 weeks (tentative; minutes have the reasons)
-- **Nov 17:** L = Red Book prices out of public files + host decision; S = 54 (contrast). Detailed plan: `reviews/14-nov17-plan.md` (not yet approved; planning day decides).
+- **Nov 17:** rest of the Red Book price move (11.3 removal, 11.4 review, 11.6 Silver Eagles; 11.0–11.2 pulled into this week on 2026-11-11) + S = 54 (contrast, 11.5). Detailed plan: `reviews/14-nov17-plan.md`; planning day still answers its questions 2 and 4.
 - **Nov 24:** M = 52 (walkthrough) + M = 77 (year first); S = 55, 56. *Likely to change.*
 - **Dec 1:** L = red box nested containers, or 58/60. *Depends on the blueprint.*
 
@@ -105,8 +110,11 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | ✅ reviewed, 3 small fixes (pocket album kept in a box, pocket wording), also fixed automatic tests (PR #157) |
 | 53 | Opus | Planning day (Tue 2026-11-10): bug review, sort notes + IDEAS into the week's top 3 | ✅ minutes `reviews/10` |
 | 54 | **Fable** | Saved-data blueprint (no building), see This week | ✅ `reviews/11-saved-data-blueprint.md` |
-| 55 | Sonnet | Step 10.1: new coin types + "Other coin" | |
-| 56 | Sonnet | Step 10.2: Back button, restore settings, box totals | |
+| 55 | Sonnet | 11.0 + 11.1 (`reviews/14`): old-backup test, dates split from prices | |
+| 56 | **Fable** | 11.2 copy prices to the phone. **Merge waits for session 57 review** | |
+| 57 | **Fable** | Review 11.2, fix, merge (ask him first) | |
+| 58 | Sonnet | Step 10.1: new coin types + "Other coin" | |
+| 59 | Sonnet | Step 10.2: Back button (restore settings and box totals already done) | |
 | later | Sonnet / Opus | Morgan 1878 album spots. **From his photo (2026-11-04), Whitman Classic Morgan 1878–1886 page 1, 3 per row, in order:** 1878 8 Tail Feathers; 1878 7 Over 8 Tail Feathers; 1878 7 Tail Feathers; 1878-CC; 1878-S; 1879; 1879-CC; 1879-O; 1879-S. With your Red Book (order: Kennedy, Lincoln wheat, Mercury, Roosevelt, Walking Liberty, Indian cent, Indian $2.50, Barber, Ike): 2.9, 2.9b, grading guide, missing PCGS links. Phase 6 stays paused. | |
 
 **Rules for a session:**
