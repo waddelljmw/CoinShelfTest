@@ -14,7 +14,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("no albums: plain count", t[0] === "0/6");
   ok("one album: own number, coin count unchanged", t[1] === "0/6 · 1 album" && t[2] === 0);
   await p.evaluate(() => go("boxes")); await p.waitForTimeout(150);
-  ok("Storage page shows it", /0\/6 · 1 album/.test(await p.textContent("body")));
+  ok("Storage page shows it", /0\/6\s+1 album/.test(await p.innerText("body")));
   ok("no page errors", errors.length === 0);
   await b.close();
 })();
