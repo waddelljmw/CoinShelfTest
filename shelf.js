@@ -125,7 +125,7 @@ function shelfStacks(owned) {
 // One box drawn on the shelf, by its look: black, cardboard, plastic (any color, or clear with coins showing). Display boxes are a glass case.
 function boxDrawing(b) {
   const st = boxStats(b), name = esc(b.name || "Box");
-  const cap = (b.type === "dealer" ? "Dealer" : b.type === "display" ? "Display" : "Storage") + " · " + (hasSpots(b) ? st.filled + "/" + st.total : st.filled + " item" + (st.filled === 1 ? "" : "s"));
+  const cap = (b.type === "dealer" ? "Dealer" : b.type === "display" ? "Display" : "Storage") + " · " + boxCountText(b);
   let art;
   if (b.type === "dealer") { // a glass-top show case with green felt
     art = `<span class="sh-case dealer"><span class="sh-case-coins">${["ag", "ag", "au", "cu", "ni"].map((k) => `<i class="sh-coin ${k}"></i>`).join("")}</span><b>${name}</b></span>`;
