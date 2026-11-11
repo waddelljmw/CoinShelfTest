@@ -61,6 +61,14 @@ Nothing here is promised or scheduled. When you mention a new idea, I'll ask if 
 76. **New coin types + "Other coin" (M; this week, Step 10.1).** From `reviews/09-tuesday-pack-2026-11-07.md` (options 1 + 2). Option 3 ("date as written on the coin") changes how coins are saved: ask first, only if needed.
 77. **Add coin: type the year first (M).** Year first narrows the type list; "steel" finds the 1943 cent; design/variety picker as chips right under Year + Mint; "VDB" shown by the name. From the Tuesday pack.
 78. **Catalog check against the Red Book (M).** Missing types (1700s–1800s, gold, commemoratives, tokens, foreign). Needs photos of his Red Book pages; nothing guessed.
+79. **Value sources for a sold app (his idea, 2026-11-10; planning sizes each part).** He wants values already in the app when someone buys it. Shipping PCGS, NGC or Red Book numbers needs a license, so the routes are:
+    - **a) Bring your own values (M).** Load a spreadsheet of your own numbers (e.g. a Greysheet member's): pick file, match columns (type, date, mint, grade, value), preview, confirm; blank template + help (S). Builds on "Load a price file" (`reviews/14`, step 11.3). No pre-filled files, no service's brand name without permission, no pulling from their sites, no sharing price files between users.
+    - **b) Source name (S).** Show "Greysheet" or "My values" instead of hard-wired "Red Book". Written into step 11.2 so it is cheap.
+    - **c) Greysheet (CDN) license (ask first).** They have a paid price API; using it inside his app needs their written OK. Email them for the price of an app license.
+    - **d) NGC permission (ask first).** No official NGC price feed found (2026-11-10), only unofficial scrapers: don't use those. Email NGC.
+    - **e) Own values from real sales (L, later).** Built from sold prices, so the data is his.
+    - **f) Two sources at once (L, wait).** Retail and wholesale side by side; decide which one feeds totals and the insurance report.
+    - Already covered: PCGS sign-in lookup is idea 48 (cheapest way to "values just appear"); melt is built in. The APMEX value pages were checked and aren't usable (no source, broken table).
 
 ## Done (kept so nothing is lost; planning sessions can skip this part)
 Numbers stay the same so PLAN.md references still work.
