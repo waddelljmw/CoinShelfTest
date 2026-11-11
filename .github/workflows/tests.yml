@@ -20,11 +20,8 @@ jobs:
       - name: Download test browser (skipped when cached)
         if: steps.pw-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium
-      - name: Browser system packages (retries; skipped if the mirror is down)
+      - name: Browser system packages (2 min limit; skipped if the mirror is down)
         continue-on-error: true
-        run: |
-          n=0
-          until npx playwright install-deps chromium; do
-            n=$((n+1)); [ $n -ge 3 ] && exit 1; sleep 20
-          done
+        timeout-minutes: 2
+        run: npx playwright install-deps chromium
       - run: node tests/run-all.js
