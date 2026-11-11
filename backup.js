@@ -84,7 +84,9 @@ function mergeRestored(id, body) {
   if (id === "history") return { ...body, ...here, days: { ...(body.days || {}), ...(here.days || {}) } };
   if (id === "settings") {
     const out = { ...body };
-    Object.entries(here).forEach(([k, v]) => { if (v != null && v !== "" && !(Array.isArray(v) && !v.length) && k !== "spot") out[k] = v; });
+    // A setting counts as "set on this device" only if it differs from the default (a brand-new app saves all defaults).
+    const isDefault = (k, v) => k in DEFAULT_SETTINGS && JSON.stringify(v) === JSON.stringify(DEFAULT_SETTINGS[k]);
+    Object.entries(here).forEach(([k, v]) => { if (v != null && v !== "" && !(Array.isArray(v) && !v.length) && k !== "spot" && !isDefault(k, v)) out[k] = v; });
     out.spot = { ...(body.spot || {}) };
     Object.entries(here.spot || {}).forEach(([m, v]) => { if (v != null && v !== "") out.spot[m] = v; });
     const order = [...(here.albumOrder || []), ...(body.albumOrder || [])];
