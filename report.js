@@ -77,7 +77,7 @@ async function thumbDataUrl(photo) {
   } catch (e) { return ""; }
 }
 
-const SOURCE_TEXT = { entered: "Owner's value", book: "Red Book", melt: "Melt", face: "Face value (no metal price)" };
+const SOURCE_TEXT = { entered: "Owner's value", get book() { return bookName(); }, melt: "Melt", face: "Face value (no metal price)" };
 
 async function buildReport(opts) {
   const s = settings();
@@ -168,7 +168,7 @@ ${metalRows ? `<h2>Precious metal content</h2><table><thead><tr><th>Metal</th><t
 <div class="note">
   ${coins.some((c) => missingOf(c).length) ? `<p><b>*Estimate.</b> ${NEED_NOTE}</p>` : ""}
   ${metalsMissingPrice().length ? `<p><b>Warning: totals are low.</b> No ${esc(metalWords(metalsMissingPrice()))} price was entered, so those coins are counted at face value or left out of melt.</p>` : ""}
-  <p><b>How values were set.</b> Each coin uses the owner's own value where one was entered; otherwise the Red Book${ed ? " " + esc(ed) : ""} retail value for its grade; otherwise its melt value. Melt values use spot prices of ${spots ? esc(spots) : "(none entered)"}${s.spotUpdated ? ", as of " + esc(stampText(s.spotUpdated)) : ""}.</p>
+  <p><b>How values were set.</b> Each coin uses the owner's own value where one was entered; otherwise the ${esc(bookName())}${ed ? " " + esc(ed) : ""} retail value for its grade; otherwise its melt value. Melt values use spot prices of ${spots ? esc(spots) : "(none entered)"}${s.spotUpdated ? ", as of " + esc(stampText(s.spotUpdated)) : ""}.</p>
   <p>These values are the owner's estimates for record keeping. This is not a professional appraisal. Some insurers require an appraisal for high-value coins.</p>
 </div>
 </body></html>`;

@@ -111,7 +111,7 @@ function viewHome() {
   ${chips.length ? `<div class="chips home-chips" aria-label="Count in the totals">${chips.join("")}</div>` : ""}
   ${typeof shelfHtml === "function" ? shelfHtml(owned, { total, melt, count }) : ""}
   ${fromBook || leftOut().length || noValue ? `<div class="small muted home-notes">${[
-    fromBook ? `${fromBook} coin${fromBook > 1 ? "s" : ""} valued from the Red Book.` : "",
+    fromBook ? `${fromBook} coin${fromBook > 1 ? "s" : ""} valued from the ${esc(bookName())}.` : "",
     leftOut().length ? `Leaving out: ${leftOut().map(esc).join(", ")}.` : "",
     noValue ? `${noValue} coin${noValue > 1 ? "s" : ""} without a value ${noValue > 1 ? "are" : "is"} counted at melt.` : ""].filter(Boolean).join(" ")}</div>` : ""}
   ${owned.length && owned.every(isInherited) ? "" : `<div class="stats">
@@ -197,7 +197,7 @@ function viewValue() {
     <h2>Most valuable</h2>
     <div class="list">${top.map((c) => coinRow(c) + `<div class="small" style="text-align:right;margin:-4px 4px 6px"><a href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">eBay sold ↗</a></div>`).join("")}</div>
     ${premium.length ? `<h2>Highest premium over melt</h2><div class="card">${premium.map(({ c, p }) => `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="num ${signCls(p)}">${pct(p)} · <a href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">eBay ↗</a></span></div>`).join("")}</div>` : ""}
-    <p class="small muted">Values are the ones you enter, then Red Book values, then melt. Use <b>Check eBay sold</b> on any coin to see recent real sale prices.</p>
+    <p class="small muted">Values are the ones you enter, then ${esc(bookName())} values, then melt. Use <b>Check eBay sold</b> on any coin to see recent real sale prices.</p>
     ${bizCard}${redBookHtml()}`;
 }
 
@@ -348,9 +348,9 @@ function viewCoin(r) {
       ${row("COA", c.coa ? "Included" : null)}
       ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
-      ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, Red Book)" : "Value each (Red Book)") : valueSource(c) === "face" ? (meltKey(c) && num(c.oz) && spotPerOz(meltKey(c)) == null ? "Value each (face value, no " + meltKey(c) + " price yet)" : "Value each (face value)") : "Value" + eachWord(c), money(v))}
+      ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, " + bookName() + ")" : "Value each (" + bookName() + ")") : valueSource(c) === "face" ? (meltKey(c) && num(c.oz) && spotPerOz(meltKey(c)) == null ? "Value each (face value, no " + meltKey(c) + " price yet)" : "Value each (face value)") : "Value" + eachWord(c), money(v))}
       ${noBookNote(c) ? `<div class="small muted" style="margin:2px 0 6px">${esc(noBookNote(c))}</div>` : ""}
-      ${valueSource(c) === "entered" && bookPrice(c) != null ? row("Red Book", money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
+      ${valueSource(c) === "entered" && bookPrice(c) != null ? row(bookName(), money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
       ${row("Melt" + eachWord(c) + wi("melt"), m == null ? (meltKey(c) ? "Enter spot price" : null) : moneyOpen(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
       ${row("Metal", esc([c.metal, num(c.oz) ? num(c.oz) + " oz" + (itemOf(c) === "roll" ? " per coin" : itemOf(c) === "set" ? " in the set" : itemOf(c) === "bullion" ? " pure" : "") : ""].filter(Boolean).join(" · ")))}

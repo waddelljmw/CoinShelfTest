@@ -81,6 +81,8 @@ function mergeRestored(id, body) {
     return body;
   }
   if (!here) return body;
+  // Price list: the later-saved one wins, so an old backup can't put older prices over newer ones.
+  if (id === "pricebook") return body && body.savedAt && String(body.savedAt) > String(here.savedAt || "") ? body : here;
   if (id === "history") return { ...body, ...here, days: { ...(body.days || {}), ...(here.days || {}) } };
   if (id === "settings") {
     const out = { ...body };
