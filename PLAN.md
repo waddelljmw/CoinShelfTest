@@ -19,7 +19,7 @@ He works when he can (baby); days are a guide only. Deadlines: Fable + reset by 
 | 7 | Fri+ | Sonnet | Session 59: Step 10.2 (Back button). First thing to slide to next week if weekly nears 70%. | |
 | 8 | Fri–Sun | you | Try it in `?demo`, then enter coins | |
 
-**Usage notes:** Fable is not free: each Fable point has cost about half a weekly point. Start a Fable chat only with the session meter under ~50% (they have cost 20–50 session points). **Free Fable reset:** use it only if the Fable meter runs out while a Fable step above is still open; otherwise skip it. Not pulled forward: 11.3 removal (needs the wait), 11.5, 11.6.
+**Usage notes:** Fable is not free: each Fable point has cost about half a weekly point. Start a Fable chat only with the session meter under ~50% (they have cost 20–50 session points). **Free Fable reset:** he uses it after the last Fable chat (B, or C if it runs) and does **not** use Fable after it; Opus and Sonnet only from then on. So all Fable work comes before the reset. Not pulled forward: 11.3 removal (needs the wait), 11.5, 11.6.
 
 ### Step 10.1 (session 58, Sonnet): new coin types + "Other coin" (M)
 Options 1 + 2 from `reviews/09-tuesday-pack-2026-11-07.md`; **no change to how coins are saved** (option 3, "date as written", is not built).
