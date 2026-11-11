@@ -83,6 +83,7 @@ function askMetalPrice(c) {
 // The words "Red Book" come from the saved price record (bookName), so another value source needs no rewording.
 function bookStatusLine() {
   const n = Object.keys(PRICE_BOOK.series || {}).length, name = bookName(), rec = store.docs.get("pricebook");
+  if (store.mode === "snapshot") return name + " values in this file were worked out when it was made.";
   if (!n) return "No " + name + " prices on this phone.";
   const head = [PRICE_BOOK.edition, n + " series"].filter(Boolean).join(" · ");
   if (!rec || (store.mode !== "local" && store.mode !== "db")) return name + " prices in this window (not saved): " + head;

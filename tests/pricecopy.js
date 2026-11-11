@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, "..");
 let blockPrices = false;
 const srv = http.createServer((q, r) => {
   const u = q.url.split("?")[0];
-  if (blockPrices && /catalog\/pricebook/.test(u)) { r.statusCode = 404; return r.end(); }
+  if (blockPrices && (blockPrices === "modern" ? /catalog\/pricebook-modern/ : /catalog\/pricebook/).test(u)) { r.statusCode = 404; return r.end(); }
   fs.readFile(path.join(root, u === "/" ? "index.html" : u), (e, d) => { if (e) { r.statusCode = 404; return r.end(); } if (/\.js$/.test(u)) r.setHeader("Content-Type", "text/javascript"); r.end(d); });
 });
 const URL0 = "http://localhost:8791/";
@@ -97,6 +97,7 @@ const record = () => store.docs.get("pricebook");
   ok("view-only coin shows the same value, words and mintage", got.mode === "snapshot" && J(got.v) === J(want));
   ok("view-only coin page shows it", snapPage.includes("Value each (Test Guide)") && snapPage.includes("$222"));
   ok("view-only file has no price list to look in", got.series === 0 && got.changed === null);
+  ok("view-only file doesn't say it has no prices", /values in this file were worked out when it was made/.test(await sp.evaluate(() => bookStatusLine())));
   ok("no page errors in the view-only file", serr.length === 0);
   await sp.close();
 
@@ -111,6 +112,19 @@ const record = () => store.docs.get("pricebook");
   await dp.close();
   await open();
   ok("the demo did not touch the saved price list", (await p.evaluate(probe))[0][0] === 222);
+
+  // 7. Review fix: only one of the two shipped files arrives on the first open. Nothing is saved (a half list would stay forever); the next open saves the whole list.
+  const ctx2 = await b.newContext({ serviceWorkers: "block" });
+  const h = await ctx2.newPage();
+  blockPrices = "modern";
+  await h.goto(URL0); await h.waitForTimeout(500);
+  const half = await h.evaluate(() => ({ saved: !!store.docs.get("pricebook"), inUse: Object.keys(PRICE_BOOK.series).length, morgan: bookPrice({ typeId: "morgan-dollar", year: "1881", mint: "S", grade: "MS-65", gradeMode: "raw" }) }));
+  ok("half a price list is not saved", half.saved === false);
+  ok("the half that arrived still gives values for now", half.inUse > 0 && half.inUse < 13 && half.morgan > 0);
+  blockPrices = false;
+  await h.goto(URL0); await h.waitForTimeout(500);
+  ok("the next open saves the whole list (13 series)", await h.evaluate(() => Object.keys((store.docs.get("pricebook") || { series: {} }).series).length) === 13);
+  await ctx2.close();
 
   ok("no page errors", errors.length === 0);
   console.log("errors", J(errors.concat(serr, derr)));

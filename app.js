@@ -78,7 +78,8 @@ function loadPriceBook(canSave) {
   if (m === "local" || m === "db") {
     if (usableBook(rec)) { PRICE_BOOK = { ...emptyBook(), ...rec }; return; }
     // Copy ONLY when there is no record. Never overwrite one, so a price file loaded later always wins.
-    if (ship && canSave !== false && !store.bookCopyTried) {
+    // ...and only a whole copy: if one of the two shipped files didn't arrive, save nothing and try again next time.
+    if (ship && ship.complete && canSave !== false && !store.bookCopyTried) {
       store.bookCopyTried = true;
       put("pricebook", { kind: "pricebook", format: 1, source: ship.source || "Red Book", edition: ship.edition || "", series: ship.series, mintage: ship.mintage || {}, savedAt: new Date().toISOString() }, true);
       return; // put() sets PRICE_BOOK
