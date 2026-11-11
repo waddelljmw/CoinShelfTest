@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.61.0": [
+    "The Back button now closes just the pop-up you are in (like the ⓘ help) and keeps what you typed. Back after + in an album returns to the album.",
+  ],
   "0.60.0": [
     "New coin types on Add coin: half cent, large cent, two-cent, three-cent (silver and nickel), half dimes, Capped Bust and Seated Liberty coins, twenty-cent, Trade dollar, Westward Journey nickels (2004–05) and American Innovation dollars. They have no Red Book values yet. For anything else, pick Medal, token or foreign coin.",
   ],

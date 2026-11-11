@@ -96,7 +96,8 @@ window.addEventListener("resize", () => guidePlace());
 document.addEventListener("scroll", () => guidePlace(), true); // the form scrolls inside the pop-up
 
 Object.assign(actions, {
-  word: (el) => { const w = WORDS[el.dataset.w]; if (w) openSheet(`<div class="sheet-head"><h2>${esc(w[0])}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div><p>${esc(w[1])}</p>`); },
+  word: (el) => { const w = WORDS[el.dataset.w]; if (w) openSheetOver(`<div class="sheet-head"><h2>${esc(w[0])}</h2><button class="x" data-act="wordBack" aria-label="Close">✕</button></div><p>${esc(w[1])}</p>`); },
+  wordBack: () => { if (sheetLayers.length && sheetMarks) { sheetMarks--; sheetPopping = true; sheetPopCb = () => sheetLayerBack(); history.back(); } else closeSheet(); },
   startCollection: () => openSheet(`<div class="sheet-head"><h2>Add your first coin</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <p><b>How much do you want to see?</b> You can change this later in Options.</p>${levelChips()}
     <p>Want a one-minute walk-through? Small tips appear over the real form. You can skip at any time.</p>

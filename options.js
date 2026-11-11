@@ -202,11 +202,42 @@ function optionsHtml() {
 }
 
 /* ---------- sheets (pop-ups) ---------- */
+// Back button: an open pop-up owns one history entry (more for a pop-up opened over another), so Back closes
+// only the top pop-up and never leaves the page. Closing any other way removes those entries again.
+let sheetMarks = 0, sheetLayers = [], sheetPopping = false, sheetPushAfter = false;
+function sheetMark() { try { history.pushState({ sheet: 1 }, "", location.href); sheetMarks++; sheetOnMark = true; } catch (e) { /* no history: skip */ } }
+// A pop-up that closed by itself leaves its history entries behind (going back there now would race with page changes).
+// They are marked "left over", and Back skips over them, so no Back press is ever wasted.
+let sheetLastHref = location.href, sheetSkipping = false;
+let sheetOnMark = !!(history.state && (history.state.sheet || history.state.stale));
+function sheetUnmark() {
+  if (!sheetMarks) return;
+  sheetMarks = 0;
+  try { history.replaceState({ stale: 1 }, "", location.href); sheetOnMark = true; } catch (e) { /* skip */ }
+}
+let sheetPopCb = null;
 function openSheet(html, cls) {
-  const w = $("#sheet");
+  const w = $("#sheet"), fresh = w.hidden;
   w.innerHTML = `<div class="sheet ${cls || ""}" role="dialog" aria-modal="true">${html}</div>`;
   w.hidden = false;
   document.body.style.overflow = "hidden";
+  if (fresh) { if (sheetPopping) sheetPushAfter = true; else sheetMark(); }
+}
+// A small pop-up (like the ⓘ help) over a form: remember the form and what was typed, put it back on Back or ✕.
+function openSheetOver(html, cls) {
+  const w = $("#sheet"), cur = w.querySelector(".sheet"), f = w.querySelector("form");
+  if (cur && !w.hidden) {
+    sheetLayers.push({ html: cur.innerHTML, cls: cur.className.replace(/^sheet\s*/, ""), vals: f ? [...f.elements].map((e) => (e.type === "checkbox" || e.type === "radio" ? e.checked : e.value)) : [], scroll: cur.scrollTop });
+    sheetMark();
+  }
+  openSheet(html, cls);
+}
+function sheetLayerBack() { // true if it put a covered pop-up back
+  const l = sheetLayers.pop(); if (!l) return false;
+  openSheet(l.html, l.cls);
+  const f = $("#sheet form"); if (f) [...f.elements].forEach((e, i) => { const v = l.vals[i]; if (v === undefined) return; if (e.type === "checkbox" || e.type === "radio") e.checked = v; else e.value = v; });
+  const cur = $("#sheet .sheet"); if (cur) cur.scrollTop = l.scroll;
+  return true;
 }
 function closeSheet() {
   const w = $("#sheet");
@@ -214,9 +245,28 @@ function closeSheet() {
   w.innerHTML = "";
   document.body.style.overflow = "";
   draft = null;
+  sheetLayers = [];
   if (typeof clearStash === "function") clearStash();
+  sheetUnmark();
 }
+window.addEventListener("popstate", () => {
+  const was = sheetOnMark, now = !!(history.state && (history.state.sheet || history.state.stale)), same = location.href === sheetLastHref;
+  const justSkipped = sheetSkipping; sheetSkipping = false;
+  sheetOnMark = now; sheetLastHref = location.href; // (a page change by link also fires popstate: told apart by the changed address)
+  if (sheetPopping) { // our own history step finished
+    sheetPopping = false; const cb = sheetPopCb; sheetPopCb = null;
+    if (sheetPushAfter) { sheetPushAfter = false; if (!$("#sheet").hidden) sheetMark(); }
+    if (cb) cb(); return;
+  }
+  if (sheetMarks) { // the person pressed Back with a pop-up open: close only the top pop-up
+    sheetMarks--;
+    if (!sheetLayerBack()) { const w = $("#sheet"); w.hidden = true; w.innerHTML = ""; document.body.style.overflow = ""; draft = null; sheetLayers = []; if (typeof clearStash === "function") clearStash(); sheetMarks = 0; }
+    return;
+  }
+  if (now || (was && same && !justSkipped)) { sheetSkipping = true; history.back(); } // landed on, or just left, a left-over pop-up entry: it is the same page, so step over it
+});
+window.addEventListener("hashchange", () => { sheetLastHref = location.href; sheetOnMark = !!(history.state && (history.state.sheet || history.state.stale)); });
 // Escape or tapping outside: some pop-ups (like New want list) go back instead of closing.
-function dismissSheet() { if (typeof sheetDismiss === "function" && sheetDismiss()) return; closeSheet(); }
+function dismissSheet() { if (sheetLayers.length) { actions.wordBack(); return; } if (typeof sheetDismiss === "function" && sheetDismiss()) return; closeSheet(); }
 $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") dismissSheet(); });
 
