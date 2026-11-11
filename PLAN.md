@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (session 55, Sonnet, steps 11.0 + 11.1 from `reviews/14-nov17-plan.md`):** order changed 2026-11-11 (his call, with Fable about 48% left): the first half of the Red Book price move is pulled into this week so the forced few-day wait on his phone runs now and the removal can land the week of Nov 17. Fable goes to the one step that changes what is saved (11.2) and its review; Sonnet does the routine builds. Follow the **This week** steps below in order. Blueprint: `reviews/11` (6 decisions at its end). Reviews 12, 13, 14 done; review 13's extra fixes are not scheduled (planning day picks). App is v0.58.9. Still open from `reviews/08`: #10 (Nov 17).
+**Next session starts here (session 56, **Fable**, step 11.2 from `reviews/14-nov17-plan.md`: copy prices to the phone; PR gets `waits for review`, no merge):** 11.0 (old-backup test, `tests/oldbackup.js`) and 11.1 (dates split from prices, `catalog/bookfacts.js`, `tests/nobook.js`) are merged. Order changed 2026-11-11: the first half of the Red Book price move runs this week so the forced few-day wait on his phone starts now. Follow the **This week** steps below in order. Blueprint: `reviews/11` (6 decisions at its end). Reviews 12, 13, 14 done; review 13's extra fixes are not scheduled (planning day picks). App is v0.58.10. Still open from `reviews/08`: #10 (Nov 17).
 
 ## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
@@ -11,7 +11,7 @@ He works when he can (baby); days are a guide only. Deadlines: Fable + reset by 
 |---|---|---|---|---|
 | 1 | Wed | **Fable** | Session 54: saved-data blueprint (no building) | ✅ `reviews/11` |
 | 1b | by Sun | **Fable** | Optional, only if Fable is left: (a) ✅ layout + wording audit 66/67 (`reviews/12-layout-wording-audit.md`), (b) ✅ full-app review with the lenses (`reviews/13-full-app-review.md`), (c) ✅ detailed Nov 17 plan (`reviews/14-nov17-plan.md`). New chat each. | ✅ |
-| 2 | Wed | Sonnet | Session 55: **11.0 + 11.1** from `reviews/14` (old-backup safety test; dates split from prices). Two PRs, merge on green. Nothing he can see changes. | |
+| 2 | Wed | Sonnet | Session 55: **11.0 + 11.1** from `reviews/14` (old-backup safety test; dates split from prices). Two PRs, merge on green. Nothing he can see changes. | ✅ |
 | 3 | Wed–Thu | **Fable A** | Session 56: **11.2** copy prices to the phone (one new saved record). PR gets `waits for review`, no merge. Sends him the private price file. | |
 | 4 | next chat | **Fable B** | Session 57: review the 11.2 PR (reproduced problems only), fix, his OK, merge. Then he does the 5-minute phone steps in `reviews/14` (Update now, Options line, back up, Drive file, open the app once on Jinny's phone). | |
 | 5 | Thu–Fri | Sonnet | Session 58: Step 10.1 (new coin types + "Other coin") | |
@@ -110,7 +110,7 @@ Each session is one new chat that ends with a PR (or a merge). Red Book work is 
 | 52 | Opus | Short review of 9.7d (new kind of album), fix, merge (ask you first) | ✅ reviewed, 3 small fixes (pocket album kept in a box, pocket wording), also fixed automatic tests (PR #157) |
 | 53 | Opus | Planning day (Tue 2026-11-10): bug review, sort notes + IDEAS into the week's top 3 | ✅ minutes `reviews/10` |
 | 54 | **Fable** | Saved-data blueprint (no building), see This week | ✅ `reviews/11-saved-data-blueprint.md` |
-| 55 | Sonnet | 11.0 + 11.1 (`reviews/14`): old-backup test, dates split from prices | |
+| 55 | Sonnet | 11.0 + 11.1 (`reviews/14`): old-backup test, dates split from prices | ✅ |
 | 56 | **Fable** | 11.2 copy prices to the phone. **Merge waits for session 57 review** | |
 | 57 | **Fable** | Review 11.2, fix, merge (ask him first) | |
 | 58 | Sonnet | Step 10.1: new coin types + "Other coin" | |

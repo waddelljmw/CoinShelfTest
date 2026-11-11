@@ -32,7 +32,7 @@ const isJunk = (c) => c.gradeMode === "raw" && c.grade === "Junk";
 /* ---------- Red Book values ---------- */
 // Full-strike tick: Franklin halves say Full Bell Lines (FBL), Mercury dimes say Full Bands (FB).
 const fbTag = (typeId) => (typeId === "mercury-dime" ? "FB" : "FBL");
-const hasSms = (c) => { const s = PRICE_BOOK.series[c.typeId]; return !!(s && s.sms && c.year && s.sms.rows[String(c.year)]); };
+const hasSms = (c) => { const r = bookFactRows(c.typeId, "sms"); return !!(r && c.year && r.includes(String(c.year))); }; // from the date lists (catalog/bookfacts.js), not the prices
 const gradeRank = (g) => GRADES.indexOf(g);
 const isProofGrade = (g) => /^PR-/.test(g || "");
 function bookTable(c) {
@@ -42,6 +42,15 @@ function bookTable(c) {
   if (c.sms && s.sms) return { t: s.sms, kind: "sms" };
   if (c.fbl && s.fbl) return { t: s.fbl, kind: "fbl" };
   return s.circ ? { t: s.circ, kind: "circ" } : null;
+}
+// Which strike's date list applies to this coin: the same choice as bookTable, but from the date lists, so it works without prices.
+function factTable(c) {
+  const s = BOOK_FACTS[c.typeId];
+  if (!s) return null;
+  if (isProofGrade(c.grade)) return s.proof ? { rows: s.proof, kind: "proof" } : null;
+  if (c.sms && s.sms) return { rows: s.sms, kind: "sms" };
+  if (c.fbl && s.fbl) return { rows: s.fbl, kind: "fbl" };
+  return s.circ ? { rows: s.circ, kind: "circ" } : null;
 }
 function bookBase(c, kind) {
   return String(c.year) + (kind === "proof" || kind === "sms" || !normMint(c.mint) ? "" : "-" + normMint(c.mint));
@@ -53,10 +62,10 @@ function bookKey(c, kind) {
 function bookVarieties(c) {
   const t = TYPE_BY_ID[c.typeId];
   const own = (t && t.varieties && c.year && t.varieties[c.year + "|" + normMint(c.mint)]) || []; // design varieties we know (e.g. 2009 cents)
-  const bt = bookTable(c);
+  const bt = factTable(c);
   if (!bt || !c.year) return own;
   const base = bookBase(c, bt.kind);
-  const book = Object.keys(bt.t.rows).filter((k) => k === base || k.startsWith(base + "|")).map((k) => k.split("|")[1] || "");
+  const book = bt.rows.filter((k) => k === base || k.startsWith(base + "|")).map((k) => k.split("|")[1] || "");
   return [...new Set([...book, ...own])];
 }
 // Some types change metal by year (1943 steel cents). Sets the draft's metal to match.
@@ -284,7 +293,7 @@ function gradeText(c) {
   if (itemOf(c) === "set") return holderText(c) || "Set";
   if (itemOf(c) === "roll") return ["Roll of " + rollCountOf(c), c.rollCond, c.bankWrap ? "bank wrap" : ""].filter(Boolean).join(" · ");
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? "Not graded" : "");
-  const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && PRICE_BOOK.series[c.typeId] && PRICE_BOOK.series[c.typeId].fbl ? " " + fbTag(c.typeId) : "")
+  const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && bookFactRows(c.typeId, "fbl") ? " " + fbTag(c.typeId) : "")
     + (hasProblems(c) ? " Details" : "") + (c.variety ? " · " + c.variety : "") + (c.knownVar ? " · " + c.knownVar : "");
   if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;
   return (g ? "Raw " + g : "Raw") + extra;

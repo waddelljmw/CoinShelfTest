@@ -156,7 +156,7 @@ function renderCoinForm() {
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
       <div class="hint"><a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
       ${it === "coin" && (d.typeName || d.year) ? `<div class="hint"><a id="ebayLink" href="${esc(ebayUrl(d))}" target="_blank" rel="noopener">Check eBay sold ↗</a></div>` : ""}
-      ${PRICE_BOOK.series[d.typeId] && PRICE_BOOK.series[d.typeId].fbl && !isProofGrade(d.grade) ? `<label class="switch"><span>${d.typeId === "mercury-dime" ? "Full Bands (FB)" : "Full Bell Lines (FBL)"}<div class="small muted">${d.typeId === "mercury-dime" ? "The horizontal bands across the fasces on the back are fully split and complete." : "All the lines on the Liberty Bell are complete."}</div></span><input type="checkbox" data-fcheck="fbl" ${d.fbl ? "checked" : ""}></label>` : ""}
+      ${bookFactRows(d.typeId, "fbl") && !isProofGrade(d.grade) ? `<label class="switch"><span>${d.typeId === "mercury-dime" ? "Full Bands (FB)" : "Full Bell Lines (FBL)"}<div class="small muted">${d.typeId === "mercury-dime" ? "The horizontal bands across the fasces on the back are fully split and complete." : "All the lines on the Liberty Bell are complete."}</div></span><input type="checkbox" data-fcheck="fbl" ${d.fbl ? "checked" : ""}></label>` : ""}
       <div id="smsBox">${smsField(d)}</div>
       <div id="varietyBox">${varietyField(d)}</div>
     </fieldset>`}
