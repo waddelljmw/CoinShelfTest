@@ -12,5 +12,16 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - run: npx playwright install --with-deps chromium
+      - uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package.json') }}
+      - name: Download test browser (skipped when cached)
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+      - name: Browser system packages (2 min limit; skipped if the mirror is down)
+        continue-on-error: true
+        timeout-minutes: 2
+        run: npx playwright install-deps chromium
       - run: node tests/run-all.js
