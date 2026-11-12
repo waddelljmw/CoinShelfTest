@@ -29,3 +29,6 @@ M 11.3 + 11.4 review · M 52 walkthrough · S 81 + 82 · S 11.6 Silver Eagles. 1
 
 ## Bring in early (reason for the order)
 No-wait fixes first (11.5, 81+82), then his hot items (52, 80), then small polish (55+56), then 77. Gated items (11.6, 79a, G) only after 11.4. 11.3/11.4 never pulled forward (needs days on v0.59.0 and a review). Start numbers leave room under the 70% stop: S ~1–2 points, M ~3.
+
+## Change at 11:45pm: run it as a new week
+Fable put us a week ahead, so Thu 11-12 → Tue 11-17 runs the Nov 17 update now (day table in PLAN.md). Next week (Nov 17–24) is planned now so it can be pulled in when usage is left: F1 + E with 77 + G (blueprint order), Opus review of E + 77. He keeps the wait: 11.3 not before Sat 11-14, and everything that depends on it waits too (11.4, 11.6, 79a, G; G not before Sat 11-21). Extras listed as filler. Later weeks follow the blueprint: Nov 24 = B + C + C2, Dec 1 = D2 + D3.
