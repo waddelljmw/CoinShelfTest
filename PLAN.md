@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (Nov 17 planning day, **Opus**):** 10.2 is merged (v0.61.0: Back closes only the top pop-up and keeps what was typed; restore settings and box totals were already done). **His 5-minute phone steps from `reviews/14` are still open:** Update now, Options line, back up, Drive file, open the app once on Jinny's phone; 11.3 may not start before he confirms them. Blueprint: `reviews/11`. App is v0.61.0. Still open from `reviews/08`: #10 (Nov 17). His checks for 10.2: Back on "i" keeps his typing · Back after "+" in an album returns to the album.
+**Next session starts here (planning day, held early Nov 11–12, **Opus**):** 10.2 is merged plus Back-button follow-ups (v0.61.2–v0.61.4: ⓘ pop-up sits on top of the form; check log removed). Already done by Fable/Sonnet this week, don't redo: 11.0, 11.1, 11.2 (v0.59.0), 10.1, Fable C fixes, bugs #1–#9. **His 5-minute phone steps from `reviews/14` are done (he confirmed 2026-11-11);** 11.3 still waits a few days on v0.59.0+. Blueprint: `reviews/11`. App is v0.61.4. Still open from `reviews/08`: #10 (= 11.3).
 
 ## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
