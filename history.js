@@ -63,10 +63,10 @@ function historyChartSvg(pts) {
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Collection value and melt value over time" style="display:block;overflow:visible">
     <line x1="${L}" x2="${W - R}" y1="${y(hi)}" y2="${y(hi)}" stroke="var(--line)"/>
     <line x1="${L}" x2="${W - R}" y1="${y(lo)}" y2="${y(lo)}" stroke="var(--line)"/>
-    <text x="${L - 6}" y="${y(hi) + 4}" text-anchor="end" font-size="10" fill="var(--muted)">${compactMoney(hi)}</text>
-    <text x="${L - 6}" y="${y(lo) + 4}" text-anchor="end" font-size="10" fill="var(--muted)">${compactMoney(lo)}</text>
-    <text x="${L}" y="${H - 4}" font-size="10" fill="var(--muted)">${shortDate(pts[0].d)}</text>
-    <text x="${W - R}" y="${H - 4}" text-anchor="end" font-size="10" fill="var(--muted)">${shortDate(last.d)}</text>
+    <text x="${L - 6}" y="${y(hi) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${compactMoney(hi)}</text>
+    <text x="${L - 6}" y="${y(lo) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${compactMoney(lo)}</text>
+    <text x="${L}" y="${H - 4}" font-size="12" fill="var(--muted)">${shortDate(pts[0].d)}</text>
+    <text x="${W - R}" y="${H - 4}" text-anchor="end" font-size="12" fill="var(--muted)">${shortDate(last.d)}</text>
     <path d="${line("m")}" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 3"/>
     <path d="${line("v")}" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round"/>
     <circle cx="${x(last)}" cy="${y(last.v)}" r="3.5" fill="var(--accent)"/>
