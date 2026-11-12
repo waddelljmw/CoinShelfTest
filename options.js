@@ -232,20 +232,19 @@ function openSheet(html, cls) {
   document.body.style.overflow = "hidden";
   if (fresh) { if (sheetPopping) sheetPushAfter = true; else sheetMark(); }
 }
-// A small pop-up (like the ⓘ help) over a form: remember the form and what was typed, put it back on Back or ✕.
+// A small pop-up (like the ⓘ help) over a form: the form stays where it is (dimmed, typing untouched) and the small pop-up sits on top of it.
+function topSheet() { let t = $("#sheetTop"); if (!t) { t = document.createElement("div"); t.id = "sheetTop"; t.className = "sheet-wrap"; t.style.zIndex = 41; t.hidden = true; document.body.appendChild(t); } return t; }
+function hideTopSheet() { const t = $("#sheetTop"); if (t) { t.hidden = true; t.innerHTML = ""; } }
 function openSheetOver(html, cls) {
-  const w = $("#sheet"), cur = w.querySelector(".sheet"), f = w.querySelector("form");
-  if (cur && !w.hidden) {
-    sheetLayers.push({ html: cur.innerHTML, cls: cur.className.replace(/^sheet\s*/, ""), vals: f ? [...f.elements].map((e) => (e.type === "checkbox" || e.type === "radio" ? e.checked : e.value)) : [], scroll: cur.scrollTop });
-    sheetMark();
-  }
-  openSheet(html, cls);
+  const w = $("#sheet"), t = topSheet(), covering = !w.hidden && w.querySelector(".sheet");
+  if (!covering) { openSheet(html, cls); return; }
+  if (t.hidden) { sheetLayers.push({ over: 1 }); sheetMark(); } // one history entry per pop-up on top
+  t.innerHTML = `<div class="sheet ${cls || ""}" role="dialog" aria-modal="true">${html}</div>`;
+  t.hidden = false;
 }
-function sheetLayerBack() { // true if it put a covered pop-up back
+function sheetLayerBack() { // true if it took the small pop-up off the form
   const l = sheetLayers.pop(); if (!l) return false;
-  openSheet(l.html, l.cls);
-  const f = $("#sheet form"); if (f) [...f.elements].forEach((e, i) => { const v = l.vals[i]; if (v === undefined) return; if (e.type === "checkbox" || e.type === "radio") e.checked = v; else e.value = v; });
-  const cur = $("#sheet .sheet"); if (cur) cur.scrollTop = l.scroll;
+  hideTopSheet();
   return true;
 }
 function closeSheet() {
@@ -254,7 +253,7 @@ function closeSheet() {
   w.innerHTML = "";
   document.body.style.overflow = "";
   draft = null;
-  sheetLayers = [];
+  sheetLayers = []; hideTopSheet();
   if (typeof clearStash === "function") clearStash();
   sheetUnmark();
 }
@@ -270,7 +269,7 @@ window.addEventListener("popstate", () => {
   }
   if (sheetMarks) { // the person pressed Back with a pop-up open: close only the top pop-up
     sheetMarks--;
-    if (!sheetLayerBack()) { const w = $("#sheet"); w.hidden = true; w.innerHTML = ""; document.body.style.overflow = ""; draft = null; sheetLayers = []; if (typeof clearStash === "function") clearStash(); sheetMarks = 0; }
+    if (!sheetLayerBack()) { const w = $("#sheet"); w.hidden = true; w.innerHTML = ""; document.body.style.overflow = ""; draft = null; sheetLayers = []; hideTopSheet(); if (typeof clearStash === "function") clearStash(); sheetMarks = 0; }
     return;
   }
   if (now || (was && same && !justSkipped)) { sheetSkipping = true; blog("SKIP: stepping back over a left-over entry"); history.back(); } // landed on, or just left, a left-over pop-up entry: it is the same page, so step over it
@@ -279,4 +278,5 @@ window.addEventListener("hashchange", () => { sheetLastHref = location.href; she
 // Escape or tapping outside: some pop-ups (like New want list) go back instead of closing.
 function dismissSheet() { if (sheetLayers.length) { actions.wordBack(); return; } if (typeof sheetDismiss === "function" && sheetDismiss()) return; closeSheet(); }
 $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") dismissSheet(); });
+document.addEventListener("click", (e) => { if (e.target.id === "sheetTop") dismissSheet(); });
 

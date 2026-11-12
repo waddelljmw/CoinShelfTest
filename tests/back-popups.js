@@ -20,14 +20,14 @@ const { chromium } = require("./_compat");
   await p.click("#fab"); await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0");
   await p.fill("[data-f=year]", "1881"); await p.waitForTimeout(100);
   const info = await p.$(".info-btn");
+  const topOpen = () => p.evaluate(() => { const t = document.getElementById("sheetTop"); return !!t && !t.hidden && t.textContent.length > 0; });
   if (info) {
     await info.click(); await p.waitForTimeout(100);
-    ok("ⓘ popup shown", (await p.textContent("#sheet")).length > 0 && !(await p.$("#coinForm")));
+    ok("ⓘ popup shown on top, the form stays behind it", (await topOpen()) && !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881");
     await p.goBack(); await p.waitForTimeout(200);
-    ok("Back closes only ⓘ, form + typing kept", !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881");
-    await p.click(".info-btn >> nth=0").catch(() => {}); await p.waitForTimeout(100);
-    if (!(await p.$("#coinForm"))) { await p.click("[data-act=wordBack]"); await p.waitForTimeout(200);
-      ok("✕ on ⓘ also keeps typing", !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881"); }
+    ok("Back closes only ⓘ, form + typing kept", !(await topOpen()) && !(await shut()) && !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881");
+    await p.click(".info-btn >> nth=0"); await p.waitForTimeout(100); await p.click("[data-act=wordBack]"); await p.waitForTimeout(250);
+    ok("✕ on ⓘ also keeps typing", !(await topOpen()) && !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881");
   } else console.log("SKIP no ⓘ on form");
   await p.goBack(); await p.waitForTimeout(200);
   ok("Back closes the form", await shut());
@@ -55,7 +55,7 @@ const { chromium } = require("./_compat");
   const infoGrade = await p.$(".info-btn[data-w=rawslab]");
   if (infoGrade) {
     await infoGrade.click(); await p.waitForTimeout(200);
-    ok("grading ⓘ opens without changing the page behind", (await hash()) === "#home" && !(await shut()));
+    ok("grading ⓘ opens on top: same page, form still behind it", (await hash()) === "#home" && !(await shut()) && !!(await p.$("#coinForm")) && await topOpen());
     await p.goBack(); await p.waitForTimeout(300);
     ok("Back closes only the ⓘ, page unchanged, form still there", (await hash()) === "#home" && !!(await p.$("#coinForm")));
     await p.goBack(); await p.waitForTimeout(300);
