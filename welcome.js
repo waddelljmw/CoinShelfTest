@@ -34,10 +34,10 @@ function welcomeCard() {
 let guide = null; // { step } while the guide is on
 const SAVE_STEP = 5;
 const GUIDE_STEPS = [
-  { sel: [".what-btn[data-v=us]"], above: true, text: "First pick what you\u2019re adding. For a coin like a Morgan dollar or a wheat cent, tap US coin.", done: () => draft && draft._what },
+  { sel: [".what-btn[data-v=us]"], above: true, text: "First pick what you\u2019re adding. For a coin like a Morgan dollar or a wheat cent, tap US coin.", next: true, done: () => draft && draft._what },
   { sel: ["#typeSearch"], above: true, text: "Type part of the coin's name (like \u201CMorgan\u201D), then tap it in the list. Not sure? Tap Next.", next: true, done: () => draft && draft.typeId },
   { sel: ["[data-f=year]"], text: "Type the year on the coin. Pick the mint mark too if you know it. Then tap Next.", next: true },
-  { sel: ["[data-f=grade]"], text: "Tap here and pick the grade (how worn the coin is). Your best guess is fine.", done: () => draft && draft.grade },
+  { sel: ["[data-f=grade]"], text: "Tap here and pick the grade (how worn the coin is). Your best guess is fine.", next: true, done: () => draft && draft.grade },
   { sel: ["[data-f=paid]"], text: "Type what you paid. Don't know? Leave it and tap Next.", next: true },
   { sel: ["#coinForm button[type=submit]"], above: true, text: () => "Tap here to save your coin." + (guide && guide.note ? " " + guide.note : "") },
   { sel: [".miss-banner, .card"], text: "This is your coin. \u201CMissing\u201D lists details still blank; tap Fill in whenever you have them.", next: true },

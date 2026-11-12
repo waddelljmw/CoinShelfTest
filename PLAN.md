@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (Sonnet, This week item 4: 80 show Album › Box › Shelf where a coin is kept):** planning held early on Nov 11 (`reviews/15`); this week runs the Nov 17 update a week early, then pulls in Next week. Go down the **This week** table, then **Next week**, then Extras, while weekly is under each item's number; stop at 70%. **11.3 not before Sat 11-14**, and 11.4, 11.6, 79a, G wait on it. Already done, don't redo: 11.0–11.2 (v0.59.0), 10.1, Fable C fixes, 10.2 + Back follow-ups, bugs #1–#9. Phone steps done. 11.5 done (v0.61.5, `tests/contrast.js`). 81 + 82 done (v0.61.6). 52 done (v0.61.7). App is v0.61.7.
+**Next session starts here (Sonnet, This week item 9: 55 + 56 mode-switch confirm; tap Coins sold; items 5–8 wait for Sat 11-14, so do 9 first):** planning held early on Nov 11 (`reviews/15`); this week runs the Nov 17 update a week early, then pulls in Next week. Go down the **This week** table, then **Next week**, then Extras, while weekly is under each item's number; stop at 70%. **11.3 not before Sat 11-14**, and 11.4, 11.6, 79a, G wait on it. Already done, don't redo: 11.0–11.2 (v0.59.0), 10.1, Fable C fixes, 10.2 + Back follow-ups, bugs #1–#9. Phone steps done. 11.5 done (v0.61.5, `tests/contrast.js`). 81 + 82 done (v0.61.6). 52 done (v0.61.7). 80 + walkthrough Next on steps 1 and 4 done (v0.62.0). App is v0.62.0.
 
 ## This week, run as a new week (Thu 11-12 → Tue 11-17 1pm): the Nov 17 update, a week early
 Fable did last week's plan early, so this week does the Nov 17 update. Days are a guide (baby). One item per chat; new chat after each merge. **Stop building at 70% weekly.**
@@ -13,7 +13,7 @@ Fable did last week's plan early, so this week does the Nov 17 update. Days are 
 | 1 | Thu | Sonnet | **11.5** contrast check (`reviews/14`) | S | 66% | on green | ✅ |
 | 2 | Thu | Sonnet | **81 + 82** Forward loses typing; fast double-tap on ✕ (one PR) | S | 66% | on green | ✅ v0.61.6 |
 | 3 | Fri | Sonnet | **52** walkthrough fixes | M | 63% | on green | ✅ v0.61.7 |
-| 4 | Fri | Sonnet | **80** show Album › Box › Shelf where a coin is kept | S–M | 64% | on green | |
+| 4 | Fri | Sonnet | **80** show Album › Box › Shelf where a coin is kept | S–M | 64% | on green | ✅ v0.62.0 (+ Next on walkthrough steps 1 and 4) |
 | 5 | **Sat+** | Sonnet | **11.3** remove Red Book prices from the site (`reviews/14`) | M | 63% | **waits for review** | |
 | 6 | Sun | **Opus** | **11.4** review of 11.3, fixes, his OK, merge | S | 60% | asks him | |
 | 7 | Mon | Sonnet | **11.6** Silver Eagles by private file (attach Drive price file + Red Book page photo); after 11.4 | S | 66% | on green | |
