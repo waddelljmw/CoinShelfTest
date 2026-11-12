@@ -198,6 +198,7 @@ function optionsHtml() {
     ${del.length ? `<div class="list">${del.map((c) => `<div class="coin-row">${thumbHtml(c)}<span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(gradeText(c))}</span></span>
       <button class="btn" data-act="restore" data-id="${esc(c.id)}">Restore</button><button class="btn danger" data-act="purge" data-id="${esc(c.id)}" aria-label="Delete forever">✕</button></div>`).join("")}</div>` : `<div class="card empty">Nothing deleted.</div>`}
     <p class="small muted">Coin Cabinet version ${APP_VERSION}</p>
+    ${backCheckHtml()}
     <p class="small muted">${store.mode === "db" ? "Your coins are saved to your Claude account and are private to you." : store.mode === "local" ? "Your coins are saved on this device only, and are private to you. Save a backup now and then, in case the device is lost or reset." : "Practice mode: nothing is saved."}</p>`;
 }
 
@@ -205,7 +206,15 @@ function optionsHtml() {
 // Back button: an open pop-up owns one history entry (more for a pop-up opened over another), so Back closes
 // only the top pop-up and never leaves the page. Closing any other way removes those entries again.
 let sheetMarks = 0, sheetLayers = [], sheetPopping = false, sheetPushAfter = false;
-function sheetMark() { try { history.pushState({ sheet: 1 }, "", location.href); sheetMarks++; sheetOnMark = true; } catch (e) { /* no history: skip */ } }
+// Back-button check (shown at the bottom of Options): the last few history events, to explain a Back press that did the wrong thing.
+const backLog = [];
+function blog(what) {
+  let st = ""; try { st = JSON.stringify(history.state); } catch (e) { /* skip */ }
+  backLog.push(new Date().toTimeString().slice(0, 8) + " " + what + " | pop-ups " + sheetMarks + "/" + sheetLayers.length + " history " + history.length + " " + (location.hash || "#") + " " + st);
+  if (backLog.length > 14) backLog.shift();
+}
+function backCheckHtml() { return `<details class="small muted"><summary>Back-button check</summary><pre id="backLog" style="white-space:pre-wrap;font-size:11px">${esc(backLog.join("\n") || "nothing yet")}</pre></details>`; }
+function sheetMark() { try { history.pushState({ sheet: 1 }, "", location.href); sheetMarks++; sheetOnMark = true; blog("open pop-up"); } catch (e) { /* no history: skip */ } }
 // A pop-up that closed by itself leaves its history entries behind (going back there now would race with page changes).
 // They are marked "left over", and Back skips over them, so no Back press is ever wasted.
 let sheetLastHref = location.href, sheetSkipping = false;
@@ -213,7 +222,7 @@ let sheetOnMark = !!(history.state && (history.state.sheet || history.state.stal
 function sheetUnmark() {
   if (!sheetMarks) return;
   sheetMarks = 0;
-  try { history.replaceState({ stale: 1 }, "", location.href); sheetOnMark = true; } catch (e) { /* skip */ }
+  try { history.replaceState({ stale: 1 }, "", location.href); sheetOnMark = true; blog("pop-up closed, entries left over"); } catch (e) { /* skip */ }
 }
 let sheetPopCb = null;
 function openSheet(html, cls) {
@@ -252,6 +261,7 @@ function closeSheet() {
 window.addEventListener("popstate", () => {
   const was = sheetOnMark, now = !!(history.state && (history.state.sheet || history.state.stale)), same = location.href === sheetLastHref;
   const justSkipped = sheetSkipping; sheetSkipping = false;
+  blog("Back/popstate" + (sheetPopping ? " (own step)" : "") + " was " + was + " now " + now + " same " + same);
   sheetOnMark = now; sheetLastHref = location.href; // (a page change by link also fires popstate: told apart by the changed address)
   if (sheetPopping) { // our own history step finished
     sheetPopping = false; const cb = sheetPopCb; sheetPopCb = null;
@@ -263,7 +273,7 @@ window.addEventListener("popstate", () => {
     if (!sheetLayerBack()) { const w = $("#sheet"); w.hidden = true; w.innerHTML = ""; document.body.style.overflow = ""; draft = null; sheetLayers = []; if (typeof clearStash === "function") clearStash(); sheetMarks = 0; }
     return;
   }
-  if (now || (was && same && !justSkipped)) { sheetSkipping = true; history.back(); } // landed on, or just left, a left-over pop-up entry: it is the same page, so step over it
+  if (now || (was && same && !justSkipped)) { sheetSkipping = true; blog("SKIP: stepping back over a left-over entry"); history.back(); } // landed on, or just left, a left-over pop-up entry: it is the same page, so step over it
 });
 window.addEventListener("hashchange", () => { sheetLastHref = location.href; sheetOnMark = !!(history.state && (history.state.sheet || history.state.stale)); });
 // Escape or tapping outside: some pop-ups (like New want list) go back instead of closing.

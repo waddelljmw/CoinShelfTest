@@ -45,6 +45,24 @@ const { chromium } = require("./_compat");
   ok("Back from there returns to album", (await hash()) === "#album-alb1");
   await p.goBack(); await p.waitForTimeout(500);
   ok("next Back moves on (no wasted press)", (await hash()) !== "#album-alb1");
+  // 5. v0.61.2: the two reported phone cases. Back must close only the top pop-up and never change the page behind it.
+  await p.evaluate(() => go("home")); await p.waitForTimeout(150); await p.evaluate(() => go("options")); await p.waitForTimeout(250);
+  await p.click("[data-act=openBackup]"); await p.waitForTimeout(200);
+  ok("Back up/Restore pop-up open", !(await shut()));
+  await p.goBack(); await p.waitForTimeout(300);
+  ok("Back closes Back up/Restore, stays on Options", (await shut()) && (await hash()) === "#options");
+  await p.evaluate(() => go("home")); await p.waitForTimeout(150); await p.click("#fab"); await p.waitForTimeout(200);
+  const infoGrade = await p.$(".info-btn[data-w=rawslab]");
+  if (infoGrade) {
+    await infoGrade.click(); await p.waitForTimeout(200);
+    ok("grading ⓘ opens without changing the page behind", (await hash()) === "#home" && !(await shut()));
+    await p.goBack(); await p.waitForTimeout(300);
+    ok("Back closes only the ⓘ, page unchanged, form still there", (await hash()) === "#home" && !!(await p.$("#coinForm")));
+    await p.goBack(); await p.waitForTimeout(300);
+    ok("next Back closes the form, still on the same page", (await shut()) && (await hash()) === "#home");
+  } else console.log("SKIP no grading ⓘ");
+  await p.evaluate(() => go("options")); await p.waitForTimeout(250);
+  ok("Options shows the Back-button check log", (await p.textContent("#backLog")).includes("popstate"));
   ok("no page errors", errors.length === 0); if (errors.length) console.log(errors);
   await b.close();
 })();
