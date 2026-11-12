@@ -391,6 +391,14 @@ function keptAlbumsHtml(b) {
   if (!list.length && !pk.length) return "";
   return `<div class="card" style="margin:0 0 10px"><div class="muted small">Albums kept in this box</div>${list.map((a) => `<button class="coin-row" data-go="album-${esc(a.id)}"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span>${a.keptPlace ? `<span class="coin-sub">${esc(a.keptPlace)}</span>` : ""}</span></button>`).join("")}${pk.map((x) => `<button class="coin-row" data-go="box-${esc(x.id)}"><span class="coin-main"><span class="coin-label">${esc(x.name)}</span><span class="coin-sub">Pocket album${x.keptPlace ? " · " + esc(x.keptPlace) : ""}</span></span></button>`).join("")}</div>`;
 }
+// Where a coin is, as plain parts: Album, then the box the album sits in, then its shelf spot (parts never filled in are left out). Display only.
+function wherePartsOf(c) {
+  const a = c.albumId && getAlbum(c.albumId), parts = [];
+  if (a) { const b = a.keptBox && getBox(a.keptBox); parts.push(albumTitle(a)); if (b) parts.push(b.name); if (String(a.keptPlace || "").trim()) parts.push(String(a.keptPlace).trim()); }
+  else if (c.boxId && getBox(c.boxId)) parts.push(boxText(c));
+  return parts;
+}
+const whereText2 = (c) => wherePartsOf(c).join(" \u203A ");
 // "Kept in" text for an album page, or "".
 function albumKeptText(a) {
   const b = a.keptBox && getBox(a.keptBox);

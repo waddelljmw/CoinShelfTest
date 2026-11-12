@@ -74,7 +74,7 @@ function coinRow(c, opts = {}) {
     ${isIncomplete(c) ? `<span class="inc-mark" title="Missing: ${missingOf(c).join(", ")}" aria-label="Missing: ${missingOf(c).join(", ")}"></span>` : ""}${thumbHtml(c)}
     <span class="coin-main">
       <span class="coin-label">${esc(labelOf(c))}</span>
-      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}${opts.miss && isIncomplete(c) ? `<span class="miss-tag">Missing: ${missingOf(c).join(", ")}</span>` : ""}${typeof sellerOn === "function" && sellerOn() && c.biz ? `<span class="sold-tag st-biz">Business</span>` : ""}</span>
+      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}${opts.miss && isIncomplete(c) ? `<span class="miss-tag">Missing: ${missingOf(c).join(", ")}</span>` : ""}${opts.miss && c.status === "owned" && whereText2(c) ? `<span class="small muted where-line" style="display:block">\u{1F4CD} ${esc(whereText2(c))}</span>` : ""}${typeof sellerOn === "function" && sellerOn() && c.biz ? `<span class="sold-tag st-biz">Business</span>` : ""}</span>
     </span>
     <span class="coin-val">${c.status === "sold" ? money(num(c.sold && c.sold.amount)) : money(v == null ? null : v * q)}${m != null && c.status !== "sold" ? `<div class="melt">melt ${q === 1 ? moneyOpen(m) : money(m * q)}</div>` : ""}</span>
   </button>`;
@@ -330,7 +330,7 @@ function viewCoin(r) {
   const sold = c.sold || {};
   return `${coinBackLink()}${eyeButton()}
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}</h1>
-    ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button></div>` : ""}
+    ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>${wherePartsOf(c).slice(1).map((x) => " \u203A " + esc(x)).join("")}</div>` : ""}
     <div class="small muted" style="margin:-4px 0 8px">ID <b>${c.cid ? esc(c.cid) : "No ID"}</b> <button class="link-btn" data-act="editId" data-id="${esc(c.id)}">${c.cid ? "Change" : "Add"}</button>${(c.oldCids || []).length ? ` · old ID${c.oldCids.length > 1 ? "s" : ""}: ${esc(c.oldCids.join(", "))}` : ""}</div>
     ${mintageLine(c)}${typeof coinInhHtml === "function" ? coinInhHtml(c) : ""}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
