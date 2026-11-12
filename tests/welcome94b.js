@@ -23,6 +23,12 @@ const srv = http.createServer((q, r) => {
   const bub = () => p.locator("#guideBubble").innerText();
   const apart = () => p.evaluate(() => { const b = document.getElementById("guideBubble").getBoundingClientRect(), t = document.querySelector(".guide-hl").getBoundingClientRect(); return b.bottom <= t.top + 1 || b.top >= t.bottom - 1; });
   ok("step 1 points at the type search, bubble not on top of it", /Step 2 of 8/.test(await bub()) && await p.locator("#typeSearch.guide-hl").count() === 1 && await apart());
+  ok("type step has a Next button", await p.locator("#guideBubble [data-act=guideNext]").count() === 1);
+  await p.click("#guideBubble [data-act=guideSkip]"); await p.waitForTimeout(100);
+  ok("one tap on Skip does not end the guide", await p.locator("#guideBubble").count() === 1 && /Tap again/.test(await bub()));
+  await p.waitForTimeout(3200);
+  ok("Skip turns back to normal after 3 seconds", /Skip guide/.test(await bub()));
+  ok("type tip stays above the search so the list is free", await p.evaluate(() => document.getElementById("guideBubble").getBoundingClientRect().bottom <= document.getElementById("typeSearch").getBoundingClientRect().top));
   await p.fill("#typeSearch", "Morgan"); await p.waitForTimeout(300);
   await p.click("[data-act=pickType]"); await p.waitForTimeout(500);
   ok("picking the type moves to the year", /Step 3 of 8/.test(await bub()) && await p.locator("[data-f=year].guide-hl").count() === 1 && await apart());
@@ -34,6 +40,9 @@ const srv = http.createServer((q, r) => {
   ok("choosing a grade moves to cost", /Step 5 of 8/.test(await bub()) && await p.locator("[data-f=paid].guide-hl").count() === 1);
   await p.fill("[data-f=paid]", "40"); await p.click("[data-act=guideNext]"); await p.waitForTimeout(300);
   ok("Save step points at the Add coin button", /Step 6 of 8/.test(await bub()) && await p.locator("#coinForm button[type=submit].guide-hl").count() === 1);
+  await p.fill("[data-f=year]", "1066"); await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(400);
+  ok("a refused save explains itself inside the guide", /\u2192/.test(await bub()) && /Step 6 of 8/.test(await bub()));
+  await p.fill("[data-f=year]", "1881"); await p.waitForTimeout(200);
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(800);
   ok("saving a real coin moves the guide to the coin page", /Step 7 of 8/.test(await bub()) && /^#coin-/.test(await p.evaluate(() => location.hash)));
   await p.click("[data-act=guideNext]"); await p.waitForTimeout(100);
