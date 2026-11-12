@@ -2,9 +2,39 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (planning day, held early Nov 11–12, **Opus**):** 10.2 is merged plus Back-button follow-ups (v0.61.2–v0.61.4: ⓘ pop-up sits on top of the form; check log removed). Already done by Fable/Sonnet this week, don't redo: 11.0, 11.1, 11.2 (v0.59.0), 10.1, Fable C fixes, bugs #1–#9. **His 5-minute phone steps from `reviews/14` are done (he confirmed 2026-11-11);** 11.3 still waits a few days on v0.59.0+. Blueprint: `reviews/11`. App is v0.61.4. Still open from `reviews/08`: #10 (= 11.3).
+**Next session starts here (Sonnet, Bring in early item 1):** planning for the Nov 17 week was held early on Nov 11 (`reviews/15-planning-minutes-2026-11-11.md`). Work down the **Bring in early** list while weekly is under each item's number; stop building at 70%. Already done this week, don't redo: 11.0, 11.1, 11.2 (v0.59.0), 10.1, Fable C fixes, 10.2 + Back follow-ups, bugs #1–#9. His phone steps from `reviews/14` are done. **11.3 not before Tue 11-17** (needs a few days on v0.59.0+; merge waits). App is v0.61.4.
 
-## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
+## Next week (Tue 2026-11-17 → Tue 11-24): one update, 2 M + 2 S
+Picked Nov 11 (planning held early). Items done early from the list below get ✅ here too.
+
+| Step | Model | What | Size | Merge | Done |
+|---|---|---|---|---|---|
+| 1 | Sonnet | **11.3** remove Red Book prices from the site (`reviews/14`) | M | **waits for review** | |
+| 2 | **Opus** | **11.4** review of 11.3, fixes, his OK, merge | (with 11.3) | asks him | |
+| 3 | Sonnet | **52** walkthrough fixes | M | on green | |
+| 4 | Sonnet | **81 + 82** Forward loses typing; fast double-tap on ✕ (one PR) | S | on green | |
+| 5 | Sonnet | **11.6** Silver Eagle prices by private file (attach Drive price file + Red Book page photo); after 11.4 | S | on green | |
+| 6 | you | Update now · three known coins same values · Options line · enter coins | | | |
+
+### Bring in early (in order; start an item only if weekly is under its number; stop building at 70%)
+One item per chat; new chat after each merge. Never pull forward 11.3 (or 11.4) or anything marked "merge waits".
+
+| # | Item | Size | Model | Start if weekly under | Done |
+|---|---|---|---|---|---|
+| 1 | 11.5 contrast check (`reviews/14`) | S | Sonnet | 66% | |
+| 2 | 81 + 82 Back-button pair (next week's step 4) | S | Sonnet | 66% | |
+| 3 | 52 walkthrough (next week's step 3) | M | Sonnet | 63% | |
+| 4 | 80 show Album › Box › Shelf where a coin is kept | S–M | Sonnet | 64% | |
+| 5 | 55 + 56 mode-switch confirm; tap Coins sold (one PR) | S | Sonnet | 66% | |
+| 6 | 77 Add coin: type the year first | M | Sonnet | 63% | |
+| | *Only after 11.4 is merged:* | | | | |
+| 7 | 11.6 Silver Eagles (next week's step 5) | S | Sonnet | 66% | |
+| 8 | 79a bring your own values (load a spreadsheet: match columns, preview, confirm); writes his price record, so asks him before merge | M | Sonnet | 62% | |
+| 9 | G fresh-start repo, at least a week after 11.4 (~Nov 25+) | S | Sonnet | 66% | |
+
+Numbers leave room: S builds have cost ~1–2 weekly points, M ~3.
+
+## This week (Tue 2026-11-10 → Tue 11-17): done except step 8
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
 
 | Step | Guide day | Model | What | Done |
@@ -34,8 +64,8 @@ Options 1 + 2 from `reviews/09-tuesday-pack-2026-11-07.md`; **no change to how c
 - **His checks:** Back on "i" keeps his typing · restore in a private window keeps Recently added folded · a box with albums shows them on Storage.
 
 ### Next 3 weeks (tentative; minutes have the reasons)
-- **Nov 17:** rest of the Red Book price move (11.3 removal, 11.4 review, 11.6 Silver Eagles; 11.0–11.2 pulled into this week on 2026-11-11) + S = 54 (contrast, 11.5). Detailed plan: `reviews/14-nov17-plan.md`; planning day still answers its questions 2 and 4.
-- **Nov 24:** M = 52 (walkthrough) + M = 77 (year first); S = 55, 56. *Likely to change.*
+- **Nov 17:** see the Next week box (picked 2026-11-11; `reviews/14` questions answered in `reviews/15`).
+- **Nov 24:** whatever is left of Bring in early (77, 79a, G) + next picks. *Likely to change.*
 - **Dec 1:** L = red box nested containers, or 58/60. *Depends on the blueprint.*
 
 ### How we run the project (PMBOK-light, agreed 2026-11-06)
