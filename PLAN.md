@@ -15,7 +15,7 @@ He works when he can (baby); days are a guide only. Deadlines: Fable + reset by 
 | 3 | Wed–Thu | **Fable A** | Session 56: **11.2** copy prices to the phone (one new saved record). PR gets `waits for review`, no merge. Sends him the private price file. | ✅ |
 | 4 | next chat | **Fable B** | Session 57: review the 11.2 PR (reproduced problems only), fix, his OK, merge. Then he does the 5-minute phone steps in `reviews/14` (Update now, Options line, back up, Drive file, open the app once on Jinny's phone). | ✅ |
 | 5 | Thu–Fri | Sonnet | Session 58: Step 10.1 (new coin types + "Other coin") | ✅ v0.60.0 |
-| 6 | by Sun, optional | **Fable C** | Only if weekly is under ~55% and Fable is left: check 10.1's dates and mints against sources, light look at its code. | |
+| 6 | by Sun, optional | **Fable C** | Only if weekly is under ~55% and Fable is left: check 10.1's dates and mints against sources, light look at its code. | ✅ v0.61.1 |
 | 7 | Fri+ | Sonnet | Session 59: Step 10.2 (Back button). First thing to slide to next week if weekly nears 70%. | ✅ v0.61.0 |
 | 8 | Fri–Sun | you | Try it in `?demo`, then enter coins | |
 
