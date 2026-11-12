@@ -34,12 +34,12 @@ function welcomeCard() {
 let guide = null; // { step } while the guide is on
 const SAVE_STEP = 5;
 const GUIDE_STEPS = [
-  { sel: [".what-btn[data-v=us]"], text: "First pick what you\u2019re adding. For a coin like a Morgan dollar or a wheat cent, tap US coin.", done: () => draft && draft._what },
-  { sel: ["#typeSearch"], above: true, text: "Type part of the coin's name (like \u201CMorgan\u201D), then tap it in the list.", done: () => draft && draft.typeId },
+  { sel: [".what-btn[data-v=us]"], above: true, text: "First pick what you\u2019re adding. For a coin like a Morgan dollar or a wheat cent, tap US coin.", done: () => draft && draft._what },
+  { sel: ["#typeSearch"], above: true, text: "Type part of the coin's name (like \u201CMorgan\u201D), then tap it in the list. Not sure? Tap Next.", next: true, done: () => draft && draft.typeId },
   { sel: ["[data-f=year]"], text: "Type the year on the coin. Pick the mint mark too if you know it. Then tap Next.", next: true },
   { sel: ["[data-f=grade]"], text: "Tap here and pick the grade (how worn the coin is). Your best guess is fine.", done: () => draft && draft.grade },
   { sel: ["[data-f=paid]"], text: "Type what you paid. Don't know? Leave it and tap Next.", next: true },
-  { sel: ["#coinForm button[type=submit]"], above: true, text: "Tap here to save your coin." },
+  { sel: ["#coinForm button[type=submit]"], above: true, text: () => "Tap here to save your coin." + (guide && guide.note ? " " + guide.note : "") },
   { sel: [".miss-banner, .card"], text: "This is your coin. \u201CMissing\u201D lists details still blank; tap Fill in whenever you have them.", next: true },
   { sel: [".album-chip, .rowline"], text: () => "Where it's kept: " + guideWhere() },
 ];
@@ -52,22 +52,27 @@ function guideWhere() {
 function guidePlace() { // put the bubble just above or below the highlighted field, so the field stays free to tap
   const b = document.getElementById("guideBubble"), t = document.querySelector(".guide-hl");
   if (!b || !guide) return;
+  const vh = window.visualViewport ? visualViewport.height : window.innerHeight; // the phone keyboard shrinks this
   if (!t) { b.className = ""; b.style.top = "70px"; return; } // below the top bar, so the menu and ✕ stay free
-  const r = t.getBoundingClientRect(), h = b.offsetHeight, vh = window.innerHeight;
-  let above = !!GUIDE_STEPS[guide.step].above;
+  let r = t.getBoundingClientRect(); const h = b.offsetHeight;
+  const room = r.top - h - 16 - 64; // space above the field for a tip that must sit above it
+  if (GUIDE_STEPS[guide.step].above && room < 0 && !t.dataset.gpad) { t.dataset.gpad = "1"; t.style.marginTop = Math.ceil(-room) + "px"; r = t.getBoundingClientRect(); } // make room instead of covering the list below
+  const want = !!GUIDE_STEPS[guide.step].above;
+  let above = want;
   if (!above && r.bottom + h + 16 > vh - 70) above = true;
-  if (above && r.top - h - 16 < 64) above = false; // never over the top bar or the pop-up's ✕
+  if (above && !want && r.top - h - 16 < 64) above = false; // never over the top bar or the pop-up's ✕
+  // a step that asked for "above" stays above: its list or button sits below and must stay uncovered
   b.className = above ? "g-above" : "g-below";
   b.style.top = Math.max(64, Math.min(vh - h - 4, above ? r.top - h - 12 : r.bottom + 12)) + "px";
 }
 function guideBubble() {
   let b = document.getElementById("guideBubble");
-  document.querySelectorAll(".guide-hl").forEach((x) => x.classList.remove("guide-hl"));
+  document.querySelectorAll(".guide-hl").forEach((x) => { x.classList.remove("guide-hl"); if (x.dataset.gpad) { delete x.dataset.gpad; x.style.marginTop = ""; } });
   if (!guide) { if (b) b.remove(); return; }
   const s = GUIDE_STEPS[guide.step], last = guide.step === GUIDE_STEPS.length - 1;
   if (!b) { b = document.createElement("div"); b.id = "guideBubble"; b.setAttribute("role", "status"); document.body.appendChild(b); }
   b.innerHTML = `<div class="small muted">Step ${guide.step + 1 - guide.base} of ${GUIDE_STEPS.length - guide.base}</div><div>${esc(typeof s.text === "function" ? s.text() : s.text)}</div>
-    <div class="btn-row"><button class="btn" data-act="guideSkip">${last ? "Done" : "Skip guide"}</button>${s.next ? `<button class="btn primary" data-act="guideNext">Next</button>` : ""}</div>`;
+    <div class="btn-row"><button class="btn" data-act="guideSkip">${last ? "Done" : guide.sure ? "Tap again to stop" : "Skip guide"}</button>${s.next ? `<button class="btn primary" data-act="guideNext">Next</button>` : ""}</div>`;
   let t = null;
   for (const q of s.sel) { t = document.querySelector(q); if (t) break; }
   if (t) {
@@ -104,6 +109,14 @@ Object.assign(actions, {
     <div class="btn-row"><button class="btn primary block" data-act="guideStart">Show me how (1 minute)</button><button class="btn block" data-act="guideNoThanks">Skip</button></div>`),
   guideNoThanks: () => { closeSheet(); openCoinForm(null); },
   guideStart: () => { if (!$("#sheet").hidden) closeSheet(); openCoinForm(null); const chooser = !!document.querySelector(".what-btn"); guide = { step: chooser ? 0 : 1, base: chooser ? 0 : 1 }; guideBubble(); }, // the "What is it?" step only when that chooser shows
-  guideNext: () => { if (guide && guide.step < GUIDE_STEPS.length - 1) { guide.step++; guideBubble(); } },
-  guideSkip: () => { guide = null; guideBubble(); },
+  guideNext: () => { if (guide && guide.step < GUIDE_STEPS.length - 1) { guide.step++; guide.sure = false; guide.note = ""; guideBubble(); } },
+  guideSkip: () => { // leaving takes two taps (except on the last step), so a slip of the thumb doesn't end it
+    if (guide && guide.step < GUIDE_STEPS.length - 1 && !guide.sure) { guide.sure = true; guideBubble(); clearTimeout(guide.sureTimer); const g = guide; g.sureTimer = setTimeout(() => { g.sure = false; if (guide === g) guideBubble(); }, 3000); return; }
+    if (guide) clearTimeout(guide.sureTimer);
+    guide = null; guideBubble();
+  },
 });
+
+// If saving is refused, say why inside the guide, so the reason can't hide behind the tip.
+const toastBase = toast;
+toast = function (msg, action) { toastBase(msg, action); if (guide && guide.step === SAVE_STEP && !action) { guide.note = "\u2192 " + msg; guideBubble(); } };

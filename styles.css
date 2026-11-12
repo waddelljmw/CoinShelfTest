@@ -126,7 +126,7 @@ summary { font-weight: 600; cursor: pointer; }
 .bar { height: 8px; border-radius: 99px; background: var(--chip); overflow: hidden; margin-top: 8px; }
 .bar > i { display: block; height: 100%; background: var(--good); }
 
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 96px; z-index: 50; background: var(--ink); color: var(--bg);
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 96px; z-index: 70; background: var(--ink); color: var(--bg);
   padding: 12px 14px; border-radius: 12px; display: flex; gap: 14px; align-items: center; box-shadow: 0 8px 22px rgba(0,0,0,.25); max-width: calc(100% - 28px); }
 .toast button { background: none; border: 0; color: var(--accent); font-weight: 700; }
 @media (prefers-color-scheme: dark) { .toast button { color: #8a5d12; } }
@@ -365,6 +365,7 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 #guideBubble.g-above::after { bottom: -16px; border-top-color: #e0a63a; }
 #guideBubble .muted { color: #cfc7ba; }
 #guideBubble .btn-row { margin-top: 8px; justify-content: flex-end; }
-#guideBubble .btn { color: #2a2218; background: #fff; border-color: #fff; } #guideBubble .btn.primary { color: #2a2218; background: #e0a63a; border-color: #e0a63a; font-weight: 700; }
+#guideBubble .btn { color: #2a2218; background: #fff; border-color: #fff; } #guideBubble [data-act=guideSkip] { margin-right: auto; background: none; border-color: transparent; color: #cfc7ba; font-size: 13px; }
+#guideBubble .btn.primary { color: #2a2218; background: #e0a63a; border-color: #e0a63a; font-weight: 700; }
 .guide-hl { outline: 3px solid #e0a63a; outline-offset: 3px; border-radius: 8px; animation: guidePulse 1.4s ease-in-out infinite; }
 @keyframes guidePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(224,166,58,.55); } 50% { box-shadow: 0 0 0 9px rgba(224,166,58,0); } }
