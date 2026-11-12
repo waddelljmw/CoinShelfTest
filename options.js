@@ -238,11 +238,15 @@ function sheetLayerBack() { // true if it took the small pop-up off the form
   hideTopSheet();
   return true;
 }
-// A very quick second tap on ✕ lands on the page behind once the pop-up is gone: swallow real taps for a moment after a pop-up closes.
-let sheetClosedAt = 0;
-document.addEventListener("click", (e) => { if (e.isTrusted && Date.now() - sheetClosedAt < 350 && !e.target.closest("#sheet, #sheetTop")) { e.preventDefault(); e.stopPropagation(); } }, true);
+// A very quick second tap on ✕ lands on the page behind once the pop-up is gone: swallow a click at the same spot right after a ✕ tap.
+let sheetXTap = null;
+document.addEventListener("click", (e) => {
+  const x = e.target.closest && e.target.closest("#sheet, #sheetTop") ? e.target.closest("button.x, [data-act=closeSheet], [data-act=wordBack]") : null;
+  if (x) { sheetXTap = { t: Date.now(), x: e.clientX, y: e.clientY }; return; }
+  const k = sheetXTap; sheetXTap = null;
+  if (k && e.isTrusted && Date.now() - k.t < 400 && Math.abs(e.clientX - k.x) < 30 && Math.abs(e.clientY - k.y) < 30 && !e.target.closest("#sheet, #sheetTop")) { e.preventDefault(); e.stopPropagation(); }
+}, true);
 function closeSheet() {
-  sheetClosedAt = Date.now();
   const w = $("#sheet");
   w.hidden = true;
   w.innerHTML = "";
