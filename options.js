@@ -205,7 +205,7 @@ function optionsHtml() {
 // Back button: an open pop-up owns one history entry (more for a pop-up opened over another), so Back closes
 // only the top pop-up and never leaves the page. Closing any other way removes those entries again.
 let sheetMarks = 0, sheetLayers = [], sheetPopping = false, sheetPushAfter = false;
-function sheetMark() { try { history.pushState({ sheet: 1 }, "", location.href); sheetMarks++; sheetOnMark = true; } catch (e) { /* no history: skip */ } }
+function sheetMark() { try { history.pushState({ sheet: 1, d: sheetMarks + 1 }, "", location.href); sheetMarks++; sheetOnMark = true; } catch (e) { /* no history: skip */ } }
 // A pop-up that closed by itself leaves its history entries behind (going back there now would race with page changes).
 // They are marked "left over", and Back skips over them, so no Back press is ever wasted.
 let sheetLastHref = location.href, sheetSkipping = false;
@@ -238,6 +238,14 @@ function sheetLayerBack() { // true if it took the small pop-up off the form
   hideTopSheet();
   return true;
 }
+// A very quick second tap on ✕ lands on the page behind once the pop-up is gone: swallow a click at the same spot right after a ✕ tap.
+let sheetXTap = null;
+document.addEventListener("click", (e) => {
+  const x = e.target.closest && e.target.closest("#sheet, #sheetTop") ? e.target.closest("button.x, [data-act=closeSheet], [data-act=wordBack]") : null;
+  if (x) { sheetXTap = { t: Date.now(), x: e.clientX, y: e.clientY }; return; }
+  const k = sheetXTap; sheetXTap = null;
+  if (k && e.isTrusted && Date.now() - k.t < 400 && Math.abs(e.clientX - k.x) < 30 && Math.abs(e.clientY - k.y) < 30 && !e.target.closest("#sheet, #sheetTop")) { e.preventDefault(); e.stopPropagation(); }
+}, true);
 function closeSheet() {
   const w = $("#sheet");
   w.hidden = true;
@@ -258,6 +266,8 @@ window.addEventListener("popstate", () => {
     if (sheetPushAfter) { sheetPushAfter = false; if (!$("#sheet").hidden) sheetMark(); }
     if (cb) cb(); return;
   }
+  if (sheetMarks && justSkipped) return; // our own step back over a Forward press: done
+  if (sheetMarks && history.state && history.state.sheet && history.state.d >= sheetMarks) { sheetSkipping = true; history.back(); return; } // Forward onto a pop-up entry that was already closed by Back: stay put, keep the form and its typing
   if (sheetMarks) { // the person pressed Back with a pop-up open: close only the top pop-up
     sheetMarks--;
     if (!sheetLayerBack()) { const w = $("#sheet"); w.hidden = true; w.innerHTML = ""; document.body.style.overflow = ""; draft = null; sheetLayers = []; hideTopSheet(); if (typeof clearStash === "function") clearStash(); sheetMarks = 0; }

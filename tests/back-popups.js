@@ -26,6 +26,9 @@ const { chromium } = require("./_compat");
     ok("ⓘ popup shown on top, the form stays behind it", (await topOpen()) && !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881");
     await p.goBack(); await p.waitForTimeout(200);
     ok("Back closes only ⓘ, form + typing kept", !(await topOpen()) && !(await shut()) && !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881");
+    // 81: Back closed ⓘ; Forward must not close the form or lose typing
+    await p.goForward(); await p.waitForTimeout(300);
+    ok("Forward after Back keeps the form + typing", !(await shut()) && !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881");
     await p.click(".info-btn >> nth=0"); await p.waitForTimeout(100); await p.click("[data-act=wordBack]"); await p.waitForTimeout(250);
     ok("✕ on ⓘ also keeps typing", !(await topOpen()) && !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881");
   } else console.log("SKIP no ⓘ on form");
