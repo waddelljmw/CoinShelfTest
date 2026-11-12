@@ -170,7 +170,7 @@ function soldCard() {
   const profit = sum(sold, saleProfit) - sum(refundRecs(), refundCost); // refunds: the fees and shipping you paid still count
   const margin = moneyIn ? profit / moneyIn : null;
   return homeSection("soldres", "Sold results", `<div class="stats">
-    <div class="stat"><div class="k">Sold</div><div class="v">${sum(sold, qtyOf)}</div><div class="small muted">${money(revenue, "$0.00")} in sales</div></div>
+    <div class="stat" data-act="seeSold" role="button" tabindex="0" style="cursor:pointer"><div class="k">Sold</div><div class="v">${sum(sold, qtyOf)}</div><div class="small muted">${money(revenue, "$0.00")} in sales · tap to see</div></div>
     <div class="stat"><div class="k">Margin</div><div class="v ${signCls(margin)}">${pct(margin)}</div><div class="small muted">${money(profit, "$0.00")} profit${sellerOn() ? " before show costs" : ""}</div></div>
   </div><div class="small muted" style="margin:6px 0 4px">After what you paid, fees, shipping and insurance${sellerOn() ? ", <b>before show costs</b>" : ""}. Inherited coins aren't counted.</div>`);
 }

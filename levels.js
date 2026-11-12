@@ -27,8 +27,10 @@ function syncLevelMenu() { // runs on every page draw (called from syncShowsMenu
 Object.assign(actions, {
   setLevel: (el) => {
     saveSettings({ level: el.dataset.v });
-    if (!$("#sheet").hidden && $("#sheet [data-act=guideStart]")) { $$("#sheet .chips").forEach((c) => { c.outerHTML = levelChips(); }); return; } // welcome sheet: stay open
-    render();
+    const name = (LEVELS.find((l) => l[0] === el.dataset.v) || [0, el.dataset.v])[1];
+    if (!$("#sheet").hidden && $("#sheet [data-act=guideStart]")) { $$("#sheet .chips").forEach((c) => { c.outerHTML = levelChips(); }); syncShowsMenu(); toast("Switched to " + name); return; } // welcome sheet: stay open
+    render(); syncShowsMenu(); // menu updates right away
+    toast("Switched to " + name);
   },
 });
 if (typeof SNAPSHOT_BLOCK !== "undefined") SNAPSHOT_BLOCK.add("setLevel");

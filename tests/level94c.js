@@ -44,6 +44,7 @@ const srv = http.createServer((q, r) => {
   await p.evaluate(() => go("options")); await p.waitForTimeout(200);
   await p.click("[data-act=setLevel][data-v=collector]"); await p.waitForTimeout(300);
   ok("Collector shows albums, storage, wants, report; not Shows", /albums:1 boxes:1 wants:1 value:1 coins:1 home:1 rep:1/.test(await menu()) && !(await vis("#menuShows")));
+  ok("switching says Switched to Collector", /Switched to Collector/.test(await p.locator("#toast").innerText()));
   // 4. back to Everything: nothing was lost or changed
   await p.click("[data-act=setLevel][data-v=everything]"); await p.waitForTimeout(300);
   const after = await p.evaluate(() => { const s = settings(); delete s.level; delete s.optOpen; return JSON.stringify([s, getCoin("k1")]); });
