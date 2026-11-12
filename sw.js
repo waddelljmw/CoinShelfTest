@@ -1,6 +1,6 @@
 // Keeps a copy of the app on the phone so it opens with no internet, and fetches new versions.
 // CACHE must change with every release (it matches APP_VERSION in app.js); that's how phones notice an update.
-const CACHE = "coin-cabinet-0.61.2";
+const CACHE = "coin-cabinet-0.61.3";
 const FILES = [
   "./", "index.html", "styles.css", "manifest.webmanifest",
   "catalog/data.js", "catalog/bookfacts.js", "catalog/pricebook.js", "catalog/pricebook-modern.js", "catalog/albums.js", "catalog/varieties.js", "catalog/idcodes.js", "catalog/demo.js",
