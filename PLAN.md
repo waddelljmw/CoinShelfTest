@@ -2,9 +2,39 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (planning day, held early Nov 11–12, **Opus**):** 10.2 is merged plus Back-button follow-ups (v0.61.2–v0.61.4: ⓘ pop-up sits on top of the form; check log removed). Already done by Fable/Sonnet this week, don't redo: 11.0, 11.1, 11.2 (v0.59.0), 10.1, Fable C fixes, bugs #1–#9. **His 5-minute phone steps from `reviews/14` are done (he confirmed 2026-11-11);** 11.3 still waits a few days on v0.59.0+. Blueprint: `reviews/11`. App is v0.61.4. Still open from `reviews/08`: #10 (= 11.3).
+**Next session starts here (Sonnet, This week item 1):** planning held early on Nov 11 (`reviews/15`); this week runs the Nov 17 update a week early, then pulls in Next week. Go down the **This week** table, then **Next week**, then Extras, while weekly is under each item's number; stop at 70%. **11.3 not before Sat 11-14**, and 11.4, 11.6, 79a, G wait on it. Already done, don't redo: 11.0–11.2 (v0.59.0), 10.1, Fable C fixes, 10.2 + Back follow-ups, bugs #1–#9. Phone steps done. App is v0.61.4.
 
-## This week (Tue 2026-11-10 → Tue 11-17): one update, steps in order
+## This week, run as a new week (Thu 11-12 → Tue 11-17 1pm): the Nov 17 update, a week early
+Fable did last week's plan early, so this week does the Nov 17 update. Days are a guide (baby). One item per chat; new chat after each merge. **Stop building at 70% weekly.**
+**Wait rule:** 11.3 not before **Sat 11-14** (his phone needs a few days on v0.59.0+; phone steps done). Everything that depends on it (11.4, 11.6, 79a, G) waits too. Never merge anything marked "merge waits" outside its review.
+
+| # | Day | Model | What | Size | Start if weekly under | Merge | Done |
+|---|---|---|---|---|---|---|---|
+| 1 | Thu | Sonnet | **11.5** contrast check (`reviews/14`) | S | 66% | on green | |
+| 2 | Thu | Sonnet | **81 + 82** Forward loses typing; fast double-tap on ✕ (one PR) | S | 66% | on green | |
+| 3 | Fri | Sonnet | **52** walkthrough fixes | M | 63% | on green | |
+| 4 | Fri | Sonnet | **80** show Album › Box › Shelf where a coin is kept | S–M | 64% | on green | |
+| 5 | **Sat+** | Sonnet | **11.3** remove Red Book prices from the site (`reviews/14`) | M | 63% | **waits for review** | |
+| 6 | Sun | **Opus** | **11.4** review of 11.3, fixes, his OK, merge | S | 60% | asks him | |
+| 7 | Mon | Sonnet | **11.6** Silver Eagles by private file (attach Drive price file + Red Book page photo); after 11.4 | S | 66% | on green | |
+| 8 | Mon | Sonnet | **79a** bring your own values (spreadsheet: match columns, preview, confirm); after 11.4; writes his price record | M | 62% | asks him | |
+| 9 | Tue AM | Sonnet | **55 + 56** mode-switch confirm; tap Coins sold (one PR) | S | 66% | on green | |
+| 10 | any | you | Update now after each merge · three known coins same values after 11.4 · enter coins | | | | |
+
+## Next week (Tue 11-17 → Tue 11-24): planned now so it can be pulled in (2 M + 2 S)
+Blueprint order (`reviews/11`): after A comes F1 and E with idea 77. **Pull in** once this week's list is done, top to bottom, if weekly is under the number (e.g. with 15% left on Tue morning). Tue 1pm planning only confirms or swaps.
+
+| # | Model | What | Size | Start if weekly under | Merge | Done |
+|---|---|---|---|---|---|---|
+| N1 | Sonnet | **F1** fix a hand-typed type's name (IDEAS 58 first step, blueprint F) | S | 66% | asks him (saved coin data) | |
+| N2 | Sonnet | **E + 77** always a year or a "too worn" tick, new coins only (IDEAS 60, blueprint E) + type the year first; label `waits for review` | M + M | 60% | **waits for review** | |
+| N3 | **Opus** | Review of N2, fixes, his OK, merge | (with N2) | 60% | asks him | |
+| N4 | Sonnet | **G** fresh-start repo; not before **Sat 11-21** (a week after 11.4); he does a few GitHub taps | S | 66% | | |
+
+### Extras (filler only after both tables; Sonnet; none changes how coins are saved)
+57 small help hints (S) · 70 add missing coins to a want list (S/M) · 34 + 35 Kept in for boxes, swap trays (S) · 46 remove from album (S; he answers one question first) · 59 fill from the album spot (M) · 61 report filters (M). Budget: S ~1–2 weekly points, M ~3, Opus review ~5–8.
+
+## This week (Tue 2026-11-10 → Tue 11-17): done except step 8
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
 
 | Step | Guide day | Model | What | Done |
@@ -34,9 +64,9 @@ Options 1 + 2 from `reviews/09-tuesday-pack-2026-11-07.md`; **no change to how c
 - **His checks:** Back on "i" keeps his typing · restore in a private window keeps Recently added folded · a box with albums shows them on Storage.
 
 ### Next 3 weeks (tentative; minutes have the reasons)
-- **Nov 17:** rest of the Red Book price move (11.3 removal, 11.4 review, 11.6 Silver Eagles; 11.0–11.2 pulled into this week on 2026-11-11) + S = 54 (contrast, 11.5). Detailed plan: `reviews/14-nov17-plan.md`; planning day still answers its questions 2 and 4.
-- **Nov 24:** M = 52 (walkthrough) + M = 77 (year first); S = 55, 56. *Likely to change.*
-- **Dec 1:** L = red box nested containers, or 58/60. *Depends on the blueprint.*
+- **Nov 17:** see the Next week box (picked 2026-11-11, `reviews/15`).
+- **Nov 24:** blueprint B + C + C2 (red box nesting; stack and container; Cull), planned Tue 11-24. *Likely to change.*
+- **Dec 1:** D2 + D3 (more stacks, stack groups; his bulk-by-the-pound lots, ideas 71/72/18).
 
 ### How we run the project (PMBOK-light, agreed 2026-11-06)
 - **Scope:** IDEAS.md (backlog) → planning day picks the week's update (S/M/L budget) → steps here.
