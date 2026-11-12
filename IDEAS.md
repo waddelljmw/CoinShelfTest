@@ -69,6 +69,7 @@ Nothing here is promised or scheduled. When you mention a new idea, I'll ask if 
     - **e) Own values from real sales (L, later).** Built from sold prices, so the data is his.
     - **f) Two sources at once (L, wait).** Retail and wholesale side by side; decide which one feeds totals and the insurance report.
     - Already covered: PCGS sign-in lookup is idea 48 (cheapest way to "values just appear"); melt is built in. The APMEX value pages were checked and aren't usable (no source, broken table).
+80. **Show where a coin is kept (S–M; his idea, 2026-11-11; very helpful).** On the missing-info list (and the coin page), the spot says only "Album". Show **Album › Box › Shelf**, leaving off any part he never filled in. He has Morgans in 4 different albums and can't tell where a coin is when he goes to complete its profile. Check the Coins list for the same line. Display only; no change to how coins are saved.
 
 ## Done (kept so nothing is lost; planning sessions can skip this part)
 Numbers stay the same so PLAN.md references still work.
