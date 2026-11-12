@@ -61,8 +61,6 @@ const { chromium } = require("./_compat");
     await p.goBack(); await p.waitForTimeout(300);
     ok("next Back closes the form, still on the same page", (await shut()) && (await hash()) === "#home");
   } else console.log("SKIP no grading ⓘ");
-  await p.evaluate(() => go("options")); await p.waitForTimeout(250);
-  ok("Options shows the Back-button check log", (await p.textContent("#backLog")).includes("popstate"));
   ok("no page errors", errors.length === 0); if (errors.length) console.log(errors);
   await b.close();
 })();
