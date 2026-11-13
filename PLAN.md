@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (Sonnet, This week item 5: 11.3 remove Red Book prices from the site, merge waits for review; NOT before Sat 11-14. If it is earlier and weekly is under 66%, pull in Next week N1 instead):** planning held early on Nov 11 (`reviews/15`); this week runs the Nov 17 update a week early, then pulls in Next week. Go down the **This week** table, then **Next week**, then Extras, while weekly is under each item's number; stop at 70%. **11.3 not before Sat 11-14**, and 11.4, 11.6, 79a, G wait on it. Already done, don't redo: 11.0–11.2 (v0.59.0), 10.1, Fable C fixes, 10.2 + Back follow-ups, bugs #1–#9. Phone steps done. 11.5 done (v0.61.5, `tests/contrast.js`). 81 + 82 done (v0.61.6). 52 done (v0.61.7). 80 + walkthrough Next on steps 1 and 4 done (v0.62.0). 55 + 56 done (v0.62.1). App is v0.62.1.
+**Next session starts here (Sonnet, This week item 5: 11.3 remove Red Book prices from the site, merge waits for review; NOT before Sat 11-14. If it is earlier and weekly is under 66%, pull in Next week N1 instead):** planning held early on Nov 11 (`reviews/15`); this week runs the Nov 17 update a week early, then pulls in Next week. Go down the **This week** table, then **Next week**, then Extras, while weekly is under each item's number; stop at 70%. **11.3 not before Sat 11-14**, and 11.4, 11.6, 79a, G wait on it. Already done, don't redo: 11.0–11.2 (v0.59.0), 10.1, Fable C fixes, 10.2 + Back follow-ups, bugs #1–#9. Phone steps done. 11.5 done (v0.61.5, `tests/contrast.js`). 81 + 82 done (v0.61.6). 52 done (v0.61.7). 80 + walkthrough Next on steps 1 and 4 done (v0.62.0). 55 + 56 done (v0.62.1). N1 / F1 done (v0.63.0, PR 208, pulled in Fri 11-13). App is v0.63.0.
 
 ## This week, run as a new week (Thu 11-12 → Tue 11-17 1pm): the Nov 17 update, a week early
 Fable did last week's plan early, so this week does the Nov 17 update. Days are a guide (baby). One item per chat; new chat after each merge. **Stop building at 70% weekly.**
@@ -26,7 +26,7 @@ Blueprint order (`reviews/11`): after A comes F1 and E with idea 77. **Pull in**
 
 | # | Model | What | Size | Start if weekly under | Merge | Done |
 |---|---|---|---|---|---|---|
-| N1 | Sonnet | **F1** fix a hand-typed type's name (IDEAS 58 first step, blueprint F) | S | 66% | asks him (saved coin data) | |
+| N1 | Sonnet | **F1** fix a hand-typed type's name (IDEAS 58 first step, blueprint F) | S | 66% | asks him (saved coin data) ✅ v0.63.0 |
 | N2 | Sonnet | **E + 77** always a year or a "too worn" tick, new coins only (IDEAS 60, blueprint E) + type the year first; label `waits for review` | M + M | 60% | **waits for review** | |
 | N3 | **Opus** | Review of N2, fixes, his OK, merge | (with N2) | 60% | asks him | |
 | N4 | Sonnet | **G** fresh-start repo; not before **Sat 11-21** (a week after 11.4); he does a few GitHub taps | S | 66% | | |
