@@ -27,7 +27,13 @@ async function saveDraft() {
   const idBad = typeof checkTypedId === "function" ? checkTypedId(c) : ""; // a flip label typed on the form
   if (idBad) { toast(idBad); return; }
   const prev = !d._isNew && getCoin(c.id);
-  if (prev) TYPE_FIELDS.forEach((k) => { c[k] = prev[k]; }); // a saved coin's type never changes, whatever the form says
+  const free = prev && typeEditable(prev) ? TYPE_FREE : []; // only a hand-typed type can be fixed
+  if (prev) TYPE_FIELDS.forEach((k) => { if (!free.includes(k)) c[k] = prev[k]; }); // a saved catalog coin's type never changes, whatever the form says
+  if (free.length) {
+    c.typeName = String(c.typeName || "").trim(); c.denom = String(c.denom || "").trim();
+    if (prev.typeName && !c.typeName) { toast("Type a name for this coin."); return; }
+    if (c.typeName !== prev.typeName && c.family === prev.typeName) c.family = ""; // a kind that was just the old name follows the new name
+  }
   const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);
   if (al0 && albumTypes(al0).length && !albumHasType(al0, c.typeId) && !(prev && prev.albumId === c.albumId)) { toast("That album is for a different coin type."); return; }
   c.year = num(c.year) ?? "";

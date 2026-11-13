@@ -113,11 +113,11 @@ function renderCoinForm() {
   const melt = meltEach(d);
   initSourceKind(d);
   const h = formHolder(d);
-  const typeBlock = !d._isNew
+  const typeBlock = !d._isNew && !typeEditable(d)
     ? `<div class="f"><span>Coin type</span><div class="locked-type"><b>${esc(t ? t.name : d.typeName || "Custom coin")}</b>${d.denom ? ` <span class="muted small">${esc(d.denom)}</span>` : ""}</div>
       <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button></div></div>`
     : other
-      ? `${otherPicker(d)}<label class="f"><span>Kind</span><select data-f="family" data-rerender><option value="">Choose…</option>${OTHER_KINDS.map((k) => `<option ${d.family === k ? "selected" : ""}>${k}</option>`).join("")}</select></label>
+      ? `${otherPicker(d)}${d._isNew ? "" : `<div class="hint">You typed this coin type yourself, so you can fix it here. The ID number, photos and where it is kept stay the same.</div>`}<label class="f"><span>Kind</span><select data-f="family" data-rerender><option value="">Choose…</option>${OTHER_KINDS.map((k) => `<option ${d.family === k ? "selected" : ""}>${k}</option>`).join("")}</select></label>
       <div class="grid2">
       <label class="f"><span>What is it called?</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="e.g. Casino token"></label>
       <label class="f"><span>Face value</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label></div>`
@@ -477,6 +477,9 @@ function pickType(id) {
 
 // The fields that make up a coin's type. Locked once the coin is saved.
 const TYPE_FIELDS = ["typeId", "typeName", "family", "denom", "item", "setKind"];
+// Except a coin whose type was typed by hand (no catalog type): its name, kind and face value can be fixed (F1).
+const TYPE_FREE = ["typeName", "family", "denom"];
+const typeEditable = (c) => itemOf(c) === "coin" && !c.typeId;
 // "Wrong type? Re-add it": a new coin with everything copied except the type, replacing the old one on save.
 function retypeDraft() {
   if (!draft || draft._isNew) return;
