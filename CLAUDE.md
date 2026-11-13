@@ -55,5 +55,6 @@ Read this, then only the **This week** box in `PLAN.md` (don't read the whole pl
 ## Rules that protect his coins
 - Never delete data without asking; offer Undo.
 - Old saved data must keep working: convert on read.
+- **4-box check before any change to how coins are saved** (new field, new meaning, conversion). Report green/red chips, change nothing, and don't ask him to approve until all four are green: (1) backup and restore tested; (2) a data version number exists and is raised if a conversion is added; (3) the change was tried on a `?demo` or scratch copy first; (4) coin count and totals match before and after.
 - A saved coin's type never changes. Coin years must be real (`yearProblem`).
 - Don't guess coin facts (dates, mints, mintages, album contents): look them up or ask for Red Book pages / photos.
