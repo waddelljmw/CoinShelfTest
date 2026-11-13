@@ -51,6 +51,10 @@ const srv = http.createServer((q, r) => {
   await p.evaluate(() => { retypeDraft(); pickType("peace-dollar"); renderCoinForm(); });
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(400);
   ok("re-added yearless coin saves without a tick", await p.evaluate(() => !getCoin("old1") || getCoin("old1").status === "deleted" || !document.querySelector("#coinForm")) && await p.evaluate(() => allCoins().some((c) => c.typeId === "peace-dollar" && c.year === "" && !c.noDate)));
+  await p.evaluate(() => { openCoinForm("old1"); });
+  ok("Wrong type? hint says everything else is copied", /Everything else is copied/.test(await p.evaluate(() => (document.querySelector("#coinForm .locked-type") || document.body).parentElement.textContent)));
+  await p.evaluate(() => { retypeDraft(); });
+  ok("Re-add form shows the copied note", await p.isVisible("#readdNote"));
   ok("no page errors", !errors.length);
   await b.close(); srv.close();
 })();
