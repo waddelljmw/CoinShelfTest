@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.63.0": [
+    "Fix a typo in a coin type you typed yourself: open the coin, tap Edit, and change its name, kind or face value. The ID number, photos and where it is kept stay. Coin types from the list still can't change.",
+  ],
   "0.61.0": [
     "The Back button now closes just the pop-up you are in (like the ⓘ help) and keeps what you typed. Back after + in an album returns to the album.",
   ],
