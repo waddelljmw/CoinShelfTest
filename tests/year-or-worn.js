@@ -42,6 +42,15 @@ const srv = http.createServer((q, r) => {
   await p.focus("#typeSearch"); await p.waitForTimeout(100);
   const l1925 = await p.evaluate(() => [...document.querySelectorAll("#typeList button")].map((x) => x.textContent));
   ok("1925 list has Peace dollar, not Morgan dollar or Kennedy half", l1925.some((x) => /Peace/.test(x)) && !l1925.some((x) => /Morgan/.test(x)) && !l1925.some((x) => /Kennedy/.test(x)));
+  // empty list says why when the typed year matches no coin type
+  await p.fill("[data-f=year]", "192"); await p.fill("#typeSearch", ""); await p.focus("#typeSearch"); await p.waitForTimeout(100);
+  ok("empty list names the year", /192/.test(await p.evaluate(() => document.querySelector("#typeList").textContent)));
+  await p.click(".sheet-head [data-act=closeSheet]");
+  // "Wrong type? Re-add it" on an old coin with no year is not a new coin: not stopped
+  await p.evaluate(() => { openCoinForm("old1"); }); await p.waitForSelector("#coinForm");
+  await p.evaluate(() => { retypeDraft(); pickType("peace-dollar"); renderCoinForm(); });
+  await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(400);
+  ok("re-added yearless coin saves without a tick", await p.evaluate(() => !getCoin("old1") || getCoin("old1").status === "deleted" || !document.querySelector("#coinForm")) && await p.evaluate(() => allCoins().some((c) => c.typeId === "peace-dollar" && c.year === "" && !c.noDate)));
   ok("no page errors", !errors.length);
   await b.close(); srv.close();
 })();

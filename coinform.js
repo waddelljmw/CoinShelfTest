@@ -511,16 +511,22 @@ function typesRecentFirst(list) {
 }
 // New coins: the Year box sits first, with a "too worn" tick that only shows while the year is empty.
 function yearFirstHtml(d, t) {
-  return `<div class="grid2"><label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + typeLastYear(t) : "1921"}"></label></div>
+  const token = !t && d._what === "other"; // a token or medal may never have had a date
+  return `<div class="grid2"><label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "\u2013" + typeLastYear(t) : "1921"}"></label></div>
     <div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>
-    <label class="switch" id="wornRow" ${d.year ? "hidden" : ""}><span>Unreadable / too worn<div class="small muted">No year? Tick this instead of typing one. Type the year first and the coin type list shows only coins made that year.</div></span><input type="checkbox" data-fcheck="_worn" ${d._worn ? "checked" : ""}></label>`;
+    <div id="wornRow" ${d.year ? "hidden" : ""}>
+    ${token ? `<label class="switch"><span>Never had a date<div class="small muted">A token or medal that was made without a year.</div></span><input type="checkbox" data-fcheck="_none" ${d._none ? "checked" : ""}></label>` : ""}
+    <label class="switch"><span>Unreadable / too worn<div class="small muted">No year? Tick this instead of typing one. Type the year first and the coin type list shows only coins made that year.</div></span><input type="checkbox" data-fcheck="_worn" ${d._worn ? "checked" : ""}></label>
+    </div>`;
 }
 // Types made in a year (so typing 1943 first leaves the types that existed then).
 const typeMadeIn = (t, y) => y >= t.start && y <= typeLastYear(t) && !(t.skipYears && t.skipYears.includes(y));
+// The year typed first on a new coin (it narrows the type list), or null.
+const typeYear = () => draft && draft._isNew && !draft._replaces && !yearProblem("", draft.year, "coin") ? num(draft.year) : null;
 function typeMatches(q) {
   q = q.trim().toLowerCase();
   const words = q ? q.split(/\s+/) : [];
-  const y = draft && draft._isNew && !draft._replaces && !yearProblem("", draft.year, "coin") ? num(draft.year) : null;
+  const y = typeYear();
   const all = COIN_TYPES.filter((t) => (y == null || typeMadeIn(t, y)) && words.every((w) => (t.name + " " + t.family + " " + t.denom).toLowerCase().includes(w)));
   const { recent, rest } = typesRecentFirst(all);
   return { recent, rest: rest.slice(0, q ? 20 : 12) };
@@ -533,7 +539,7 @@ function showTypeList(q) {
   const head = (txt) => `<div class="ta-head">${txt}</div>`;
   box.innerHTML = recent.length || rest.length
     ? (recent.length ? head("Recent") + recent.map(btn).join("") + (rest.length ? head("All types") : "") : "") + rest.map(btn).join("")
-    : `<div class="hint" style="padding:10px">No match. Type the coin type below instead.</div>`;
+    : `<div class="hint" style="padding:10px">${typeYear() != null ? "No coin type matches " + typeYear() + ". Check the year (or clear it), or type the coin type below instead." : "No match. Type the coin type below instead."}</div>`;
   box.hidden = false;
 }
 

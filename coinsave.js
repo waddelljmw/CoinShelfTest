@@ -2,7 +2,7 @@
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._acqAuto; delete c._payAuto; delete c._replaces; delete c._proof; delete c._worn; delete c._preProof; // working copies aren't saved
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._acqAuto; delete c._payAuto; delete c._replaces; delete c._proof; delete c._worn; delete c._none; delete c._preProof; // working copies aren't saved
   delete c._many; delete c._payMode; delete c._lotMode; delete c._spots; delete c._spotsFor; delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = normHolder(formHolder(d));
   if (typeof lotOn === "function" && lotOn(d) && num(c.paid) != null) c.paid = String(Math.round(num(c.paid) / (num(d.qty) || 1) * 10000) / 10000); // whole-lot price saved as price each
@@ -77,10 +77,12 @@ async function saveDraft() {
     if (!c.typeId && !c.typeName) { toast("Pick the coin type for the roll."); return; }
   }
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
-  // New coins (not sets or rolls) need a year or the "too worn" tick. Saved coins are never forced; a year wins over the tick.
+  // New coins (not sets or rolls) need a year or a tick: "Unreadable / too worn", or for a token or medal "Never had a date".
+  // Saved coins are never forced (a re-added coin counts as saved); a year wins over a tick.
   if (it === "coin") {
-    if (d._isNew && num(c.year) == null && !d._worn) { toast("Add the year, or tick \u201CUnreadable / too worn\u201D."); return; }
-    if (num(c.year) != null) delete c.noDate; else if (d._worn) c.noDate = "worn";
+    const none = !!d._none && !TYPE_BY_ID[c.typeId]; // "Never had a date" is only for tokens and medals
+    if (d._isNew && !d._replaces && num(c.year) == null && !d._worn && !none) { toast(TYPE_BY_ID[c.typeId] ? "Add the year, or tick \u201CUnreadable / too worn\u201D." : "Add the year, or tick \u201CNever had a date\u201D or \u201CUnreadable / too worn\u201D."); return; }
+    if (num(c.year) != null) delete c.noDate; else if (d._worn) c.noDate = "worn"; else if (none) c.noDate = "none";
   } else delete c.noDate;
   // Coins saved before this check keep their year; only a new or changed year is checked.
   const yp = it === "set" ? setYearProblem(c.setKind, c.year) : yearProblem(c.typeId, c.year, "coin");

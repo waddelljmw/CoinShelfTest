@@ -374,6 +374,9 @@ document.addEventListener("change", (e) => {
   }
   if (el.dataset.fcheck) {
     draft[el.dataset.fcheck] = el.checked;
+    if (el.checked && (el.dataset.fcheck === "_worn" || el.dataset.fcheck === "_none")) { // the two "no year" ticks exclude each other
+      const o = el.dataset.fcheck === "_worn" ? "_none" : "_worn"; draft[o] = false; const ob = $("[data-fcheck=" + o + "]"); if (ob) ob.checked = false;
+    }
     if (el.hasAttribute("data-rerender")) { const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; return; }
     refreshFormHints(); return;
   }
