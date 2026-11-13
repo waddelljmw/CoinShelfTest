@@ -78,10 +78,11 @@ async function saveDraft() {
   }
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
   // New coins (not sets or rolls) need a year or a tick: "Unreadable / too worn", or for a token or medal "Never had a date".
-  // Saved coins are never forced (a re-added coin counts as saved); a year wins over a tick.
+  // Saved coins are never forced (a re-added coin counts as saved), nor is a group; a year wins over a tick.
   if (it === "coin") {
     const none = !!d._none && !TYPE_BY_ID[c.typeId]; // "Never had a date" is only for tokens and medals
-    if (d._isNew && !d._replaces && num(c.year) == null && !d._worn && !none) { toast(TYPE_BY_ID[c.typeId] ? "Add the year, or tick \u201CUnreadable / too worn\u201D." : "Add the year, or tick \u201CNever had a date\u201D or \u201CUnreadable / too worn\u201D."); return; }
+    const group = (typeof manyOn === "function" && manyOn(d)) || (num(c.qty) || 1) > 1; // a group of mixed years (e.g. a bag of wheat cents) isn't asked
+    if (d._isNew && !d._replaces && !group && num(c.year) == null && !d._worn && !none) { toast(TYPE_BY_ID[c.typeId] ? "Add the year, or tick \u201CUnreadable / too worn\u201D." : "Add the year, or tick \u201CNever had a date\u201D or \u201CUnreadable / too worn\u201D."); return; }
     if (num(c.year) != null) delete c.noDate; else if (d._worn) c.noDate = "worn"; else if (none) c.noDate = "none";
   } else delete c.noDate;
   // Coins saved before this check keep their year; only a new or changed year is checked.

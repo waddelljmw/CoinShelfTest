@@ -29,7 +29,7 @@ async function buildBackup(onProgress) {
   store.docs.forEach((data, id) => { if (data) docs.push({ id, data }); });
   const photos = await collectPhotos(onProgress);
   return {
-    kind: BACKUP_KIND, format: 1, appVersion: APP_VERSION, made: today(),
+    kind: BACKUP_KIND, format: 1, dataVersion: DATA_VERSION, appVersion: APP_VERSION, made: today(),
     counts: { coins: allCoins().filter((c) => c.status !== "deleted").length, albums: albums().length + docs.filter((d) => isPocketDoc(d.data)).length, photos: Object.keys(photos).length },
     docs, photos,
   };
@@ -98,6 +98,7 @@ function mergeRestored(id, body) {
     [...(body.inheritances || []), ...(here.inheritances || [])].forEach((i) => { if (i && i.id) inh.set(i.id, i); });
     if (inh.size) out.inheritances = [...inh.values()];
     out.inhDefault = here.inhDefault || body.inhDefault;
+    out.dataVersion = Math.max(num(here.dataVersion) || 0, num(body.dataVersion) || 0) || DATA_VERSION; // never goes down
     return out;
   }
   return body;
@@ -111,7 +112,7 @@ async function readRestoreFile(file) {
   let data;
   try { data = JSON.parse(await file.text()); } catch (e) { say("That isn't a Coin Cabinet backup file."); return; }
   if (!data || data.kind !== BACKUP_KIND || !Array.isArray(data.docs)) { say("That isn't a Coin Cabinet backup file."); return; }
-  if (data.format > 1) { say("This backup was made by a newer version of Coin Cabinet. Update the app first, then restore."); return; }
+  if (data.format > 1 || num(data.dataVersion) > DATA_VERSION) { say("This backup was made by a newer version of Coin Cabinet. Update the app first, then restore."); return; }
   restorePending = data;
   const coins = data.docs.filter((d) => d.data && d.data.kind === "coin" && d.data.status !== "deleted").length;
   const replaces = data.docs.filter((d) => d.data && d.data.kind === "coin" && store.docs.has(d.id)).length;
