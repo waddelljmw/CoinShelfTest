@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.64.0": [
+    "Adding a coin: the Year box now comes first, and the coin type list then shows only coins made that year. A new coin needs a year, or tick \u201CUnreadable / too worn\u201D if you can't read it. Coins you already saved are not changed.",
+  ],
   "0.63.0": [
     "Fix a typo in a coin type you typed yourself: open the coin, tap Edit, and change its name, kind or face value. The ID number, photos and where it is kept stay. Coin types from the list still can't change.",
   ],

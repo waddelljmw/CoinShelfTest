@@ -2,7 +2,7 @@
 async function saveDraft() {
   const d = draft;
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._acqAuto; delete c._payAuto; delete c._replaces; delete c._proof; delete c._preProof; // working copies aren't saved
+  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._acqAuto; delete c._payAuto; delete c._replaces; delete c._proof; delete c._worn; delete c._preProof; // working copies aren't saved
   delete c._many; delete c._payMode; delete c._lotMode; delete c._spots; delete c._spotsFor; delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = normHolder(formHolder(d));
   if (typeof lotOn === "function" && lotOn(d) && num(c.paid) != null) c.paid = String(Math.round(num(c.paid) / (num(d.qty) || 1) * 10000) / 10000); // whole-lot price saved as price each
@@ -77,6 +77,11 @@ async function saveDraft() {
     if (!c.typeId && !c.typeName) { toast("Pick the coin type for the roll."); return; }
   }
   if (!c.typeName && !c.year && !c.label) { toast("Add at least a year or a coin type."); return; }
+  // New coins (not sets or rolls) need a year or the "too worn" tick. Saved coins are never forced; a year wins over the tick.
+  if (it === "coin") {
+    if (d._isNew && num(c.year) == null && !d._worn) { toast("Add the year, or tick \u201CUnreadable / too worn\u201D."); return; }
+    if (num(c.year) != null) delete c.noDate; else if (d._worn) c.noDate = "worn";
+  } else delete c.noDate;
   // Coins saved before this check keep their year; only a new or changed year is checked.
   const yp = it === "set" ? setYearProblem(c.setKind, c.year) : yearProblem(c.typeId, c.year, "coin");
   if (yp && !(prev && String(prev.year) === String(c.year))) { toast(yp); return; }
