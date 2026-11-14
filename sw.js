@@ -1,10 +1,10 @@
 // Keeps a copy of the app on the phone so it opens with no internet, and fetches new versions.
 // CACHE must change with every release (it matches APP_VERSION in app.js); that's how phones notice an update.
-const CACHE = "coin-cabinet-0.63.0";
+const CACHE = "coin-cabinet-0.65.0";
 const FILES = [
   "./", "index.html", "styles.css", "manifest.webmanifest",
-  "catalog/data.js", "catalog/bookfacts.js", "catalog/pricebook.js", "catalog/pricebook-modern.js", "catalog/albums.js", "catalog/varieties.js", "catalog/idcodes.js", "catalog/demo.js",
-  "app.js", "values.js", "views.js", "albums.js", "options.js", "coinform.js", "coinsave.js", "editforms.js", "actions.js", "ids.js", "sheets.js", "selling.js", "order.js", "seller.js", "photofill.js", "history.js", "wants.js", "boxes.js", "pockets.js", "dealer.js", "pricing.js", "salesreport.js", "many.js", "fillalbum.js", "filters.js", "inherit.js", "shelf.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "whatsnew.js", "welcome.js", "levels.js", "pwa.js",
+  "catalog/data.js", "catalog/bookfacts.js", "catalog/albums.js", "catalog/varieties.js", "catalog/idcodes.js", "catalog/demo.js",
+  "app.js", "values.js", "views.js", "albums.js", "options.js", "coinform.js", "coinsave.js", "editforms.js", "actions.js", "ids.js", "sheets.js", "selling.js", "order.js", "seller.js", "photofill.js", "history.js", "wants.js", "boxes.js", "pockets.js", "dealer.js", "pricing.js", "salesreport.js", "many.js", "fillalbum.js", "filters.js", "inherit.js", "shelf.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "pricefile.js", "whatsnew.js", "welcome.js", "levels.js", "pwa.js",
   "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png",
 ];
 self.addEventListener("install", (e) => {
