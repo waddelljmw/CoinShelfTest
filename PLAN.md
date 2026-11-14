@@ -2,21 +2,22 @@
 
 Last updated November 14, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (Sonnet, Nov 17 week item 1: 86 value fixes; after the Tue 11-17 1pm reset; merge on green):** planning for the Nov 17 week was held early on Sat 11-14 (minutes `reviews/16`). Last week's list is all done: 79a v0.67.0 (PR 217), inherited guard + code map v0.68.0 (PR 219), snapshot privacy v0.68.1 (PR 220). Go down the table while weekly is under each item's number; stop at 70%. Already done, don't redo: 11.0–11.6, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3, 79a, A, B. App is v0.68.1.
+**Next session starts here (Sonnet, Nov 17 week item 1: 86 value fixes; can start now, before the reset (see Use-it-up rule); merge on green):** planning for the Nov 17 week was held early on Sat 11-14 (minutes `reviews/16`). Last week's list is all done: 79a v0.67.0 (PR 217), inherited guard + code map v0.68.0 (PR 219), snapshot privacy v0.68.1 (PR 220). Go down the table while weekly is under each item's number; stop at 70%. Already done, don't redo: 11.0–11.6, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3, 79a, A, B. App is v0.68.1.
 
 ## This week (Tue 11-17 1pm → Tue 11-24 1pm): the "accurate entry" update (2 M + 2 S, planned 11-14)
-One item per chat; new chat after each merge. Days are a guide (baby). **Stop building at 70% weekly.** Fantasy runs Thu ~7pm and Sun 12:30pm come first (~2 points each). Nothing here changes how coins are saved; if one turns out to, stop and ask.
+One item per chat; new chat after each merge. Days are a guide (baby). **Stop building at 70% weekly.**
+**Use-it-up rule (decided 11-14):** until the Tue 11-17 1pm reset, the 70% stop and the start numbers are lifted: pull items in now, in table order, and stop at **95% weekly** (keeps Sunday's fantasy run ~2 points + a buffer). N4 still waits for Sat 11-21. Est. = weekly points (guess). Fantasy runs Thu ~7pm and Sun 12:30pm come first (~2 points each). Nothing here changes how coins are saved; if one turns out to, stop and ask.
 
 | # | Day | Model | What | Size | Start if weekly under | Merge | Done |
 |---|---|---|---|---|---|---|---|
-| 1 | Tue | Sonnet | **86** value fixes: coin page uses the same value as Home, never below face for catalog coins, report Paid = full cost | S | 66% | on green | |
-| 2 | Wed | Sonnet | **87** 2026 coins (5 quarters, dime, half; facts from usmint.gov) + stop series auto-accepting 2027 + yearly new-coin check line in this plan. First check his saved 2026 dimes/halves | M | 60% | on green (asks him if any saved coin is affected) | |
-| 3 | Fri | Sonnet | **88 + 77 search words**: year/mint warning from `EXACT_SLOTS` (warn, don't block) + nickname search (wheat penny, walker, VDB, steel, ASE, war nickel; "Bicentennial" shows all four). He pastes his phone-note word list at the start | M | 60% | on green | |
-| 4 | Sat | Sonnet | **93** tester welcome PDF: reskin the HOA design ("HOA Welcome PDF — Concept"), new picture, words, colors; he picks the survey link | S | 66% | (design, not code) | |
-| 5 | Sat 11-21+ | Sonnet | **N4 / G** fresh-start repo (carried from last week's plan); he does a few GitHub taps | S | 66% | | |
+| 1 | Tue | Sonnet | **86** value fixes: coin page uses the same value as Home, never below face for catalog coins, report Paid = full cost | S (est. 1–2) | 66% | on green | |
+| 2 | Wed | Sonnet | **87** 2026 coins (5 quarters, dime, half; facts from usmint.gov) + stop series auto-accepting 2027 + yearly new-coin check line in this plan. First check his saved 2026 dimes/halves | M (est. 3–4) | 60% | on green (asks him if any saved coin is affected) | |
+| 3 | Fri | Sonnet | **88 + 77 search words**: year/mint warning from `EXACT_SLOTS` (warn, don't block) + nickname search (wheat penny, walker, VDB, steel, ASE, war nickel; "Bicentennial" shows all four). He pastes his phone-note word list at the start | M (est. 3) | 60% | on green | |
+| 4 | Sat | Sonnet | **93** tester welcome PDF: reskin the HOA design ("HOA Welcome PDF — Concept"), new picture, words, colors; he picks the survey link | S (est. 2) | 66% | (design, not code) | |
+| 5 | Sat 11-21+ | Sonnet | **N4 / G** fresh-start repo (carried from last week's plan); he does a few GitHub taps | S (est. 1–2) | 66% | | |
 | 6 | any | you | Update now after each merge · try 2026 coins + a junk coin's value on the phone · enter coins | | | | |
 
-**Pull in early** (only if all above are done and weekly is under 60%): 89 war nickel + Indian cent, 91 album delete confirm, 90 Back keeps scroll (each S, Sonnet). **Next planning:** 83 + 84 together (one 4-box check, Opus).
+**Pull in early** (after the table; under 60% weekly, or before the reset under the Use-it-up rule): 89 war nickel + Indian cent (est. 1–2) · 91 album delete confirm (est. 1) · 90 Back keeps scroll (est. 1–2), each S, Sonnet · then **83 + 84** Value from + Favorites (M+M, est. ~10: Opus plan + 4-box check, Sonnet build with `waits for review`, Opus review; asks him before merge, since it changes how coins are saved). Extras after that (est. ~12 for all six).
 
 ### Extras (filler only after the table and Pull in early; Sonnet; none changes how coins are saved)
 57 small help hints (S) · 70 add missing coins to a want list (S/M) · 34 + 35 Kept in for boxes, swap trays (S) · 46 remove from album (S; he answers one question first) · 59 fill from the album spot (M) · 61 report filters (M). Budget: S ~1–2 weekly points, M ~3, Opus review ~5–8.
