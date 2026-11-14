@@ -12,7 +12,7 @@ One item per chat; new chat after each merge. Days are a guide (baby). **Stop bu
 |---|---|---|---|---|---|---|---|
 | 1 | Tue | Sonnet | **86** value fixes: coin page uses the same value as Home, never below face for catalog coins, report Paid = full cost | S (est. 1–2) | 66% | on green | ✅ v0.68.2 |
 | 2 | Wed | Sonnet | **87** 2026 coins (5 quarters, dime, half; facts from usmint.gov) + stop series auto-accepting 2027 + yearly new-coin check line in this plan. First check his saved 2026 dimes/halves | M (est. 3–4) | 60% | on green (asks him if any saved coin is affected) | |
-| 3 | Fri | Sonnet | **88 + 77 search words**: year/mint warning from `EXACT_SLOTS` (warn, don't block) + nickname search (wheat penny, walker, VDB, steel, ASE, war nickel; "Bicentennial" shows all four). He pastes his phone-note word list at the start | M (est. 3) | 60% | on green | |
+| 3 | Fri | Sonnet | **88 + 77 search words**: year/mint warning from `EXACT_SLOTS` (warn, don't block) + nickname search (wheat penny, walker, VDB, steel, ASE, war nickel; "Bicentennial" shows all four). He pastes his phone-note word list at the start. **Plus idea 94:** Source Gift or Pocket change fills Price paid with $0 (+~1 point) | M (est. 3) | 60% | on green | |
 | 4 | Sat | Sonnet | **93** tester welcome PDF: reskin the HOA design ("HOA Welcome PDF — Concept"), new picture, words, colors; he picks the survey link | S (est. 2) | 66% | (design, not code) | |
 | 5 | Sat 11-21+ | Sonnet | **N4 / G** fresh-start repo (carried from last week's plan); he does a few GitHub taps | S (est. 1–2) | 66% | | |
 | 6 | any | you | Update now after each merge · try 2026 coins + a junk coin's value on the phone · enter coins | | | | |
