@@ -54,7 +54,9 @@ function applyPriceFile() {
   const make = (b) => ({ kind: "pricebook", format: 1, source: String(b.source || "Red Book"), edition: String(b.edition || ""), series: b.series || {}, mintage: b.mintage || {}, savedAt: new Date().toISOString() });
   put("pricebook", make(d));
   render();
-  toast("Prices replaced.", { label: "Undo", fn: () => { put("pricebook", make(before || {})); render(); toast("Undone. The earlier prices are back."); } });
+  // Undo puts back exactly what was there (same savedAt). With nothing before, an empty list dated "" so any backup with prices still wins.
+  const back = before ? JSON.parse(JSON.stringify(before)) : { kind: "pricebook", format: 1, source: "Red Book", edition: "", series: {}, mintage: {}, savedAt: "" };
+  toast("Prices replaced.", { label: "Undo", fn: () => { put("pricebook", back); render(); toast("Undone. The earlier prices are back."); } });
 }
 async function savePriceFile() {
   const msg = $("#priceMsg"), say = (t) => { if (msg) msg.textContent = t; };
@@ -68,5 +70,5 @@ async function savePriceFile() {
 }
 Object.assign(actions, { savePriceFile: () => savePriceFile() });
 document.addEventListener("change", (e) => {
-  if (e.target.id === "priceFile" && e.target.files && e.target.files[0]) readPriceFile(e.target.files[0]);
+  if (e.target.id === "priceFile" && e.target.files && e.target.files[0]) { const f = e.target.files[0]; e.target.value = ""; readPriceFile(f); } // cleared so the same file can be picked again
 });

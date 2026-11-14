@@ -6,7 +6,7 @@ const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
 ok("catalog/pricebook*.js are gone", !fs.readdirSync(path.join(root, "catalog")).some((f) => /^pricebook/.test(f)));
 const skip = new Set([".git", "node_modules"]);
 const files = [];
-(function walk(d) { fs.readdirSync(d, { withFileTypes: true }).forEach((e) => { if (skip.has(e.name)) return; const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.(js|html|json|webmanifest|css)$/.test(e.name)) files.push(f); }); })(root);
+(function walk(d) { fs.readdirSync(d, { withFileTypes: true }).forEach((e) => { if (skip.has(e.name)) return; const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.(js|html|json|webmanifest|css|md|csv|txt)$/.test(e.name)) files.push(f); }); })(root);
 const fixture = path.join(root, "tests", "fixtures", "prices.json");
 const tableLike = [/"rows"\s*:\s*\{\s*"\d{4}/, /\brows\s*:\s*\{\s*"\d{4}/, /"\d{4}(-[A-Z]{1,2})?(\|[^"]*)?"\s*:\s*\[\s*\d+(\.\d+)?\s*,\s*(\d+(\.\d+)?|null)\s*,/];
 const hits = files.filter((f) => f !== fixture && tableLike.some((re) => re.test(fs.readFileSync(f, "utf8")))).map((f) => path.relative(root, f));

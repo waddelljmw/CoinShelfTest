@@ -35,6 +35,9 @@ const copy = () => JSON.parse(JSON.stringify(fx));
   ok("the page shows the series list", /Test Book prices on this phone: Made-up · 8 series/.test(await p.textContent("#bookStatus")));
   await p.click("#toast button"); await p.waitForTimeout(300);
   ok("Undo: no book values again, nothing else lost", (await price()) === null && (await p.evaluate(() => store.docs.get("pricebook").series && Object.keys(store.docs.get("pricebook").series).length)) === 0);
+  ok("Undo with nothing before leaves an undated empty list", (await p.evaluate(() => store.docs.get("pricebook").savedAt)) === "");
+  ok("a backup with prices beats that empty list, even an old one", await p.evaluate((f) => Object.keys(mergeRestored("pricebook", { ...f, kind: "pricebook", savedAt: "2019-01-01T00:00:00.000Z" }).series).length === 8, fx));
+  ok("no false dip in value over time while no prices are loaded", await p.evaluate(() => { store.docs.set("history", { kind: "history", days: { "2020-01-01": { v: 500, m: 10, n: 3 } } }); recordHistory(); const d = store.docs.get("history").days; store.docs.delete("history"); return Object.keys(d).length === 1; }));
   await open();
   ok("after Undo the page asks for a file again", /No prices yet/.test(await msg()));
 
@@ -49,6 +52,7 @@ const copy = () => JSON.parse(JSON.stringify(fx));
     ok("refused: " + name + " (" + m.slice(0, 70) + ")", re.test(m) && /not changed/.test(m) || (/isn't a Coin Cabinet price file|too big/.test(m) && re.test(m)));
     ok("  prices unchanged and no question asked", JSON.stringify(await rec()) === JSON.stringify(base) && (await price()) === basePrice && sheet === 0);
   };
+  ok("an empty list doesn't beat a backup's prices, but a newer real one keeps", await p.evaluate((f) => mergeRestored("pricebook", { ...f, kind: "pricebook", savedAt: "2019-01-01T00:00:00.000Z" }) === store.docs.get("pricebook"), fx));
   await bad("cut-short.json", JSON.stringify(copy()).slice(0, 200), /isn't a Coin Cabinet price file/);
   await bad("not-prices.json", { kind: "backup", format: 1, series: {} }, /isn't a Coin Cabinet price file/);
   await bad("newer.json", { ...copy(), format: 2 }, /newer version/);
