@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (Sonnet, This week item 8: 79a bring your own values; he asks before merge):** 11.6 done (v0.66.1, PR 214: Silver Eagle plain date = ordinary coin, (P)/(S)/(W) choices, saved W coins still find values; corrected private price file sent in chat, he loads it on his phone). 11.3 + 11.4 done (v0.65.0, PR 213). N2 + N3 done (v0.66.0, PR 210). Next week N4 (G fresh-start repo) not before **Sat 11-21**. Go down the tables while weekly is under each item's number; stop at 70%. Already done, don't redo: 11.0–11.6, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3. App is v0.66.1.
+**Next session starts here (nothing left in this week's table; next is N4 G fresh-start repo, Sonnet, not before Sat 11-21; or Extras if weekly allows):** 79a done (v0.67.0, PR 217: Options > Load your own values, CSV, match columns, preview, Undo; adds to the saved price list; skips mints a type never had; warns on repeated coins). 11.6 done (v0.66.1, PR 214). 11.3 + 11.4 done (v0.65.0, PR 213). N2 + N3 done (v0.66.0, PR 210). Go down the tables while weekly is under each item's number; stop at 70%. Already done, don't redo: 11.0–11.6, 79a, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3. App is v0.67.0.
 
 ## This week, run as a new week (Thu 11-12 → Tue 11-17 1pm): the Nov 17 update, a week early
 Fable did last week's plan early, so this week does the Nov 17 update. Days are a guide (baby). One item per chat; new chat after each merge. **Stop building at 70% weekly.**
@@ -17,7 +17,7 @@ Fable did last week's plan early, so this week does the Nov 17 update. Days are 
 | 5 | **Sat+** | Sonnet | **11.3** remove Red Book prices from the site (`reviews/14`) | M | 63% | **waits for review** | ✅ v0.65.0 (PR 213) |
 | 6 | Sun | **Opus** | **11.4** review of 11.3, fixes, his OK, merge | S | 60% | asks him | ✅ merged with 11.3 |
 | 7 | Mon | Sonnet | **11.6** Silver Eagles by private file (attach Drive price file + Red Book page photo); after 11.4 | S | 66% | on green ✅ v0.66.1 (PR 214) |
-| 8 | Mon | Sonnet | **79a** bring your own values (spreadsheet: match columns, preview, confirm); after 11.4; writes his price record | M | 62% | asks him | |
+| 8 | Mon | Sonnet | **79a** bring your own values (spreadsheet: match columns, preview, confirm); after 11.4; writes his price record | M | 62% | asks him | ✅ v0.67.0 (PR 217) |
 | 9 | Tue AM | Sonnet | **55 + 56** mode-switch confirm; tap Coins sold (one PR) | S | 66% | on green | ✅ v0.62.1 |
 | 10 | any | you | Update now after each merge · three known coins same values after 11.4 · enter coins | | | | |
 
