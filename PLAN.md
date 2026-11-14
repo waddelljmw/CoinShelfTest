@@ -2,7 +2,7 @@
 
 Last updated November 14, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (Sonnet, Nov 17 week item 4: 93 tester welcome PDF, a design job, $0 paid; can start now, before the reset (see Use-it-up rule); items 1–3 done (86 v0.68.2, 87 v0.69.0, 88+77+94 v0.70.0)):** reskin the HOA design ("HOA Welcome PDF — Concept"): new picture, words, colors; he picks the survey link. Go down the table while weekly is under 95% (use-it-up rule); stop at 70% after the Tue reset. Already done, don't redo: 11.0–11.6, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3, 79a, A, B, 86, 87, 88, 77, 94. App is v0.70.0.
+**Next session starts here (Sonnet, Nov 17 week item 5: N4 / G fresh-start repo, small, waits for Sat 11-21; items 1–4 done (86 v0.68.2, 87 v0.69.0, 88+77+94 v0.70.0, 93 welcome page design done 11-14)):** he does a few GitHub taps, Claude does the rest. Until Sat 11-21: enter coins and try 2026 coins + a junk coin's value on the phone (item 6). 93 design: Claude artifact "Coin Cabinet Tester Welcome"; he still picks the survey link (placeholder [SURVEY LINK]) and names for [NAME]. Stop at 70% after the Tue reset. Already done, don't redo: 11.0–11.6, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3, 79a, A, B, 86, 87, 88, 77, 94, 93. App is v0.70.0.
 
 **Yearly new-coin check (every January, and when the Mint announces):** read usmint.gov for the new year's circulating coins; add or raise `end` for series that continue (a type no longer runs on by itself; `views.js` `typeLastYear`); update EXACT_SLOTS and `designs()` in `catalog/data.js`. Known for 2027: the dime goes back to Roosevelt (raise `roosevelt-clad` end to 2027), quarters and half dollars get Youth and Paralympic Sports reverses. Also check the 2026 nickel (dual date 1776 ~ 2026, same Jefferson type).
 
@@ -15,7 +15,7 @@ One item per chat; new chat after each merge. Days are a guide (baby). **Stop bu
 | 1 | Tue | Sonnet | **86** value fixes: coin page uses the same value as Home, never below face for catalog coins, report Paid = full cost | S (est. 1–2) | 66% | on green | ✅ v0.68.2 |
 | 2 | Wed | Sonnet | **87** 2026 coins (5 quarters, dime, half; facts from usmint.gov) + stop series auto-accepting 2027 + yearly new-coin check line in this plan. First check his saved 2026 dimes/halves | M (est. 3–4) | 60% | on green (asks him if any saved coin is affected) | ✅ v0.69.0 |
 | 3 | Fri | Sonnet | **88 + 77 search words**: year/mint warning from `EXACT_SLOTS` (warn, don't block) + nickname search (wheat penny, walker, VDB, steel, ASE, war nickel; "Bicentennial" shows all four). He pastes his phone-note word list at the start. **Plus idea 94:** Source Gift or Pocket change fills Price paid with $0 (+~1 point) | M (est. 3) | 60% | on green | ✅ v0.70.0 |
-| 4 | Sat | Sonnet | **93** tester welcome PDF: reskin the HOA design ("HOA Welcome PDF — Concept"), new picture, words, colors; he picks the survey link | S (est. 2) | 66% | (design, not code) | |
+| 4 | Sat | Sonnet | **93** tester welcome PDF: reskin the HOA design ("HOA Welcome PDF — Concept"), new picture, words, colors; he picks the survey link | S (est. 2) | 66% | (design, not code) | ✅ 11-14 |
 | 5 | Sat 11-21+ | Sonnet | **N4 / G** fresh-start repo (carried from last week's plan); he does a few GitHub taps | S (est. 1–2) | 66% | | |
 | 6 | any | you | Update now after each merge · try 2026 coins + a junk coin's value on the phone · enter coins | | | | |
 
