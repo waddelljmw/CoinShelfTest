@@ -20,17 +20,18 @@ const fx = require("./fixtures/prices.json");
 
   // 1. Odd headings, a $ and comma value, a combined 1884-CC year, a proof row, and bad rows that must be skipped.
   const csv = ["Series,Date,Grade,Price", "Morgan Dollar,1881-S,MS-65,\"$1,250.50\"", "Morgan Dollar,1881-S,MS-63,100", "Morgan Dollar,1884-CC,AU-55,300", "Morgan Dollar,1881,PR-65,900",
-    "Mercury Dime,1942,MS-65,45", "Nonsense Coin,1900,MS-65,5", "Morgan Dollar,1950,MS-65,5", "Morgan Dollar,1881,Banana,5", "Morgan Dollar,1881,MS-65,abc", "Morgan Dollar,,MS-65,5"].join("\n");
+    "Mercury Dime,1942,MS-65,45", "Nonsense Coin,1900,MS-65,5", "Morgan Dollar,1950,MS-65,5", "Morgan Dollar,1881,Banana,5", "Morgan Dollar,1881,MS-65,abc", "Morgan Dollar,,MS-65,5", "Morgan Dollar,1881-Z,MS-65,5", "Morgan Dollar,1881-S,MS-63,120"].join("\n");
   await p.setInputFiles("#ownValuesFile", file("mine.csv", csv)); await p.waitForTimeout(300);
   let sheet = await p.textContent(".sheet");
   ok("columns matched by themselves, preview shows 5 values for 2 types: " + sheet.replace(/\s+/g, " ").slice(0, 110), /5 values/.test(sheet) && /2 coin types/.test(sheet) && /5 new, 0 replacing/.test(sheet));
-  ok("5 bad rows are listed as skipped", /5 rows skipped/.test(sheet));
+  ok("6 bad rows skipped, repeated coin warned", /6 rows skipped/.test(sheet) && /1 repeated coin with different numbers/.test(sheet));
+  ok("a mint the type never had (1881-Z) is skipped with the reason", await p.evaluate(() => ovParse().bad.some((b) => /no "Z" mint/.test(b.why))));
   ok("nothing saved before confirming", (await rec()) === null);
   await p.click("[data-act=applyOv]"); await p.waitForTimeout(300);
   const r = await rec();
   ok("record keeps the price-file shape and the name", r && r.kind === "pricebook" && r.format === 1 && r.source === "My values" && Object.keys(r.series).length === 2);
   ok("typed-in $1,250.50 is the MS-65 price", (await price(coin())) === 1250.5);
-  ok("lower grade (MS-64) uses the MS-63 price", (await price(coin({ grade: "MS-64" }))) === 100);
+  ok("lower grade (MS-64) uses the MS-63 price (last repeated row, 120, wins)", (await price(coin({ grade: "MS-64" }))) === 120);
   ok("combined year-mint 1884-CC works", (await price(coin({ year: "1884", mint: "CC", grade: "AU-55" }))) === 300);
   ok("proof row works", (await price(coin({ grade: "PR-65", year: "1881" }))) === 900);
   ok("coins untouched (none made)", await p.evaluate(() => allCoins().length === 0));

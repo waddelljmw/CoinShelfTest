@@ -52,13 +52,14 @@ function loadOvText(text, fileName) {
 }
 // Turns the rows into price cells and a list of rows that couldn't be used. Changes nothing.
 function ovParse() {
-  const m = ov.map, cells = new Map(), bad = [];
+  const m = ov.map, cells = new Map(), bad = []; let dups = 0;
   const get = (r, k) => (m[k] == null ? "" : String(r[m[k]] == null ? "" : r[m[k]]).trim());
   ov.rows.forEach((r, n) => {
     const line = n + 2, typeText = get(r, "type");
     const fail = (why) => bad.push({ line, why });
     if (!typeText && !get(r, "year") && !get(r, "value")) return;
-    const sy = splitYear(get(r, "year")), year = sy.year;
+    const yc = get(r, "year"), ym = yc.match(/^(\d{4})\s*-?\s*([A-Za-z]{0,2})$/); // "1881" or "1881-S" (any letters are kept, so a wrong mint is reported, not dropped)
+    const sy = ym ? { year: +ym[1], mint: ym[2].toUpperCase() || null } : splitYear(yc), year = sy.year;
     if (!year) return fail("no year");
     const t = matchType(typeText, year, "", "");
     if (!t) return fail(typeText ? "coin type \"" + typeText.slice(0, 24) + "\" not recognized" : "no coin type");
@@ -68,12 +69,15 @@ function ovParse() {
     if (!g || g === "Other" || g === "Junk") return fail("grade \"" + get(r, "grade").slice(0, 12) + "\" not recognized");
     const raw = get(r, "value").replace(/[$,\s]/g, ""), v = raw === "" ? NaN : +raw;
     if (!isFinite(v) || v < 0) return fail("value \"" + get(r, "value").slice(0, 12) + "\" is not a number");
-    const mint = normMint(parseMint(get(r, "mint")) || sy.mint || "");
-    const kind = isProofGrade(g) ? "proof" : "circ";
+    const letter = parseMint(get(r, "mint")) || sy.mint || "", kind = isProofGrade(g) ? "proof" : "circ";
+    if (letter && kind === "circ" && t.mints && !t.mints.includes(letter)) return fail(t.name + " " + year + ": no \"" + letter + "\" mint (" + t.mints.join(", ") + ")");
+    const mint = normMint(letter);
     const key = String(year) + (kind === "proof" || !mint ? "" : "-" + mint);
-    cells.set([t.id, kind, key, g].join("\u0001"), { id: t.id, kind, key, g, v: Math.round(v * 100) / 100 });
+    const ck = [t.id, kind, key, g].join("\u0001"), val = Math.round(v * 100) / 100;
+    if (cells.has(ck) && cells.get(ck).v !== val) dups++; // same coin and grade twice with different numbers: the last one wins
+    cells.set(ck, { id: t.id, kind, key, g, v: val });
   });
-  return { cells: [...cells.values()], bad };
+  return { cells: [...cells.values()], bad, dups };
 }
 // The saved record with these cells added. Same shape as a price file (format 1); nothing else about it changes.
 function ovMerge(rec, cells, source) {
@@ -105,7 +109,7 @@ function renderOv() {
     <details ${ready ? "" : "open"}><summary>Match columns</summary><div class="grid2">${OV_FIELDS.map((f) => sel(f.key)).join("")}</div></details>
     ${!ready ? `<div class="banner" style="margin:12px 0 0">Pick a column for Coin type, Year, Grade and Value to continue.</div>` : `
     <h2>Preview</h2>
-    <div class="card small"><b>${p.cells.length.toLocaleString("en-US")} value${p.cells.length === 1 ? "" : "s"}</b> for ${nSeries} coin type${nSeries === 1 ? "" : "s"}: ${fresh} new, ${changed} replacing a price already here.${p.bad.length ? `<br><b>${p.bad.length} row${p.bad.length === 1 ? "" : "s"} skipped</b>` : ""}</div>
+    <div class="card small"><b>${p.cells.length.toLocaleString("en-US")} value${p.cells.length === 1 ? "" : "s"}</b> for ${nSeries} coin type${nSeries === 1 ? "" : "s"}: ${fresh} new, ${changed} replacing a price already here.${p.dups ? `<br><b>${p.dups} repeated coin${p.dups === 1 ? "" : "s"} with different numbers</b>: the last one in the file is used.` : ""}${p.bad.length ? `<br><b>${p.bad.length} row${p.bad.length === 1 ? "" : "s"} skipped</b>` : ""}</div>
     <div class="list" style="margin-top:6px">${sample}</div>
     ${p.bad.length ? `<details><summary>Skipped rows (${p.bad.length})</summary>${p.bad.slice(0, 15).map((b) => `<div class="small muted">Row ${b.line}: ${esc(b.why)}</div>`).join("")}${p.bad.length > 15 ? `<div class="small muted">…and ${p.bad.length - 15} more</div>` : ""}</details>` : ""}
     <label class="f"><span>Name shown next to these values</span><input type="text" id="ovSource" value="${esc(ov.source)}"></label>
