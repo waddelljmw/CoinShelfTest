@@ -1,40 +1,27 @@
 # Coin Cabinet: Master Plan
 
-Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
+Last updated November 14, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (Sonnet, This week item 8: 79a bring your own values; he asks before merge):** 11.6 done (v0.66.1, PR 214: Silver Eagle plain date = ordinary coin, (P)/(S)/(W) choices, saved W coins still find values; corrected private price file sent in chat, he loads it on his phone). 11.3 + 11.4 done (v0.65.0, PR 213). N2 + N3 done (v0.66.0, PR 210). Next week N4 (G fresh-start repo) not before **Sat 11-21**. Go down the tables while weekly is under each item's number; stop at 70%. Already done, don't redo: 11.0–11.6, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3. App is v0.66.1.
+**Next session starts here (Sonnet, Nov 17 week item 1: 86 value fixes; after the Tue 11-17 1pm reset; merge on green):** planning for the Nov 17 week was held early on Sat 11-14 (minutes `reviews/16`). Last week's list is all done: 79a v0.67.0 (PR 217), inherited guard + code map v0.68.0 (PR 219), snapshot privacy v0.68.1 (PR 220). Go down the table while weekly is under each item's number; stop at 70%. Already done, don't redo: 11.0–11.6, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3, 79a, A, B. App is v0.68.1.
 
-## This week, run as a new week (Thu 11-12 → Tue 11-17 1pm): the Nov 17 update, a week early
-Fable did last week's plan early, so this week does the Nov 17 update. Days are a guide (baby). One item per chat; new chat after each merge. **Stop building at 70% weekly.**
-**Wait rule:** 11.3 not before **Sat 11-14** (his phone needs a few days on v0.59.0+; phone steps done). Everything that depends on it (11.4, 11.6, 79a, G) waits too. Never merge anything marked "merge waits" outside its review.
+## This week (Tue 11-17 1pm → Tue 11-24 1pm): the "accurate entry" update (2 M + 2 S, planned 11-14)
+One item per chat; new chat after each merge. Days are a guide (baby). **Stop building at 70% weekly.** Fantasy runs Thu ~7pm and Sun 12:30pm come first (~2 points each). Nothing here changes how coins are saved; if one turns out to, stop and ask.
 
 | # | Day | Model | What | Size | Start if weekly under | Merge | Done |
 |---|---|---|---|---|---|---|---|
-| 1 | Thu | Sonnet | **11.5** contrast check (`reviews/14`) | S | 66% | on green | ✅ |
-| 2 | Thu | Sonnet | **81 + 82** Forward loses typing; fast double-tap on ✕ (one PR) | S | 66% | on green | ✅ v0.61.6 |
-| 3 | Fri | Sonnet | **52** walkthrough fixes | M | 63% | on green | ✅ v0.61.7 |
-| 4 | Fri | Sonnet | **80** show Album › Box › Shelf where a coin is kept | S–M | 64% | on green | ✅ v0.62.0 (+ Next on walkthrough steps 1 and 4) |
-| 5 | **Sat+** | Sonnet | **11.3** remove Red Book prices from the site (`reviews/14`) | M | 63% | **waits for review** | ✅ v0.65.0 (PR 213) |
-| 6 | Sun | **Opus** | **11.4** review of 11.3, fixes, his OK, merge | S | 60% | asks him | ✅ merged with 11.3 |
-| 7 | Mon | Sonnet | **11.6** Silver Eagles by private file (attach Drive price file + Red Book page photo); after 11.4 | S | 66% | on green ✅ v0.66.1 (PR 214) |
-| 8 | Mon | Sonnet | **79a** bring your own values (spreadsheet: match columns, preview, confirm); after 11.4; writes his price record | M | 62% | asks him | |
-| 9 | Tue AM | Sonnet | **55 + 56** mode-switch confirm; tap Coins sold (one PR) | S | 66% | on green | ✅ v0.62.1 |
-| 10 | any | you | Update now after each merge · three known coins same values after 11.4 · enter coins | | | | |
+| 1 | Tue | Sonnet | **86** value fixes: coin page uses the same value as Home, never below face for catalog coins, report Paid = full cost | S | 66% | on green | |
+| 2 | Wed | Sonnet | **87** 2026 coins (5 quarters, dime, half; facts from usmint.gov) + stop series auto-accepting 2027 + yearly new-coin check line in this plan. First check his saved 2026 dimes/halves | M | 60% | on green (asks him if any saved coin is affected) | |
+| 3 | Fri | Sonnet | **88 + 77 search words**: year/mint warning from `EXACT_SLOTS` (warn, don't block) + nickname search (wheat penny, walker, VDB, steel, ASE, war nickel; "Bicentennial" shows all four). He pastes his phone-note word list at the start | M | 60% | on green | |
+| 4 | Sat | Sonnet | **93** tester welcome PDF: reskin the HOA design ("HOA Welcome PDF — Concept"), new picture, words, colors; he picks the survey link | S | 66% | (design, not code) | |
+| 5 | Sat 11-21+ | Sonnet | **N4 / G** fresh-start repo (carried from last week's plan); he does a few GitHub taps | S | 66% | | |
+| 6 | any | you | Update now after each merge · try 2026 coins + a junk coin's value on the phone · enter coins | | | | |
 
-## Next week (Tue 11-17 → Tue 11-24): planned now so it can be pulled in (2 M + 2 S)
-Blueprint order (`reviews/11`): after A comes F1 and E with idea 77. **Pull in** once this week's list is done, top to bottom, if weekly is under the number (e.g. with 15% left on Tue morning). Tue 1pm planning only confirms or swaps.
+**Pull in early** (only if all above are done and weekly is under 60%): 89 war nickel + Indian cent, 91 album delete confirm, 90 Back keeps scroll (each S, Sonnet). **Next planning:** 83 + 84 together (one 4-box check, Opus).
 
-| # | Model | What | Size | Start if weekly under | Merge | Done |
-|---|---|---|---|---|---|---|
-| N1 | Sonnet | **F1** fix a hand-typed type's name (IDEAS 58 first step, blueprint F) | S | 66% | asks him (saved coin data) ✅ v0.63.0 |
-| N2 | Sonnet | **E + 77** always a year or a "too worn" tick, new coins only (IDEAS 60, blueprint E) + type the year first; label `waits for review` | M + M | 60% | **waits for review** | ✅ v0.66.0 (PR 210) |
-| N3 | **Opus** | Review of N2, fixes, his OK, merge | (with N2) | 60% | asks him | ✅ |
-| N4 | Sonnet | **G** fresh-start repo; not before **Sat 11-21** (a week after 11.4); he does a few GitHub taps | S | 66% | | |
-
-### Extras (filler only after both tables; Sonnet; none changes how coins are saved)
+### Extras (filler only after the table and Pull in early; Sonnet; none changes how coins are saved)
 57 small help hints (S) · 70 add missing coins to a want list (S/M) · 34 + 35 Kept in for boxes, swap trays (S) · 46 remove from album (S; he answers one question first) · 59 fill from the album spot (M) · 61 report filters (M). Budget: S ~1–2 weekly points, M ~3, Opus review ~5–8.
 
-## This week (Tue 2026-11-10 → Tue 11-17): done except step 8
+## Done: week of Nov 10 (kept for history)
 He works when he can (baby); days are a guide only. Deadlines: Fable + reset by **Sun 11-16 11:59pm PT**; stop building at ~70% weekly.
 
 | Step | Guide day | Model | What | Done |
