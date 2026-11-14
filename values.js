@@ -188,7 +188,12 @@ function valueSource(c) {
 // Best available value: entered value, else melt.
 // Last resort for a single coin with no value, no Red Book price and no melt: its face value (catalog coins only).
 const faceEach = (c) => { const t = itemOf(c) === "coin" && TYPE_BY_ID[c.typeId]; return t && t.face ? t.face : null; };
-const bestEach = (c) => valueEach(c) ?? meltEach(c) ?? faceEach(c);
+// Same number everywhere (Home, coin page, reports). A catalog coin worth only melt never shows under its face value.
+const bestEach = (c) => {
+  const v = valueEach(c) ?? meltEach(c) ?? faceEach(c);
+  const f = faceEach(c);
+  return f != null && v != null && num(c.value) == null && v < f && valueSource(c) !== "book" ? f : v;
+};
 const qtyOf = (c) => Math.max(1, num(c.qty) || 1);
 // Holder: saved choice, or for older coins (saved before holders existed) worked out from the album / certified fields.
 const holderOf = (c) => normHolder(c.holder) || (c.albumId ? "Album" : c.gradeMode === "cert" ? "Slab" : "");
