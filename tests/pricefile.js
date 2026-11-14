@@ -66,6 +66,8 @@ const copy = () => JSON.parse(JSON.stringify(fx));
   d = copy(); d.series["__proto__x"] = []; await bad("odd-series.json", d, /not in the right shape/);
   await bad("too-big.json", " ".repeat(2 * 1024 * 1024 + 10), /too big/);
 
+  ok("the 11.2 private file (kind coin-cabinet-prices) is accepted", await p.evaluate((f) => !checkPriceFile({ ...f, kind: "coin-cabinet-prices" }).error, fx));
+
   // 4. Save price file: writes the saved list; loading that file back is accepted.
   await open();
   await p.evaluate(() => { window.__saved = null; downloadsApi = { save: async (o) => { window.__saved = o; } }; });
