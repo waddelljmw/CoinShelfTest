@@ -82,7 +82,7 @@ const record = () => store.docs.get("pricebook");
 
   // 5. View-only file: no price table inside, and the coin shows the same value.
   const want = await p.evaluate(() => { const c = getCoin("pc1"); return [bookPrice(c), bookText(bookLookup(c)), mintageInfo(c).text, valueSource(c)]; });
-  const html = await p.evaluate(() => buildSnapshot({}));
+  const html = await p.evaluate(() => buildSnapshot({ values: true }));
   ok("view-only file holds no price table", !/SHIPPED_PRICE_BOOK\s*=/.test(html) && !/"rows":\{/.test(html) && !/"pricebook"/.test(html.split("window.COIN_SNAPSHOT")[1].split("</script>")[0]) && !html.includes("1881-S\":["));
   console.log("snapshot size", Math.round(html.length / 1024) + " KB");
   const sf = path.join(tmp, "snap.html"); fs.writeFileSync(sf, html);

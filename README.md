@@ -11,7 +11,7 @@ A private app for keeping track of a coin collection: what you own, where it is,
 - **Albums:** type an album's brand and number (e.g. Whitman 9122) and the app builds it with the right dates, mint marks, designs and proof spots. Tap any spot to add the coin you have or put it on your want list.
 - **Want lists:** several lists, including lists for one coin type or grade, with the most you'd pay.
 - **Sales:** mark coins sold, with shipping, insurance, where it sold and who bought it. Move a coin back if needed.
-- **Reports and sharing:** an insurance report you can print or save as a PDF, a spreadsheet export and import, and a view-only "snapshot" file to show friends (private details left out).
+- **Reports and sharing:** an insurance report you can print or save as a PDF, a spreadsheet export and import, and a view-only "snapshot" file to show friends. It leaves out your business details, inheritance records, asking prices, what you paid, notes, sale details and photos unless you tick them, and coin values (from your price file) are off unless you tick "Coin values".
 
 ## Where your coins are kept
 
