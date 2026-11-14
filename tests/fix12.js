@@ -12,10 +12,10 @@ const { chromium } = require("./_compat");
   const v = await p.evaluate(() => ({ variety: draft.variety, first: document.querySelector("[data-f=variety] option").textContent, hint: document.querySelector("#bookHint").textContent, price: bookPrice(draft) }));
   ok("variety left blank", v.variety === "");
   ok("first option is neutral", v.first === "Not sure / not listed");
-  ok("value is lowest 1878 VF-20 (55), not 8TF (95)", v.price === 55);
+  ok("value is lowest 1878 VF-20 (41), not 8TF (77)", v.price === 41);
   ok("hint explains the estimate", /lowest-priced variety/.test(v.hint));
   await p.selectOption("[data-f=variety]", "8 Tail Feathers"); await p.waitForTimeout(80);
-  ok("picking 8TF gives 95", (await p.evaluate(() => bookPrice(draft))) === 95);
+  ok("picking 8TF gives 77", (await p.evaluate(() => bookPrice(draft))) === 77);
   await p.click("[data-act=closeSheet] >> nth=0");
 
   // --- Fix 1: three 1878 spots, add a coin to each via its spot, then rename + reorder

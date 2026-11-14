@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.65.0": [
+    "Red Book prices are no longer inside the app's public files. They stay on your phone. To move them to another phone, tap Save price file on the Coin Value page, then Load a price file on the other phone. Your coins and values here are unchanged.",
+  ],
   "0.63.0": [
     "Fix a typo in a coin type you typed yourself: open the coin, tap Edit, and change its name, kind or face value. The ID number, photos and where it is kept stay. Coin types from the list still can't change.",
   ],

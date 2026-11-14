@@ -3,7 +3,11 @@
 // so the older tests can keep filling in fields directly. (tests/step23.js tests the real behaviour.)
 const { chromium } = require("playwright");
 const launch = chromium.launch.bind(chromium);
-const script = () => {
+// Since Step 11.3 no prices ship with the app. Test pages get a small made-up price list (tests/fixtures/prices.json,
+// invented numbers) as the starting copy the app saves on first start. Real prices are never in the repo.
+const FIXTURE = { ...JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "fixtures", "prices.json"), "utf8")), complete: true };
+const script = (fx) => {
+  if (fx && !window.SHIPPED_PRICE_BOOK) window.SHIPPED_PRICE_BOOK = fx;
   const go = () => {
     if (document.querySelector("#ppInput")) { const l = document.querySelector(".sheet .btn[data-act=closeSheet]"); if (l) l.click(); } // the metal price pop-up (session 24) would block older tests
     document.querySelectorAll(".what-btn[data-v=us]").forEach((b) => b.click());
@@ -15,9 +19,9 @@ const script = () => {
 chromium.launch = async (...a) => {
   const b = await launch(...a);
   const np = b.newPage.bind(b);
-  b.newPage = async (...x) => { const p = await np(...x); await p.addInitScript(script); return p; };
+  b.newPage = async (...x) => { const p = await np(...x); await p.addInitScript(script, FIXTURE); return p; };
   const nc = b.newContext.bind(b);
-  b.newContext = async (...x) => { const c = await nc(...x); await c.addInitScript(script); return c; };
+  b.newContext = async (...x) => { const c = await nc(...x); await c.addInitScript(script, FIXTURE); return c; };
   return b;
 };
 module.exports = { chromium };

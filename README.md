@@ -2,7 +2,7 @@
 
 A private app for keeping track of a coin collection: what you own, where it is, what it's worth, and its melt value. Built for a phone first.
 
-> **Personal use only.** This is one person's private coin-tracking project, not for distribution or use by others. It includes hand-typed Red Book figures for the owner's own reference. See [NOTICE.md](NOTICE.md).
+> **Personal use only.** This is one person's private coin-tracking project, not for distribution or use by others. It ships no price lists: the owner loads his own price file on his own phone. See [NOTICE.md](NOTICE.md).
 
 ## What it does
 
@@ -21,7 +21,7 @@ On the phone app, coins and photos are saved inside Chrome on your phone, for th
 
 - `index.html` and `styles.css`: the page and how it looks.
 - `app.js` and the other `.js` files at the top level: how the app works.
-- `catalog/`: what the app knows about coins (types, dates, Red Book prices, album numbers).
+- `catalog/`: what the app knows about coins (types, dates, album numbers; no prices, those come from a file you load in Options).
 - `tests/`: automatic checks that run before every change. `node tests/run-all.js` runs them all.
 - `PLAN.md`: the plan and progress checklist. `CLAUDE.md`: working rules for Claude.
 

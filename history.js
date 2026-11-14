@@ -19,6 +19,9 @@ const historyDays = () => ((store.docs.get("history") || {}).days || {});
 // Save today's totals if they changed. Called a moment after any change, and on load.
 function recordHistory() {
   if (store.mode === "snapshot" || store.mode === "loading" || store.mode === "demo") return;
+  // No price list loaded (new phone, or one that skipped 11.2): totals would drop for no real reason. Don't chart that dip;
+  // recording starts again once a price file is loaded. A first-ever day is still saved.
+  if (!Object.keys(PRICE_BOOK.series || {}).length && Object.keys(historyDays()).length) return;
   const t = currentTotals();
   const days = { ...historyDays() };
   const key = today();

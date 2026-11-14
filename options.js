@@ -95,7 +95,9 @@ function redBookHtml() {
   return `<h2>${name} values</h2>
     <div class="card"><div class="small" id="bookStatus" style="margin-bottom:8px"><b>${esc(bookStatusLine())}</b></div>${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof", sms: "SMS" }[k] || k)).join(" · ")}</span></div>`).join("")}
       <label class="f"><span>${name} edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
-      <div class="hint">A coin with no value typed in uses its ${name} ${wi("redbook")} value. Coins below the lowest listed grade use melt.</div></div>`;
+      <div class="hint">A coin with no value typed in uses its ${name} ${wi("redbook")} value. Coins below the lowest listed grade use melt.</div>
+      ${store.mode === "snapshot" ? "" : `<div class="btn-row" style="margin-top:8px"><label class="btn file-btn" style="display:inline-block;text-align:center">Load a price file<input type="file" accept=".json,application/json" id="priceFile"></label><button class="btn" data-act="savePriceFile">Save price file</button></div>
+      <div class="hint" id="priceMsg">${Object.keys(PRICE_BOOK.series || {}).length ? "Keep a saved price file somewhere safe, like Google Drive." : "No prices yet. Tap Load a price file and pick the file you saved from this app. Typed values and melt still work."}</div>`}</div>`;
 }
 // Options: every section folds shut (closed by default, remembered). Splits the page at each heading.
 // Options sections sit under five group headings (Seller Mode keeps its own). Each section still folds on its own.

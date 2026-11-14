@@ -1,14 +1,13 @@
-// Step 11.2: the price list is copied once into a saved record on the phone (key "pricebook") and read from there.
+// Steps 11.2/11.3: the price list is copied once into a saved record on the phone (key "pricebook") and read from there.
 // Nothing the owner sees may change: same values with the shipped price files blocked, in a view-only file, and after a restore.
 const { chromium } = require("./_compat");
 const http = require("http"), fs = require("fs"), path = require("path"), os = require("os");
 const ok = (name, v) => console.log((v ? "PASS " : "FAIL ") + name);
 const J = JSON.stringify;
 const root = path.resolve(__dirname, "..");
-let blockPrices = false;
+
 const srv = http.createServer((q, r) => {
   const u = q.url.split("?")[0];
-  if (blockPrices && (blockPrices === "modern" ? /catalog\/pricebook-modern/ : /catalog\/pricebook/).test(u)) { r.statusCode = 404; return r.end(); }
   fs.readFile(path.join(root, u === "/" ? "index.html" : u), (e, d) => { if (e) { r.statusCode = 404; return r.end(); } if (/\.js$/.test(u)) r.setHeader("Content-Type", "text/javascript"); r.end(d); });
 });
 const URL0 = "http://localhost:8791/";
@@ -16,7 +15,7 @@ const URL0 = "http://localhost:8791/";
 // Three known coins: a Morgan, a Full Bell Lines Franklin and a proof Silver Eagle variety.
 const probe = () => {
   const cc = (o) => ({ ...blankCoin(), gradeMode: "raw", ...o });
-  const list = [cc({ typeId: "morgan-dollar", year: "1881", mint: "S", grade: "MS-65" }), cc({ typeId: "franklin-half", year: "1955", mint: "", grade: "MS-65", fbl: true }), cc({ typeId: "silver-eagle", year: "2017", mint: "S", grade: "PR-69", variety: "San Francisco (S)" })];
+  const list = [cc({ typeId: "morgan-dollar", year: "1881", mint: "S", grade: "MS-65" }), cc({ typeId: "franklin-half", year: "1953", mint: "S", grade: "MS-65", fbl: true }), cc({ typeId: "silver-eagle", year: "2017", mint: "S", grade: "PR-69", variety: "San Francisco (S)" })];
   return list.map((c) => [bookPrice(c), bookText(bookLookup(c)), (mintageInfo(c) || {}).text || ""]);
 };
 const record = () => store.docs.get("pricebook");
@@ -33,29 +32,26 @@ const record = () => store.docs.get("pricebook");
   await open();
   const first = await p.evaluate(() => { const r = store.docs.get("pricebook"); return { mode: store.mode, r: r && { kind: r.kind, format: r.format, source: r.source, edition: r.edition, savedAt: r.savedAt }, same: !!r && JSON.stringify(r.series) === JSON.stringify(SHIPPED_PRICE_BOOK.series) && JSON.stringify(r.mintage) === JSON.stringify(SHIPPED_PRICE_BOOK.mintage), series: r ? Object.keys(r.series).length : 0, used: Object.keys(PRICE_BOOK.series).length }; });
   ok("saves on this device", first.mode === "local");
-  ok("fresh start saves a pricebook record", !!first.r && first.r.kind === "pricebook" && first.r.format === 1 && first.r.source === "Red Book" && first.r.edition === "2026" && !!first.r.savedAt);
-  ok("record equals the shipped price list (13 series)", first.same && first.series === 13 && first.used === 13);
+  ok("fresh start saves a pricebook record", !!first.r && first.r.kind === "pricebook" && first.r.format === 1 && first.r.source === "Test Book" && first.r.edition === "Made-up" && !!first.r.savedAt);
+  ok("record equals the starting copy a test page supplies (8 series)", first.same && first.series === 8 && first.used === 8);
   const before = await p.evaluate(probe);
-  ok("known coins have values", before.every((x) => x[0] > 0 && /^Red Book 2026: \$/.test(x[1]) && x[2]));
+  ok("known coins have values", before.every((x) => x[0] > 0 && /^Test Book Made-up: \$/.test(x[1]) && x[2]));
   console.log("values", J(before));
 
   // Add a real coin (for the view-only file and the Options line).
   await p.evaluate(() => { const c = { ...blankCoin(), id: "pc1", kind: "coin", status: "owned", typeId: "morgan-dollar", typeName: "Morgan Dollar", denom: "$1", year: "1881", mint: "S", gradeMode: "raw", grade: "MS-65", qty: 1 }; return put("c_pc1", c); });
   const pageText = async (pg) => { await pg.evaluate(() => go("coin-pc1")); await pg.waitForTimeout(200); return pg.evaluate(() => document.querySelector("#view").innerText); };
   const coinPage = await pageText(p);
-  ok("coin page says Value each (Red Book)", /Value each \(Red Book\)/.test(coinPage));
+  ok("coin page says Value each (Red Book)", /Value each \(Test Book\)/.test(coinPage));
   const opt = await p.evaluate(() => bookStatusLine());
-  ok("Options line: " + opt, /^Red Book prices on this phone: 2026 · 13 series · saved [A-Z][a-z]{2} \d{1,2}$/.test(opt));
-  ok("Options page shows the line", await p.evaluate(() => /Red Book prices on this phone/.test(redBookHtml())));
+  ok("Options line: " + opt, /^Test Book prices on this phone: Made-up · 8 series · saved [A-Z][a-z]{2} \d{1,2}$/.test(opt));
+  ok("Options page shows the line", await p.evaluate(() => /Test Book prices on this phone/.test(redBookHtml())));
 
-  // 2. Block both shipped files and reload: same values, read from the record. The record is not rewritten.
-  blockPrices = true;
+  // 2. Reload: same values, read from the saved record. The record is not rewritten.
   await open();
-  const noShip = await p.evaluate(() => ({ shipped: typeof SHIPPED_PRICE_BOOK !== "undefined", savedAt: store.docs.get("pricebook").savedAt }));
-  ok("shipped price files are blocked", noShip.shipped === false);
+  const again = await p.evaluate(() => ({ savedAt: store.docs.get("pricebook").savedAt }));
   ok("same values from the saved record", J(await p.evaluate(probe)) === J(before));
-  ok("the record was not written again", noShip.savedAt === first.r.savedAt);
-  blockPrices = false;
+  ok("the record was not written again", again.savedAt === first.r.savedAt);
 
   // 3. A record that differs from the shipped one wins (so a price file loaded later is never overwritten).
   await p.evaluate(() => { const r = JSON.parse(JSON.stringify(store.docs.get("pricebook"))); const t = r.series["morgan-dollar"].circ; t.rows["1881-S"] = t.rows["1881-S"].map(() => 4321); r.edition = "2031"; r.source = "Test Guide"; return put("pricebook", r, true); });
@@ -112,19 +108,6 @@ const record = () => store.docs.get("pricebook");
   await dp.close();
   await open();
   ok("the demo did not touch the saved price list", (await p.evaluate(probe))[0][0] === 222);
-
-  // 7. Review fix: only one of the two shipped files arrives on the first open. Nothing is saved (a half list would stay forever); the next open saves the whole list.
-  const ctx2 = await b.newContext({ serviceWorkers: "block" });
-  const h = await ctx2.newPage();
-  blockPrices = "modern";
-  await h.goto(URL0); await h.waitForTimeout(500);
-  const half = await h.evaluate(() => ({ saved: !!store.docs.get("pricebook"), inUse: Object.keys(PRICE_BOOK.series).length, morgan: bookPrice({ typeId: "morgan-dollar", year: "1881", mint: "S", grade: "MS-65", gradeMode: "raw" }) }));
-  ok("half a price list is not saved", half.saved === false);
-  ok("the half that arrived still gives values for now", half.inUse > 0 && half.inUse < 13 && half.morgan > 0);
-  blockPrices = false;
-  await h.goto(URL0); await h.waitForTimeout(500);
-  ok("the next open saves the whole list (13 series)", await h.evaluate(() => Object.keys((store.docs.get("pricebook") || { series: {} }).series).length) === 13);
-  await ctx2.close();
 
   ok("no page errors", errors.length === 0);
   console.log("errors", J(errors.concat(serr, derr)));
