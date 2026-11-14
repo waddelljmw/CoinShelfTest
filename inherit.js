@@ -97,6 +97,32 @@ function inhPrepSave(c) {
   if (!(al && al.inherited)) delete c.origAlbum; else c.origAlbum = !!c.origAlbum;
 }
 
+/* ---------- Edit: leaving Inherited ---------- */
+// A saved inherited coin whose Source is changed away from Inherited loses who/when/value, so ask first.
+// The question sits on top of the form (openSheetOver) so the typing stays put.
+function inhLeaveAsk(d) {
+  if (d._isNew || d._srcOk) return false;
+  const prev = getCoin(d.id);
+  if (!prev || !isInherited(prev) || isInherited(d)) return false;
+  openSheetOver(`<div class="sheet-head"><h2>No longer inherited?</h2><button class="x" data-act="inhLeaveKeep" aria-label="Close">✕</button></div>
+    <p>Changing Where from loses who it came from, when, and its value when inherited (used for tax records).</p>
+    <div class="btn-row"><button class="btn danger" data-act="inhLeaveOk">Change it</button><button class="btn" data-act="inhLeaveKeep">Keep Inherited</button></div>`);
+  return true;
+}
+function inhLeaveClose(then) { // take the question off the form, then carry on (same steps as wordBack)
+  if (sheetLayers.length && sheetMarks) { sheetMarks--; sheetPopping = true; sheetPopCb = () => { sheetLayerBack(); then(); }; history.back(); }
+  else { hideTopSheet(); sheetLayers = []; then(); }
+}
+Object.assign(actions, {
+  inhLeaveOk: () => inhLeaveClose(() => { if (draft) { draft._srcOk = true; saveDraft(); } }),
+  inhLeaveKeep: () => inhLeaveClose(() => {
+    const prev = draft && getCoin(draft.id);
+    if (!prev) return;
+    ["source", "inhId", "inhValue", "origAlbum"].forEach((k) => { if (prev[k] === undefined) delete draft[k]; else draft[k] = prev[k]; });
+    draft._sourceKind = "Inherited"; renderCoinForm();
+  }),
+});
+
 /* ---------- Coin page ---------- */
 function coinInhHtml(c) {
   const miss = missingOf(c);
@@ -143,4 +169,4 @@ Object.assign(actions, {
     listState.sel = null; render();
   },
 });
-if (typeof SNAPSHOT_BLOCK !== "undefined") ["inhEdit", "inhAddEarlier", "inhDelEarlier", "inhSave", "inhDelete", "inhDefault", "inhMark", "inhMarkGo"].forEach((a) => SNAPSHOT_BLOCK.add(a));
+if (typeof SNAPSHOT_BLOCK !== "undefined") ["inhLeaveOk", "inhLeaveKeep", "inhEdit", "inhAddEarlier", "inhDelEarlier", "inhSave", "inhDelete", "inhDefault", "inhMark", "inhMarkGo"].forEach((a) => SNAPSHOT_BLOCK.add(a));
