@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.69.0": [
+    "2026 coins: the five Semiquincentennial quarters (Mayflower Compact, Revolutionary War, Declaration of Independence, U.S. Constitution, Gettysburg Address), the Emerging Liberty dime and the Enduring Liberty half dollar are now coin types. The Roosevelt dime and Kennedy half now end at 2025, so for 2026 pick the new types.",
+  ],
   "0.68.0": [
     "Inherited coins: if you change a saved inherited coin's Where from, the app now asks first, because it would lose who and when you inherited it and its value (Keep Inherited undoes the change). Mark as sold only shows on an inherited coin once you tap \u201CI'd like to sell this one eventually\u201D, and it asks once more before the sale form. Nothing you saved is changed."
   ],
