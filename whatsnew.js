@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.66.0": [
+    "Adding a coin: the Year box now comes first, and the coin type list then shows only coins made that year. A new coin needs a year, or tick \u201CUnreadable / too worn\u201D if you can't read it (a token or medal can also tick \u201CNever had a date\u201D). Coins you already saved are not changed.",
+  ],
   "0.65.0": [
     "Red Book prices are no longer inside the app's public files. They stay on your phone. To move them to another phone, tap Save price file on the Coin Value page, then Load a price file on the other phone. Your coins and values here are unchanged.",
   ],

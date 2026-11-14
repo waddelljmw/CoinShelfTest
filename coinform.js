@@ -113,9 +113,10 @@ function renderCoinForm() {
   const melt = meltEach(d);
   initSourceKind(d);
   const h = formHolder(d);
+  const yearFirst = d._isNew && it === "coin"; // new coins: type the year first (idea 77); it narrows the type list
   const typeBlock = !d._isNew && !typeEditable(d)
     ? `<div class="f"><span>Coin type</span><div class="locked-type"><b>${esc(t ? t.name : d.typeName || "Custom coin")}</b>${d.denom ? ` <span class="muted small">${esc(d.denom)}</span>` : ""}</div>
-      <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button></div></div>`
+      <div class="hint">The coin type can't change once a coin is saved. <button type="button" class="link-btn" data-act="retype">Wrong type? Re-add it</button> Everything else is copied, and you can undo.</div></div>`
     : other
       ? `${otherPicker(d)}${d._isNew ? "" : `<div class="hint">You typed this coin type yourself, so you can fix it here. The ID number, photos and where it is kept stay the same.</div>`}<label class="f"><span>Kind</span><select data-f="family" data-rerender><option value="">Choose…</option>${OTHER_KINDS.map((k) => `<option ${d.family === k ? "selected" : ""}>${k}</option>`).join("")}</select></label>
       <div class="grid2">
@@ -129,14 +130,15 @@ function renderCoinForm() {
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add " + noun) : "Edit " + noun}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" data-coin="${d.id}" autocomplete="off">
+    ${d._replaces ? `<div class="hint" id="readdNote">Copied from your old entry: year, grade, price, photos and notes. Album spot and variety are cleared. The old entry goes to Recently deleted.</div>` : ""}
     ${d._isNew && !other && it === "coin" ? (store.mode === "demo" && typeof demoFillCard === "function" ? demoFillCard(d) : sampleApi ? photoFillButton(d) : photoFillLockedButton()) : ""}
-    ${it === "bullion" ? bullionTopHtml(d) : it === "set" ? setTopHtml(d) : `${typeBlock}
+    ${it === "bullion" ? bullionTopHtml(d) : it === "set" ? setTopHtml(d) : `${yearFirst ? yearFirstHtml(d, t) : ""}${typeBlock}
     ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
     <div class="grid2">
-      <label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + typeLastYear(t) : "1921"}"></label>
+      ${yearFirst ? "" : `<label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + typeLastYear(t) : "1921"}"></label>`}
       ${other ? "" : `<label class="f"><span>Mint mark</span><select data-f="mint">${mints.map((m) => `<option value="${m}" ${d.mint === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>`}
     </div>
-    <div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>`}
+    ${yearFirst ? "" : `<div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>`}`}
     ${it === "roll" ? rollFields(d) : ""}
 
     ${it !== "coin" ? "" : `<fieldset><legend>Grade ${wi("rawslab")}</legend>
@@ -424,6 +426,7 @@ function refreshFormHints() {
   const pl = $("#pcgsLink"); if (pl) { pl.href = photoGuideUrl(draft); pl.textContent = photoGuideText(draft) + " ↗"; }
   const el = $("#ebayLink"); if (el) el.href = ebayUrl(draft);
   const yh = $("#yearHint"); if (yh) yh.textContent = itemOf(draft) === "set" ? setYearProblem(draft.setKind, draft.year) : yearProblem(draft.typeId, draft.year, "coin");
+  const wr = $("#wornRow"); if (wr) wr.hidden = !!String(draft.year || "").trim();
   const bh = $("#bullionHint"); if (bh) bh.textContent = bullionHint(draft);
   const rh = $("#rollHint"); if (rh) rh.textContent = rollHint(draft);
   const mh = $("#meltHint"); if (mh) mh.textContent = meltHintText(draft);
@@ -507,10 +510,25 @@ function typesRecentFirst(list) {
   const recSet = new Set(rec);
   return { recent: rec.map((id) => TYPE_BY_ID[id]).filter((t) => list.includes(t)), rest: list.filter((t) => !recSet.has(t.id)) };
 }
+// New coins: the Year box sits first, with a "too worn" tick that only shows while the year is empty.
+function yearFirstHtml(d, t) {
+  const token = !t && d._what === "other"; // a token or medal may never have had a date
+  return `<div class="grid2"><label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "\u2013" + typeLastYear(t) : "1921"}"></label></div>
+    <div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>
+    <div id="wornRow" ${d.year ? "hidden" : ""}>
+    ${token ? `<label class="switch"><span>Never had a date<div class="small muted">A token or medal that was made without a year.</div></span><input type="checkbox" data-fcheck="_none" ${d._none ? "checked" : ""}></label>` : ""}
+    <label class="switch"><span>Unreadable / too worn<div class="small muted">No year? Tick this instead of typing one. Type the year first and the coin type list shows only coins made that year.</div></span><input type="checkbox" data-fcheck="_worn" ${d._worn ? "checked" : ""}></label>
+    </div>`;
+}
+// Types made in a year (so typing 1943 first leaves the types that existed then).
+const typeMadeIn = (t, y) => y >= t.start && y <= typeLastYear(t) && !(t.skipYears && t.skipYears.includes(y));
+// The year typed first on a new coin (it narrows the type list), or null.
+const typeYear = () => draft && draft._isNew && !draft._replaces && !yearProblem("", draft.year, "coin") ? num(draft.year) : null;
 function typeMatches(q) {
   q = q.trim().toLowerCase();
   const words = q ? q.split(/\s+/) : [];
-  const all = COIN_TYPES.filter((t) => words.every((w) => (t.name + " " + t.family + " " + t.denom).toLowerCase().includes(w)));
+  const y = typeYear();
+  const all = COIN_TYPES.filter((t) => (y == null || typeMadeIn(t, y)) && words.every((w) => (t.name + " " + t.family + " " + t.denom).toLowerCase().includes(w)));
   const { recent, rest } = typesRecentFirst(all);
   return { recent, rest: rest.slice(0, q ? 20 : 12) };
 }
@@ -522,7 +540,7 @@ function showTypeList(q) {
   const head = (txt) => `<div class="ta-head">${txt}</div>`;
   box.innerHTML = recent.length || rest.length
     ? (recent.length ? head("Recent") + recent.map(btn).join("") + (rest.length ? head("All types") : "") : "") + rest.map(btn).join("")
-    : `<div class="hint" style="padding:10px">No match. Type the coin type below instead.</div>`;
+    : `<div class="hint" style="padding:10px">${typeYear() != null ? "No coin type matches " + typeYear() + ". Check the year (or clear it), or type the coin type below instead." : "No match. Type the coin type below instead."}</div>`;
   box.hidden = false;
 }
 

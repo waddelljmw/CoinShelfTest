@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.65.0";
+const APP_VERSION = "0.66.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -60,6 +60,16 @@ function showBanner(text) {
   b.hidden = false;
 }
 
+/* ---------- saved-data version (4-box rule, box 2) ----------
+   DATA_VERSION says what saved records mean. Raise it only together with a convert-on-read step for older records.
+   It is stamped on the settings record and on every backup; a backup from a higher version is refused. */
+const DATA_VERSION = 1;
+function stampDataVersion(canSave) {
+  if ((store.mode !== "local" && store.mode !== "db") || canSave === false) return;
+  const v = num((store.docs.get("settings") || {}).dataVersion);
+  if (v == null || v < DATA_VERSION) saveSettings({ dataVersion: DATA_VERSION }, true);
+}
+
 /* ---------- the price list (Step 11.2) ----------
    Prices live in ONE saved record on the phone, key "pricebook":
    { kind: "pricebook", format: 1, source, edition, series, mintage, savedAt }.
@@ -73,6 +83,7 @@ const usableBook = (r) => !!(r && r.series && typeof r.series === "object");
 const bookName = () => PRICE_BOOK.source || "Red Book";
 // Called at the end of every start path. canSave is false while the Claude copy has only shown its cached records.
 function loadPriceBook(canSave) {
+  stampDataVersion(canSave);
   const m = store.mode, rec = store.docs.get("pricebook"), ship = shippedBook();
   if (m === "demo") { PRICE_BOOK = emptyBook(); return; } // the demo shows no book values
   if (m === "snapshot") { PRICE_BOOK = { ...emptyBook(), ...((window.COIN_SNAPSHOT && window.COIN_SNAPSHOT.book) || {}) }; return; } // values are stamped on each coin
