@@ -2,7 +2,7 @@
 
 Last updated November 14, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (Sonnet, Nov 17 week item 1: 86 value fixes; can start now, before the reset (see Use-it-up rule); merge on green):** planning for the Nov 17 week was held early on Sat 11-14 (minutes `reviews/16`). Last week's list is all done: 79a v0.67.0 (PR 217), inherited guard + code map v0.68.0 (PR 219), snapshot privacy v0.68.1 (PR 220). Go down the table while weekly is under each item's number; stop at 70%. Already done, don't redo: 11.0–11.6, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3, 79a, A, B. App is v0.68.1.
+**Next session starts here (Sonnet, Nov 17 week item 2: 87 2026 coins; can start now, before the reset (see Use-it-up rule); merge on green; ask him if any saved coin is affected):** item 1 (86 value fixes) done v0.68.2. planning for the Nov 17 week was held early on Sat 11-14 (minutes `reviews/16`). Last week's list is all done: 79a v0.67.0 (PR 217), inherited guard + code map v0.68.0 (PR 219), snapshot privacy v0.68.1 (PR 220). Go down the table while weekly is under each item's number; stop at 70%. Already done, don't redo: 11.0–11.6, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3, 79a, A, B. App is v0.68.2.
 
 ## This week (Tue 11-17 1pm → Tue 11-24 1pm): the "accurate entry" update (2 M + 2 S, planned 11-14)
 One item per chat; new chat after each merge. Days are a guide (baby). **Stop building at 70% weekly.**
@@ -10,7 +10,7 @@ One item per chat; new chat after each merge. Days are a guide (baby). **Stop bu
 
 | # | Day | Model | What | Size | Start if weekly under | Merge | Done |
 |---|---|---|---|---|---|---|---|
-| 1 | Tue | Sonnet | **86** value fixes: coin page uses the same value as Home, never below face for catalog coins, report Paid = full cost | S (est. 1–2) | 66% | on green | |
+| 1 | Tue | Sonnet | **86** value fixes: coin page uses the same value as Home, never below face for catalog coins, report Paid = full cost | S (est. 1–2) | 66% | on green | ✅ v0.68.2 |
 | 2 | Wed | Sonnet | **87** 2026 coins (5 quarters, dime, half; facts from usmint.gov) + stop series auto-accepting 2027 + yearly new-coin check line in this plan. First check his saved 2026 dimes/halves | M (est. 3–4) | 60% | on green (asks him if any saved coin is affected) | |
 | 3 | Fri | Sonnet | **88 + 77 search words**: year/mint warning from `EXACT_SLOTS` (warn, don't block) + nickname search (wheat penny, walker, VDB, steel, ASE, war nickel; "Bicentennial" shows all four). He pastes his phone-note word list at the start | M (est. 3) | 60% | on green | |
 | 4 | Sat | Sonnet | **93** tester welcome PDF: reskin the HOA design ("HOA Welcome PDF — Concept"), new picture, words, colors; he picks the survey link | S (est. 2) | 66% | (design, not code) | |

@@ -88,7 +88,7 @@ async function buildReport(opts) {
   const totVal = sum(coins, (c) => (bestEach(c) || 0) * qtyOf(c));
   const totMelt = sum(coins, (c) => (meltEach(c) || 0) * qtyOf(c));
   const paidCoins = coins.filter((c) => num(c.paid) != null);
-  const totPaid = sum(paidCoins, (c) => num(c.paid) * qtyOf(c));
+  const totPaid = sum(paidCoins, (c) => costOf(c));
   const m = (n) => (n == null ? "—" : money(n));
   const ed = s.bookEdition || PRICE_BOOK.edition;
 
@@ -112,7 +112,7 @@ async function buildReport(opts) {
       <td class="r">${m(mt == null ? null : mt * q)}</td>
       <td>${esc(SOURCE_TEXT[valueSource(c)] || "")}${valueSource(c) === "book" && ed ? " " + esc(ed) : ""}</td>
       ${opts.kept ? `<td>${esc(keptText(c))}</td>` : ""}
-      ${opts.paid ? `<td class="r">${num(c.paid) == null ? "—" : money(num(c.paid))}</td>` : ""}
+      ${opts.paid ? `<td class="r">${num(c.paid) == null ? "—" : money(costOf(c) / qtyOf(c))}</td>` : ""}
     </tr>`;
   }).join("");
 
@@ -154,11 +154,11 @@ async function buildReport(opts) {
   <div><span>Total value${coins.some((c) => missingOf(c).length) ? " (estimate*)" : ""}</span><b>${money(totVal)}</b></div>
   <div><span>Coins</span><b>${totQty}</b></div>
   <div><span>Melt value</span><b>${money(totMelt)}</b></div>
-  ${opts.paid ? `<div><span>Paid${paidCoins.length < coins.length ? " (where recorded)" : ""}</span><b>${money(totPaid)}</b></div>` : ""}
+  ${opts.paid ? `<div><span>Paid, full cost${paidCoins.length < coins.length ? " (where recorded)" : ""}</span><b>${money(totPaid)}</b></div>` : ""}
 </div>
 <h2>Itemized list</h2>
 <table>
-  <thead><tr><th>#</th>${opts.photos ? "<th>Photo</th>" : ""}<th>Coin</th><th>Grade</th><th class="r">Qty</th><th class="r">Value each</th><th class="r">Total</th><th class="r">Melt</th><th>Value basis</th>${opts.kept ? "<th>Kept in</th>" : ""}${opts.paid ? `<th class="r">Paid each</th>` : ""}</tr></thead>
+  <thead><tr><th>#</th>${opts.photos ? "<th>Photo</th>" : ""}<th>Coin</th><th>Grade</th><th class="r">Qty</th><th class="r">Value each</th><th class="r">Total</th><th class="r">Melt</th><th>Value basis</th>${opts.kept ? "<th>Kept in</th>" : ""}${opts.paid ? `<th class="r">Paid each (with tax, shipping, fees)</th>` : ""}</tr></thead>
   <tbody>${rows}</tbody>
   <tfoot><tr><td></td>${opts.photos ? "<td></td>" : ""}<td>Total</td><td></td><td class="r">${totQty}</td><td></td><td class="r">${money(totVal)}</td><td class="r">${money(totMelt)}</td><td></td>${opts.kept ? "<td></td>" : ""}${opts.paid ? `<td class="r">${money(totPaid)}</td>` : ""}</tr></tfoot>
 </table>

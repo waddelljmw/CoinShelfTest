@@ -323,7 +323,7 @@ function viewCoin(r) {
   const c = getCoin(r.id);
   if (!c || c.status === "deleted") return `<div class="card empty">That coin isn't here. <button class="link-btn" data-go="coins">Back to My Coins</button></div>`;
   const q = qtyOf(c);
-  const v = valueEach(c);
+  const v = bestEach(c);
   const m = meltEach(c);
   const album = c.albumId ? getAlbum(c.albumId) : null;
   const row = (k, val) => (val == null || val === "" ? "" : `<div class="rowline"><span class="muted">${k}</span><span class="num" style="text-align:right">${val}</span></div>`);
