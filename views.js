@@ -271,7 +271,8 @@ function searchLine(list) {
 const WANT_YEARS_AHEAD = 5;
 const thisYear = () => new Date().getFullYear();
 // A type still being made in the catalog (its end year is the catalog's last year) runs to today.
-const typeLastYear = (t) => (t.end >= 2026 ? Math.max(t.end, thisYear()) : t.end);
+// A type runs to its own end year. Each new year, check the Mint and raise the ends that continue (see PLAN.md "Yearly new-coin check").
+const typeLastYear = (t) => t.end;
 // Returns a short message if the year isn't allowed, or "" if it is. kind: "coin" | "want" | "album".
 function yearProblem(typeId, year, kind) {
   const y = num(year);
@@ -280,11 +281,11 @@ function yearProblem(typeId, year, kind) {
   const cap = kind === "want" ? thisYear() + WANT_YEARS_AHEAD : thisYear();
   if (y > cap) return kind === "want" ? "Wants can be at most " + cap + "." : "That year hasn't happened yet. The latest is " + cap + ".";
   if (y < 1) return "Enter a real year.";
-  const last = t && (t.end >= 2026 ? cap : t.end); // a series still being made can run up to the cap
+  const last = t && (kind === "want" && t.end >= 2026 && !t.oneYear ? cap : Math.min(t.end, cap)); // wants for a series still running may look ahead
   if (t && t.skipYears && t.skipYears.includes(y)) return t.name + " wasn't made in " + y + ".";
   if (t && (y < t.start || y > last)) {
     // Another type of the same coin covers this year (e.g. 2021 Morgan, 2009 cent): point to it.
-    const alt = COIN_TYPES.find((o) => o.id !== t.id && o.family === t.family && y >= o.start && y <= (o.end >= 2026 ? cap : o.end));
+    const alt = COIN_TYPES.find((o) => o.id !== t.id && o.family === t.family && y >= o.start && y <= Math.min(o.end, cap));
     return t.name + " was made " + t.start + "–" + last + "." + (alt ? " For " + y + ", pick " + alt.name + "." : "");
   }
   return "";

@@ -5,7 +5,7 @@ const ID_CODES = {
   "lincoln-bicentennial": "LB", "lincoln-shield": "LS", "shield-nickel": "SN", "liberty-nickel": "LN", "buffalo-nickel": "BN",
   "jefferson-nickel": "JN", "jefferson-war-nickel": "JW", "barber-dime": "BD", "mercury-dime": "ME", "roosevelt-silver": "RS",
   "roosevelt-clad": "RC", "barber-quarter": "BQ", "standing-liberty-quarter": "SL", "washington-silver": "WS", "washington-clad": "WC",
-  "state-quarter": "SQ", "atb-quarter": "AQ", "women-quarter": "WQ", "barber-half": "BH", "walking-liberty-half": "WH",
+  "state-quarter": "SQ", "atb-quarter": "AQ", "women-quarter": "WQ", "semiq-quarter": "QS", "emerging-liberty-dime": "DE", "enduring-liberty-half": "EH", "barber-half": "BH", "walking-liberty-half": "WH",
   "franklin-half": "FH", "kennedy-90": "K9", "kennedy-40": "K4", "kennedy-clad": "KC", "morgan-dollar": "MD", "peace-dollar": "PD",
   "morgan-modern": "MM", "peace-modern": "PM", "ike-clad": "EC", "ike-40": "E4", "sba-dollar": "SB", "sacagawea-dollar": "SD",
   "presidential-dollar": "PR", "silver-commem-dollar": "CD", "silver-eagle": "SE", "gold-eagle-1": "G1", "gold-eagle-half": "G2",

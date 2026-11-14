@@ -55,7 +55,9 @@ const COIN_TYPES = [
   { id: "barber-dime", name: "Barber Dime", family: "Barber dime", denom: "10C", face: 0.10, start: 1892, end: 1916, mints: ["P", "O", "S", "D"], metal: "Silver", melt: "silver", oz: AG.dime },
   { id: "mercury-dime", name: "Mercury Dime", family: "Mercury dime", denom: "10C", face: 0.10, start: 1916, end: 1945, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.dime },
   { id: "roosevelt-silver", name: "Roosevelt Dime (silver)", family: "Roosevelt dime", denom: "10C", face: 0.10, start: 1946, end: 1964, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.dime },
-  { id: "roosevelt-clad", name: "Roosevelt Dime (clad)", family: "Roosevelt dime", denom: "10C", face: 0.10, start: 1965, end: 2026, mints: ["P", "D", "S", "W"], metal: "Clad", melt: null, oz: 0 },
+  { id: "roosevelt-clad", name: "Roosevelt Dime (clad)", family: "Roosevelt dime", denom: "10C", face: 0.10, start: 1965, end: 2025, mints: ["P", "D", "S", "W"], metal: "Clad", melt: null, oz: 0 },
+  { id: "emerging-liberty-dime", oneYear: true, name: "Emerging Liberty Dime (2026)", family: "Roosevelt dime", denom: "10C", face: 0.10, start: 2026, end: 2026, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0,
+    note: "One year only: Liberty on the front, dated 1776 ~ 2026, in place of Roosevelt. In 2027 the dime goes back to Roosevelt. S mint marks are in US Mint proof sets." },
   // Quarters
   { id: "twenty-cent", name: "Twenty-Cent Piece", family: "Twenty-cent piece", denom: "20C", face: 0.20, start: 1875, end: 1878, mints: ["P", "CC", "S"], metal: "Silver", melt: "silver", oz: 0.14468,
     note: "Made for circulation only in 1875 and 1876; 1877 and 1878 are proofs." },
@@ -68,6 +70,8 @@ const COIN_TYPES = [
   { id: "state-quarter", name: "50 States Quarter", family: "Washington quarter", denom: "25C", face: 0.25, start: 1999, end: 2008, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0 },
   { id: "atb-quarter", name: "America the Beautiful Quarter", family: "Washington quarter", denom: "25C", face: 0.25, start: 2010, end: 2021, mints: ["P", "D", "S", "W"], metal: "Clad", melt: null, oz: 0 },
   { id: "women-quarter", name: "American Women Quarter", family: "Washington quarter", denom: "25C", face: 0.25, start: 2022, end: 2025, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0 },
+  { id: "semiq-quarter", oneYear: true, name: "Semiquincentennial Quarter (2026)", family: "Washington quarter", denom: "25C", face: 0.25, start: 2026, end: 2026, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0,
+    note: "One year only: five 2026 designs, dated 1776 ~ 2026. S mint marks are in US Mint proof sets." },
   // Halves
   { id: "capped-bust-half", name: "Capped Bust Half Dollar", family: "Capped Bust half", denom: "50C", face: 0.50, start: 1807, end: 1839, mints: ["P", "O"], metal: "Silver", melt: "silver", oz: 0, note: "The O mint mark appears only on 1838 and 1839. Its silver weight changed over the years, so melt isn't figured here." },
   { id: "seated-half", name: "Seated Liberty Half Dollar", family: "Seated Liberty half", denom: "50C", face: 0.50, start: 1839, end: 1891, mints: ["P", "O", "S", "CC"], metal: "Silver", melt: "silver", oz: 0, note: "Its silver weight changed over the years, so melt isn't figured here." },
@@ -76,7 +80,9 @@ const COIN_TYPES = [
   { id: "franklin-half", name: "Franklin Half Dollar", family: "Franklin half", denom: "50C", face: 0.50, start: 1948, end: 1963, mints: ["P", "D", "S"], metal: "Silver", melt: "silver", oz: AG.half },
   { id: "kennedy-90", name: "Kennedy Half Dollar (90% silver)", family: "Kennedy half", denom: "50C", face: 0.50, start: 1964, end: 1964, mints: ["P", "D"], metal: "Silver", melt: "silver", oz: AG.half },
   { id: "kennedy-40", name: "Kennedy Half Dollar (40% silver)", family: "Kennedy half", denom: "50C", face: 0.50, start: 1965, end: 1970, mints: ["P", "D"], metal: "Silver", melt: "silver", oz: AG.half40 },
-  { id: "kennedy-clad", name: "Kennedy Half Dollar (clad)", family: "Kennedy half", denom: "50C", face: 0.50, start: 1971, end: 2026, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0 },
+  { id: "kennedy-clad", name: "Kennedy Half Dollar (clad)", family: "Kennedy half", denom: "50C", face: 0.50, start: 1971, end: 2025, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0 },
+  { id: "enduring-liberty-half", oneYear: true, name: "Enduring Liberty Half Dollar (2026)", family: "Kennedy half", denom: "50C", face: 0.50, start: 2026, end: 2026, mints: ["P", "D", "S"], metal: "Clad", melt: null, oz: 0,
+    note: "One year only: Statue of Liberty design, dated 1776 ~ 2026, in place of Kennedy. Made for collectors; S mint marks are in US Mint proof sets." },
   // Dollars
   { id: "seated-dollar", name: "Seated Liberty Dollar", family: "Seated Liberty dollar", denom: "$1", face: 1, start: 1840, end: 1873, mints: ["P", "O", "S", "CC"], metal: "Silver", melt: "silver", oz: AG.dollar },
   { id: "trade-dollar", name: "Trade Dollar", family: "Trade dollar", denom: "$1", face: 1, start: 1873, end: 1885, mints: ["P", "CC", "S"], metal: "Silver", melt: "silver", oz: 0.7874,
@@ -131,7 +137,7 @@ const LINCOLN_SLOTS = (() => {
   const wheat = [[1909, "P S"], [1910, "P S"], ...yrs(1911, 1920, "P D S"), [1921, "P S"], [1922, "D"], [1923, "P S"], ...yrs(1924, 1931, "P D S"),
     ...yrs(1932, 1934, "P D"), ...yrs(1935, 1955, "P D S"), ...yrs(1956, 1958, "P D")];
   const copper = [...yrs(1959, 1964, "P D"), ...yrs(1965, 1967, "P"), ...yrs(1968, 1974, "P D S"), ...yrs(1975, 1982, "P D")];
-  const shield = yrs(2010, Math.max(2026, new Date().getFullYear()), "P D");
+  const shield = yrs(2010, 2026, "P D");
   return { "lincoln-wheat": wheat, "lincoln-memorial-copper": copper, "lincoln-memorial-zinc": yrs(1982, 2008, "P D"), "lincoln-bicentennial": [[2009, "P D"]], "lincoln-shield": shield };
 })();
 const EXACT_SLOTS = {
@@ -189,15 +195,16 @@ const EXACT_SLOTS = {
     "barber-half": [...yrs(1892, 1905, "P O S"), ...yrs(1906, 1908, "P D O S"), [1909, "P O S"], [1910, "P S"], ...yrs(1911, 1913, "P D S"), [1914, "P S"], [1915, "P D S"]],
     "standing-liberty-quarter": [[1916, "P"], [1917, "P D S"], [1918, "P D S"], [1919, "P D S"], [1920, "P D S"], [1921, "P"], [1923, "P S"], [1924, "P D S"], [1925, "P"], ...yrs(1926, 1929, "P D S"), [1930, "P S"]],
     "roosevelt-silver": [...yrs(1946, 1955, "P D S"), ...yrs(1956, 1964, "P D")],
-    "roosevelt-clad": [...yrs(1965, 1967, "P"), ...yrs(1968, 1995, "P D"), [1996, "P D W"], ...yrs(1997, 2026, "P D")],
+    "roosevelt-clad": [...yrs(1965, 1967, "P"), ...yrs(1968, 1995, "P D"), [1996, "P D W"], ...yrs(1997, 2025, "P D")],
     "kennedy-40": [[1965, "P"], [1966, "P"], [1967, "P"], [1968, "D"], [1969, "D"], [1970, "D"]],
-    "kennedy-clad": [...yrs(1971, 1974, "P D"), ...yrs(1976, 2026, "P D")],
+    "kennedy-clad": [...yrs(1971, 1974, "P D"), ...yrs(1976, 2025, "P D")],
     "ike-clad": [...yrs(1971, 1974, "P D"), ...yrs(1976, 1978, "P D")],
     "ike-40": [[1971, "S"], [1972, "S"], [1973, "S"], [1974, "S"], [1976, "S"]],
     "sacagawea-dollar": yrs(2000, 2026, "P D"),
     "state-quarter": yrs(1999, 2008, "P D"),
     "atb-quarter": [...yrs(2010, 2018, "P D"), [2019, "P D W"], ...yrs(2020, 2021, "P D")],
     "women-quarter": yrs(2022, 2025, "P D"),
+    "semiq-quarter": [[2026, "P D"]], "emerging-liberty-dime": [[2026, "P D"]], "enduring-liberty-half": [[2026, "P D"]],
   });
   // Spots that are one per design or variety (a year/mint key like "1999|D" lists the designs).
   const designs = (type, byYear, mints, extraMints) => {
@@ -224,6 +231,7 @@ const EXACT_SLOTS = {
     2022: ["Maya Angelou", "Sally Ride", "Wilma Mankiller", "Nina Otero-Warren", "Anna May Wong"], 2023: ["Bessie Coleman", "Edith Kanaka'ole", "Eleanor Roosevelt", "Jovita Idar", "Maria Tallchief"],
     2024: ["Patsy Takemoto Mink", "Mary Edwards Walker", "Celia Cruz", "Zitkala-Sa", "Pauli Murray"], 2025: ["Ida B. Wells", "Juliette Gordon Low", "Vera Rubin", "Stacey Park Milbern", "Althea Gibson"],
   }, ["P", "D"]);
+  designs("semiq-quarter", { 2026: ["Mayflower Compact", "Revolutionary War", "Declaration of Independence", "U.S. Constitution", "Gettysburg Address"] }, ["P", "D"]);
   // Types with two kinds in one year (shown as separate spots).
   const two = (type, key, list) => { const t = COIN_TYPES.find((x) => x.id === type); t.varieties = t.varieties || {}; t.varieties[key] = list; };
   two("liberty-nickel", "1883|", ["Without CENTS", "With CENTS"]);
@@ -255,7 +263,7 @@ const PCGS_CODES = {
   "lincoln-wheat": "Lincoln", "lincoln-memorial-copper": "Lincoln", "lincoln-memorial-zinc": "Lincoln", "lincoln-bicentennial": "Lincoln", "lincoln-shield": "Lincoln",
   "shield-nickel": "ShieldNic", "liberty-nickel": "LibNic", "buffalo-nickel": "Buffalo", "jefferson-nickel": "Jefferson", "jefferson-war-nickel": "Jefferson",
   "barber-dime": "Barber10", "mercury-dime": "Mercury", "roosevelt-silver": "Roosevelt", "roosevelt-clad": "Roosevelt",
-  "barber-quarter": "Barber25", "washington-silver": "Washington", "washington-clad": "Washington", "state-quarter": "Washington", "atb-quarter": "Washington", "women-quarter": "Washington",
+  "barber-quarter": "Barber25", "washington-silver": "Washington", "washington-clad": "Washington", "state-quarter": "Washington", "atb-quarter": "Washington", "women-quarter": "Washington", "semiq-quarter": "Washington", "emerging-liberty-dime": "Roosevelt", "enduring-liberty-half": "Kennedy",
   "barber-half": "Barber50", "walking-liberty-half": "Walker", "franklin-half": "Franklin", "kennedy-90": "Kennedy", "kennedy-40": "Kennedy", "kennedy-clad": "Kennedy",
   "morgan-dollar": "Morgan", "morgan-modern": "Morgan", "peace-dollar": "Peace", "peace-modern": "Peace",
   "ike-clad": "Ike", "ike-40": "Ike", "sba-dollar": "SBA", "sacagawea-dollar": "SAC",
