@@ -2,7 +2,7 @@
 
 Last updated November 10, 2026. This file is the plan and the progress checklist. Claude ticks off each step when it's merged (green check ✅ = done).
 
-**Next session starts here (Sonnet, This week item 5: 11.3 remove Red Book prices from the site, merge waits for review; NOT before Sat 11-14. If it is earlier and weekly is under 66%, pull in Next week N1 instead):** planning held early on Nov 11 (`reviews/15`); this week runs the Nov 17 update a week early, then pulls in Next week. Go down the **This week** table, then **Next week**, then Extras, while weekly is under each item's number; stop at 70%. **11.3 not before Sat 11-14**, and 11.4, 11.6, 79a, G wait on it. Already done, don't redo: 11.0–11.2 (v0.59.0), 10.1, Fable C fixes, 10.2 + Back follow-ups, bugs #1–#9. Phone steps done. 11.5 done (v0.61.5, `tests/contrast.js`). 81 + 82 done (v0.61.6). 52 done (v0.61.7). 80 + walkthrough Next on steps 1 and 4 done (v0.62.0). 55 + 56 done (v0.62.1). N1 / F1 done (v0.63.0, PR 208, pulled in Fri 11-13). App is v0.63.0.
+**Next session starts here (Sonnet, This week item 7: 11.6 Silver Eagles by private file; attach the Drive price file + Red Book page photo):** 11.3 + 11.4 done (v0.65.0, PR 213: no prices in the public files; Options > Red Book values has Load / Save price file). N2 + N3 done (v0.66.0, PR 210: year or "too worn" tick, year first). Then item 8 (79a). Next week N4 (G fresh-start repo) not before **Sat 11-21**. Go down the tables while weekly is under each item's number; stop at 70%. Already done, don't redo: 11.0–11.5, 10.1, 10.2, bugs #1–#9, 81, 82, 52, 80, 55, 56, N1–N3. App is v0.66.0.
 
 ## This week, run as a new week (Thu 11-12 → Tue 11-17 1pm): the Nov 17 update, a week early
 Fable did last week's plan early, so this week does the Nov 17 update. Days are a guide (baby). One item per chat; new chat after each merge. **Stop building at 70% weekly.**
@@ -14,8 +14,8 @@ Fable did last week's plan early, so this week does the Nov 17 update. Days are 
 | 2 | Thu | Sonnet | **81 + 82** Forward loses typing; fast double-tap on ✕ (one PR) | S | 66% | on green | ✅ v0.61.6 |
 | 3 | Fri | Sonnet | **52** walkthrough fixes | M | 63% | on green | ✅ v0.61.7 |
 | 4 | Fri | Sonnet | **80** show Album › Box › Shelf where a coin is kept | S–M | 64% | on green | ✅ v0.62.0 (+ Next on walkthrough steps 1 and 4) |
-| 5 | **Sat+** | Sonnet | **11.3** remove Red Book prices from the site (`reviews/14`) | M | 63% | **waits for review** | |
-| 6 | Sun | **Opus** | **11.4** review of 11.3, fixes, his OK, merge | S | 60% | asks him | |
+| 5 | **Sat+** | Sonnet | **11.3** remove Red Book prices from the site (`reviews/14`) | M | 63% | **waits for review** | ✅ v0.65.0 (PR 213) |
+| 6 | Sun | **Opus** | **11.4** review of 11.3, fixes, his OK, merge | S | 60% | asks him | ✅ merged with 11.3 |
 | 7 | Mon | Sonnet | **11.6** Silver Eagles by private file (attach Drive price file + Red Book page photo); after 11.4 | S | 66% | on green | |
 | 8 | Mon | Sonnet | **79a** bring your own values (spreadsheet: match columns, preview, confirm); after 11.4; writes his price record | M | 62% | asks him | |
 | 9 | Tue AM | Sonnet | **55 + 56** mode-switch confirm; tap Coins sold (one PR) | S | 66% | on green | ✅ v0.62.1 |
@@ -27,8 +27,8 @@ Blueprint order (`reviews/11`): after A comes F1 and E with idea 77. **Pull in**
 | # | Model | What | Size | Start if weekly under | Merge | Done |
 |---|---|---|---|---|---|---|
 | N1 | Sonnet | **F1** fix a hand-typed type's name (IDEAS 58 first step, blueprint F) | S | 66% | asks him (saved coin data) ✅ v0.63.0 |
-| N2 | Sonnet | **E + 77** always a year or a "too worn" tick, new coins only (IDEAS 60, blueprint E) + type the year first; label `waits for review` | M + M | 60% | **waits for review** | |
-| N3 | **Opus** | Review of N2, fixes, his OK, merge | (with N2) | 60% | asks him | |
+| N2 | Sonnet | **E + 77** always a year or a "too worn" tick, new coins only (IDEAS 60, blueprint E) + type the year first; label `waits for review` | M + M | 60% | **waits for review** | ✅ v0.66.0 (PR 210) |
+| N3 | **Opus** | Review of N2, fixes, his OK, merge | (with N2) | 60% | asks him | ✅ |
 | N4 | Sonnet | **G** fresh-start repo; not before **Sat 11-21** (a week after 11.4); he does a few GitHub taps | S | 66% | | |
 
 ### Extras (filler only after both tables; Sonnet; none changes how coins are saved)

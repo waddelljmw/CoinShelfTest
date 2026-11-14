@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.64.0";
+const APP_VERSION = "0.66.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -73,7 +73,8 @@ function stampDataVersion(canSave) {
 /* ---------- the price list (Step 11.2) ----------
    Prices live in ONE saved record on the phone, key "pricebook":
    { kind: "pricebook", format: 1, source, edition, series, mintage, savedAt }.
-   The copy shipped with the app (SHIPPED_PRICE_BOOK) is only used to fill that record the first time. */
+   Since Step 11.3 no prices ship with the app: you load a price file in Options (pricefile.js). A starting copy
+   (SHIPPED_PRICE_BOOK) can only be supplied by a test page (tests/_compat.js); the real app has none. */
 const emptyBook = () => ({ source: "Red Book", edition: "", series: {}, mintage: {} });
 let PRICE_BOOK = emptyBook();
 const shippedBook = () => (typeof SHIPPED_PRICE_BOOK !== "undefined" && SHIPPED_PRICE_BOOK && Object.keys(SHIPPED_PRICE_BOOK.series || {}).length ? SHIPPED_PRICE_BOOK : null);
