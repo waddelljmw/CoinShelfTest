@@ -2,11 +2,13 @@
 /* Step 11.3: the price list comes from a file you keep (Options > Red Book values > Load a price file).
    No prices ship with the app. The file is saved on the phone as the record "pricebook" (see app.js). */
 const PRICE_FILE_MAX = 2 * 1024 * 1024;
+// "coin-cabinet-prices" is the private file made at Step 11.2; "pricebook" is what Save price file writes.
+const PRICE_FILE_KINDS = ["pricebook", "coin-cabinet-prices"];
 
 // Checks a price file's shape. Returns { error } or { nSeries, rows, missing }. Nothing is changed here.
 function checkPriceFile(d) {
   const bad = (error) => ({ error });
-  if (!d || typeof d !== "object" || Array.isArray(d) || d.kind !== "pricebook") return bad("That isn't a Coin Cabinet price file.");
+  if (!d || typeof d !== "object" || Array.isArray(d) || !PRICE_FILE_KINDS.includes(d.kind)) return bad("That isn't a Coin Cabinet price file.");
   if (d.format !== 1) return bad(d.format > 1 ? "This price file is from a newer version of Coin Cabinet. Update the app first." : "That isn't a Coin Cabinet price file.");
   const ser = d.series;
   if (!ser || typeof ser !== "object" || Array.isArray(ser) || !Object.keys(ser).length) return bad("That price file has no prices in it.");
