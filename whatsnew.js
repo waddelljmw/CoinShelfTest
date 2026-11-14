@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.68.0": [
+    "Inherited coins: if you change a saved inherited coin's Where from, the app now asks first, because it would lose who and when you inherited it and its value (Keep Inherited undoes the change). Mark as sold only shows on an inherited coin once you tap \u201CI'd like to sell this one eventually\u201D, and it asks once more before the sale form. Nothing you saved is changed."
+  ],
   "0.67.0": [
     "Your own values: on the Coin Value page, tap Load your own values and pick a spreadsheet (CSV) of your own numbers. Match the columns, check the preview, then add them. Tap How it works for a blank template. Your coins are not changed, and Undo puts the old prices back."
   ],

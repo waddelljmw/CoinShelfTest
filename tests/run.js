@@ -47,7 +47,7 @@ const path = require("path");
   await p.click("#coinForm button[type=submit]");
   await addCoin({ type: "kennedy 40", year: 1967, mint: "", grade: "Junk", qty: 4, source: "Inherited" });
   await addCoin({ type: "wheat", year: 1944, mint: "D", grade: "F-12", qty: 20, value: 0.10, paid: 0.05 });
-  await addCoin({ type: "silver eagle", year: 2023, mint: "", grade: "MS-69", cert: true, service: "NGC", value: 45, paid: 42 });
+  await addCoin({ type: "silver eagle", year: 2023, mint: "", grade: "MS-69", cert: true, service: "NGC", value: 45, paid: 42, source: "Coin Shop" });
 
   await p.click("[data-go=home] >> nth=0"); await p.waitForTimeout(100);
   await shot("04-home");

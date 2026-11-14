@@ -54,7 +54,11 @@ const actions = {
   fam: (el) => { listState.family = el.dataset.v || null; render(); },
   dir: () => { listState.dir = listState.dir === "asc" ? "desc" : "asc"; render(); },
   edit: (el) => openCoinForm(el.dataset.id),
-  sell: (el) => openSell(el.dataset.id),
+  sell: (el) => {
+    const c = getCoin(el.dataset.id);
+    if (c && isInherited(c)) return confirmSheet("Sell this inherited coin?", "It stays out of sold results and profit. Only go on if you really mean to sell it.", "Continue", () => openSell(c.id));
+    openSell(el.dataset.id);
+  },
   editSale: (el) => openSell(el.dataset.id, true),
   sellCount: (el) => { const f = el.closest("form"); if (f && f.elements.n) { f.elements.n.value = el.dataset.n; sellRecalc(f); } }, // quick 1 / All buttons on Mark as sold
   editId: (el) => openEditId(el.dataset.id),
