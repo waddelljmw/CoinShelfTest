@@ -27,7 +27,7 @@ const copy = () => JSON.parse(JSON.stringify(fx));
   // 2. A good file: asks first, shows the counts, replaces only on OK, Undo goes back.
   await p.setInputFiles("#priceFile", file("good.json", { ...copy(), savedAt: "2020-01-01T00:00:00.000Z" })); await p.waitForTimeout(300);
   const ask = await p.textContent(".sheet");
-  ok("asks first with the counts: " + ask.replace(/\s+/g, " ").slice(0, 120), /8 series, 24 rows/.test(ask) && /Replace the prices on this phone\?/.test(ask) && /no row/.test(ask));
+  ok("asks first with the counts: " + ask.replace(/\s+/g, " ").slice(0, 120), /8 series, 32 rows/.test(ask) && /Replace the prices on this phone\?/.test(ask) && /no row/.test(ask));
   ok("nothing changed yet", (await rec()) === null);
   await p.click("[data-act=confirmOk]"); await p.waitForTimeout(300);
   const after = await rec();

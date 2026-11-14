@@ -34,7 +34,7 @@ const WANT = {
   proofSpots: [49, 124, 147, 155],
   morgan1878Choices: ["8 Tail Feathers", "7 Tail Feathers, Reverse of 1878", "7 Over 8 Tail Feathers, Strong", "7 Over 8 Tail Feathers, Weak", "7 Tail Feathers, Reverse of 1879"],
   morgan1878Proof: ["7 Tail Feathers, Reverse of 1878", "7 Tail Feathers, Reverse of 1879", "8 Tail Feathers"],
-  spotChoices: [["8 Tail Feathers", "7 Tail Feathers, Reverse of 1878", "7 Over 8 Tail Feathers, Strong", "7 Over 8 Tail Feathers, Weak", "7 Tail Feathers, Reverse of 1879"], ["Chapman", "Zerbe"], ["San Francisco (S)", "West Point (W)"]],
+  spotChoices: [["8 Tail Feathers", "7 Tail Feathers, Reverse of 1878", "7 Over 8 Tail Feathers, Strong", "7 Over 8 Tail Feathers, Weak", "7 Tail Feathers, Reverse of 1879"], ["Chapman", "Zerbe"], ["(P)", "(S)", "(W)", "San Francisco (S)", "West Point (W)"]],
   eagleProof: ["San Francisco (S)", "West Point (W)"],
   smsTick: [true, false, true, false, false],
   labels: ["Raw MS-65 FB", "Raw MS-65 FBL", "Raw MS-65", "Raw MS-65 SMS", "Raw MS-65", "Raw PR-65"],

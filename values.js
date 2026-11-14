@@ -58,6 +58,14 @@ function bookBase(c, kind) {
 function bookKey(c, kind) {
   return bookBase(c, kind) + (c.variety ? "|" + c.variety : "");
 }
+// Silver Eagles carry no mint mark, so the Red Book gives the mint in brackets: the plain date is the ordinary coin and "(P)", "(S)", "(W)" are choices ("2016|(S)").
+// A coin saved with a mint letter (or none) finds its row: its own bracket choice, then the plain date. Prices stay in the private price file.
+function bookRowKey(c, kind, rows) {
+  const k = bookKey(c, kind), m = normMint(c.mint);
+  if (c.typeId !== "silver-eagle" || kind !== "circ" || !m || rows[k]) return k;
+  const y = String(c.year), v = c.variety ? "|" + c.variety : "";
+  return [v ? "" : y + "|(" + m + ")", y + v].find((x) => x && rows[x]) || k;
+}
 // Varieties the book lists for this date and strike ("" = the regular coin).
 function bookVarieties(c) {
   const t = TYPE_BY_ID[c.typeId];
@@ -98,7 +106,7 @@ function bookLookup(c) {
 function bookLookupIn(c, bt) {
   const r = gradeRank(c.grade);
   const priceIn = (row) => { let best = null; bt.t.grades.forEach((g, i) => { if (gradeRank(g) <= r && row[i] != null) best = { price: row[i], grade: g, kind: bt.kind, tag: fbTag(c.typeId) }; }); return best; };
-  const row = bt.t.rows[bookKey(c, bt.kind)];
+  const row = bt.t.rows[bookRowKey(c, bt.kind, bt.t.rows)];
   if (!row) {
     // No variety chosen, but the book only lists this date by variety (e.g. 1878 Morgan):
     // use the cheapest variety as a conservative estimate and say so.
@@ -124,10 +132,11 @@ function mintageInfo(c) {
   if (!bt || !all || !c.year) return null;
   const tab = all[bt.kind] || (bt.kind === "fbl" ? all.circ : null);
   if (!tab) return null;
-  let v = tab[bookKey(c, bt.kind)];
+  const key = bookRowKey(c, bt.kind, tab);
+  let v = tab[key];
   let shared = false;
   if (v === "*" || v == null) {
-    const base = bookBase(c, bt.kind);
+    const base = key.split("|")[0];
     const sib = Object.keys(tab).find((k) => (k === base || k.startsWith(base + "|")) && tab[k] !== "*");
     if (!sib) return null;
     shared = true;
