@@ -70,6 +70,7 @@ Nothing here is promised or scheduled. When you mention a new idea, I'll ask if 
 80. **Show where a coin is kept (S–M; his idea, 2026-11-11; very helpful).** On the missing-info list (and the coin page), the spot says only "Album". Show **Album › Box › Shelf**, leaving off any part he never filled in. He has Morgans in 4 different albums and can't tell where a coin is when he goes to complete its profile. Check the Coins list for the same line. Display only; no change to how coins are saved.
 81. **(S) Forward closes the form and loses typing (bug, Nov 11 review).** After Back closes a pop-up, the phone's Forward closes the Add coin form and what was typed is lost. Sonnet.
 82. **(S) Fast double-tap on ✕ changes the page behind the form (bug, Nov 11 review).** A very quick second tap on a pop-up's ✕ lands on the page under the form. Sonnet.
+83. **"Value from" note on typed values (S; his idea, 2026-11-14).** A typed value doesn't say where it came from. Add a small pick next to Value: PCGS (cert page) / eBay sold / dealer / other, shown on the coin page and insurance report. New saved field, so 4-box check (Opus). Fits with 48 (PCGS lookup would fill it as "PCGS" automatically) and 79.
 
 ## Done (kept so nothing is lost; planning sessions can skip this part)
 Numbers stay the same so PLAN.md references still work.
