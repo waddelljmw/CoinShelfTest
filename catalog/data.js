@@ -359,3 +359,45 @@ const GRADE_GUIDE = [
   ["MS-60 to MS-70 Mint State", "No wear at all. The number reflects marks, luster and eye appeal."],
   ["PR Proof", "Specially struck for collectors, usually with mirror fields."],
 ];
+
+// Search words (nicknames) for coin types, so "wheat penny", "walker" or "V nickel" find the right type.
+// Checked against dealer and glossary pages, Nov 2026. Words only, no coin facts.
+const NICKNAMES = {
+  "half-cent": "penny", "large-cent": "penny big cent", "flying-eagle-cent": "penny",
+  "indian-cent": "penny indian head penny indian penny",
+  "lincoln-wheat": "penny wheat penny wheaties wheat back wheatback lincoln",
+  "lincoln-memorial-copper": "penny memorial penny lincoln", "lincoln-memorial-zinc": "penny memorial penny lincoln",
+  "lincoln-bicentennial": "penny lincoln", "lincoln-shield": "penny shield penny lincoln",
+  "liberty-nickel": "v nickel liberty nickel liberty head nickel", "buffalo-nickel": "buffalo indian head nickel indian nickel",
+  "shield-nickel": "nickel", "jefferson-nickel": "jeff", "jefferson-westward": "jeff",
+  "jefferson-war-nickel": "war nickel wartime nickel silver nickel jeff",
+  "mercury-dime": "mercury winged liberty", "roosevelt-silver": "roosie", "roosevelt-clad": "roosie",
+  "standing-liberty-quarter": "standing slq", "state-quarter": "state quarters 50 states",
+  "atb-quarter": "national park parks quarter atb", "walking-liberty-half": "walker walking liberty",
+  "kennedy-90": "jfk", "kennedy-40": "jfk", "kennedy-clad": "jfk",
+  "ike-clad": "ike eisenhower", "ike-40": "ike eisenhower", "sba-dollar": "sba susan b anthony",
+  "sacagawea-dollar": "sac golden dollar", "presidential-dollar": "golden dollar",
+  "morgan-dollar": "morgan silver dollar", "peace-dollar": "peace silver dollar",
+  "silver-eagle": "ase eagle", "gold-eagle-1": "age gold eagle", "gold-eagle-half": "age gold eagle",
+  "gold-eagle-quarter": "age gold eagle", "gold-eagle-tenth": "age gold eagle", "gold-buffalo": "agb",
+  "saint-gaudens-20": "saint double eagle", "liberty-20": "double eagle", "indian-10": "eagle", "liberty-10": "eagle",
+};
+// Words for one date only (a 1943 steel cent, the 1909 VDB, the 1976 Bicentennial coins).
+const NICK_BY_YEAR = {
+  "lincoln-wheat": { 1943: "steel steelie steelies war penny wartime", 1909: "vdb" },
+  "washington-clad": { 1976: "bicentennial" }, "kennedy-clad": { 1976: "bicentennial" }, "kennedy-40": { 1976: "bicentennial" },
+  "ike-clad": { 1976: "bicentennial" }, "ike-40": { 1976: "bicentennial" },
+};
+// All search words for a type (the type list), or for one coin when its year is given (the Coins list).
+function nickWords(typeId, year) {
+  const by = NICK_BY_YEAR[typeId] || {};
+  return (NICKNAMES[typeId] || "") + " " + (year == null || year === "" ? Object.values(by).join(" ") : by[year] || "");
+}
+// Warning (never a block) when the year or mint mark isn't one this series was struck with.
+function mintWarning(typeId, year, mint) {
+  const slots = EXACT_SLOTS[typeId], t = TYPE_BY_ID[typeId], y = +year;
+  if (!slots || !t || !y || y < t.start || y > t.end) return "";
+  const m = mint || "P", hit = slots.find((s) => s[0] === y);
+  if (!hit) return t.name + " has no listing for " + y + " in this app's date list. Check the year (you can still save).";
+  return hit[1].split(" ").includes(m) ? "" : "A " + y + " " + t.name + " was struck at " + hit[1].replace(/\bP\b/, "P (no mark)").split(" ").join(", ") + ", not " + m + ". Check the mint mark (you can still save).";
+}

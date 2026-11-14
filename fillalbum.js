@@ -91,7 +91,7 @@ function fillCoin(a, s, grade, paid, date, source, at) {
   c.grade = grade; c.paid = paid; c.acquired = date; c.createdAt = at;
   if (source) { if (source === "Inherited" || a.inherited) applySourceKind(c, "Inherited"); else c.source = source; }
   else if (a.inherited) applySourceKind(c, "Inherited");
-  delete c._sourceKind; delete c._payAuto;
+  delete c._sourceKind; delete c._payAuto; delete c._paidAuto;
   applyYearMetal(c);
   if (typeof inhPrepSave === "function") inhPrepSave(c);
   c.label = autoLabel(c);
