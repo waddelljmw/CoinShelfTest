@@ -42,6 +42,7 @@ function applySourceKind(d, v) {
   if (isInherited(d) && !d.inhId && typeof inhDefaultId === "function") d.inhId = inhDefaultId(); // Inherited fills in the default inheritance
   // Paid with fills itself on a new coin (still editable): online platforms → Card, Coin Show → Cash.
   const auto = ["eBay", "Whatnot", "U.S. Mint"].includes(v) ? "Card" : v === "Coin Show" ? "Cash" : "";
+  if (d._isNew && (v === "Gift" || v === "Pocket change") && (d.paid === "" || d.paid == null || d.paid === d._paidAuto)) { d.paid = "0"; d._paidAuto = "0"; } // free coins fill Price paid with $0 (still editable)
   if (d._isNew && auto && (!d.payMethod || d.payMethod === d._payAuto)) { d.payMethod = auto; d._payAuto = auto; }
 }
 // "Where from" chips right after Grade: Inherited first, then the three most used, then More… (opens the full list under Purchase details).
@@ -425,7 +426,8 @@ const photoGuideUrl = (c) => { const k = photoGuideCode(c); return k ? "https://
 function refreshFormHints() {
   const pl = $("#pcgsLink"); if (pl) { pl.href = photoGuideUrl(draft); pl.textContent = photoGuideText(draft) + " ↗"; }
   const el = $("#ebayLink"); if (el) el.href = ebayUrl(draft);
-  const yh = $("#yearHint"); if (yh) yh.textContent = itemOf(draft) === "set" ? setYearProblem(draft.setKind, draft.year) : yearProblem(draft.typeId, draft.year, "coin");
+  const yh = $("#yearHint"); if (yh) yh.textContent = itemOf(draft) === "set" ? setYearProblem(draft.setKind, draft.year) : yearProblem(draft.typeId, draft.year, "coin") || (draft._proof || itemOf(draft) !== "coin" ? "" : mintWarning(draft.typeId, draft.year, draft.mint));
+  if (yh) yh.style.color = yearProblem(draft.typeId, draft.year, "coin") ? "var(--bad)" : "#b26a00";
   const wr = $("#wornRow"); if (wr) wr.hidden = !!String(draft.year || "").trim();
   const bh = $("#bullionHint"); if (bh) bh.textContent = bullionHint(draft);
   const rh = $("#rollHint"); if (rh) rh.textContent = rollHint(draft);
@@ -528,7 +530,7 @@ function typeMatches(q) {
   q = q.trim().toLowerCase();
   const words = q ? q.split(/\s+/) : [];
   const y = typeYear();
-  const all = COIN_TYPES.filter((t) => (y == null || typeMadeIn(t, y)) && words.every((w) => (t.name + " " + t.family + " " + t.denom).toLowerCase().includes(w)));
+  const all = COIN_TYPES.filter((t) => (y == null || typeMadeIn(t, y)) && words.every((w) => (t.name + " " + t.family + " " + t.denom + " " + nickWords(t.id)).toLowerCase().includes(w)));
   const { recent, rest } = typesRecentFirst(all);
   return { recent, rest: rest.slice(0, q ? 20 : 12) };
 }

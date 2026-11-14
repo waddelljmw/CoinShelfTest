@@ -223,7 +223,7 @@ function viewCoins() {
     (!listState.cert || c.gradeMode === listState.cert) &&
     (!listState.stage || (listState.stage === "upgrade" ? c.upgrade : stageOf(c) === listState.stage)) &&
     (typeof extraFilter !== "function" || extraFilter(c)) &&
-    (!listState.q || ((c.cid || "") + " " + (c.oldCids || []).join(" ") + " " + labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.seller || "") + " " + (c.caseName || "") + " " + holderText(c) + " " + keptName(c)).toLowerCase().includes(listState.q.toLowerCase())));
+    (!listState.q || ((c.cid || "") + " " + (c.oldCids || []).join(" ") + " " + labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.seller || "") + " " + (c.caseName || "") + " " + holderText(c) + " " + keptName(c) + " " + nickWords(c.typeId, c.year)).toLowerCase().includes(listState.q.toLowerCase())));
   const key = {
     year: (c) => num(c.year) ?? 99999,
     value: (c) => (bestEach(c) || 0) * qtyOf(c),

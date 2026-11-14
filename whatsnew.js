@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.70.0": [
+    "Search by nickname: wheat penny, steel, VDB, walker, V nickel, war nickel, Buffalo, Mercury, ASE, Bicentennial and more now find the right coin, both when adding a coin and in the Coins list.",
+    "A warning (not a block) shows when a year or mint mark was never struck, like a 1922 Lincoln cent with no D.",
+    "Choosing Gift or Pocket change as Where from fills Price paid with $0 on a new coin.",
+  ],
   "0.69.0": [
     "2026 coins: the five Semiquincentennial quarters (Mayflower Compact, Revolutionary War, Declaration of Independence, U.S. Constitution, Gettysburg Address), the Emerging Liberty dime and the Enduring Liberty half dollar are now coin types. The Roosevelt dime and Kennedy half now end at 2025, so for 2026 pick the new types.",
   ],
