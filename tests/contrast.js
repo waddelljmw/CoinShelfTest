@@ -48,7 +48,7 @@ const measure = () => {
     const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: scheme });
     await ctx.route("**/api.gold-api.com/**", (r) => r.abort());
     const p = await ctx.newPage(); p.on("pageerror", (e) => errors.push(e.message));
-    await p.goto("http://localhost:8796/?demo"); await p.waitForFunction(() => store.mode === "demo", null, { timeout: 15000 }); await p.waitForTimeout(500);
+    await p.goto("http://localhost:8796/?demo=full"); await p.waitForFunction(() => store.mode === "demo", null, { timeout: 15000 }); await p.waitForTimeout(500);
     const ids = await p.evaluate(() => ({ coin: allCoins().find((c) => c.status === "owned")?.id, album: (typeof allAlbums === "function" ? allAlbums() : [])[0]?.id, box: (typeof allBoxes === "function" ? allBoxes() : [])[0]?.id }));
     const pages = ["home", "value", "albums", "wants", "coins", "forsale", "stacks", "boxes", "shows", "reports", "guide", "options"];
     if (ids.coin) pages.push("coin-" + ids.coin); if (ids.album) pages.push("album-" + ids.album); if (ids.box) pages.push("box-" + ids.box);
