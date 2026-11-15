@@ -282,7 +282,10 @@ function yearProblem(typeId, year, kind) {
   if (y > cap) return kind === "want" ? "Wants can be at most " + cap + "." : "That year hasn't happened yet. The latest is " + cap + ".";
   if (y < 1) return "Enter a real year.";
   const last = t && (kind === "want" && t.end >= 2026 && !t.oneYear ? cap : Math.min(t.end, cap)); // wants for a series still running may look ahead
-  if (t && t.skipYears && t.skipYears.includes(y)) return t.name + " wasn't made in " + y + ".";
+  if (t && t.skipYears && t.skipYears.includes(y)) {
+    const alt = COIN_TYPES.find((o) => o.id !== t.id && o.family === t.family && y >= o.start && y <= Math.min(o.end, cap) && !(o.skipYears && o.skipYears.includes(y)));
+    return t.name + " wasn't made in " + y + "." + (alt ? " For " + y + ", pick " + alt.name + "." : "");
+  }
   if (t && (y < t.start || y > last)) {
     // Another type of the same coin covers this year (e.g. 2021 Morgan, 2009 cent): point to it.
     const alt = COIN_TYPES.find((o) => o.id !== t.id && o.family === t.family && y >= o.start && y <= Math.min(o.end, cap));
