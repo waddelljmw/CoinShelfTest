@@ -110,7 +110,7 @@ async function buildReport(opts) {
       <td class="r">${m(v)}</td>
       <td class="r"><b>${m(v == null ? null : v * q)}</b></td>
       <td class="r">${m(mt == null ? null : mt * q)}</td>
-      <td>${esc(SOURCE_TEXT[valueSource(c)] || "")}${valueSource(c) === "book" && ed ? " " + esc(ed) : ""}</td>
+      <td>${esc(SOURCE_TEXT[valueSource(c)] || "")}${valueSource(c) === "entered" && valueFromText(c.valueFrom) ? " · " + esc(valueFromText(c.valueFrom)) : ""}${valueSource(c) === "book" && ed ? " " + esc(ed) : ""}</td>
       ${opts.kept ? `<td>${esc(keptText(c))}</td>` : ""}
       ${opts.paid ? `<td class="r">${num(c.paid) == null ? "—" : money(costOf(c) / qtyOf(c))}</td>` : ""}
     </tr>`;

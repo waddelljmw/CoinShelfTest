@@ -369,3 +369,9 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 #guideBubble .btn.primary { color: #2a2218; background: #e0a63a; border-color: #e0a63a; font-weight: 700; }
 .guide-hl { outline: 3px solid #e0a63a; outline-offset: 3px; border-radius: 8px; animation: guidePulse 1.4s ease-in-out infinite; }
 @keyframes guidePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(224,166,58,.55); } 50% { box-shadow: 0 0 0 9px rgba(224,166,58,0); } }
+.star { background: none; border: 0; font-size: 24px; line-height: 1; padding: 4px 8px; color: var(--muted); cursor: pointer; vertical-align: middle; }
+.star[aria-pressed="true"] { color: #c98a00; }
+.coin-row { position: relative; }
+.coin-row .row-star { position: absolute; top: 2px; right: 6px; font-size: 20px; padding: 6px 10px; z-index: 1; }
+.coin-row .coin-val { padding-top: 14px; }
+.coin-row.sel .row-star { display: none; }

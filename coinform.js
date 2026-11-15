@@ -181,6 +181,7 @@ function renderCoinForm() {
     ${sec("value", "Quantity, value and metal", `${typeof manyField === "function" ? manyField(d) : ""}<div class="grid2">
       <label class="f"><span>Quantity</span><input type="number" inputmode="numeric" min="1" data-f="qty" value="${esc(d.qty)}"></label>
       <label class="f"><span>Value${eachWord(d)}</span><input type="number" inputmode="decimal" step="0.01" data-f="value" value="${esc(isJunk(d) ? "" : d.value)}" placeholder="${isJunk(d) ? "melt" : "$"}" ${isJunk(d) ? "disabled" : ""}></label>
+      <label class="f" id="vfRow" ${num(d.value) == null || isJunk(d) ? "hidden" : ""}><span>Value from</span><select data-f="valueFrom"><option value="">Not said</option>${VALUE_FROM.map(([k, w]) => `<option value="${k}" ${d.valueFrom === k ? "selected" : ""}>${esc(w)}</option>`).join("")}</select></label>
     </div>
     <div class="hint" id="bookHint">${esc(bookHintText(d))}</div>
     ${it === "bullion" ? "" : `<div class="grid2">
@@ -432,6 +433,7 @@ function refreshFormHints() {
   const bh = $("#bullionHint"); if (bh) bh.textContent = bullionHint(draft);
   const rh = $("#rollHint"); if (rh) rh.textContent = rollHint(draft);
   const mh = $("#meltHint"); if (mh) mh.textContent = meltHintText(draft);
+  const vf = $("#vfRow"); if (vf) vf.hidden = num(draft.value) == null || isJunk(draft);
   const ch = $("#costHint"); if (ch) ch.textContent = costHintText(draft);
   const lr = $("#lotRow"); if (lr) lr.hidden = (num(draft.qty) || 1) < 2; // the lot-price switch shows once Quantity is above 1
   const pl2 = $("#paidLbl"); if (pl2 && typeof paidLabel === "function") pl2.textContent = paidLabel(draft);

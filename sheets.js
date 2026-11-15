@@ -61,6 +61,8 @@ const SHEET_COLS = [
   { key: "buyFees", head: "Purchase fees", names: ["purchasefees", "buyerspremium", "buyerfees"] },
   { key: "totalCost", head: "Total cost", names: ["totalcost"], exportOnly: true },
   { key: "payMethod", head: "Paid with", names: ["paidwith", "paymentmethod", "payment"] },
+  { key: "valueFrom", head: "Value from", names: ["valuefrom", "valuesource"] },
+  { key: "fav", head: "Favorite", names: ["favorite", "favourite", "fav"] },
   { key: "trackCarrier", head: "Carrier", names: ["carrier", "shippingcarrier"] },
   { key: "trackNo", head: "Tracking number", names: ["trackingnumber", "tracking", "trackingno"] },
   { key: "receiptNo", head: "Receipt number", names: ["receiptnumber", "receipt", "invoice", "invoicenumber", "ordernumber"] },
@@ -104,7 +106,7 @@ function coinToRow(c) {
   const rb = bookPrice(c);
   return {
     cid: c.cid || "", label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : itemOf(c) === "bullion" ? shapeName(c.bShape) : "Coin", bWeight: itemOf(c) === "bullion" ? c.bWeight || "" : "", bPurity: itemOf(c) === "bullion" ? c.bPurity || "" : "", bMaker: c.bMaker || "", bSerial: c.bSerial || "", stack: stackOf(c), kind: !c.typeId && itemOf(c) === "coin" && OTHER_KINDS.includes(c.family) ? c.family : "", group: String(c.group || "").trim(), caseName: c.caseName || "", box: c.boxId && typeof getBox === "function" && getBox(c.boxId) ? getBox(c.boxId).name : "", boxTray: c.boxId && c.boxTray ? c.boxTray : "", boxRow: c.boxId ? c.boxRow || "" : "", boxSlot: c.boxId ? c.boxSlot || "" : "", trackCarrier: c.trackCarrier || "", goneReason: c.status === "gone" && c.gone ? c.gone.reason || "" : "", goneDate: c.status === "gone" && c.gone ? c.gone.date || "" : "", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
-    catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
+    catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", valueFrom: valueFromText(c.valueFrom), fav: c.fav ? "Yes" : "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
     cert: c.cert, cac: cacOf(c), holder: holderOf(c), keptIn: keptName(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", noDate: c.noDate === "worn" ? "Too worn" : c.noDate === "none" ? "Never had a date" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
@@ -247,6 +249,8 @@ function rowToCoin(get) {
   c.source = String(get("source") || "").trim();
   const txt = (k) => String(get(k) || "").trim();
   const listIn = (k, all) => txt(k).split(/[;,]/).map((x) => x.trim()).filter(Boolean).map((x) => all.find((a) => a.toLowerCase() === x.toLowerCase()) || x);
+  { const vf = txt("valueFrom").toLowerCase(), hit = VALUE_FROM.find((x) => x[0] === vf || x[1].toLowerCase() === vf); if (hit && num(c.value) != null && String(c.value) !== "0") c.valueFrom = hit[0]; }
+  if (yesish(get("fav"))) c.fav = true;
   c.seller = txt("seller"); c.payMethod = txt("payMethod"); c.receiptNo = txt("receiptNo"); c.trackNo = txt("trackNo").replace(/\s+/g, ""); c.knownVar = txt("knownVar");
   ["buyTax", "buyShip", "buyFees"].forEach((k) => { c[k] = String(money2(get(k))); });
   c.mintErrors = listIn("mintErrors", MINT_ERRORS); c.problems = listIn("problems", COIN_PROBLEMS);

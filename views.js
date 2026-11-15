@@ -74,7 +74,7 @@ function coinRow(c, opts = {}) {
   const v = bestEach(c);
   const m = meltEach(c);
   const q = qtyOf(c);
-  return `<button class="coin-row" data-go="coin-${esc(c.id)}">
+  return `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="star row-star" role="button" tabindex="-1" data-act="favToggle" data-id="${esc(c.id)}" aria-pressed="${!!c.fav}" aria-label="${c.fav ? "Remove from favorites" : "Add to favorites"}">${c.fav ? "★" : "☆"}</span>
     ${isIncomplete(c) ? `<span class="inc-mark" title="Missing: ${missingOf(c).join(", ")}" aria-label="Missing: ${missingOf(c).join(", ")}"></span>` : ""}${thumbHtml(c)}
     <span class="coin-main">
       <span class="coin-label">${esc(labelOf(c))}</span>
@@ -337,7 +337,7 @@ function viewCoin(r) {
   const row = (k, val) => (val == null || val === "" ? "" : `<div class="rowline"><span class="muted">${k}</span><span class="num" style="text-align:right">${val}</span></div>`);
   const sold = c.sold || {};
   return `${coinBackLink()}${eyeButton()}
-    <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}</h1>
+    <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""} <button class="star" data-act="favToggle" data-id="${esc(c.id)}" aria-pressed="${!!c.fav}" aria-label="${c.fav ? "Remove from favorites" : "Add to favorites"}">${c.fav ? "★" : "☆"}</button></h1>
     ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>${wherePartsOf(c).slice(1).map((x) => " \u203A " + esc(x)).join("")}</div>` : ""}
     <div class="small muted" style="margin:-4px 0 8px">ID <b>${c.cid ? esc(c.cid) : "No ID"}</b> <button class="link-btn" data-act="editId" data-id="${esc(c.id)}">${c.cid ? "Change" : "Add"}</button>${(c.oldCids || []).length ? ` · old ID${c.oldCids.length > 1 ? "s" : ""}: ${esc(c.oldCids.join(", "))}` : ""}</div>
     ${mintageLine(c)}${typeof coinInhHtml === "function" ? coinInhHtml(c) : ""}
@@ -356,7 +356,7 @@ function viewCoin(r) {
       ${row("COA", c.coa ? "Included" : null)}
       ${holderOf(c) !== "Other" ? row("Box / packaging", esc(c.packaging)) : ""}
       ${row("Quantity", q > 1 ? q : null)}
-      ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, " + bookName() + ")" : "Value each (" + bookName() + ")") : valueSource(c) === "face" ? (meltKey(c) && num(c.oz) && spotPerOz(meltKey(c)) == null ? "Value each (face value, no " + meltKey(c) + " price yet)" : "Value each (face value)") : "Value" + eachWord(c), money(v))}
+      ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, " + bookName() + ")" : "Value each (" + bookName() + ")") : valueSource(c) === "face" ? (meltKey(c) && num(c.oz) && spotPerOz(meltKey(c)) == null ? "Value each (face value, no " + meltKey(c) + " price yet)" : "Value each (face value)") : "Value" + eachWord(c) + (valueFromText(c.valueFrom) ? " (" + valueFromText(c.valueFrom) + ")" : ""), money(v))}
       ${noBookNote(c) ? `<div class="small muted" style="margin:2px 0 6px">${esc(noBookNote(c))}</div>` : ""}
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row(bookName(), money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
       ${row("Melt" + eachWord(c) + wi("melt"), m == null ? (meltKey(c) ? "Enter spot price" : null) : moneyOpen(m))}

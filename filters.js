@@ -50,6 +50,7 @@ function extraFilter(c) {
     if (vT != null && v > vT) return false;
   }
   if ((f.probs || []).length && !f.probs.some((k) => fltProb(c, k))) return false;
+  if (f.fav && !c.fav) return false;
   if (f.inc && !isIncomplete(c)) return false;
   if (f.inc === "home" && !isCounted(c)) return false; // the Home line counts only coins in the totals; its list matches
   return true;
@@ -72,6 +73,7 @@ function fltChips() {
   if (f.gCustom) add("grade", "Grade: " + f.gCustom);
   else if (f.gFrom || f.gTo) add("grade", "Grade " + (f.gFrom || "any") + " to " + (f.gTo || "any"));
   if (f.vFrom || f.vTo) add("value", "Value " + (f.vFrom ? "$" + f.vFrom : "…") + "–" + (f.vTo ? "$" + f.vTo : "…"));
+  if (f.fav) add("fav", "Favorites only");
   if (f.inc) add("inc", f.inc === "home" ? "Needs info (in Home totals)" : "Needs info");
   if ((f.probs || []).length) add("probs", FLT_PROBS.filter(([k]) => f.probs.includes(k)).map(([, l]) => l).join(" or "));
   return out;
@@ -155,6 +157,7 @@ function openFilterPanel() {
     <div class="grid2">${field("Grade from", sel("gFrom", "Any", GRADES, f.gFrom || ""))}${field("Grade to", sel("gTo", "Any", GRADES, f.gTo || ""))}</div>
     ${customGrades.length ? field("Custom grade", sel("gCustom", "Any", customGrades, f.gCustom || "")) : ""}
     <div class="grid2">${field("Value from ($)", `<input type="number" inputmode="decimal" data-flt="vFrom" value="${esc(f.vFrom || "")}">`)}${field("Value to ($)", `<input type="number" inputmode="decimal" data-flt="vTo" value="${esc(f.vTo || "")}">`)}</div>
+    ${field("Favorites", sel("fav", "All coins", [["1", "Favorites only"]], f.fav || ""))}
     ${field("Missing information", sel("inc", "Any", [["1", "Needs info (grade, cost or date)"]], f.inc || ""))}
     <div class="f"><span>Problems and errors <span class="muted small">(any of the ticked)</span></span>${FLT_PROBS.map(([k, l]) => `<label class="chk"><input type="checkbox" data-flt-prob="${k}" ${(f.probs || []).includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div>
     <div class="btn-row" style="margin-top:10px"><button class="btn primary" data-act="fltApply">Show results</button><button class="btn" data-act="fltClear">Clear all</button></div>
@@ -168,7 +171,7 @@ function fltRead() {
   if (v("metal") !== undefined) listState.metal = v("metal");
   if (v("cert") !== undefined) listState.cert = v("cert");
   const f = {};
-  ["group", "stack", "biz", "holder", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "vFrom", "vTo", "inc"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
+  ["group", "stack", "biz", "holder", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "vFrom", "vTo", "inc", "fav"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
   const probs = [...document.querySelectorAll("#sheet [data-flt-prob]:checked")].map((e) => e.dataset.fltProb);
   if (probs.length) f.probs = probs;
   listState.f = f;

@@ -38,6 +38,9 @@ const COIN_PROBLEMS = ["Cleaned", "Scratched", "Holed", "Bent", "Corroded", "Env
 const GONE_REASONS = ["Traded", "Gifted", "Lost", "Spent", "Other"];
 // How a purchase was paid for.
 const PAY_METHODS = ["Cash", "Card", "PayPal", "Check", "Venmo", "Zelle", "Trade", "Other"];
+// Where an entered Value came from (idea 83). Saved as the short key; the words live only here.
+const VALUE_FROM = [["pcgs", "PCGS price guide"], ["ngc", "NGC price guide"], ["ebay", "eBay sold"], ["dealer", "Dealer offer"], ["other", "Other"]];
+const valueFromText = (k) => (VALUE_FROM.find((x) => x[0] === k) || [])[1] || "";
 
 // Proof years from the Red Book (2026) for types with no price rows yet, so an album can build proof spots. Years only, no prices.
 // Philadelphia proofs (1959-1964, no mint mark) then San Francisco (S) from 1968. The four 2009-S Bicentennial proofs are
