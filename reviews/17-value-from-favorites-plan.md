@@ -12,7 +12,7 @@ Both add a new saved field on coins, so one 4-box check covers both. Build on So
 
 **84 Favorites**
 - New coin field `fav: true` (missing = not a favorite). Kept on the coin, not in settings, so it travels with backups, CSV and view-only files.
-- ☆/★ button on the coin page: one tap saves it, toast with Undo. A small ★ on the coin's row in the Coins list.
+- ☆/★ button on the coin page: one tap saves it, toast with Undo. In the Coins list, each row also has a tappable ☆/★ (his ask 11-15): small, at the top-right corner of the row next to the coin's name, with space around it so it isn't next to where a thumb scrolls the middle of the list. A tap only counts if the finger doesn't move (a scroll never stars). Same Undo message. Tapping the star doesn't open the coin.
 - Filter panel: "Favorites only" tick (`listState.f.fav`); works in saved filters. No new Home section (keeps Simple mode simple).
 - CSV column "Favorite" (Yes / blank).
 
