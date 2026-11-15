@@ -32,23 +32,17 @@ function welcomeCard() {
 // Each tip sits next to the real field it is about (never on top of it). Tapping a choice moves on by itself;
 // typed fields (year, price) wait for Next so the guide never jumps while you type.
 let guide = null; // { step } while the guide is on
-const SAVE_STEP = 5;
+const SAVE_STEP = 6;
 const GUIDE_STEPS = [
   { sel: [".what-btn[data-v=us]"], above: true, text: "First pick what you\u2019re adding. For a coin like a Morgan dollar or a wheat cent, tap US coin.", next: true, done: () => draft && draft._what },
   { sel: ["#typeSearch"], above: true, text: "Type part of the coin's name (like \u201CMorgan\u201D), then tap it in the list. Not sure? Tap Next.", next: true, done: () => draft && draft.typeId },
   { sel: ["[data-f=year]"], text: "Type the year on the coin. Pick the mint mark too if you know it. Then tap Next.", next: true },
   { sel: ["[data-f=grade]"], text: "Tap here and pick the grade (how worn the coin is). Your best guess is fine.", next: true, done: () => draft && draft.grade },
+  { sel: [".src-chips"], text: "Where did it come from? Tap Coin Shop or whichever fits. Not sure? Tap Next.", next: true, done: () => draft && draft._sourceKind },
   { sel: ["[data-f=paid]"], text: "Type what you paid. Don't know? Leave it and tap Next.", next: true },
   { sel: ["#coinForm button[type=submit]"], above: true, text: () => "Tap here to save your coin." + (guide && guide.note ? " " + guide.note : "") },
-  { sel: [".miss-banner, .card"], text: "This is your coin. \u201CMissing\u201D lists details still blank; tap Fill in whenever you have them.", next: true },
-  { sel: [".album-chip, .rowline"], text: () => "Where it's kept: " + guideWhere() },
+  { sel: [".miss-banner, .card"], text: "This is your coin. It is saved in My Coins (open it from the menu). \u201CMissing\u201D lists details still blank; tap Fill in whenever you have them." },
 ];
-function guideWhere() {
-  const m = location.hash.match(/^#coin-(.+)$/), c = m && getCoin(m[1]);
-  if (!c) return "see My Coins.";
-  const a = c.albumId && getAlbum(c.albumId), bx = c.boxId && getBox(c.boxId);
-  return a ? "in your album \u201C" + albumTitle(a) + "\u201D." : bx ? "in " + boxText(c) + "." : "in My Coins (open it from the menu to see every coin).";
-}
 function guidePlace() { // put the bubble just above or below the highlighted field, so the field stays free to tap
   const b = document.getElementById("guideBubble"), t = document.querySelector(".guide-hl");
   if (!b || !guide) return;
