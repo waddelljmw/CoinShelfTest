@@ -107,6 +107,14 @@ const actions = {
     confirmSheet("Delete forever?", labelOf(c) + " will be gone for good. This can't be undone.", "Delete forever", () => { remove("c_" + c.id); toast("Deleted forever."); });
   },
   confirmOk: () => { const fn = confirmSheet.fn; confirmSheet.fn = null; closeSheet(); if (fn) fn(); },
+  favToggle: (el) => {
+    const c = getCoin(el.dataset.id); if (!c) return;
+    if (store.mode === "snapshot") { toast("This is a view-only copy."); return; }
+    const before = { ...c }, next = { ...c };
+    if (c.fav) delete next.fav; else next.fav = true;
+    put("c_" + c.id, next); render();
+    toast(next.fav ? "Added to favorites." : "Removed from favorites.", { label: "Undo", fn: () => { put("c_" + c.id, before); render(); toast("Undone."); } });
+  },
   toastAction: () => { const t = $("#toast"); t.hidden = true; if (t._action) t._action(); },
   hideSpot: (el) => { const s = settings(); saveSettings({ hideSpot: { ...s.hideSpot, [el.dataset.v]: !el.checked } }); },
   showSold: (el) => saveSettings({ showSold: el.checked, soldAutoDone: true }),
@@ -272,6 +280,8 @@ const SNAPSHOT_BLOCK = new Set(("pocketNew fillSpots fillGo sellLater edit editS
   "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd slotUnwant missing missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup savePriceFile reorderAlbums sortAlbumsDate moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
+  const starEl = e.target.closest("[data-act=favToggle]"); // the star inside a list row must not open the coin
+  if (starEl) { e.preventDefault(); e.stopPropagation(); actions.favToggle(starEl); return; }
   const goEl = e.target.closest("[data-go]");
   if (goEl) {
     e.preventDefault();

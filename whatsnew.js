@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.71.0": [
+    "Value from: say where a value you typed came from (PCGS, NGC, eBay sold, dealer offer, other). It shows on the coin page, the insurance report and in CSV.",
+    "Favorites: tap the ☆ on a coin or in the Coins list to star it (Undo is offered). Filter has a Favorites only choice. Favorite is a CSV column too.",
+  ],
   "0.70.0": [
     "Search by nickname: wheat penny, steel, VDB, walker, V nickel, war nickel, Buffalo, Mercury, ASE, Bicentennial and more now find the right coin, both when adding a coin and in the Coins list.",
     "A warning (not a block) shows when a year or mint mark was never struck, like a 1922 Lincoln cent with no D.",
