@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.73.0": [
+    "On an album, \"Add missing to a want list\" now asks which list (or a new one) and adds every missing coin in one tap. Coins already on the list are skipped. \"Show missing\" still lets you pick one by one.",
+  ],
   "0.72.0": [
     "Add coin has small hints: any field can be left blank, Raw and Certified are explained in plain words, and the PCGS photo link sits right under the grade with a line on what it is for.",
     "After your very first coin, the app points you to the + button to add the next one.",
