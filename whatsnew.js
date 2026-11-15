@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.72.0": [
+    "Add coin has small hints: any field can be left blank, Raw and Certified are explained in plain words, and the PCGS photo link sits right under the grade with a line on what it is for.",
+    "After your very first coin, the app points you to the + button to add the next one.",
+  ],
   "0.71.0": [
     "Value from: say where a value you typed came from (PCGS, NGC, eBay sold, dealer offer, other). It shows on the coin page, the insurance report and in CSV.",
     "Favorites: tap the ☆ on a coin or in the Coins list to star it (Undo is offered). Filter has a Favorites only choice. Favorite is a CSV column too.",

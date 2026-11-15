@@ -131,6 +131,7 @@ function renderCoinForm() {
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add " + noun) : "Edit " + noun}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   <form id="coinForm" data-coin="${d.id}" autocomplete="off">
+    ${d._isNew && !d._replaces ? `<div class="hint" id="blankHint">Any field can be left blank. Fill in what you know; you can add the rest later.</div>` : ""}
     ${d._replaces ? `<div class="hint" id="readdNote">Copied from your old entry: year, grade, price, photos and notes. Album spot and variety are cleared. The old entry goes to Recently deleted.</div>` : ""}
     ${d._isNew && !other && it === "coin" ? (store.mode === "demo" && typeof demoFillCard === "function" ? demoFillCard(d) : sampleApi ? photoFillButton(d) : photoFillLockedButton()) : ""}
     ${it === "bullion" ? bullionTopHtml(d) : it === "set" ? setTopHtml(d) : `${yearFirst ? yearFirstHtml(d, t) : ""}${typeBlock}
@@ -144,6 +145,7 @@ function renderCoinForm() {
 
     ${it !== "coin" ? "" : `<fieldset><legend>Grade ${wi("rawslab")}</legend>
       <div class="seg"><button type="button" data-act="gmode" data-v="raw" class="${d.gradeMode === "raw" ? "on" : ""}">Raw</button><button type="button" data-act="gmode" data-v="cert" class="${d.gradeMode === "cert" ? "on" : ""}">Certified</button></div>
+      <div class="hint" id="rawHint">${d.gradeMode === "cert" ? "Certified: sealed in a hard plastic holder by a grading service like PCGS or NGC." : "Raw: loose, not in a sealed grading holder. Pick this if you graded it yourself."}</div>
       ${d.gradeMode === "cert" ? `<div class="grid2">
         <label class="f"><span>Grading service</span><select data-f="service" data-rerender>${SERVICES.map((s) => `<option ${d.service === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
         <label class="f"><span>Cert number</span><input type="text" inputmode="numeric" data-f="cert" value="${esc(d.cert)}"></label></div>
@@ -154,10 +156,10 @@ function renderCoinForm() {
       <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
+      <div class="hint">Not sure of the grade? Compare your coin with photos: <a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
       ${!d.grade ? `<label class="switch"><span>Can't grade this one<div class="small muted">For common worn coins. They stop showing under Needs info.</div></span><input type="checkbox" data-fcheck="noGrade" ${d.noGrade ? "checked" : ""}></label>` : ""}
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
-      <div class="hint"><a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
       ${it === "coin" && (d.typeName || d.year) ? `<div class="hint"><a id="ebayLink" href="${esc(ebayUrl(d))}" target="_blank" rel="noopener">Check eBay sold ↗</a></div>` : ""}
       ${bookFactRows(d.typeId, "fbl") && !isProofGrade(d.grade) ? `<label class="switch"><span>${d.typeId === "mercury-dime" ? "Full Bands (FB)" : "Full Bell Lines (FBL)"}<div class="small muted">${d.typeId === "mercury-dime" ? "The horizontal bands across the fasces on the back are fully split and complete." : "All the lines on the Liberty Bell are complete."}</div></span><input type="checkbox" data-fcheck="fbl" ${d.fbl ? "checked" : ""}></label>` : ""}
       <div id="smsBox">${smsField(d)}</div>
