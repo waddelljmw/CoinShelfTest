@@ -82,7 +82,7 @@ function applyYearMetal(d) {
   if (!t || !t.metalByYear) return;
   const mb = t.metalByYear[num(d.year)];
   if (mb) { d.metal = mb[0]; d.oz = mb[1] || ""; }
-  else if (d.metal === "Steel") { d.metal = t.metal; d.oz = t.oz || ""; }
+  else if (d.metal !== t.metal && Object.values(t.metalByYear).some((v) => v[0] === d.metal)) { d.metal = t.metal; d.oz = t.oz || ""; } // back to the usual metal
 }
 // View-only file (Step 11.2): it holds no price table. Each coin carries the value and mintage worked out when the file was made;
 // the stamp only counts while the coin still has the same date, mint, variety and grade.

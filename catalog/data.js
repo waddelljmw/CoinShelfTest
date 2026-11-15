@@ -27,7 +27,9 @@ const COIN_TYPES = [
   { id: "three-cent-nickel", name: "Three-Cent Nickel", family: "Three-cent piece", denom: "3C", face: 0.03, start: 1865, end: 1889, mints: ["P"], metal: "Copper-nickel", melt: "copper", oz: 0.04678 },
   // Cents
   { id: "flying-eagle-cent", name: "Flying Eagle Cent", family: "Flying Eagle cent", denom: "1C", face: 0.01, start: 1856, end: 1858, mints: ["P"], metal: "Copper-nickel", melt: "copper", oz: CU.flyingEagle },
-  { id: "indian-cent", name: "Indian Head Cent", family: "Indian Head cent", denom: "1C", face: 0.01, start: 1859, end: 1909, mints: ["P", "S"], metal: "Copper", melt: "copper", oz: CU.cent },
+  { id: "indian-cent", name: "Indian Head Cent", family: "Indian Head cent", denom: "1C", face: 0.01, start: 1859, end: 1909, mints: ["P", "S"], metal: "Copper", melt: "copper", oz: CU.cent,
+    metalByYear: { 1859: ["Copper-nickel", CU.flyingEagle], 1860: ["Copper-nickel", CU.flyingEagle], 1861: ["Copper-nickel", CU.flyingEagle], 1862: ["Copper-nickel", CU.flyingEagle], 1863: ["Copper-nickel", CU.flyingEagle] },
+    note: "1859–1863 cents are copper-nickel (4.67 g), so the metal is set to Copper-nickel for those years. 1864 has both kinds: bronze (the default here) and a scarcer copper-nickel one; change the metal by hand if yours is the pale copper-nickel." },
   { id: "lincoln-wheat", name: "Lincoln Wheat Cent", family: "Lincoln cent", denom: "1C", face: 0.01, start: 1909, end: 1958, mints: ["P", "D", "S"], metal: "Copper", melt: "copper", oz: CU.cent, note: "1943 cents are zinc-coated steel, so the metal is set to Steel for 1943. 1922 cents were only struck in Denver (a 1922 with no D is a famous variety).",
     metalByYear: { 1943: ["Steel", 0] }, varieties: { "1909|": ["", "VDB"], "1909|S": ["", "VDB"] } },
   { id: "lincoln-memorial-copper", name: "Lincoln Memorial Cent (copper)", family: "Lincoln cent", denom: "1C", face: 0.01, start: 1959, end: 1982, mints: ["P", "D", "S"], metal: "Copper", melt: "copper", oz: CU.cent, note: "1982 was struck in both copper and zinc. Weigh it: copper is 3.1 g, zinc is 2.5 g." },
@@ -243,6 +245,7 @@ const EXACT_SLOTS = {
   const skip = (id, years) => { COIN_TYPES.find((x) => x.id === id).skipYears = years; };
   skip("half-cent", [1798, 1799, 1801, ...range(1812, 1824), 1827, 1830, ...range(1837, 1839)]);
   skip("large-cent", [1815]);
+  skip("jefferson-nickel", [1943, 1944, 1945]); // those years are the War Nickel (35% silver); 1942 has both kinds
   skip("half-dime-early", [1798, 1799, 1804]);
   skip("capped-bust-dime", [1810, 1812, 1813, ...range(1815, 1819), 1826]);
   skip("capped-bust-quarter", [1816, 1817, 1826, 1829, 1830]);
