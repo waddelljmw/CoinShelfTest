@@ -183,10 +183,13 @@ const actions = {
     const a = getAlbum(el.dataset.id);
     if (!a) return;
     const inAlbum = allCoins().filter((c) => c.albumId === a.id);
-    inAlbum.forEach((c) => saveCoin({ ...c, albumId: "" }));
-    remove("a_" + a.id);
-    go("albums");
-    toast("Album deleted. Its coins are still in your collection.", { label: "Undo", fn: () => { put("a_" + a.id, a); inAlbum.forEach((c) => { const x = getCoin(c.id); if (x) saveCoin({ ...x, albumId: a.id }); }); } });
+    const n = inAlbum.length;
+    confirmSheet("Delete " + a.name + "?", n ? n + " coin" + (n > 1 ? "s stay" : " stays") + " in your collection. They just lose their album spot." : "This album is empty.", "Delete album", () => {
+      inAlbum.forEach((c) => saveCoin({ ...c, albumId: "" }));
+      remove("a_" + a.id);
+      go("albums");
+      toast("Album deleted. Its coins are still in your collection.", { label: "Undo", fn: () => { put("a_" + a.id, a); inAlbum.forEach((c) => { const x = getCoin(c.id); if (x) saveCoin({ ...x, albumId: a.id }); }); } });
+    });
   },
   // form
   gmode: (el) => { draft.gradeMode = el.dataset.v; if (draft.gradeMode === "raw" && draft.holder === "Slab") draft.holder = ""; if (draft.gradeMode === "cert" && draft.grade === "Junk") draft.grade = ""; renderCoinForm(); },
