@@ -146,7 +146,7 @@ function sheetDismiss() {
   actions.wlCancel();
   return true;
 }
-let wlReturn = null; // null | { kind: "want", prefill } | { kind: "missing" }
+let wlReturn = null; // null | { kind: "want", prefill } | { kind: "missing" } | { kind: "quick", albumId }
 function openNewListForm() {
   ensureDefaultList();
   const typeOpts = (() => {
@@ -194,6 +194,7 @@ function saveNewList(form) {
     return;
   }
   if (ret && ret.kind === "missing") { renderMissingPicker(wl.id); return; }
+  if (ret && ret.kind === "quick") { openMissingQuick(ret.albumId); return; }
   if (ret && ret.kind === "slot") { openSlotWantPicker(ret.el, wl.id); return; }
   closeSheet();
   go("wants");
@@ -329,21 +330,28 @@ function openMissingPicker(albumId) {
   missingPick.listId = missingSuggest(a).id;
   renderMissingPicker();
 }
+// Item 7: both add-missing paths end here, with an Undo that takes back the wants (and a list made just for them).
+function finishMissingAdd(made, newListId, listId) {
+  wantsView.listId = listId;
+  closeSheet();
+  const undo = made.length || newListId ? { label: "Undo", fn: () => { made.forEach((x) => remove("w_" + x.id)); if (newListId) remove("wl_" + newListId); render(); } } : undefined;
+  toast("Added " + made.length + " coin" + (made.length === 1 ? "" : "s") + " to " + (getWantList(listId) || {}).name + ".", undo);
+}
+const listScopeText = (l) => (l.scope === "type" || l.scope === "type-grade") && TYPE_BY_ID[l.typeId] ? shortName(TYPE_BY_ID[l.typeId]) + (l.scope === "type-grade" && l.grade ? " " + l.grade : "") + " only" : "any coin";
 // Quick add (item 70): one sheet asks which list, one tap adds every missing coin not already on it.
 function addMissingTo(a, listId) {
+  let newListId = "";
   if (listId === "__auto") {
     const types = albumTypes(a), sug = missingSuggest(a);
     const nl = { kind: "wantlist", id: uid(), name: sug.name, scope: types.length === 1 ? "type" : "any", typeId: types.length === 1 ? types[0] : "", grade: "", createdAt: Date.now() };
     saveWantList(nl);
-    listId = nl.id;
+    listId = newListId = nl.id;
   }
   const st = albumStats(a), wl = getWantList(listId);
   const slots = st.slots.filter((s) => !st.filled.has(slotKey(s)) && !spotFindWant(a, s, listId));
   if (slots.some((s) => !listAccepts(wl, slotType(a, s)))) { toast("That list is for a different coin type."); return; }
-  slots.forEach((s) => { const tid = slotType(a, s), y = s.set ? "" : s.y; saveWant(newWant({ typeId: tid, year: y, mint: s.m, pf: s.pf, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" })); });
-  wantsView.listId = listId;
-  closeSheet();
-  toast("Added " + slots.length + " coin" + (slots.length === 1 ? "" : "s") + " to " + (getWantList(listId) || {}).name + ".");
+  const made = slots.map((s) => { const tid = slotType(a, s), y = s.set ? "" : s.y; const x = newWant({ typeId: tid, year: y, mint: s.m, pf: s.pf, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" }); saveWant(x); return x; });
+  finishMissingAdd(made, newListId, listId);
 }
 function openMissingQuick(albumId) {
   ensureDefaultList();
@@ -355,7 +363,8 @@ function openMissingQuick(albumId) {
   const btn = (id, label, primary) => `<button class="btn ${primary ? "primary " : ""}block" style="margin-top:8px" data-act="missQuickAdd" data-id="${esc(albumId)}" data-list="${esc(id)}">${esc(label)}</button>`;
   openSheet(`<div class="sheet-head"><h2>Add ${n} missing to…</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     ${n ? `${sug.id === "__auto" ? btn("__auto", "New list: " + sug.name, true) : ""}
-    ${lists.map((l) => btn(l.id, l.name, sug.id !== "__auto" && l.id === sug.id)).join("")}
+    ${lists.map((l) => btn(l.id, l.name + " (" + listScopeText(l) + ")", sug.id !== "__auto" && l.id === sug.id)).join("")}
+    <button class="btn block" style="margin-top:8px" data-act="wlNewQuick" data-id="${esc(albumId)}">+ New list…</button>
     <div class="small muted" style="margin-top:12px">Coins already on a list are skipped. <button type="button" class="link-btn" data-act="missing" data-id="${esc(albumId)}">Pick which ones</button></div>`
     : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
 }
@@ -556,6 +565,7 @@ Object.assign(actions, {
   awRemove: (el) => { const x = getAlbumWant(el.dataset.id); if (!x) return; remove("aw_" + x.id); toast("Removed from your album wish list.", { label: "Undo", fn: () => put("aw_" + x.id, x) }); },
   wantsPickList: (el) => { wantsView.listId = el.dataset.id; render(); },
   wlNew: () => { wlReturn = null; openNewListForm(); },
+  wlNewQuick: (el) => { wlReturn = { kind: "quick", albumId: el.dataset.id }; openNewListForm(); },
   slotWantAdd: () => slotWantAdd(),
   // Cancelling a new list goes back to the form you came from, with nothing lost.
   wlCancel: () => {
@@ -563,6 +573,7 @@ Object.assign(actions, {
     wlReturn = null;
     if (ret && ret.kind === "want") return openWantForm(ret.editId || null, ret.prefill);
     if (ret && ret.kind === "missing") return renderMissingPicker();
+    if (ret && ret.kind === "quick") return openMissingQuick(ret.albumId);
     if (ret && ret.kind === "slot") return openSlotWantPicker(ret.el);
     closeSheet();
   },
@@ -582,21 +593,19 @@ Object.assign(actions, {
   missAdd: () => {
     const a = getAlbum(missingPick.albumId);
     if (!a) return;
-    let listId = ($("#missListPick") || {}).value || missingPick.listId || DEFAULT_LIST_ID;
+    let listId = ($("#missListPick") || {}).value || missingPick.listId || DEFAULT_LIST_ID, newListId = "";
     const st = albumStats(a);
     if (listId === "__auto") {
       const types = albumTypes(a), sug = missingSuggest(a);
       const nl = { kind: "wantlist", id: uid(), name: sug.name, scope: types.length === 1 ? "type" : "any", typeId: types.length === 1 ? types[0] : "", grade: "", createdAt: Date.now() };
       saveWantList(nl);
-      listId = nl.id;
+      listId = newListId = nl.id;
     }
     const slots = st.slots.filter((s) => missingPick.chosen.has(slotKey(s)) && !spotFindWant(a, s, listId));
     const wl = getWantList(listId);
     if (slots.some((s) => !listAccepts(wl, slotType(a, s)))) { toast("That list is for a different coin type."); return; }
-    slots.forEach((s) => { const tid = slotType(a, s), y = s.set ? "" : s.y; saveWant(newWant({ typeId: tid, year: y, mint: s.m, pf: s.pf, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" })); });
-    wantsView.listId = listId;
-    closeSheet();
-    toast("Added " + slots.length + " coin" + (slots.length === 1 ? "" : "s") + " to " + (getWantList(listId) || {}).name + ".");
+    const made = slots.map((s) => { const tid = slotType(a, s), y = s.set ? "" : s.y; const x = newWant({ typeId: tid, year: y, mint: s.m, pf: s.pf, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" }); saveWant(x); return x; });
+    finishMissingAdd(made, newListId, listId);
   },
 });
 document.addEventListener("submit", (e) => {

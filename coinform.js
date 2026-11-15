@@ -45,7 +45,7 @@ function applySourceKind(d, v) {
   if (d._isNew && (v === "Gift" || v === "Pocket change") && (d.paid === "" || d.paid == null || d.paid === d._paidAuto)) { d.paid = "0"; d._paidAuto = "0"; } // free coins fill Price paid with $0 (still editable)
   if (d._isNew && auto && (!d.payMethod || d.payMethod === d._payAuto)) { d.payMethod = auto; d._payAuto = auto; }
 }
-// "Where from" chips right after Grade: Inherited first, then the three most used, then More… (opens the full list under Purchase details).
+// "Where from" chips right after Grade: the three most used, then Inherited, then More… (opens the full list under Purchase details).
 // "Bought at this show": under Where from → Coin Show, once a show exists. Picking one fills the date acquired.
 function boughtShowField(d) {
   if (d._sourceKind !== "Coin Show" || typeof showsOn !== "function" || !showsOn() || typeof allShows !== "function" || !allShows().length) return "";
@@ -56,10 +56,10 @@ function sourceChips(d) {
   allCoins().forEach((c) => { const s = (c.source || "").trim(); if (s && s !== "Inherited") counts[s] = (counts[s] || 0) + 1; });
   const common = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 3);
   ["Coin Shop", "Coin Show", "eBay"].forEach((x) => { if (common.length < 3 && !common.includes(x)) common.push(x); });
-  const names = ["Inherited", ...common];
+  const names = [...common, "Inherited"]; // Inherited last, so a buyer does not tap it by mistake (it blocks selling)
   const cur = d._sourceKind;
   if (cur && cur !== "Other" && !names.includes(cur)) names.push(cur); // a chosen source stays visible
-  return `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">More…</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}</div>`;
+  return `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">More…</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}</div>`;
 }
 // First render of a coin: figure out whether its saved source is a known choice or custom text.
 function initSourceKind(d) {
