@@ -1,6 +1,7 @@
 // Saving a coin, photos, where a coin was sold (split from app.js; plain script, shares the page's global names)
 async function saveDraft() {
   const d = draft;
+  const firstEver = !!d._isNew && !allCoins().some((x) => x.status !== "deleted"); // for the + button pointer
   if (typeof inhLeaveAsk === "function" && inhLeaveAsk(d)) return; // Edit: Source moved away from Inherited, ask first
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._acqAuto; delete c._payAuto; delete c._paidAuto; delete c._replaces; delete c._proof; delete c._worn; delete c._none; delete c._preProof; // working copies aren't saved
@@ -147,7 +148,7 @@ async function saveDraft() {
   }
   const wantAsk = isNew && !d._fromWant && typeof askWantRemove === "function"; // a normal Add coin that matches a want asks after the page changes
   if (isNew && d._stay) { toast("Added to " + (getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "the album") + "."); if (wantAsk) askWantRemove(c); return; } // stay on the album
-  toast(isNew ? "Coin added." : "Saved.");
+  toast(isNew ? (firstEver ? "Coin added. Tap the + button to add the next one." : "Coin added.") : "Saved.");
   if (isNew) go("coin-" + c.id);
   if (isNew) askMetalPrice(c);
   if (wantAsk) askWantRemove(c);
