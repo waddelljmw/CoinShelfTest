@@ -249,7 +249,7 @@ function viewAlbum(r) {
     ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c))).join("")}</div>` : ""}
     ${selFootHtmlSafe()}
     <div class="btn-row">
-      ${st.total - st.owned > 0 ? `<button class="btn" data-act="missing" data-id="${esc(a.id)}">★ Add missing to a want list</button>` : ""}
+      ${st.total - st.owned > 0 ? `<button class="btn" data-act="missingQuick" data-id="${esc(a.id)}">★ Add missing to a want list</button>` : ""}
       <button class="btn" data-act="editAlbum" data-id="${esc(a.id)}">Edit album</button>
       <button class="btn danger" data-act="deleteAlbum" data-id="${esc(a.id)}">Delete album</button>
     </div>

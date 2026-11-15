@@ -329,6 +329,36 @@ function openMissingPicker(albumId) {
   missingPick.listId = missingSuggest(a).id;
   renderMissingPicker();
 }
+// Quick add (item 70): one sheet asks which list, one tap adds every missing coin not already on it.
+function addMissingTo(a, listId) {
+  if (listId === "__auto") {
+    const types = albumTypes(a), sug = missingSuggest(a);
+    const nl = { kind: "wantlist", id: uid(), name: sug.name, scope: types.length === 1 ? "type" : "any", typeId: types.length === 1 ? types[0] : "", grade: "", createdAt: Date.now() };
+    saveWantList(nl);
+    listId = nl.id;
+  }
+  const st = albumStats(a), wl = getWantList(listId);
+  const slots = st.slots.filter((s) => !st.filled.has(slotKey(s)) && !spotFindWant(a, s, listId));
+  if (slots.some((s) => !listAccepts(wl, slotType(a, s)))) { toast("That list is for a different coin type."); return; }
+  slots.forEach((s) => { const tid = slotType(a, s), y = s.set ? "" : s.y; saveWant(newWant({ typeId: tid, year: y, mint: s.m, pf: s.pf, variety: s.v || "", albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : "" })); });
+  wantsView.listId = listId;
+  closeSheet();
+  toast("Added " + slots.length + " coin" + (slots.length === 1 ? "" : "s") + " to " + (getWantList(listId) || {}).name + ".");
+}
+function openMissingQuick(albumId) {
+  ensureDefaultList();
+  const a = getAlbum(albumId);
+  if (!a) return;
+  const st = albumStats(a), n = st.slots.filter((s) => !st.filled.has(slotKey(s))).length;
+  const sug = missingSuggest(a);
+  const lists = wantLists().filter((l) => albumTypes(a).some((id) => listAccepts(l, id)));
+  const btn = (id, label, primary) => `<button class="btn ${primary ? "primary " : ""}block" style="margin-top:8px" data-act="missQuickAdd" data-id="${esc(albumId)}" data-list="${esc(id)}">${esc(label)}</button>`;
+  openSheet(`<div class="sheet-head"><h2>Add ${n} missing to…</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    ${n ? `${sug.id === "__auto" ? btn("__auto", "New list: " + sug.name, true) : ""}
+    ${lists.map((l) => btn(l.id, l.name, sug.id !== "__auto" && l.id === sug.id)).join("")}
+    <div class="small muted" style="margin-top:12px">Coins already on a list are skipped. <button type="button" class="link-btn" data-act="missing" data-id="${esc(albumId)}">Pick which ones</button></div>`
+    : `<div class="card empty">Nothing missing. Album complete <span class="check">✓</span></div>`}`);
+}
 function renderMissingPicker(preselect) {
   const a = getAlbum(missingPick.albumId);
   if (!a) return;
@@ -547,6 +577,8 @@ Object.assign(actions, {
   },
   missAll: () => { const a = getAlbum(missingPick.albumId); const st = albumStats(a); st.slots.filter((s) => !st.filled.has(slotKey(s)) && (missingPick.listId === "__auto" || !spotFindWant(a, s, missingPick.listId))).forEach((s) => missingPick.chosen.add(slotKey(s))); renderMissingPicker(); },
   missNone: () => { missingPick.chosen.clear(); renderMissingPicker(); },
+  missingQuick: (el) => openMissingQuick(el.dataset.id),
+  missQuickAdd: (el) => { const a = getAlbum(el.dataset.id); if (a) addMissingTo(a, el.dataset.list); },
   missAdd: () => {
     const a = getAlbum(missingPick.albumId);
     if (!a) return;
