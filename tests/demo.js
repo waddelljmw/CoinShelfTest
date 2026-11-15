@@ -27,6 +27,10 @@ const srv = http.createServer((q, r) => {
   await Promise.all([p.waitForFunction(() => location.search === "?demo"), p.click("[data-act=tryDemo]")]);
   await p.waitForFunction(() => store.mode === "demo", null, { timeout: 15000 }); await p.waitForTimeout(400);
   ok("the button opens the demo", await p.evaluate(() => store.mode === "demo"));
+  ok("the demo opens as an empty new collection with the welcome card", await p.evaluate(() => allCoins().length === 0) && await p.locator(".welcome [data-act=startCollection]").count() === 1);
+  ok("banner offers the full sample and Start my own collection", await p.evaluate(() => /Start my own collection/.test($("#banner").textContent) && !!$("#banner [data-act=demoFull]")));
+  await p.click(".welcome [data-act=demoFull]"); await p.waitForTimeout(400);
+  ok("See a full sample collection loads the made-up coins", await p.evaluate(() => allCoins().length > 10 && !$("#banner [data-act=demoFull]")));
 
   // ---- the sample collection ----
   const info = await p.evaluate(() => {
@@ -89,7 +93,9 @@ const srv = http.createServer((q, r) => {
 
   // ---- the link ----
   await p.goto("http://localhost:8795/?demo"); await p.waitForFunction(() => store.mode === "demo", null, { timeout: 15000 });
-  ok("the ?demo link opens the demo", await p.evaluate(() => allCoins().length > 100));
+  ok("the ?demo link opens an empty demo", await p.evaluate(() => allCoins().length === 0));
+  await p.goto("http://localhost:8795/?demo=full"); await p.waitForFunction(() => store.mode === "demo", null, { timeout: 15000 });
+  ok("the ?demo=full link opens the full sample", await p.evaluate(() => allCoins().length > 100));
   await p.goto("http://localhost:8795/"); await p.waitForFunction(() => store.mode === "local", null, { timeout: 15000 }); await p.waitForTimeout(300);
   ok("still just the real coin afterwards", await realCount() === 1);
 

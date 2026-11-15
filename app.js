@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.73.1";
+const APP_VERSION = "0.74.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -100,15 +100,22 @@ function loadPriceBook(canSave) {
   PRICE_BOOK = ship ? { ...emptyBook(), ...ship } : emptyBook(); // private window: use the shipped copy, save nothing
 }
 
-// Demo mode (Step 9.1): made-up coins, kept in memory only. catalog/demo.js is fetched only when the demo opens.
+// Demo mode (Step 9.1, reworked 95): opens as an empty new collection; "See a full sample collection" (or ?demo=full) loads the made-up coins. Kept in memory only. catalog/demo.js is fetched only when the demo opens.
+function demoBanner(full) {
+  $("#banner").innerHTML = `Demo: these aren't real coins. ${full ? "" : `<button class="link-btn" data-act="demoFull">See a full sample collection</button> `}<button class="link-btn" data-act="exitDemo">Start my own collection</button>`;
+  $("#banner").hidden = false;
+}
+function demoLoadFull() {
+  store.docs = new Map(demoDocs());
+  store.docs.set("history", demoHistory());
+  demoBanner(true);
+}
 async function startDemo() {
   await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "catalog/demo.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
   store.mode = "demo";
-  store.docs = new Map(demoDocs());
-  store.docs.set("history", demoHistory());
   document.body.classList.add("demo");
-  $("#banner").innerHTML = `Demo: these aren't real coins. <button class="link-btn" data-act="exitDemo">Exit demo</button>`;
-  $("#banner").hidden = false;
+  if (/[?&]demo=full(&|$)/.test(location.search)) demoLoadFull();
+  else { store.docs = new Map([["settings", { ...DEFAULT_SETTINGS, spot: { gold: 2700, silver: 32, platinum: 1000, copper: 4.2 }, spotUpdated: null, soldAutoDone: true }]]); demoBanner(false); }
   loadPriceBook();
   render();
 }

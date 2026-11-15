@@ -23,9 +23,9 @@ function wi(k) {
 /* ---------- welcome card (Home, phone app, no coins yet) ---------- */
 function welcomeCard() {
   return `<div class="card welcome"><b>Welcome to Coin Cabinet</b>
-    <div class="small muted" style="margin:4px 0 8px">Keep track of every coin you own, what it's worth and where it's kept.</div>
+    <div class="small muted" style="margin:4px 0 8px">${store.mode === "demo" ? "This is a practice collection. Type any made-up coin to see how it works. Nothing is saved." : "Keep track of every coin you own, what it's worth and where it's kept."}</div>
     <div class="btn-row"><button class="btn primary block" data-act="startCollection">Start my collection</button>
-    <button class="btn block" data-act="tryDemo">Try with sample coins</button></div></div>`;
+    ${store.mode === "demo" ? `<button class="btn block" data-act="demoFull">See a full sample collection</button>` : `<button class="btn block" data-act="tryDemo">Try with sample coins</button>`}</div></div>`;
 }
 
 /* ---------- guided first coin ---------- */

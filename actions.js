@@ -271,6 +271,7 @@ const actions = {
   },
   tryDemo: () => { location.href = location.pathname + "?demo"; }, // opens fresh, so the real saved coins are never touched
   exitDemo: () => { location.href = location.pathname; },
+  demoFull: () => { if (store.mode !== "demo" || typeof demoDocs !== "function") return; if (guide) { guide = null; guideBubble(); } if (!$("#sheet").hidden) closeSheet(); demoLoadFull(); loadPriceBook(); if (location.hash !== "#home" && location.hash) go("home"); render(); },
   demoFill: () => demoFillRun(),
   resetLabel: () => { draft.labelEdited = false; draft.label = ""; renderCoinForm(); },
 };
