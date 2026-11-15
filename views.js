@@ -13,9 +13,11 @@ function currentRoute() {
 function go(hash) {
   closeMenu();
   if (!$("#sheet").hidden) closeSheet(); // leaving the page closes any open pop-up
-  if (location.hash === "#" + hash) render(); else { listState.sel = null; location.hash = hash; } // leaving a page ends Select
+  if (location.hash === "#" + hash) render(); else { listState.sel = null; scrollSpots[location.hash.slice(1) || "home"] = window.scrollY; byLink = true; location.hash = hash; } // leaving a page ends Select
   window.scrollTo(0, 0);
 }
+// Back keeps your spot: remember how far each page was scrolled; the phone's Back button (not a link) puts you there again.
+const scrollSpots = {}; let byLink = false;
 // Remember the page you were on before opening a coin, so its back button returns there.
 let coinBackTo = null;
 window.addEventListener("hashchange", (e) => {
@@ -24,8 +26,10 @@ window.addEventListener("hashchange", (e) => {
   if (nowCoin && !oldHash.startsWith("coin-")) coinBackTo = oldHash;
   if (!nowCoin) coinBackTo = null;
   listState.sel = null; // Back leaves the page, so Select ends (same as go())
+  if (!byLink) scrollSpots[oldHash] = window.scrollY;
+  const viaLink = byLink; byLink = false;
   render();
-  window.scrollTo(0, 0);
+  window.scrollTo(0, viaLink ? 0 : (scrollSpots[location.hash.slice(1) || "home"] || 0));
 });
 // Where "done" actions (delete, sell) should land: the page you opened the coin from.
 const coinBackTarget = () => coinBackTo || "coins";
