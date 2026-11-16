@@ -310,7 +310,7 @@ $("#fab").addEventListener("click", () => openCoinForm(null));
 let spotTimer = null;
 document.addEventListener("input", (e) => {
   const el = e.target;
-  if (el.id === "typeSearch") { showTypeList(el.value); return; }
+  if (el.id === "typeSearch") { if (draft) draft._typeQ = el.value; showTypeList(el.value); return; } // keep what was typed even if the form redraws (e.g. after the year)
   if (el.id === "spotY") { refreshSpotHints(); return; }
   if (el.dataset.list === "q") { listState.q = el.value; render(); return; }
   if (el.dataset.setting) {

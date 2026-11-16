@@ -124,7 +124,7 @@ function renderCoinForm() {
       <label class="f"><span>What is it called?</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="e.g. Casino token"></label>
       <label class="f"><span>Face value</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label></div>`
       : `<div class="f typeahead"><span>Coin type</span>
-      <input type="search" id="typeSearch" placeholder="Search by name, e.g. Morgan" value="${esc(t ? t.name : "")}">
+      <input type="search" id="typeSearch" placeholder="Search by name, e.g. Morgan" value="${esc(t ? t.name : d._typeQ || "")}">
       <div class="ta-list" id="typeList" hidden></div>
       <div class="hint"><button type="button" class="link-btn" data-act="what" data-v="other">Can't find it? Type it yourself</button></div>
     </div>`;
