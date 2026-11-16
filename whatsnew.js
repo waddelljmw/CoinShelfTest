@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.77.0": [
+    "A box can now be kept in another box or a place you type (Edit box > Kept in), so an album in a cardboard box in the safe shows the whole chain on the coin and box pages.",
+    "Rearranged the pull-out drawers? Edit box > Swap two trays: the trays trade places with their coins (same row and slot). One Undo puts it back.",
+  ],
   "0.76.0": [
     "Reports now have filters: just coins, just bars, one metal, and switches for Business stock and coins on the way (left out of the insurance report). Two quick buttons: Insurance and Full inventory (everything, with what you paid and where it's kept).",
   ],

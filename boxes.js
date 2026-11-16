@@ -219,7 +219,7 @@ function viewBox(r) {
     ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(b.id) : ""}
     ${typeof pageSelHtml === "function" ? pageSelHtml(inBox) : ""}
     ${b.type === "dealer" && typeof dealerPanel === "function" ? dealerPanel(b) : ""}
-    ${b.type === "pocket" ? pocketKeptHtml(b) : ""}${keptAlbumsHtml(b)}${trayTabs}${tn > 1 && hasSpots(b) ? `<div class="small muted" style="margin:-4px 0 4px">${trayWord(b)} ${tray}: ${L.rows} ${lineWord(b).toLowerCase()}${L.rows === 1 ? "" : "s"} of ${L.perRow} slots</div>` : ""}${body}${typeof selFootHtml === "function" ? selFootHtml() : ""}
+    ${pocketKeptHtml(b)}${keptAlbumsHtml(b)}${trayTabs}${tn > 1 && hasSpots(b) ? `<div class="small muted" style="margin:-4px 0 4px">${trayWord(b)} ${tray}: ${L.rows} ${lineWord(b).toLowerCase()}${L.rows === 1 ? "" : "s"} of ${L.perRow} slots</div>` : ""}${body}${typeof selFootHtml === "function" ? selFootHtml() : ""}
     <div class="btn-row"><button class="btn" data-act="boxEdit" data-id="${esc(b.id)}">${b.type === "pocket" ? "Edit album" : "Edit box"}</button><button class="btn danger" data-act="boxDelete" data-id="${esc(b.id)}">${b.type === "pocket" ? "Delete album" : "Delete box"}</button></div>`;
 }
 // "+ Add storage" on a Kept in list sends you here and brings you back: { kind: "coin" | "form" | "move", stash }.
@@ -249,6 +249,8 @@ function boxForm(b) {
     <div class="grid2" id="boxGrid"><label class="f"><span>Rows or columns <span class="muted small">(tray 1)</span></span><input type="number" inputmode="numeric" name="rows" min="1" max="50" value="${b && hasSpots(b) ? b.rows : ""}" placeholder="e.g. 5"></label>
     <label class="f"><span>Slots in each</span><input type="number" inputmode="numeric" name="perRow" min="1" max="100" value="${b && hasSpots(b) ? b.perRow : ""}" placeholder="e.g. 20"></label></div>
     <div id="trayRows">${trayRowsHtml(b ? trayList(b).slice(1) : [], b ? trayList(b)[0] : null)}</div>
+    ${boxKeptField(b)}
+    ${traySwapHtml(b)}
     <label class="f"><span>What's inside <span class="muted small">(optional)</span></span><textarea name="inside" rows="3" maxlength="500" placeholder="e.g. ziplock of Bicentennial quarters, pill bottle of halves">${esc(b ? b.inside || "" : "")}</textarea></label>
     <div class="btn-row"><button type="submit" class="btn primary">${b ? "Save" : "Add box"}</button><button type="button" class="btn" data-act="${back}">Cancel</button></div></form>`, "sheet-75");
 }
@@ -306,6 +308,9 @@ function saveBoxForm(form) {
   if (trays.length > 1) rec.trays = trays; else delete rec.trays;
   if (rec.type === "dealer") rec.forSale = f.get("forSale") === "on"; else delete rec.forSale;
   if (f.get("dir") === "cols") rec.cols = true; else delete rec.cols; // switching only relabels: items keep their numbers
+  const kb = String(f.get("keptBox") || "");
+  if (kb && boxChain(kb).some((x) => x.id === rec.id)) { toast("A box can't be kept inside itself (or inside a box that sits in it)."); return; }
+  applyAlbumKept(rec, f);
   put("b_" + rec.id, rec);
   const ret = !old && boxReturn; boxReturn = null;
   if (ret) { backFromBox(ret, rec.id); toast("Box added."); return; }
@@ -340,7 +345,7 @@ Object.assign(actions, {
       coins.forEach((c) => { const x = JSON.parse(JSON.stringify(c)); if (b.type === "dealer" && x.caseFrom && typeof caseRestore === "function") caseRestore(x); /* back to its old place and status */ else { delete x.boxId; delete x.boxRow; delete x.boxSlot; delete x.boxTray; } put("c_" + c.id, x); });
       const albs = keptAlbums(b).map((a) => JSON.parse(JSON.stringify(a))); // albums kept in it just lose the box; they stay on the shelf
       albs.forEach((a) => { const x = { ...a }; delete x.keptBox; put("a_" + a.id, x); });
-      const pks = keptPockets(b).map((x) => JSON.parse(JSON.stringify(x)));
+      const pks = allBoxes().filter((x) => x.keptBox === b.id).map((x) => JSON.parse(JSON.stringify(x)));
       pks.forEach((x) => { const y = { ...x }; delete y.keptBox; put("b_" + x.id, y); });
       remove("b_" + b.id);
       go(pk ? "albums" : "boxes"); // pocket albums live on My Albums, not Storage
@@ -387,22 +392,21 @@ document.addEventListener("submit", (e) => {
 const keptAlbums = (b) => albums().filter((a) => a.keptBox === b.id);
 const keptPockets = (b) => pocketAlbums().filter((x) => x.keptBox === b.id); // pocket albums (Step 9.7d) kept in this box
 function keptAlbumsHtml(b) {
-  const list = keptAlbums(b), pk = keptPockets(b);
-  if (!list.length && !pk.length) return "";
-  return `<div class="card" style="margin:0 0 10px"><div class="muted small">Albums kept in this box</div>${list.map((a) => `<button class="coin-row" data-go="album-${esc(a.id)}"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span>${a.keptPlace ? `<span class="coin-sub">${esc(a.keptPlace)}</span>` : ""}</span></button>`).join("")}${pk.map((x) => `<button class="coin-row" data-go="box-${esc(x.id)}"><span class="coin-main"><span class="coin-label">${esc(x.name)}</span><span class="coin-sub">Pocket album${x.keptPlace ? " · " + esc(x.keptPlace) : ""}</span></span></button>`).join("")}</div>`;
+  const list = keptAlbums(b), pk = keptPockets(b), bx = keptBoxes(b);
+  if (!list.length && !pk.length) return keptBoxesHtml(bx);
+  return `<div class="card" style="margin:0 0 10px"><div class="muted small">Albums kept in this box</div>${list.map((a) => `<button class="coin-row" data-go="album-${esc(a.id)}"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span>${a.keptPlace ? `<span class="coin-sub">${esc(a.keptPlace)}</span>` : ""}</span></button>`).join("")}${pk.map((x) => `<button class="coin-row" data-go="box-${esc(x.id)}"><span class="coin-main"><span class="coin-label">${esc(x.name)}</span><span class="coin-sub">Pocket album${x.keptPlace ? " · " + esc(x.keptPlace) : ""}</span></span></button>`).join("")}</div>${keptBoxesHtml(bx)}`;
 }
 // Where a coin is, as plain parts: Album, then the box the album sits in, then its shelf spot (parts never filled in are left out). Display only.
 function wherePartsOf(c) {
   const a = c.albumId && getAlbum(c.albumId), parts = [];
-  if (a) { const b = a.keptBox && getBox(a.keptBox); parts.push(albumTitle(a)); if (b) parts.push(b.name); if (String(a.keptPlace || "").trim()) parts.push(String(a.keptPlace).trim()); }
-  else if (c.boxId && getBox(c.boxId)) parts.push(boxText(c));
+  if (a) parts.push(albumTitle(a), ...keptParts(a));
+  else if (c.boxId && getBox(c.boxId)) parts.push(boxText(c), ...keptParts(getBox(c.boxId)));
   return parts;
 }
 const whereText2 = (c) => wherePartsOf(c).join(" \u203A ");
 // "Kept in" text for an album page, or "".
 function albumKeptText(a) {
-  const b = a.keptBox && getBox(a.keptBox);
-  return [b && b.name, String(a.keptPlace || "").trim()].filter(Boolean).join(" · ");
+  return keptParts(a).join(" · ");
 }
 // The "Kept in" field on New album / Edit album.
 function albumKeptField(a) {
@@ -417,3 +421,72 @@ function applyAlbumKept(a, fd) {
   if (place) a.keptPlace = place; else delete a.keptPlace;
   return a;
 }
+
+// --- Idea 34: a box can be kept in another box (album in a cardboard box in the safe). Any box record may have
+// keptBox (another box's id) and keptPlace (free text), the same two fields albums and pocket albums already use.
+// New optional fields only: old boxes simply have neither, so nothing is converted. Display follows the chain; a loop can't be saved. ---
+// The box with this id, then the box it sits in, and so on (stops on a loop or a missing box).
+function boxChain(id) {
+  const out = [], seen = new Set();
+  let b = id && getBox(id);
+  while (b && !seen.has(b.id)) { seen.add(b.id); out.push(b); b = b.keptBox && getBox(b.keptBox); }
+  return out;
+}
+// Where an album or box is kept, as plain parts: its box, its own typed place, then where that box is kept, and so on.
+function keptParts(rec, seen) {
+  seen = seen || new Set([rec.id]);
+  const b = rec.keptBox && !seen.has(rec.keptBox) && getBox(rec.keptBox), place = String(rec.keptPlace || "").trim(), out = [];
+  if (b) { seen.add(b.id); out.push(b.name); }
+  if (place) out.push(place);
+  if (b) out.push(...keptParts(b, seen));
+  return out;
+}
+const keptBoxes = (b) => allBoxes().filter((x) => x.keptBox === b.id && x.type !== "pocket"); // boxes (not pocket albums) kept in this box
+const keptBoxesHtml = (list) => (list.length ? `<div class="card" style="margin:0 0 10px"><div class="muted small">Boxes kept in this box</div>${list.map((x) => `<button class="coin-row" data-go="box-${esc(x.id)}"><span class="coin-main"><span class="coin-label">${esc(x.name)}</span><span class="coin-sub">${esc(boxKindText(x))}${x.keptPlace ? " · " + esc(x.keptPlace) : ""}</span></span></button>`).join("")}</div>` : "");
+// The "Kept in" field on New box / Edit box: any storage or display box except itself and boxes that sit inside it.
+function boxKeptField(b) {
+  const ok = [...storageBoxes(), ...displayBoxes()].filter((x) => !b || !boxChain(x.id).some((y) => y.id === b.id));
+  const opts = ok.map((x) => `<option value="${esc(x.id)}" ${b && b.keptBox === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("");
+  return `<label class="f"><span>Kept in ${typeof wi === "function" ? wi("keptin") : ""}</span><select name="keptBox"><option value="">Not in another box</option>${opts}</select></label>
+    <label class="f"><span>Or type a place <span class="muted small">(optional)</span></span><input type="text" name="keptPlace" maxlength="60" value="${esc(b ? b.keptPlace || "" : "")}" placeholder="e.g. safe, closet shelf"></label>`;
+}
+
+// --- Idea 35: swap two trays (tucked inside Edit box; only on a box with 2+ trays). The two trays' layouts trade places
+// and every coin placed in them moves with its tray (same row and slot). Coins away in a dealer case keep the right way back. One Undo. ---
+function traySwapHtml(b) {
+  if (!b || !hasSpots(b) || b.type === "dealer" || b.type === "pocket" || trayCount(b) < 2) return "";
+  const opts = (sel) => Array.from({ length: trayCount(b) }, (_, i) => `<option value="${i + 1}" ${i + 1 === sel ? "selected" : ""}>Tray ${i + 1}</option>`).join("");
+  return `<details class="card" style="margin:6px 0"><summary><b>Swap two trays</b> <span class="small muted">(rearranged the drawers?)</span></summary>
+    <div class="small muted" style="margin:6px 0">The two trays trade places: their sizes and the coins in them move together. Coins keep their row and slot.</div>
+    <div class="grid2"><label class="f"><span>Swap</span><select id="swapA">${opts(1)}</select></label><label class="f"><span>with</span><select id="swapB">${opts(2)}</select></label></div>
+    <button type="button" class="btn" data-act="traySwap" data-id="${esc(b.id)}">Swap trays</button></details>`;
+}
+function swapTrays(b, x, y) {
+  const n = trayCount(b);
+  if (!b || !b.trays || !(x >= 1 && x <= n && y >= 1 && y <= n) || x === y) return null;
+  const other = (t) => (t === x ? y : t === y ? x : t);
+  const fromTray = (f) => Math.max(1, Math.round(+f.boxTray) || 1);
+  const coins = allCoins().filter((c) => (c.boxId === b.id && c.boxRow && [x, y].includes(trayNo(c))) || (c.caseFrom && c.caseFrom.boxId === b.id && c.caseFrom.boxRow && [x, y].includes(fromTray(c.caseFrom))));
+  const before = { box: JSON.parse(JSON.stringify(b)), coins: coins.map((c) => JSON.parse(JSON.stringify(c))) };
+  const t = b.trays.map((z) => ({ ...z }));
+  [t[x - 1], t[y - 1]] = [t[y - 1], t[x - 1]];
+  put("b_" + b.id, { ...b, trays: t, rows: t[0].rows, perRow: t[0].perRow });
+  coins.forEach((c) => {
+    const z = JSON.parse(JSON.stringify(c));
+    if (z.boxId === b.id && z.boxRow) z.boxTray = String(other(trayNo(z)));
+    if (z.caseFrom && z.caseFrom.boxId === b.id && z.caseFrom.boxRow) z.caseFrom.boxTray = String(other(fromTray(z.caseFrom)));
+    put("c_" + z.id, z);
+  });
+  return before;
+}
+Object.assign(actions, {
+  traySwap: (el) => {
+    const b = getBox(el.dataset.id), x = +($("#swapA") || {}).value, y = +($("#swapB") || {}).value;
+    if (x === y) { toast("Pick two different trays."); return; }
+    const before = b && swapTrays(b, x, y);
+    if (!before) return;
+    boxTab[b.id] = y;
+    closeSheet(); render();
+    toast("Trays " + x + " and " + y + " swapped.", { label: "Undo", fn: () => { put("b_" + before.box.id, before.box); before.coins.forEach((c) => put("c_" + c.id, c)); render(); toast("Swap undone."); } });
+  },
+});
