@@ -22,9 +22,9 @@ function wi(k) {
 
 /* ---------- welcome card (Home, phone app, no coins yet) ---------- */
 function welcomeCard() {
-  return `<div class="card welcome"><b>Welcome to Coin Cabinet</b>
-    <div class="small muted" style="margin:4px 0 8px">${store.mode === "demo" ? "This is a practice collection. Type any made-up coin to see how it works. Nothing is saved." : "Keep track of every coin you own, what it's worth and where it's kept."}</div>
-    <div class="btn-row"><button class="btn primary block" data-act="startCollection">Start my collection</button>
+  return `<div class="card welcome"><b>${store.mode === "demo" ? "Demo walkthrough" : "Welcome to Coin Cabinet"}</b>
+    <div class="small muted" style="margin:4px 0 8px">${store.mode === "demo" ? "Follow the steps to add a made-up practice coin and see how the app works. Nothing is saved, and your real coins are not here." : "Keep track of every coin you own, what it's worth and where it's kept."}</div>
+    <div class="btn-row"><button class="btn primary block" data-act="startCollection">${store.mode === "demo" ? "Start the demo walkthrough" : "Start my collection"}</button>
     ${store.mode === "demo" ? `<button class="btn block" data-act="demoFull">See a full sample collection</button>` : `<button class="btn block" data-act="tryDemo">Try with sample coins</button>`}</div></div>`;
 }
 
@@ -65,7 +65,7 @@ function guideBubble() {
   if (!guide) { if (b) b.remove(); return; }
   const s = GUIDE_STEPS[guide.step], last = guide.step === GUIDE_STEPS.length - 1;
   if (!b) { b = document.createElement("div"); b.id = "guideBubble"; b.setAttribute("role", "status"); document.body.appendChild(b); }
-  b.innerHTML = `<div class="small muted">Step ${guide.step + 1 - guide.base} of ${GUIDE_STEPS.length - guide.base}</div><div>${esc(typeof s.text === "function" ? s.text() : s.text)}</div>
+  b.innerHTML = `<div class="small muted">${store.mode === "demo" ? "Demo walkthrough: " : ""}Step ${guide.step + 1 - guide.base} of ${GUIDE_STEPS.length - guide.base}</div><div>${esc(typeof s.text === "function" ? s.text() : s.text)}</div>
     <div class="btn-row"><button class="btn" data-act="guideSkip">${last ? "Done" : guide.sure ? "Tap again to stop" : "Skip guide"}</button>${s.next ? `<button class="btn primary" data-act="guideNext">Next</button>` : ""}</div>`;
   let t = null;
   for (const q of s.sel) { t = document.querySelector(q); if (t) break; }

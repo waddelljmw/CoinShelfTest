@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.75.0";
+const APP_VERSION = "0.75.1";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -102,7 +102,7 @@ function loadPriceBook(canSave) {
 
 // Demo mode (Step 9.1, reworked 95): opens as an empty new collection; "See a full sample collection" (or ?demo=full) loads the made-up coins. Kept in memory only. catalog/demo.js is fetched only when the demo opens.
 function demoBanner(full) {
-  $("#banner").innerHTML = `Demo: these aren't real coins. ${full ? "" : `<button class="link-btn" data-act="demoFull">See a full sample collection</button> `}<button class="link-btn" data-act="exitDemo">Start my own collection</button>`;
+  $("#banner").innerHTML = `PRACTICE DEMO: these aren't your real coins. ${full ? "" : `<button class="link-btn" data-act="demoFull">See a full sample collection</button> `}<button class="link-btn" data-act="exitDemo">Leave demo</button>`;
   $("#banner").hidden = false;
 }
 function demoLoadFull() {
