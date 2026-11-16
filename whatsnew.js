@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.76.0": [
+    "Reports now have filters: just coins, just bars, one metal, and switches for Business stock and coins on the way (left out of the insurance report). Two quick buttons: Insurance and Full inventory (everything, with what you paid and where it's kept).",
+  ],
   "0.75.0": [
     "New \"Take out of album…\" button when you select coins. The coins go loose (they stay in your collection) or into a box or stack you pick, and one Undo puts them back. Nothing is deleted.",
   ],
