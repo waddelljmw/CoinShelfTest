@@ -4,6 +4,12 @@
 
 // Which coins go in the report: all, or the ones you tick.
 const repSel = { mode: "all", ids: new Set(), q: "" };
+// What kind of items go in: filters (Insurance preset = my own, nothing on the way; Inventory preset = everything).
+const REP_KINDS = [["all", "Everything"], ["coin", "Just coins"], ["bullion", "Just bars and rounds"], ["set", "Just sets"], ["roll", "Just rolls"]];
+const repF = { kind: "all", metal: "", biz: false, coming: false };
+const repPass = (c, f) => (f.kind === "all" || itemOf(c) === f.kind) && (!f.metal || c.metal === f.metal) && (f.biz || !c.biz) && (f.coming || stageOf(c) !== "coming");
+const repFilterNow = () => ({ kind: ($("#repKind") || {}).value || "all", metal: ($("#repMetal") || {}).value || "", biz: !!($("#repBiz") || {}).checked, coming: !!($("#repComing") || {}).checked });
+const repPool = () => ownedCoins().filter((c) => repPass(c, repF));
 
 // Where an item is kept, in words: album, box (with row and slot), or stack.
 function keptText(c) {
@@ -13,11 +19,21 @@ function keptText(c) {
 function openReportForm() {
   const owned = ownedCoins();
   repSel.mode = "all"; repSel.ids = new Set(); repSel.q = "";
+  Object.assign(repF, { kind: "all", metal: "", biz: false, coming: false });
+  const metals = [...new Set(owned.map((c) => c.metal).filter(Boolean))].sort();
   openSheet(`<div class="sheet-head"><h2>Insurance report</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <p>A dated, itemized list of your coins with values and totals, to keep for your records or send to your insurance agent. Sold coins aren't included.</p>
     ${priceStatusLine(true)}${lowTotalNote(true)}${needInfoCoins().length ? `<p class="small" style="color:#a85d00"><b>Estimate*</b> ${NEED_NOTE} <button class="link-btn" data-act="needInfo">See them</button></p>` : ""}
+    <div class="card" style="margin-top:12px"><div class="small muted" style="margin-bottom:6px">Quick setup</div>
+      <div class="btn-row"><button type="button" class="btn" data-act="repPreset" data-v="insurance">Insurance</button><button type="button" class="btn" data-act="repPreset" data-v="inventory">Full inventory</button></div>
+      <div class="hint">Insurance leaves out Business stock and coins on the way. Full inventory has everything, with what you paid and where it's kept.</div>
+      <label class="f"><span>What to include</span><select id="repKind">${REP_KINDS.map(([v, t]) => `<option value="${v}">${t}</option>`).join("")}</select></label>
+      <label class="f"><span>Metal</span><select id="repMetal"><option value="">Any metal</option>${metals.map((m) => `<option>${esc(m)}</option>`).join("")}</select></label>
+      <label class="switch"><span>Include Business stock<div class="small muted">Coins you hold to sell.</div></span><input type="checkbox" id="repBiz"></label>
+      <label class="switch"><span>Include coins on the way<div class="small muted">Bought but not here yet.</div></span><input type="checkbox" id="repComing"></label>
+    </div>
     <div class="f"><span>Which coins</span>
-      <div class="seg"><button type="button" data-act="repMode" data-v="all" class="on">All coins (${sum(owned, qtyOf)})</button><button type="button" data-act="repMode" data-v="pick">Choose coins</button></div>
+      <div class="seg"><button type="button" data-act="repMode" data-v="all" class="on">All coins (<span id="repAllN">${sum(repPool(), qtyOf)}</span>)</button><button type="button" data-act="repMode" data-v="pick">Choose coins</button></div>
     </div>
     <div id="repPick" hidden>
       <input type="search" id="repSearch" placeholder="Search, e.g. Morgan, inherited, PCGS" style="margin-top:10px">
@@ -39,7 +55,7 @@ function openReportForm() {
 }
 function repShown() {
   const q = repSel.q.trim().toLowerCase();
-  return ownedCoins().slice().sort((a, b) => familyOf(a).localeCompare(familyOf(b)) || (+a.year || 0) - (+b.year || 0))
+  return repPool().slice().sort((a, b) => familyOf(a).localeCompare(familyOf(b)) || (+a.year || 0) - (+b.year || 0))
     .filter((c) => !q || (labelOf(c) + " " + gradeText(c) + " " + (c.source || "") + " " + (c.notes || "") + " " + familyOf(c)).toLowerCase().includes(q));
 }
 function repRenderList() {
@@ -57,7 +73,7 @@ function repRenderList() {
 function repUpdateCount() {
   const el = $("#repCount");
   if (!el) return;
-  const chosen = ownedCoins().filter((c) => repSel.ids.has(c.id));
+  const chosen = repPool().filter((c) => repSel.ids.has(c.id));
   const n = sum(chosen, qtyOf);
   el.textContent = chosen.length ? `${n} coin${n === 1 ? "" : "s"} chosen · ${money(sum(chosen, (c) => (bestEach(c) || 0) * qtyOf(c)))}` : "None chosen";
 }
@@ -83,7 +99,7 @@ async function buildReport(opts) {
   const s = settings();
   const byType = (a, b) => familyOf(a).localeCompare(familyOf(b)) || (+a.year || 0) - (+b.year || 0) || normMint(a.mint).localeCompare(normMint(b.mint));
   const order = { type: byType, year: (a, b) => (+a.year || 99999) - (+b.year || 99999) || byType(a, b), value: (a, b) => (bestEach(b) || 0) * qtyOf(b) - (bestEach(a) || 0) * qtyOf(a) || byType(a, b), kept: (a, b) => (keptText(a) || "\uffff").localeCompare(keptText(b) || "\uffff") || byType(a, b) }[opts.order] || byType;
-  const coins = ownedCoins().filter((c) => !opts.ids || opts.ids.has(c.id)).slice().sort(order);
+  const coins = ownedCoins().filter((c) => repPass(c, opts.f || { kind: "all", metal: "", biz: true, coming: true })).filter((c) => !opts.ids || opts.ids.has(c.id)).slice().sort(order);
   const totQty = sum(coins, qtyOf);
   const totVal = sum(coins, (c) => (bestEach(c) || 0) * qtyOf(c));
   const totMelt = sum(coins, (c) => (meltEach(c) || 0) * qtyOf(c));
@@ -149,7 +165,7 @@ async function buildReport(opts) {
 </style></head><body>
 <button class="print" onclick="window.print()">Print or save as PDF</button>
 <h1>Coin collection inventory</h1>
-<div class="meta">${name ? "Owner: " + esc(name) + " · " : ""}Prepared ${esc(dateLong)} with Coin Cabinet${opts.ids ? " · Selected coins (" + coins.length + " of " + ownedCoins().length + " entries in the collection)" : ""}</div>
+<div class="meta">${name ? "Owner: " + esc(name) + " · " : ""}Prepared ${esc(dateLong)} with Coin Cabinet${opts.ids ? " · Selected coins (" + coins.length + " of " + ownedCoins().length + " entries in the collection)" : ""}${opts.f && (opts.f.kind !== "all" || opts.f.metal || !opts.f.biz || !opts.f.coming) ? " · " + esc([REP_KINDS.find((k) => k[0] === opts.f.kind)[1], opts.f.metal, opts.f.biz ? "" : "no Business stock", opts.f.coming ? "" : "none on the way"].filter((x) => x && x !== "Everything").join(", ")) : ""}</div>
 <div class="sum">
   <div><span>Total value${coins.some((c) => missingOf(c).length) ? " (estimate*)" : ""}</span><b>${money(totVal)}</b></div>
   <div><span>Coins</span><b>${totQty}</b></div>
@@ -175,10 +191,10 @@ ${metalRows ? `<h2>Precious metal content</h2><table><thead><tr><th>Metal</th><t
 }
 
 async function makeReport() {
-  const opts = { kept: !!($("#repKept") || {}).checked, paid: !!($("#repPaid") || {}).checked, photos: !!($("#repPhotos") || {}).checked, name: ($("#repName") || {}).value || "", order: ($("#repOrder") || {}).value || "type" };
+  const opts = { kept: !!($("#repKept") || {}).checked, paid: !!($("#repPaid") || {}).checked, photos: !!($("#repPhotos") || {}).checked, name: ($("#repName") || {}).value || "", order: ($("#repOrder") || {}).value || "type", f: repFilterNow() };
   const msg = $("#repMsg");
   if (repSel.mode === "pick") {
-    const ids = new Set(ownedCoins().filter((c) => repSel.ids.has(c.id)).map((c) => c.id));
+    const ids = new Set(repPool().filter((c) => repSel.ids.has(c.id)).map((c) => c.id));
     if (!ids.size) { if (msg) { msg.textContent = "Tick at least one coin for the report."; msg.style.color = "var(--bad)"; } return; }
     opts.ids = ids;
   }
@@ -208,10 +224,23 @@ Object.assign(actions, {
     if (repSel.mode === "pick") repRenderList();
   },
   repAll: () => { repShown().forEach((c) => repSel.ids.add(c.id)); repRenderList(); },
+  repPreset: (el) => {
+    const inv = el.dataset.v === "inventory", set = (id, v) => { const e = $("#" + id); if (e) e[e.type === "checkbox" ? "checked" : "value"] = v; };
+    set("repKind", "all"); set("repMetal", ""); set("repBiz", inv); set("repComing", inv); set("repPaid", inv); set("repKept", inv);
+    repRefresh();
+  },
   repNone: () => { repSel.ids.clear(); repRenderList(); },
 });
+function repRefresh() {
+  Object.assign(repF, repFilterNow());
+  const n = $("#repAllN"); if (n) n.textContent = sum(repPool(), qtyOf);
+  const ok = new Set(repPool().map((c) => c.id)); repSel.ids.forEach((id) => { if (!ok.has(id)) repSel.ids.delete(id); });
+  if (repSel.mode === "pick") repRenderList();
+  const b = $("[data-act=makeReport]"); if (b) b.disabled = !repPool().length;
+}
 document.addEventListener("input", (e) => { if (e.target.id === "repSearch") { repSel.q = e.target.value; repRenderList(); } });
 document.addEventListener("change", (e) => {
+  if (["repKind", "repMetal", "repBiz", "repComing"].includes(e.target.id)) { repRefresh(); return; }
   const id = e.target.dataset && e.target.dataset.repid;
   if (!id) return;
   e.target.checked ? repSel.ids.add(id) : repSel.ids.delete(id);
