@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.75.0": [
+    "New \"Take out of album…\" button when you select coins. The coins go loose (they stay in your collection) or into a box or stack you pick, and one Undo puts them back. Nothing is deleted.",
+  ],
   "0.73.0": [
     "On an album, \"Add missing to a want list\" now asks which list (or a new one) and adds every missing coin in one tap. Coins already on the list are skipped. \"Show missing\" still lets you pick one by one.",
   ],
