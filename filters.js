@@ -84,7 +84,7 @@ const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"]
 function selBarHtml(picked, shown) {
   const dis = picked.length ? "" : "disabled";
   return `<div class="card selbar"><div class="selrow"><b>${picked.length} selected</b><button class="btn" data-act="selAll">Select all (${shown})</button><button class="btn" data-act="selNone">Clear</button></div></div>
-      <div class="card selacts"><div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="hdOpen" ${dis}>Set holder…</button><button class="btn" data-act="inhMark" ${dis}>Mark inherited…</button><button class="btn" data-act="pcOpen" ${dis}>Set purchase info…</button><button class="btn" data-act="orderOpen" ${dis}>Sell together…</button></div>
+      <div class="card selacts"><div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="toOpen" ${dis}>Take out of album…</button><button class="btn" data-act="hdOpen" ${dis}>Set holder…</button><button class="btn" data-act="inhMark" ${dis}>Mark inherited…</button><button class="btn" data-act="pcOpen" ${dis}>Set purchase info…</button><button class="btn" data-act="orderOpen" ${dis}>Sell together…</button></div>
       ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button><button class="btn" data-act="selAsk" ${dis}>Suggested asking price</button></div>` : ""}</div>`;
 }
 // Bottom copy of Select all · Clear for long lists.
@@ -377,6 +377,24 @@ Object.assign(actions, {
     if (!dest) { toast("Pick where to move them."); return; }
     bulkApply("Moved", (c, used) => movePlace(c, dest, used));
     listState.sel = null; render(); // Select closes once the move is done
+  },
+  toOpen: () => { // "Take out of album": loose by default, or into a box / stack; coins are never deleted
+    const picked = pickedCoins();
+    if (!picked.length) return;
+    const opt = (v, l) => `<option value="${esc(v)}">${esc(l)}</option>`;
+    openSheet(`<div class="sheet-head"><h2>Take out of album</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <p class="small">${picked.length} selected. They stay in your collection.</p>
+      <label class="f"><span>Where do they go?</span><select data-flt="to"><option value="none">Loose (not kept anywhere special)</option>
+        ${storageBoxes().map((b) => opt("b:" + b.id, "Storage box: " + b.name)).join("")}${displayBoxes().map((b) => opt("b:" + b.id, "Display box: " + b.name)).join("")}${pocketAlbums().map((b) => opt("b:" + b.id, "Pocket album: " + b.name)).join("")}${(sellerOn() ? dealerBoxes() : []).map((b) => opt("b:" + b.id, "Dealer case: " + b.name)).join("")}
+        ${stackNames().map((s) => opt("s:" + s, "Stack: " + s)).join("")}</select></label>
+      <div class="hint">Coins not in an album are skipped and listed. One Undo puts everything back.</div>
+      <button class="btn primary block" data-act="toGo" style="margin-top:10px">Take out</button>`);
+  },
+  toGo: () => {
+    const e = document.querySelector('#sheet [data-flt="to"]');
+    const dest = e ? e.value : "none";
+    bulkApply("Taken out of album", (c, used) => (c.albumId && getAlbum(c.albumId) ? movePlace(c, dest, used) : "not in an album"));
+    listState.sel = null; render();
   },
   hdOpen: () => {
     const picked = pickedCoins();
