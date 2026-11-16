@@ -29,6 +29,20 @@ const srv = http.createServer((q, r) => {
   ok("the button opens the demo", await p.evaluate(() => store.mode === "demo"));
   ok("the demo opens as an empty new collection with the welcome card", await p.evaluate(() => allCoins().length === 0) && await p.locator(".welcome [data-act=startCollection]").count() === 1);
   ok("banner offers the full sample and Leave demo", await p.evaluate(() => /Leave demo/.test($("#banner").textContent) && !!$("#banner [data-act=demoFull]")));
+  // walkthrough: no second "want a walk-through?" question; Next moves the screen along; Back goes back
+  await p.evaluate(() => { location.href = location.pathname + "?demo"; }); await p.waitForTimeout(500); await p.waitForFunction(() => store.mode === "demo" && !!document.querySelector(".welcome"), null, { timeout: 15000 });
+  await p.evaluate(() => { window.KEEP_CHOOSER = true; });
+  await p.click(".welcome [data-act=startCollection]"); await p.waitForTimeout(300);
+  ok("demo walkthrough starts at once (no second question)", await p.locator("#guideBubble").count() === 1 && await p.locator("[data-act=guideNoThanks]").count() === 0);
+  await p.click("[data-act=guideNext]"); await p.waitForTimeout(200);
+  ok("Next on step 1 picks US coin and the form follows", await p.evaluate(() => draft._what === "us") && await p.locator(".what-btn").count() === 0 && /Step 2/.test(await p.locator("#guideBubble").textContent()));
+  ok("no Back on the first visible step", await p.locator("[data-act=guideBack]").count() === 0);
+  await p.click("[data-act=guideNext]"); await p.waitForTimeout(200);
+  ok("Back appears and returns one step", await p.locator("[data-act=guideBack]").count() === 1);
+  await p.click("[data-act=guideBack]"); await p.waitForTimeout(200);
+  ok("Back shows step 2 again", /Step 2 of/.test(await p.locator("#guideBubble").textContent()));
+  await p.evaluate(() => actions.guideSkip()); await p.evaluate(() => actions.guideSkip()); await p.evaluate(() => { closeSheet(); window.KEEP_CHOOSER = false; });
+  await p.evaluate(() => go("home")); await p.waitForTimeout(300);
   await p.click(".welcome [data-act=demoFull]"); await p.waitForTimeout(400);
   ok("See a full sample collection loads the made-up coins", await p.evaluate(() => allCoins().length > 10 && !$("#banner [data-act=demoFull]")));
 
@@ -80,7 +94,7 @@ const srv = http.createServer((q, r) => {
   await p.click("[data-act=demoFill]"); await p.waitForFunction(() => draft && draft._demoFill === 5, null, { timeout: 15000 });
   ok("photo fill fills type, year, mint and grade", await p.evaluate(() => draft.typeId === "morgan-dollar" && draft.year === 1889 && draft.mint === "S" && draft.grade === "MS-63"));
   ok("photo fill labels its pictures Example", await p.evaluate(() => [...document.querySelectorAll("img[alt^='Example']")].length === 2 && decodeURIComponent(document.querySelector("img[alt^='Example']").src).includes("EXAMPLE")));
-  await p.evaluate(() => closeSheet()); await p.waitForTimeout(200);
+  await p.evaluate(() => { closeSheet(); window.KEEP_CHOOSER = false; }); await p.waitForTimeout(200);
 
   // ---- changes in the demo stay in the demo ----
   await p.evaluate(() => { const c = blankCoin(); Object.assign(c, { id: "tmpdemo", typeId: "peace-dollar", typeName: "Peace Dollar", year: 1922, mint: "D", grade: "MS-63" }); put("c_tmpdemo", c); remove("c_demo3"); });

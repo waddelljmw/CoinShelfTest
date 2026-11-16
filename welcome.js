@@ -59,6 +59,11 @@ function guidePlace() { // put the bubble just above or below the highlighted fi
   b.className = above ? "g-above" : "g-below";
   b.style.top = Math.max(64, Math.min(vh - h - 4, above ? r.top - h - 12 : r.bottom + 12)) + "px";
 }
+function guidePrev() { // the nearest earlier step whose field is on screen now (-1 = none, so no Back button)
+  if (!guide || guide.step > SAVE_STEP) return -1;
+  for (let i = guide.step - 1; i >= guide.base; i--) if (document.querySelector(GUIDE_STEPS[i].sel.join(","))) return i;
+  return -1;
+}
 function guideBubble() {
   let b = document.getElementById("guideBubble");
   document.querySelectorAll(".guide-hl").forEach((x) => { x.classList.remove("guide-hl"); if (x.dataset.gpad) { delete x.dataset.gpad; x.style.marginTop = ""; } });
@@ -66,7 +71,7 @@ function guideBubble() {
   const s = GUIDE_STEPS[guide.step], last = guide.step === GUIDE_STEPS.length - 1;
   if (!b) { b = document.createElement("div"); b.id = "guideBubble"; b.setAttribute("role", "status"); document.body.appendChild(b); }
   b.innerHTML = `<div class="small muted">${store.mode === "demo" ? "Demo walkthrough: " : ""}Step ${guide.step + 1 - guide.base} of ${GUIDE_STEPS.length - guide.base}</div><div>${esc(typeof s.text === "function" ? s.text() : s.text)}</div>
-    <div class="btn-row"><button class="btn" data-act="guideSkip">${last ? "Done" : guide.sure ? "Tap again to stop" : "Skip guide"}</button>${s.next ? `<button class="btn primary" data-act="guideNext">Next</button>` : ""}</div>`;
+    <div class="btn-row"><button class="btn" data-act="guideSkip">${last ? "Done" : guide.sure ? "Tap again to stop" : "Skip guide"}</button>${guidePrev() >= 0 ? `<button class="btn" data-act="guideBack">Back</button>` : ""}${s.next ? `<button class="btn primary" data-act="guideNext">Next</button>` : ""}</div>`;
   let t = null;
   for (const q of s.sel) { t = document.querySelector(q); if (t) break; }
   if (t) {
@@ -97,13 +102,15 @@ document.addEventListener("scroll", () => guidePlace(), true); // the form scrol
 Object.assign(actions, {
   word: (el) => { const w = WORDS[el.dataset.w]; if (w) openSheetOver(`<div class="sheet-head"><h2>${esc(w[0])}</h2><button class="x" data-act="wordBack" aria-label="Close">✕</button></div><p>${esc(w[1])}</p>`); },
   wordBack: () => { if (sheetLayers.length && sheetMarks) { sheetMarks--; sheetPopping = true; sheetPopCb = () => sheetLayerBack(); history.back(); } else closeSheet(); },
-  startCollection: () => openSheet(`<div class="sheet-head"><h2>Add your first coin</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  startCollection: () => { if (store.mode === "demo") return actions.guideStart(); return openSheet(`<div class="sheet-head"><h2>Add your first coin</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <p><b>How much do you want to see?</b> You can change this later in Options.</p>${levelChips()}
     <p>Want a one-minute walk-through? Small tips appear over the real form. You can skip at any time.</p>
-    <div class="btn-row"><button class="btn primary block" data-act="guideStart">Show me how (1 minute)</button><button class="btn block" data-act="guideNoThanks">Skip</button></div>`),
+    <div class="btn-row"><button class="btn primary block" data-act="guideStart">Show me how (1 minute)</button><button class="btn block" data-act="guideNoThanks">Skip</button></div>`); },
   guideNoThanks: () => { closeSheet(); openCoinForm(null); },
   guideStart: () => { if (!$("#sheet").hidden) closeSheet(); openCoinForm(null); const chooser = !!document.querySelector(".what-btn"); guide = { step: chooser ? 0 : 1, base: chooser ? 0 : 1 }; guideBubble(); }, // the "What is it?" step only when that chooser shows
-  guideNext: () => { if (guide && guide.step < GUIDE_STEPS.length - 1) { guide.step++; guide.sure = false; guide.note = ""; guideBubble(); } },
+  guideBack: () => { const i = guidePrev(); if (i >= 0) { guide.step = i; guide.sure = false; guide.note = ""; guideBubble(); } },
+  guideNext: () => { if (guide && guide.step === 0 && draft && !draft._what) { const b = document.querySelector(".what-btn[data-v=us]"); if (b) b.click(); if (guide && guide.step === 0) guide.step = 1; return guideBubble(); } // Next moves the screen along too (the form may already have moved the guide)
+    if (guide && guide.step < GUIDE_STEPS.length - 1) { guide.step++; guide.sure = false; guide.note = ""; guideBubble(); } },
   guideSkip: () => { // leaving takes two taps (except on the last step), so a slip of the thumb doesn't end it
     if (guide && guide.step < GUIDE_STEPS.length - 1 && !guide.sure) { guide.sure = true; guideBubble(); clearTimeout(guide.sureTimer); const g = guide; g.sureTimer = setTimeout(() => { g.sure = false; if (guide === g) guideBubble(); }, 3000); return; }
     if (guide) clearTimeout(guide.sureTimer);
