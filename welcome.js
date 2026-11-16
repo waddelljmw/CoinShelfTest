@@ -109,7 +109,9 @@ Object.assign(actions, {
   guideNoThanks: () => { closeSheet(); openCoinForm(null); },
   guideStart: () => { if (!$("#sheet").hidden) closeSheet(); openCoinForm(null); const chooser = !!document.querySelector(".what-btn"); guide = { step: chooser ? 0 : 1, base: chooser ? 0 : 1 }; guideBubble(); }, // the "What is it?" step only when that chooser shows
   guideBack: () => { const i = guidePrev(); if (i >= 0) { guide.step = i; guide.sure = false; guide.note = ""; guideBubble(); } },
-  guideNext: () => { if (guide && guide.step === 0 && draft && !draft._what) { const b = document.querySelector(".what-btn[data-v=us]"); if (b) b.click(); if (guide && guide.step === 0) guide.step = 1; return guideBubble(); } // Next moves the screen along too (the form may already have moved the guide)
+  guideNext: () => {
+    if (guide && guide.step === 1 && draft && !draft.typeId && draft._typeQ) { const m = typeMatches(draft._typeQ), all = m.recent.concat(m.rest); const ex = all.filter((t) => t.name.toLowerCase() === draft._typeQ.trim().toLowerCase()), one = ex.length === 1 ? ex : all.length === 1 ? all : []; if (one.length) pickType(one[0].id); } // typed a name but didn't tap the list: one match is enough
+ if (guide && guide.step === 0 && draft && !draft._what) { const b = document.querySelector(".what-btn[data-v=us]"); if (b) b.click(); if (guide && guide.step === 0) guide.step = 1; return guideBubble(); } // Next moves the screen along too (the form may already have moved the guide)
     if (guide && guide.step < GUIDE_STEPS.length - 1) { guide.step++; guide.sure = false; guide.note = ""; guideBubble(); } },
   guideSkip: () => { // leaving takes two taps (except on the last step), so a slip of the thumb doesn't end it
     if (guide && guide.step < GUIDE_STEPS.length - 1 && !guide.sure) { guide.sure = true; guideBubble(); clearTimeout(guide.sureTimer); const g = guide; g.sureTimer = setTimeout(() => { g.sure = false; if (guide === g) guideBubble(); }, 3000); return; }

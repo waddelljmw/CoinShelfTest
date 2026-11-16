@@ -41,6 +41,8 @@ const srv = http.createServer((q, r) => {
   ok("Back appears and returns one step", await p.locator("[data-act=guideBack]").count() === 1);
   await p.click("[data-act=guideBack]"); await p.waitForTimeout(200);
   ok("Back shows step 2 again", /Step 2 of/.test(await p.locator("#guideBubble").textContent()));
+  await p.fill("#typeSearch", "Morgan dollar"); await p.click("[data-act=guideNext]"); await p.waitForTimeout(200);
+  ok("typing Morgan dollar then Next picks it (one match), no typing it twice", await p.evaluate(() => /morgan/i.test(draft.typeId || "")));
   await p.evaluate(() => actions.guideSkip()); await p.evaluate(() => actions.guideSkip()); await p.evaluate(() => { closeSheet(); window.KEEP_CHOOSER = false; });
   await p.evaluate(() => go("home")); await p.waitForTimeout(300);
   await p.click(".welcome [data-act=demoFull]"); await p.waitForTimeout(400);
