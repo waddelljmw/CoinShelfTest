@@ -35,8 +35,8 @@ let guide = null; // { step } while the guide is on
 const SAVE_STEP = 6;
 const GUIDE_STEPS = [
   { sel: [".what-btn[data-v=us]"], above: true, text: "First pick what you\u2019re adding. For a coin like a Morgan dollar or a wheat cent, tap US coin.", next: true, done: () => draft && draft._what },
-  { sel: ["#typeSearch"], above: true, text: "Type part of the coin's name (like \u201CMorgan\u201D), then tap it in the list. Not sure? Tap Next.", next: true, done: () => draft && draft.typeId },
-  { sel: ["[data-f=year]"], text: "Type the year on the coin. Pick the mint mark too if you know it. Then tap Next.", next: true },
+  { sel: ["[data-f=year]"], text: "Type the year on the coin (it also narrows the list of coin types). Then tap Next.", next: true },
+  { sel: ["#typeSearch"], above: true, text: "Now the coin type: type part of its name (like \u201CMorgan\u201D) and tap it in the list. Not sure? Tap Next.", next: true, done: () => draft && draft.typeId },
   { sel: ["[data-f=grade]"], text: "Tap here and pick the grade (how worn the coin is). Your best guess is fine.", next: true, done: () => draft && draft.grade },
   { sel: [".src-chips"], text: "Where did it come from? Tap Coin Shop or whichever fits. Not sure? Tap Next.", next: true, done: () => draft && draft._sourceKind },
   { sel: ["[data-f=paid]"], text: "Type what you paid. Don't know? Leave it and tap Next.", next: true },
@@ -107,11 +107,11 @@ Object.assign(actions, {
     <p>Want a one-minute walk-through? Small tips appear over the real form. You can skip at any time.</p>
     <div class="btn-row"><button class="btn primary block" data-act="guideStart">Show me how (1 minute)</button><button class="btn block" data-act="guideNoThanks">Skip</button></div>`); },
   guideNoThanks: () => { closeSheet(); openCoinForm(null); },
-  guideStart: () => { if (!$("#sheet").hidden) closeSheet(); openCoinForm(null); const chooser = !!document.querySelector(".what-btn"); guide = { step: chooser ? 0 : 1, base: chooser ? 0 : 1 }; guideBubble(); }, // the "What is it?" step only when that chooser shows
+  guideStart: () => { if (!$("#sheet").hidden) closeSheet(); openCoinForm(null); const us = document.querySelector(".what-btn[data-v=us]"); if (us) us.click(); /* the walk-through is for a US coin, so skip "What is it?" */ const chooser = !!document.querySelector(".what-btn"); guide = { step: chooser ? 0 : 1, base: chooser ? 0 : 1 }; guideBubble(); }, // the "What is it?" step only when that chooser shows
   guideBack: () => { const i = guidePrev(); if (i >= 0) { guide.step = i; guide.sure = false; guide.note = ""; guideBubble(); } },
   guideNext: () => {
-    if (guide && guide.step === 1 && draft && !draft.typeId && draft._typeQ) { const m = typeMatches(draft._typeQ), all = m.recent.concat(m.rest); const ex = all.filter((t) => t.name.toLowerCase() === draft._typeQ.trim().toLowerCase()), one = ex.length === 1 ? ex : all.length === 1 ? all : []; if (one.length) pickType(one[0].id); } // typed a name but didn't tap the list: one match is enough
- if (guide && guide.step === 0 && draft && !draft._what) { const b = document.querySelector(".what-btn[data-v=us]"); if (b) b.click(); if (guide && guide.step === 0) guide.step = 1; return guideBubble(); } // Next moves the screen along too (the form may already have moved the guide)
+    if (guide && guide.step === 2 && draft && !draft.typeId && draft._typeQ) { const m = typeMatches(draft._typeQ), all = m.recent.concat(m.rest); const ex = all.filter((t) => t.name.toLowerCase() === draft._typeQ.trim().toLowerCase()), one = ex.length === 1 ? ex : all.length === 1 ? all : []; if (one.length) pickType(one[0].id); } // typed a name but didn't tap the list: one match is enough
+  // Next moves the screen along too (the form may already have moved the guide)
     if (guide && guide.step < GUIDE_STEPS.length - 1) { guide.step++; guide.sure = false; guide.note = ""; guideBubble(); } },
   guideSkip: () => { // leaving takes two taps (except on the last step), so a slip of the thumb doesn't end it
     if (guide && guide.step < GUIDE_STEPS.length - 1 && !guide.sure) { guide.sure = true; guideBubble(); clearTimeout(guide.sureTimer); const g = guide; g.sureTimer = setTimeout(() => { g.sure = false; if (guide === g) guideBubble(); }, 3000); return; }

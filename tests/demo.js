@@ -34,13 +34,13 @@ const srv = http.createServer((q, r) => {
   await p.evaluate(() => { window.KEEP_CHOOSER = true; });
   await p.click(".welcome [data-act=startCollection]"); await p.waitForTimeout(300);
   ok("demo walkthrough starts at once (no second question)", await p.locator("#guideBubble").count() === 1 && await p.locator("[data-act=guideNoThanks]").count() === 0);
+  ok("the walk-through starts on the form (US coin already picked) at the Year tip", await p.evaluate(() => draft._what === "us") && await p.locator(".what-btn").count() === 0 && /Step 1 of/.test(await p.locator("#guideBubble").textContent()) && /year/i.test(await p.locator("#guideBubble").textContent()));
+  ok("no Back on the first tip", await p.locator("[data-act=guideBack]").count() === 0);
   await p.click("[data-act=guideNext]"); await p.waitForTimeout(200);
-  ok("Next on step 1 picks US coin and the form follows", await p.evaluate(() => draft._what === "us") && await p.locator(".what-btn").count() === 0 && /Step 2/.test(await p.locator("#guideBubble").textContent()));
-  ok("no Back on the first visible step", await p.locator("[data-act=guideBack]").count() === 0);
-  await p.click("[data-act=guideNext]"); await p.waitForTimeout(200);
-  ok("Back appears and returns one step", await p.locator("[data-act=guideBack]").count() === 1);
+  ok("Next goes to the coin type tip and Back appears", /Step 2 of/.test(await p.locator("#guideBubble").textContent()) && await p.locator("[data-act=guideBack]").count() === 1);
   await p.click("[data-act=guideBack]"); await p.waitForTimeout(200);
-  ok("Back shows step 2 again", /Step 2 of/.test(await p.locator("#guideBubble").textContent()));
+  ok("Back returns to the Year tip", /Step 1 of/.test(await p.locator("#guideBubble").textContent()));
+  await p.click("[data-act=guideNext]"); await p.waitForTimeout(200);
   await p.fill("#typeSearch", "Morgan dollar"); await p.click("[data-act=guideNext]"); await p.waitForTimeout(200);
   ok("typing Morgan dollar then Next picks it (one match), no typing it twice", await p.evaluate(() => /morgan/i.test(draft.typeId || "")));
   await p.evaluate(() => actions.guideSkip()); await p.evaluate(() => actions.guideSkip()); await p.evaluate(() => { closeSheet(); window.KEEP_CHOOSER = false; });
