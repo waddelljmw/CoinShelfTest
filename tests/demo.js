@@ -28,7 +28,7 @@ const srv = http.createServer((q, r) => {
   await p.waitForFunction(() => store.mode === "demo", null, { timeout: 15000 }); await p.waitForTimeout(400);
   ok("the button opens the demo", await p.evaluate(() => store.mode === "demo"));
   ok("the demo opens as an empty new collection with the welcome card", await p.evaluate(() => allCoins().length === 0) && await p.locator(".welcome [data-act=startCollection]").count() === 1);
-  ok("banner offers the full sample and Start my own collection", await p.evaluate(() => /Start my own collection/.test($("#banner").textContent) && !!$("#banner [data-act=demoFull]")));
+  ok("banner offers the full sample and Leave demo", await p.evaluate(() => /Leave demo/.test($("#banner").textContent) && !!$("#banner [data-act=demoFull]")));
   await p.click(".welcome [data-act=demoFull]"); await p.waitForTimeout(400);
   ok("See a full sample collection loads the made-up coins", await p.evaluate(() => allCoins().length > 10 && !$("#banner [data-act=demoFull]")));
 
@@ -59,7 +59,7 @@ const srv = http.createServer((q, r) => {
   ok("about 12 months of value history", info.history >= 12);
   ok("one coin is marked Filled in from photos; drawn pictures on the singles", info.filledCoin === 1 && info.pics >= 20);
   ok("the real saved coin is not in the demo", !info.real);
-  ok("banner says it's a demo with Exit demo", await p.evaluate(() => /Demo: these aren't real coins/.test($("#banner").textContent) && !$("#banner").hidden && !!$("#banner [data-act=exitDemo]")));
+  ok("banner says it's a demo with Exit demo", await p.evaluate(() => /PRACTICE DEMO: these aren't your real coins/.test($("#banner").textContent) && !$("#banner").hidden && !!$("#banner [data-act=exitDemo]")));
   for (const pg of ["home", "coins", "value", "options"]) { await p.evaluate((g) => go(g), pg); await p.waitForTimeout(150); }
   ok("Backup and Import are hidden in the demo", await p.locator("[data-act=openBackup], [data-act=openImport]").count() === 0);
   ok("banner still shows on another page", await p.evaluate(() => !$("#banner").hidden));
