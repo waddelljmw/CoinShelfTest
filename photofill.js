@@ -153,7 +153,10 @@ function photoFillLockedButton() {
   return `<div class="small muted" id="photoFillLocked" style="margin:-4px 0 8px">🔒 Fill in from photos: coming soon</div>`;
 }
 // Options: a closed spot where the key will go. Nothing is stored yet.
+// Hidden for now (idea 108). To turn it back on, change SHOW_PHOTO_FILL_OPTIONS to true.
+const SHOW_PHOTO_FILL_OPTIONS = false;
 function photoFillOptionsHtml() {
+  if (!SHOW_PHOTO_FILL_OPTIONS) return "";
   return `<h2>Photo fill (API key) <span class="muted small">🔒 Coming soon</span></h2><div class="card"><details class="more"><summary>Photo fill settings</summary>
     <label class="f"><span>API key</span><input type="password" disabled placeholder="Coming soon" aria-disabled="true"></label>
     <div class="hint">When this is switched on, the Add coin page can read a coin's front and back photos and fill in the form. It costs a few cents per coin; the steps will be explained here first.</div></details></div>`;
