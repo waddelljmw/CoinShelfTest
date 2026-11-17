@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.77.2": [
+    "Adding missing coins from an album now suggests that album's own want list (or a new one named for it). Two albums of the same coin no longer share one list.",
+  ],
   "0.77.1": [
     "Options: \"How much to show\" now folds shut like the other sections and names your current level in its heading. The unfinished Photo fill section is hidden.",
   ],

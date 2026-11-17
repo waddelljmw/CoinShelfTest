@@ -40,6 +40,11 @@ const { chromium } = require("./_compat");
   // second time: the existing list is suggested, not a duplicate
   await p.evaluate(() => openMissingPicker("m1")); await p.waitForTimeout(100);
   check("existing list reused", await p.evaluate(() => wantLists().filter((l) => /Missing from/.test(l.name)).length === 1 && missingPick.listId !== "__auto"));
+  // idea 99: a second album of the same coin type gets its own new list, not the first album's
+  await p.evaluate(() => { const a = { kind: "album", id: "m2", brand: "Inherited", number: "", name: "Morgan 1878-1886", typeId: "morgan-dollar", start: 1878, end: 1886, removed: [], createdAt: 3 }; a.slots = buildSlots("morgan-dollar", 1878, 1886); put("a_m2", a); });
+  await p.click("[data-act=closeSheet] >> nth=0");
+  await p.evaluate(() => openMissingPicker("m2")); await p.waitForTimeout(100);
+  check("99: second Morgan album suggests its own new list", await p.evaluate(() => missingPick.listId === "__auto" && /Missing from/.test(missingSuggest(getAlbum("m2")).name) && missingSuggest(getAlbum("m2")).name !== missingSuggest(getAlbum("m1")).name));
   await p.click("[data-act=closeSheet] >> nth=0");
 
   // upgrade on a filled spot
