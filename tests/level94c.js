@@ -29,7 +29,13 @@ const srv = http.createServer((q, r) => {
   // 2. Simple: short menu, no Value over time, short Add coin form, Options still has the switch
   await p.evaluate(() => go("options")); await p.waitForTimeout(200);
   ok("Options starts with How much to show, always visible", await p.evaluate(() => { const t = document.querySelector("#view").innerText; return t.indexOf("How much to show") > 0 && t.indexOf("How much to show") < t.indexOf("Spot prices"); }));
+  const closed = await p.evaluate(() => { saveSettings({ optOpen: {} }); return viewOptions(); }); // test helper opens folds on screen, so check the page text itself
+  ok("How much to show is folded shut by default, level named in heading", /data-v="how-much-to-show" aria-expanded="false"/.test(closed) && /How much to show <span[^>]*>· Everything/.test(closed) && !closed.includes('data-act="setLevel"'));
+  ok("Photo fill (API key) section is hidden in Options", !/Photo fill|Coming soon/.test(closed));
+  ok("level section stays first in Options", closed.indexOf("how-much-to-show") < closed.indexOf('data-v="spot-prices"'));
+  await p.evaluate(() => go("options")); await p.waitForTimeout(300);
   await p.click("[data-act=setLevel][data-v=simple]"); await p.waitForTimeout(300);
+  ok("heading names the new level and stays open", /How much to show\s*·\s*Simple/.test(await p.locator("#view").innerText()) && await p.locator("[data-act=setLevel]").count() === 3);
   ok("Simple menu is short", /albums:0 boxes:0 wants:0 value:1 coins:1 home:1 rep:0/.test(await menu()) && !(await vis("#menuShows")) && !(await vis("#menuStacks")));
   ok("Simple hides Seller Mode in Options", await p.locator("[data-act=sellerMode]").count() === 0);
   await p.evaluate(() => go("home")); await p.waitForTimeout(200);

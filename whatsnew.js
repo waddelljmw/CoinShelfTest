@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.77.1": [
+    "Options: \"How much to show\" now folds shut like the other sections and names your current level in its heading. The unfinished Photo fill section is hidden.",
+  ],
   "0.77.0": [
     "A box can now be kept in another box or a place you type (Edit box > Kept in), so an album in a cardboard box in the safe shows the whole chain on the coin and box pages.",
     "Rearranged the pull-out drawers? Edit box > Swap two trays: the trays trade places with their coins (same row and slot). One Undo puts it back.",

@@ -120,17 +120,18 @@ function viewOptions() {
   const secs = parts.map((p) => {
     const m = p.match(/^<h2[^>]*>([\s\S]*?)<\/h2>/);
     if (!m) return { key: "", html: p };
-    const title = m[1], key = title.replace(/<[^>]*>/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const title = m[1], dk = p.match(/^<h2[^>]*data-key="([^"]+)"/), key = dk ? dk[1] : title.replace(/<[^>]*>/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-"); // data-key keeps the fold state when the heading words change
     const on = !!open[key];
     return { key, html: `<h2 class="fold"><button class="fold-btn" data-act="optSec" data-v="${key}" aria-expanded="${on}"><span>${title}</span><i aria-hidden="true">${on ? "▾" : "▸"}</i></button></h2>${on ? p.slice(m[0].length) : ""}` };
   });
   const used = new Set();
+  const lvl = secs.find((x) => x.key === "how-much-to-show"); if (lvl) used.add(lvl); // the level section stays first
   const grouped = OPT_GROUPS.map(([name, keys]) => {
     const mine = secs.filter((x) => !used.has(x) && keys.some((k) => x.key === k || x.key.startsWith(k + "-")));
     mine.forEach((x) => used.add(x));
     return mine.length ? (name === "Seller Mode" ? "" : `<h3 class="optgroup">${name}</h3>`) + mine.map((x) => x.html).join("") : "";
   }).join("");
-  return head + grouped + secs.filter((x) => !used.has(x)).map((x) => x.html).join("") + foot;
+  return head + (lvl ? lvl.html : "") + grouped + secs.filter((x) => !used.has(x)).map((x) => x.html).join("") + foot;
 }
 function optionsHtml() {
   const s = settings();

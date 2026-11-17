@@ -15,7 +15,8 @@ function levelChips() {
     <div class="hint">${LEVELS.map(([k, n, line]) => `<div style="${levelKey() === k ? "font-weight:600" : ""}"><b>${esc(n)}:</b> ${esc(line)}</div>`).join("")}<div style="margin-top:4px">Switching only hides or shows screens. Nothing you saved changes or is lost.</div></div>`;
 }
 function levelOptionsHtml() {
-  return `<div class="card"><b>How much to show</b>${levelChips()}</div>`; // not a folded section: always visible at the top
+  const now = (LEVELS.find((l) => l[0] === levelKey()) || [0, ""])[1];
+  return `<h2 data-key="how-much-to-show">How much to show <span class="muted small">· ${esc(now)}</span></h2><div class="card">${levelChips()}</div>`; // a folded section like the rest (closed by default); viewOptions keeps it at the top
 }
 function syncLevelMenu() { // runs on every page draw (called from syncShowsMenu)
   const c = levelAtLeast("collector");
