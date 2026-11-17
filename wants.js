@@ -309,15 +309,14 @@ function gotWant(id) {
 /* ---------- from an album's missing list ---------- */
 // Checkbox picker over missing slots, with a list to add them all to at once.
 const missingPick = { albumId: null, chosen: new Set(), listId: "" };
-// Suggested list for an album: an existing list for its coin type, else a new one named "<Type> – Missing from <album>".
+// Suggested list for an album: the list already made for this album, else a new one named "<Type> – Missing from <album>" (never another album's list).
 function missingSuggest(a) {
   const types = albumTypes(a), t = types.length === 1 ? TYPE_BY_ID[types[0]] : null;
   const name = (t ? shortName(t) + " – " : "") + "Missing from " + albumTitle(a);
   const lists = wantLists();
   const same = lists.find((l) => l.name === name);
   if (same) return { id: same.id, name };
-  const byType = t && lists.find((l) => l.scope === "type" && l.typeId === t.id);
-  return byType ? { id: byType.id, name } : { id: "__auto", name };
+  return { id: "__auto", name };
 }
 function openMissingPicker(albumId) {
   ensureDefaultList();
