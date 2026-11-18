@@ -408,6 +408,13 @@
           "what": "Want-list button does what it says",
           "change": "\"Add to want list\" on an empty spot adds to this album's list in one tap.",
           "affects": "Spot menu"
+        },
+        {
+          "id": "N-hidden",
+          "size": "S",
+          "what": "Show how many spots are hidden",
+          "change": "Under the album totals: \"3 spots hidden · Show\". Tap it to open Edit spots, where you can bring them back. Added 11-18 by him.",
+          "affects": "Album page"
         }
       ],
       "chat": "New Sonnet chat"
