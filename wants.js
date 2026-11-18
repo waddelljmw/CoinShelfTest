@@ -423,7 +423,7 @@ function openSlotMenu(el) {
   const upG = coin ? upgradeGrade(coin) : "";
   const moreLists = wantLists().some((l) => listAccepts(l, slotType(a, s)) && !ws.some((w) => (w.listId || DEFAULT_LIST_ID) === l.id));
   openSheet(`<div class="sheet-head"><h2>${esc(label)}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
-    <div class="small muted" style="margin:-4px 0 12px">${coin ? "In this album · " + esc(gradeText(coin)) : "Not in this album yet"}${mt ? " · Mintage " + esc(mt.text) : ""}</div>
+    <div class="small muted" style="margin:-4px 0 12px">${coin ? "In this album · " + esc(gradeText(coin)) : "Not in this album yet"}${mt ? " · Mintage " + esc(mt.text) + (mt.note ? " (" + esc(mt.note) + ")" : "") : ""}</div>
     ${coin ? "" : `<button class="btn block btn-addcoin" data-act="slotHave" ${sd}>＋ Add coin to this spot</button>`}
     ${!coin && spotCandidates(a, { y, m, v, pf: s.pf, set: s.set, t: s.t, id: s.id }).length ? `<button class="btn block" data-act="slotUseList" ${sd}>Put a coin I already have here</button>` : ""}
     ${ws.length ? `<div class="card small">${ws.map((w) => `<div class="rowline"><span>★ ${esc(listNameOf(w))}${w.grade ? " · target " + esc(w.grade) : ""}${num(w.maxPrice) != null ? " · up to " + money(num(w.maxPrice)) : ""}</span><button class="link-btn" style="color:var(--bad)" data-act="slotUnwant" data-id="${esc(w.id)}">Remove</button></div>`).join("")}</div>

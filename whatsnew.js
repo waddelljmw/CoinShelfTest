@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.79.0": [
+    "Mintage now shows even without a price file, for the common US series (cents, nickels, dimes, quarters, Morgan and Peace dollars, trade dollars). It says \"from U.S. Mint records\" and counts coins struck that year. Tap an empty album spot or open a coin to see it. Halves and a few overlap years are not in yet.",
+  ],
   "0.78.1": [
     "Fix-up wording: the button now says \"Fix the next coin\", and the Needs info tags read \"Missing: grade, cost. Check the mint mark.\"",
   ],
