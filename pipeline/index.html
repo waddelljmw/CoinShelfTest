@@ -61,7 +61,7 @@ pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);borde
 </main>
 <script>
 const STAGE={now:"Now",testers:"Before testers",fill:"Fill-in"};
-const ST={done:"✓ Done",next:"▶ Next",building:"Building",queued:"Waiting"};
+const ST={done:"✓ Done",next:"▶ Next",building:"Building",queued:"Waiting",partial:"◐ Part done"};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const sizeSum=items=>{const c={};items.forEach(i=>{const k=i.size[0];c[k]=(c[k]||0)+1});return ["L","M","S"].filter(k=>c[k]).map(k=>`${c[k]} <span class="chip ${k}">${k}</span>`).join(" + ")};
 const hi=e=>{const m=String(e).match(/[\d.]+/g);return m?+m[m.length-1]:0};

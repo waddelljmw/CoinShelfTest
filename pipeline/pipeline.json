@@ -1,6 +1,6 @@
 {
-  "updated": "Wed Nov 18, 2026, 12:20am",
-  "app": "v0.78.1",
+  "updated": "Wed Nov 18, 2026, 1:55am",
+  "app": "v0.79.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
     "weekly_now": 32,
@@ -132,21 +132,28 @@
       "model": "Sonnet",
       "est": "3–5",
       "actual": "",
-      "status": "next",
-      "why": "Mintages from U.S. Mint records, so key dates show on spots and coin pages even without a price file.",
+      "status": "partial",
+      "why": "Mintages from U.S. Mint records, so key dates show on spots and coin pages even without a price file. PART DONE 11-18 (v0.79.0): clean years of cents, nickels, dimes, quarters, Morgan, Peace and trade dollars. NOT finished until the gaps below are filled.",
       "items": [
         {
           "id": "105 step 1",
           "size": "M",
-          "what": "Mintage list from U.S. Mint records",
+          "what": "Mintage list from U.S. Mint records: part 1 done (v0.79.0)",
           "change": "Mintages show on album spots and coin pages even without a price file. Each says \"from U.S. Mint records\". Free, public-domain source only. You spot-check ~10 key dates against your Red Book first.",
+          "affects": "Album spots, coin page"
+        },
+        {
+          "id": "105 step 1b",
+          "size": "M",
+          "what": "Fill the mintage gaps (open)",
+          "change": "Get mintage for what the first list had to leave out: Walking Liberty, Franklin and Kennedy halves; Seated, Capped Bust and early series; years where two coin types share one year (1909 cents, 1916 dimes and quarters, 1921 Philadelphia dollars, 1938/1942 nickels); 1964-65 dates; commemoratives; proof counts; modern years. The Mint's 1792-1965 book can't split these by itself, so each needs a second source or the Mint's own extra tables (commemoratives and 1964-65 by-date tables are in the same book). Source choice and spot-check with your Red Book come first.",
           "affects": "Album spots, coin page"
         }
       ],
       "chat": "New Sonnet chat",
       "try": [
-        "Open a Morgan album: spots show mintage marked \"from U.S. Mint records\".",
-        "Check ~10 key dates against your Red Book and send any that differ."
+        "Tap an empty spot for a 1916-D Mercury dime, 1931-S Lincoln cent or 1893-S Morgan: mintage shows, marked \"from U.S. Mint records\".",
+        "Check ~10 key dates against your Red Book and send any that differ. Halves show no mintage yet (that is the open gap)."
       ]
     },
     {
@@ -883,6 +890,13 @@
       "ver": "v0.78.0 (wording fix v0.78.1)",
       "cost": "~1 weekly (10:33–11:17pm, 44 min; est. 4–6 was too high)",
       "change": "A \"Fix the next coin\" button on Needs info walks you through each coin missing info (Save goes to the next one). Needs info also catches no Where from and an unchecked mint; Gift/Pocket change coins no longer say cost missing; the filter clears when you leave My Coins; search understands \"1921 morgan\", \"1950 D\", \"silver\", \"grandpa\"; Add coin keeps Price/Photos open; Fill spots offers your loose coin instead of adding a second one."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 3a part 1: mintage list from U.S. Mint records (105 step 1, PART DONE, step stays open)",
+      "ver": "v0.79.0",
+      "cost": "usage reading not yet given (~1:00-1:55am, ~55 min)",
+      "change": "Mintage now shows without a price file for cents, nickels, dimes, quarters, Morgan, Peace and trade dollars, marked \"from U.S. Mint records\" (pieces struck that year; Philadelphia includes proofs). Left out for now: halves, shared years (1909, 1916, 1921 P, 1938/1942), 1964-65, commemoratives. Every number checked against the book's printed totals."
     }
   ]
 }

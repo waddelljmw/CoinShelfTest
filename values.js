@@ -127,6 +127,18 @@ function bookLookupIn(c, bt) {
 // Mintage from the same Red Book rows. "*" means the variety is counted in the date's total.
 function mintageInfo(c) {
   if (store.mode === "snapshot") { const st = snapStamp(c); return st ? st.mint || null : null; }
+  return bookMintage(c) || recordMintage(c); // a loaded price file wins; the U.S. Mint list fills in behind it
+}
+// Step 3a: pieces struck that calendar year, from the U.S. Mint's own records (catalog/mintages.js). Business strikes only;
+// proof coins, sets and years the list leaves out give nothing. Philadelphia counts include any proofs struck that year.
+function recordMintage(c) {
+  if (typeof MINT_RECORDS === "undefined" || !c || !c.typeId || !c.year || isProofGrade(c.grade) || c.sms) return null;
+  const row = (MINT_RECORDS[c.typeId] || {})[Number(c.year)];
+  const m = normMint(c.mint) || "P", n = row ? row[m] : null;
+  if (n == null) return null;
+  return { text: n.toLocaleString("en-US"), shared: !!c.variety, proof: false, sms: false, note: MINT_SOURCE + ", struck that year" + (m === "P" ? ", includes any proofs" : "") };
+}
+function bookMintage(c) {
   const bt = bookTable(c);
   const all = PRICE_BOOK.mintage && PRICE_BOOK.mintage[c.typeId];
   if (!bt || !all || !c.year) return null;
@@ -148,7 +160,7 @@ function mintageInfo(c) {
 function mintageLine(c) {
   const m = mintageInfo(c);
   if (!m) return "";
-  return `<div class="small muted" style="margin:-4px 0 10px">Mintage ${esc(m.text)}${m.proof ? " proofs" : m.sms ? " SMS sets" : ""}${m.shared ? " (all varieties of this date)" : ""}</div>`;
+  return `<div class="small muted" style="margin:-4px 0 10px">Mintage ${esc(m.text)}${m.proof ? " proofs" : m.sms ? " SMS sets" : ""}${m.shared ? " (all varieties of this date)" : ""}${m.note ? " · " + esc(m.note) : ""}</div>`;
 }
 // Plain note for the coin page when the Red Book gives no value (instead of quietly showing face value).
 function noBookNote(c) {
