@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-18",
- "app": "v0.82.2",
+ "app": "v0.82.3",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
   "weekly_now": 41,
@@ -294,6 +294,13 @@
      "what": "Plan only: \"Skip in Fix-up\" tick",
      "change": "A tick on a coin stops it from nagging you. It leaves a small skipped mark, and totals stay estimates. Planned together with the mint change because they touch the same screens.",
      "affects": "Saved coins (new flag), Needs info, Fix-up"
+    },
+    {
+     "id": "new (11-18)",
+     "size": "S",
+     "what": "Make the \"coins need info\" line easy to see",
+     "change": "The Home line \"404 coins need info, totals may be off ›\" looks like plain text and is easy to miss. It becomes a gold-outlined button (maybe a \"Fix them\" chip) and jumps straight into the Fix-up run. Opus decides the spot and fits it into the schedule.",
+     "affects": "Home totals shelf, Needs info, Fix-up"
     }
    ],
    "try": [
