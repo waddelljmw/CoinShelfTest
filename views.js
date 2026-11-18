@@ -26,6 +26,7 @@ window.addEventListener("hashchange", (e) => {
   if (nowCoin && !oldHash.startsWith("coin-")) coinBackTo = oldHash;
   if (!nowCoin) coinBackTo = null;
   listState.sel = null; // Back leaves the page, so Select ends (same as go())
+  { const h = location.hash.slice(1); if (listState.f && listState.f.inc && h !== "coins" && !h.startsWith("coin-")) delete listState.f.inc; } // Needs info filter ends when you leave My Coins
   if (!byLink) scrollSpots[oldHash] = window.scrollY;
   const viaLink = byLink; byLink = false;
   render();
@@ -69,16 +70,16 @@ function statusTags(c) {
     + (c.upgrade && c.status === "owned" ? `<span class="sold-tag st-up" title="Upgrade wanted">Upgrade</span>` : "");
 }
 // A coin still missing something (see missingOf in values.js). Bars, rolls and sets need cost only; inherited coins need the date inherited.
-const isIncomplete = (c) => missingOf(c).length > 0;
+const isIncomplete = (c) => needsOf(c).length > 0;
 function coinRow(c, opts = {}) {
   const v = bestEach(c);
   const m = meltEach(c);
   const q = qtyOf(c);
   return `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="star row-star" role="button" tabindex="-1" data-act="favToggle" data-id="${esc(c.id)}" aria-pressed="${!!c.fav}" aria-label="${c.fav ? "Remove from favorites" : "Add to favorites"}">${c.fav ? "★" : "☆"}</span>
-    ${isIncomplete(c) ? `<span class="inc-mark" title="Missing: ${missingOf(c).join(", ")}" aria-label="Missing: ${missingOf(c).join(", ")}"></span>` : ""}${thumbHtml(c)}
+    ${isIncomplete(c) ? `<span class="inc-mark" title="Missing: ${needsOf(c).join(", ")}" aria-label="Missing: ${needsOf(c).join(", ")}"></span>` : ""}${thumbHtml(c)}
     <span class="coin-main">
       <span class="coin-label">${esc(labelOf(c))}</span>
-      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}${opts.miss && isIncomplete(c) ? `<span class="miss-tag">Missing: ${missingOf(c).join(", ")}</span>` : ""}${opts.miss && c.status === "owned" && whereText2(c) ? `<span class="small muted where-line" style="display:block">\u{1F4CD} ${esc(whereText2(c))}</span>` : ""}${typeof sellerOn === "function" && sellerOn() && c.biz ? `<span class="sold-tag st-biz">Business</span>` : ""}</span>
+      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}${opts.miss && isIncomplete(c) ? `<span class="miss-tag">Missing: ${needsOf(c).join(", ")}</span>` : ""}${opts.miss && c.status === "owned" && whereText2(c) ? `<span class="small muted where-line" style="display:block">\u{1F4CD} ${esc(whereText2(c))}</span>` : ""}${typeof sellerOn === "function" && sellerOn() && c.biz ? `<span class="sold-tag st-biz">Business</span>` : ""}</span>
     </span>
     <span class="coin-val">${c.status === "sold" ? money(num(c.sold && c.sold.amount)) : money(v == null ? null : v * q)}${m != null && c.status !== "sold" ? `<div class="melt">melt ${q === 1 ? moneyOpen(m) : money(m * q)}</div>` : ""}</span>
   </button>`;
@@ -206,6 +207,15 @@ function viewValue() {
 }
 
 /* --- Your Coins --- */
+/* --- Search that understands you (R4-33): every word must match; a lone letter is a mint mark --- */
+function coinMatchesQ(c, q) {
+  q = (q || "").trim().toLowerCase();
+  if (!q) return true;
+  const inh = inheritanceOf(c), mint = (normMint(c.mint) || "p").toLowerCase();
+  const hay = [c.cid, (c.oldCids || []).join(" "), labelOf(c), gradeText(c), c.notes, c.source, c.seller, c.caseName, holderText(c), keptName(c), nickWords(c.typeId, c.year), c.metal, c.year, inh ? inhLabel(inh) : ""].map((x) => x || "").join(" ").toLowerCase();
+  return q.split(/\s+/).every((w) => (w.length === 1 && /[a-z]/.test(w) ? w === mint : hay.includes(w)));
+}
+
 const listState = { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", sort: "year", dir: "asc", f: {}, sel: null }; // f = the extra filters from the Filter panel (filters.js); sel = items ticked in Select mode
 // "Show" choices inside In collection: only the ones that have coins.
 function stageChoices() {
@@ -227,7 +237,7 @@ function viewCoins() {
     (!listState.cert || c.gradeMode === listState.cert) &&
     (!listState.stage || (listState.stage === "upgrade" ? c.upgrade : stageOf(c) === listState.stage)) &&
     (typeof extraFilter !== "function" || extraFilter(c)) &&
-    (!listState.q || ((c.cid || "") + " " + (c.oldCids || []).join(" ") + " " + labelOf(c) + " " + gradeText(c) + " " + (c.notes || "") + " " + (c.source || "") + " " + (c.seller || "") + " " + (c.caseName || "") + " " + holderText(c) + " " + keptName(c) + " " + nickWords(c.typeId, c.year)).toLowerCase().includes(listState.q.toLowerCase())));
+    coinMatchesQ(c, listState.q));
   const key = {
     year: (c) => num(c.year) ?? 99999,
     value: (c) => (bestEach(c) || 0) * qtyOf(c),
@@ -253,6 +263,7 @@ function viewCoins() {
       <input type="search" id="coinSearch" placeholder="Search" value="${esc(listState.q)}" data-list="q">
     </div>
     ${typeof coinsControls === "function" ? coinsControls(base, list) : (listState.q.trim() ? searchLine(list) : "")}
+    ${listState.f && listState.f.inc && list.length && listState.status === "owned" ? `<button class="btn primary" style="width:100%;margin:6px 0" data-act="fixupStart">Fix up next coin \u203A (${list.length} left)</button>` : ""}
     <div class="toolbar">
       <select data-list="sort" aria-label="Sort by">${[["year", "Year"], ["value", "Value"], ["melt", "Melt value"], ["acquired", "Date acquired"], ["type", "Coin type"]].map(([k, l]) => `<option value="${k}" ${listState.sort === k ? "selected" : ""}>Sort: ${l}</option>`).join("")}</select>
       <button class="btn" data-act="dir" style="flex:0 0 auto">${listState.dir === "asc" ? "↑ Low to high" : "↓ High to low"}</button>

@@ -1,5 +1,13 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.78.0": [
+    "Fix-up run: on My Coins, open Needs info and tap \"Fix up next coin\". It opens the first coin missing a grade, cost, where from or mint; fill it in, Save, and it jumps to the next one. Skip or Stop any time.",
+    "Needs info now also catches coins with no Where from, and US coins with no mint chosen from a year that had D or S mints. Pick P once if it really is Philadelphia. Totals are only marked as estimates for what really changes them.",
+    "Gift and Pocket change coins no longer say \"Missing: cost\" (they cost $0), for US and foreign coins alike. The Needs info filter now ends when you leave My Coins.",
+    "Search understands you: \"1921 morgan\", \"1950 D\", \"silver\" and \"grandpa\" find coins. Every word must match; a single letter means a mint mark.",
+    "Adding coins one after another: Price, Photos and other sections you opened stay open for the next new coin.",
+    "Fill spots: if you already own that date loose, it offers to place that coin in the spot instead of adding a second one.",
+  ],
   "0.77.3": [
     "Each album now uses only its own want list: filling a spot (any way, including Fill spots) crosses it off that album's list.",
     "Add coin shows what it carried over from your last coin as \"Same as last: Coin Show ✕\", one tap to clear. Fill spots starts with nothing ticked and asks \"Add 12 coins?\" before saving.",

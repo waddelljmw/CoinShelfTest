@@ -240,15 +240,30 @@ function missingOf(c) {
   const m = [];
   if (itemOf(c) === "coin" && !c.grade && !c.noGrade) m.push("grade");
   if (isInherited(c)) { const i = inheritanceOf(c); if (!(i && String(i.date || "").trim()) && !String(c.acquired || "").trim()) m.push("inherit date"); }
-  else if (costOf(c) == null) m.push("cost");
+  else if (costOf(c) == null && !["gift", "pocket change"].includes((c.source || "").trim().toLowerCase())) m.push("cost"); // free coins (Gift, Pocket change) cost $0, US or foreign alike
   return m;
 }
-const needInfoCoins = () => countedCoins().filter((c) => missingOf(c).length); // only coins counted in the Home total
+// Blank mint on a US coin from a year that also had D/S mints: could be Philadelphia or just never picked. Picking "P" once clears it. Coins in an album spot are skipped (the spot sets the mint).
+function checkMint(c) {
+  if (itemOf(c) !== "coin" || c.mint || c.albumId || isProofGrade(c.grade) || !c.year) return false;
+  const slots = EXACT_SLOTS[c.typeId], hit = slots && slots.find((s) => s[0] === +c.year);
+  return !!hit && hit[1].split(" ").some((m) => m !== "P");
+}
+// Everything the fix-up run looks for: what totals need (missingOf) plus where from and a mint to check.
+function needsOf(c) {
+  if (!c || c.status !== "owned") return [];
+  const m = missingOf(c);
+  if (!String(c.source || "").trim()) m.push("where from");
+  if (checkMint(c)) m.push("check mint");
+  return m;
+}
+const needInfoCoins = () => countedCoins().filter((c) => needsOf(c).length); // only coins counted in the Home total
+const valueGapCoins = () => countedCoins().filter((c) => missingOf(c).length); // the ones that make totals estimates
 const NEED_NOTE = "Some coins are missing a grade, a cost or the date inherited, so totals are estimates.";
 // The amber line under the Home totals; opens My Coins filtered to coins that need info.
 function needInfoLine() {
   const n = needInfoCoins().length;
-  return n ? `<button class="need-line" data-act="needInfo">${n} coin${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} info, totals may be off \u203A</button>` : "";
+  return n ? `<button class="need-line" data-act="needInfo">${n} coin${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} info${valueGapCoins().length ? ", totals may be off" : ""} \u203A</button>` : "";
 }
 const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
