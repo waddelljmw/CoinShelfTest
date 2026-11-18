@@ -162,7 +162,7 @@
       "stage": "now",
       "name": "Know a key date: coin card",
       "model": "Sonnet",
-      "est": "2–4",
+      "est": "3–5",
       "actual": "",
       "status": "next",
       "why": "Look up any coin, owned or not, like at the pawn shop: mintage, melt and eBay sold in one place.",
@@ -173,6 +173,13 @@
           "what": "Card for a coin you don't own",
           "change": "Tap an empty spot or a search result and see a coin card: mintage, key-date flag, melt today (from your silver price), a \"Search eBay sold\" button, and \"Add to want list\".",
           "affects": "Album spots, search, want list"
+        },
+        {
+          "id": "105 step 2b",
+          "size": "S",
+          "what": "More facts on the coin card (added 11-18)",
+          "change": "The card also shows: metal and silver content (e.g. 90% silver, 0.36 oz); known varieties for that date to look for; your price-list value when one is loaded (shows the list's own name, e.g. Red Book or Greysheet; hidden when no list is loaded); and \"You own 2\" / \"Empty spot in your album\" so you don't buy a duplicate. Uses facts the app already has; nothing new is saved.",
+          "affects": "Coin card"
         }
       ],
       "chat": "New Sonnet chat",
