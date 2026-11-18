@@ -99,6 +99,15 @@ async function saveDraft() {
     const al = getAlbum(c.albumId);
     if (sl && sl.pf && d._isNew && !isProofGrade(c.grade)) { toast("This is a proof spot. Pick a proof grade (PR-60 to PR-70)."); return; }
     if (sl && !sl.pf && !sl.set && d._isNew && al.proofs && isProofGrade(c.grade)) { toast("This spot is for a regular coin. Use the album's Proof spot for a proof."); return; }
+    if (sl && d._isNew && proofOnlySpot(al, sl) && !isProofGrade(c.grade)) { toast(sl.y + " " + (c.typeName || "coin") + " was only made as a proof. Pick a proof grade (PR-60 to PR-70)."); return; }
+    // Changed the variety of a coin in a variety spot: it moves to the matching spot (or back to the plain one).
+    if (sl && prev && !sl.set && String(prev.variety || "") !== String(c.variety || "")) {
+      if (c.variety) delete c.spotVariety;
+      if (sl.v && c.variety && !varietyFits(c.variety, sl.v)) {
+        const other = (al.slots || []).find((x) => x.id && !x.set && x.y === sl.y && normMint(x.m) === normMint(sl.m) && x.v && !x.pf === !sl.pf && varietyFits(c.variety, x.v));
+        if (other) c.slotId = other.id; else delete c.slotId;
+      }
+    }
     // The spot is gone, or the coin no longer fits it (date, mint, type, or proof vs. regular), so it finds its right spot.
     const fitsSpot = sl && (sl.set ? c.typeId === sl.t : num(c.year) === sl.y && normMint(c.mint) === sl.m && (!sl.pf === !isProofGrade(c.grade) || !(sl.pf || al.proofs)));
     if (!fitsSpot) delete c.slotId;

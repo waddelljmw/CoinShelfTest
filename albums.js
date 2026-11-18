@@ -65,6 +65,15 @@ function varietyFits(coinVar, slotVar) {
   const c = String(coinVar || "").toLowerCase().trim(), v = String(slotVar || "").toLowerCase().trim();
   return !!c && !!v && (c === v || c.startsWith(v) || v.startsWith(c));
 }
+// A date the Red Book lists only as a proof (like the 1895 Morgan from Philadelphia). Only says yes when the book data says so.
+function proofOnlySpot(a, s) {
+  if (!s || s.set || s.pf || !s.y) return false;
+  const bf = typeof BOOK_FACTS !== "undefined" && BOOK_FACTS[slotType(a, s)];
+  if (!bf || !bf.proof || !bf.circ) return false;
+  const base = s.y + (s.m ? "-" + s.m : "");
+  const has = (rows) => (rows || []).some((k) => k === base || k.startsWith(base + "|"));
+  return has(bf.proof) && !has(bf.circ) && !has(bf.sms);
+}
 // Short grade for an album card: "VF-20", "PCGS MS-63", or "owned" when no grade was entered.
 function slotGrade(c) {
   const g = c.grade === "Other" ? c.customGrade : c.grade;
@@ -343,6 +352,16 @@ function saveSpot(form) {
     if (!y || y < 1700 || y > thisYear()) { toast("Enter a year."); return; }
     spot = { id: uid(), y, m: normMint(fd.get("m") || ""), v: String(fd.get("v") || "").trim(), custom: true };
     if (fd.get("pf")) spot.pf = true;
+    else {
+      // Only dates and mint marks the series really had (series the app has no exact list for are not checked).
+      const tid0 = albumTypes(a).length > 1 ? fd.get("t") : slotType(a, spot);
+      const ex = EXACT_SLOTS[tid0], tn = TYPE_BY_ID[tid0];
+      if (ex && tn) {
+        const row = ex.find((r) => r[0] === y);
+        if (!row) { toast("No " + tn.name + " was made in " + y + "."); return; }
+        if (!row[1].split(" ").map(normMint).includes(spot.m)) { toast("No " + tn.name + " was struck " + (spot.m ? "at the " + spot.m + " mint " : "") + "in " + y + ". Mints that year: " + row[1].split(" ").join(", ") + "."); return; }
+      }
+    }
     if (albumTypes(a).length > 1) {
       spot.t = fd.get("t") || slotType(a, spot);
       const tt = TYPE_BY_ID[spot.t];

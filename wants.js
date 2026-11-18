@@ -415,7 +415,7 @@ function openSlotMenu(el) {
   const t = TYPE_BY_ID[slotType(a, s)];
   const coin = el.dataset.coin ? getCoin(el.dataset.coin) : null;
   const fake = { typeId: t ? t.id : "", typeName: t ? shortName(t) : "", denom: t ? t.denom : "", year: y, mint: m, variety: v, gradeMode: "raw", grade: "" };
-  const label = (s.set ? [t ? t.name : "Coin"] : [y + (m ? "-" + m : ""), fake.typeName, fake.denom, s.pf ? "Proof" : ""]).filter(Boolean).join(" ") + (v ? " · " + v : "");
+  const label = (s.set ? [t ? t.name : "Coin"] : [y + (m ? "-" + m : ""), fake.typeName, fake.denom, s.pf ? "Proof" : ""]).filter(Boolean).join(" ") + (v ? " · " + v : "") + (proofOnlySpot(a, s) ? " · Proof only" : "");
   if (v || s.pf) fake.label = autoLabel(fake) + (s.pf ? " Proof" : "") + (v ? " " + v : "");
   const ws = spotWants(a, s);
   const mt = s.set ? null : mintageInfo({ ...fake, grade: s.pf ? "PR-65" : "VF-20" });
@@ -526,7 +526,8 @@ function slotHave(el) {
   if (t) { draft.typeId = t.id; draft.typeName = shortName(t); draft.family = t.family; draft.denom = t.denom; draft.metal = t.metal; draft.oz = t.oz || ""; }
   draft.year = s0.set ? "" : s0.y; draft.mint = s0.m || ""; draft.albumId = a.id;
   if (a.inherited) applySourceKind(draft, "Inherited"); // an inherited album: its coins start as Inherited
-  if (s0.pf) draft._proof = true;
+  const proofOnly = proofOnlySpot(a, s0);
+  if (s0.pf || proofOnly) draft._proof = true;
   applyYearMetal(draft);
   const v = s0.v || "";
   // Remember the exact spot, so renaming or moving the spot never moves the coin.
@@ -534,7 +535,10 @@ function slotHave(el) {
   if (v && !s0.set) {
     // Use the Red Book variety only when exactly one matches the spot's label; otherwise leave it blank.
     const known = bookVarieties(draft).filter((x) => x && varietyFits(x, v));
-    if (known.length === 1) draft.variety = known[0];
+    const exact = known.find((x) => x.toLowerCase().trim() === v.toLowerCase().trim());
+    if (exact) draft.variety = exact;
+    else if (known.length === 1) draft.variety = known[0];
+    else draft.spotVariety = v; // several book names fit (or none): keep the spot's name so the coin stays in this spot
   }
   const w = spotFindWant(aa, s0);
   if (w) draft._fromWant = w.id;
@@ -542,6 +546,7 @@ function slotHave(el) {
   draft._short = true;  // three-quarter-height window over the album
   renderCoinForm();
   if (s0.pf) toast("Proof spot: pick a proof grade (PR-60 to PR-70).");
+  else if (proofOnly) toast("This date was only made as a proof. Pick a proof grade (PR-60 to PR-70).");
 }
 
 /* ---------- wiring ---------- */

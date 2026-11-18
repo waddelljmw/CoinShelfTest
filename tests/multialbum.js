@@ -16,7 +16,7 @@ const { chromium } = require("./_compat");
   const before = await p.evaluate(() => albumStats(getAlbum("w9122")).total);
   await p.click("[data-act=editAlbum]"); await p.click("[data-act=albumAddType]");
   await p.selectOption("#albumTypes select >> nth=1", "washington-clad");
-  await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200);
+  await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); if (await p.$("#albumLoseNote")) { await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); } // asks first when coins would lose a spot
   const r = await p.evaluate(() => { const a = getAlbum("w9122"); const st = albumStats(a); return { types: albumTypes(a), total: st.total, has1965: a.slots.some((s) => s.y === 1965), has1991: a.slots.some((s) => s.y > 1990), has1933: a.slots.some((s) => s.y === 1933), owned: st.owned, sub: document.querySelector("h1 + .small").textContent }; });
   ok("clad type added to album", r.types.join() === "washington-silver,washington-clad");
   ok("1965–1990 spots added, nothing past 1990, no 1933", r.has1965 && !r.has1991 && !r.has1933 && r.total > before);
@@ -33,7 +33,7 @@ const { chromium } = require("./_compat");
   await p.evaluate(() => remove("c_bad"));
   // Removing clad drops its empty spots but keeps silver
   await p.click("[data-act=editAlbum]"); await p.waitForTimeout(100); console.log("rows", await p.evaluate(() => document.querySelectorAll("#albumTypes .type-row").length)); await p.click("#albumTypes .type-row:nth-child(2) [data-act=albumDelType]"); ok("mismatched years blocked with a message", await (async () => { await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(150); return /cover 1932–1964/.test(await p.textContent("#toast")); })()); await p.fill("#editAlbumForm [name=end]", "1964");
-  await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200);
+  await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); if (await p.$("#albumLoseNote")) { await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); } // asks first when coins would lose a spot
   console.log(await p.evaluate(() => JSON.stringify({ t: albumTypes(getAlbum("w9122")), late: getAlbum("w9122").slots.filter((s) => s.y > 1964).slice(0, 3) }))); ok("removing clad drops clad spots", await p.evaluate(() => !getAlbum("w9122").slots.some((s) => s.y > 1964)));
   // Type set album via the New album form
   await p.evaluate(() => go("albums")); await p.waitForTimeout(100);

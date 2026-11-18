@@ -170,6 +170,15 @@ function saveEditAlbum(form) {
     const fits = (x, ts, s0, e0, pf) => ts.includes(x.t) && (set || (x.y >= s0 && x.y <= e0)) && (!x.pf || pf === "all" || (pf === "s" && x.m === "S"));
     // Keep your own spots, and standard spots that still fit (with their ids, names and order).
     const kept = slots.map((x) => (x.t || x.custom ? x : { ...x, t: slotType(a, x) })).filter((x) => (x.custom && (!x.t || types.includes(x.t))) || fits(x, types, start, end, proofs));
+    const keptKeys = new Set(kept.map(slotKey)), st0 = albumStats(a);
+    const lost = (a.slots || []).filter((x) => !keptKeys.has(slotKey(x)) && st0.filled.has(slotKey(x))).length;
+    const sig = [types.join(), start, end, proofs].join("|");
+    if (lost && form.dataset.ack !== sig) {
+      form.dataset.ack = sig;
+      const old = $("#albumLoseNote"); if (old) old.remove();
+      form.querySelector(".btn-row").insertAdjacentHTML("beforebegin", `<div class="hint" id="albumLoseNote" style="color:var(--bad)">${lost} coin${lost === 1 ? "" : "s"} will lose ${lost === 1 ? "its" : "their"} spot. ${lost === 1 ? "It stays" : "They stay"} in the album under "Also in this album". Tap Save again to go ahead.</div>`);
+      return;
+    }
     const have = new Set(kept.map(slotKey));
     // Add standard spots for new types and new years only (spots you removed before stay removed).
     const added = buildAlbumSlots(types, layout, start, end, proofs).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end, oldPf));

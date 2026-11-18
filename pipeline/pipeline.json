@@ -1,994 +1,1010 @@
 {
- "updated": "2026-11-18",
- "app": "v0.82.3",
- "week": {
-  "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 41,
-  "build_cap": 85,
-  "fill_cap": 95,
-  "fantasy_reserve": 5,
-  "rule": "Build up to 85% until Sunday's fantasy run, then use it up to 95% (Mon–Tue morning). Fantasy: Thu ~7pm and Sun 12:30pm, ~2 each."
- },
- "cost_note": "Estimates come from your measured usage log (Sonnet small fix 0–1, medium 1–3, Opus big build ~3). Each finished step records its real cost, and estimates are adjusted. Step 2 measured ~1 weekly vs est. 4–6: step sizes can be trimmed. Each step now logs clock start/end (started, ended, minutes) so time estimates can be added later.",
- "steps": [
-  {
-   "n": 1,
-   "stage": "now",
-   "name": "Log it right",
-   "model": "Sonnet",
-   "est": "3–5",
-   "actual": "~3",
-   "status": "done",
-   "why": "Stops the app from saving things wrong without telling you, before you log more coins.",
-   "items": [
+  "updated": "2026-11-18",
+  "app": "v0.83.0",
+  "week": {
+    "label": "Tue 11-17 1pm → Tue 11-24 1pm",
+    "weekly_now": 41,
+    "build_cap": 85,
+    "fill_cap": 95,
+    "fantasy_reserve": 5,
+    "rule": "Build up to 85% until Sunday's fantasy run, then use it up to 95% (Mon–Tue morning). Fantasy: Thu ~7pm and Sun 12:30pm, ~2 each."
+  },
+  "cost_note": "Estimates come from your measured usage log (Sonnet small fix 0–1, medium 1–3, Opus big build ~3). Each finished step records its real cost, and estimates are adjusted. Step 2 measured ~1 weekly vs est. 4–6: step sizes can be trimmed. Each step now logs clock start/end (started, ended, minutes) so time estimates can be added later.",
+  "steps": [
     {
-     "id": "R4-1 + R5-1",
-     "size": "S",
-     "what": "Each album uses its own want list",
-     "change": "Your Morgan album only says \"wanted\" for coins on its own list, and filling a spot (any way, Fill spots too) crosses it off that album's list, not another one.",
-     "affects": "Album spots, want lists"
+      "n": 1,
+      "stage": "now",
+      "name": "Log it right",
+      "model": "Sonnet",
+      "est": "3–5",
+      "actual": "~3",
+      "status": "done",
+      "why": "Stops the app from saving things wrong without telling you, before you log more coins.",
+      "items": [
+        {
+          "id": "R4-1 + R5-1",
+          "size": "S",
+          "what": "Each album uses its own want list",
+          "change": "Your Morgan album only says \"wanted\" for coins on its own list, and filling a spot (any way, Fill spots too) crosses it off that album's list, not another one.",
+          "affects": "Album spots, want lists"
+        },
+        {
+          "id": "R4-3",
+          "size": "M",
+          "what": "No hidden carry-over",
+          "change": "Where from and Paid with from your last coin show as \"Same as last: Coin show ✕\" so you can see and clear them in one tap, instead of filling in silently.",
+          "affects": "Add coin form"
+        },
+        {
+          "id": "R4-23",
+          "size": "S",
+          "what": "Never lose what you typed",
+          "change": "Pressing Back fast no longer wipes your metal prices; Back on a half-filled coin asks \"Discard this coin?\"",
+          "affects": "Metal prices, Add coin, New album, Fill spots"
+        },
+        {
+          "id": "R4-4 + R5-13",
+          "size": "S",
+          "what": "Fill spots starts unticked",
+          "change": "You tick only the coins you have; \"Tick all\" is still one tap for a full album; Save says \"Add 54 coins?\" first. Proof spots no longer block Save.",
+          "affects": "Fill spots sheet"
+        }
+      ],
+      "chat": "New Sonnet chat",
+      "try": [
+        "Open two albums of the same type: each spot says \"wanted\" only for its own album's list.",
+        "Add a coin, then start another: Where from shows \"Same as last: … ✕\" instead of being silently filled in.",
+        "Type a metal price and press Back fast: the price is still there. Start a coin, press Back: it asks \"Discard this coin?\"",
+        "Open Fill spots: nothing is ticked; tick 2, Save asks \"Add 2 coins?\""
+      ],
+      "started": "Tue 11-17 9:24pm",
+      "ended": "Tue 11-17 10:31pm",
+      "minutes": 67
     },
     {
-     "id": "R4-3",
-     "size": "M",
-     "what": "No hidden carry-over",
-     "change": "Where from and Paid with from your last coin show as \"Same as last: Coin show ✕\" so you can see and clear them in one tap, instead of filling in silently.",
-     "affects": "Add coin form"
+      "n": 2,
+      "stage": "now",
+      "name": "Grab it, log it, go",
+      "model": "Sonnet",
+      "est": "4–6",
+      "actual": "~1",
+      "status": "done",
+      "why": "Makes logging fast, and gives you one easy way to fix your 200+ coins that need info.",
+      "items": [
+        {
+          "id": "117",
+          "size": "M",
+          "what": "Fix-up run",
+          "change": "One button jumps to the next coin missing cost, where from, grade or mint; fill it in, Save, and it goes to the next one.",
+          "affects": "Needs info, coin edit"
+        },
+        {
+          "id": "R4-11 (small version)",
+          "size": "S",
+          "what": "\"Check mint\" in Needs info",
+          "change": "Coins where the mint wasn't chosen land in Needs info so the fix-up run catches them. No new saved field.",
+          "affects": "Needs info"
+        },
+        {
+          "id": "R4-31 + R4-22",
+          "size": "S",
+          "what": "Needs info behaves",
+          "change": "The Needs info filter no longer sticks after you leave My Coins, and foreign coins follow the same rules as US coins.",
+          "affects": "My Coins"
+        },
+        {
+          "id": "R5-14",
+          "size": "S",
+          "what": "Sections stay open",
+          "change": "If you opened Price or Photos on the last coin, they're open on the next one: about half the taps when logging a stack.",
+          "affects": "Add coin form"
+        },
+        {
+          "id": "R4-33",
+          "size": "S",
+          "what": "Search that understands you",
+          "change": "\"1921 morgan\", \"1950 D\", \"silver\" and \"grandpa\" find coins, not just exact phrases.",
+          "affects": "Search on My Coins"
+        },
+        {
+          "id": "R4-7",
+          "size": "M",
+          "what": "No double coins from Fill spots",
+          "change": "If you already own that date loose, Fill spots offers to put that coin in the spot instead of making a second one.",
+          "affects": "Fill spots"
+        }
+      ],
+      "chat": "New Sonnet chat",
+      "try": [
+        "Tap the fix-up button: it opens the first coin missing info; Save jumps to the next one.",
+        "Search \"1921 morgan\" and \"silver\": coins show up.",
+        "Add a coin with Price open, then add another: Price is still open.",
+        "Fill spots on a date you already own loose: it offers to use that coin."
+      ],
+      "started": "Tue 11-17 10:33pm",
+      "ended": "Tue 11-17 11:17pm",
+      "minutes": 44
     },
     {
-     "id": "R4-23",
-     "size": "S",
-     "what": "Never lose what you typed",
-     "change": "Pressing Back fast no longer wipes your metal prices; Back on a half-filled coin asks \"Discard this coin?\"",
-     "affects": "Metal prices, Add coin, New album, Fill spots"
+      "n": "3a",
+      "stage": "now",
+      "name": "Know a key date: mintage list",
+      "model": "Sonnet",
+      "est": "3–5",
+      "actual": "~6",
+      "status": "done",
+      "why": "Mintages from U.S. Mint records, so key dates show on spots and coin pages even without a price file. Part 1 (v0.79.0) and part 2 (v0.80.0, 11-18) done: cents, nickels, dimes, quarters, halves, dollars, Seated series, 1964-65 by date. Spot-checked 11-18 against his Red Book: all 10 match once proofs (and the 1873-CC No Arrows line) are added.",
+      "items": [
+        {
+          "id": "105 step 1",
+          "size": "M",
+          "what": "Mintage list from U.S. Mint records: part 1 done (v0.79.0)",
+          "change": "Mintages show on album spots and coin pages even without a price file. Each says \"from U.S. Mint records\". Free, public-domain source only. You spot-check ~10 key dates against your Red Book first.",
+          "affects": "Album spots, coin page"
+        },
+        {
+          "id": "105 step 1b",
+          "size": "M",
+          "what": "Fill the mintage gaps: done (v0.80.0)",
+          "change": "Added Barber, Walking Liberty and Franklin halves (commemoratives taken out), 1964 and 1965 coins by the date on them, Seated Liberty dimes, quarters, halves, half dimes and dollars, 3-cent silver and 20-cent pieces. Fixed 1900 Morgan and 1893 quarter (commemoratives were counted). Still left out: 1909 cents, 1916 dimes and quarters, 1938 and 1942 nickels, 1921 Philadelphia dollars, Capped Bust and older, minor coins before 1871, proofs, 1966 on.",
+          "affects": "Album spots, coin page"
+        }
+      ],
+      "chat": "New Sonnet chat",
+      "try": [
+        "Open an empty spot for a 1921-S Walking Liberty half and a 1938-D Walking Liberty half: mintage shows, \"from U.S. Mint records\".",
+        "Open a 1964 Washington quarter (no mint mark): it says \"coins dated 1964\" and includes San Francisco coins.",
+        "Check ~10 key dates against your Red Book (mix of halves, cents, Morgans, Seated) and send any that differ in one message."
+      ]
     },
     {
-     "id": "R4-4 + R5-13",
-     "size": "S",
-     "what": "Fill spots starts unticked",
-     "change": "You tick only the coins you have; \"Tick all\" is still one tap for a full album; Save says \"Add 54 coins?\" first. Proof spots no longer block Save.",
-     "affects": "Fill spots sheet"
+      "n": "3b",
+      "stage": "now",
+      "name": "Know a key date: coin card",
+      "model": "Sonnet",
+      "est": "3–5",
+      "actual": "",
+      "status": "done",
+      "why": "Look up any coin, owned or not, like at the pawn shop: mintage, melt and eBay sold in one place.",
+      "items": [
+        {
+          "id": "105 step 2",
+          "size": "M",
+          "what": "Card for a coin you don't own",
+          "change": "Tap an empty spot or a search result and see a coin card: mintage, key-date flag, melt today (from your silver price), a \"Search eBay sold\" button, and \"Add to want list\".",
+          "affects": "Album spots, search, want list"
+        },
+        {
+          "id": "105 step 2b",
+          "size": "S",
+          "what": "More facts on the coin card (added 11-18)",
+          "change": "The card also shows: metal and silver content (e.g. 90% silver, 0.36 oz); known varieties for that date to look for; your price-list value when one is loaded (shows the list's own name, e.g. Red Book or Greysheet; hidden when no list is loaded); and \"You own 2\" / \"Empty spot in your album\" so you don't buy a duplicate. Uses facts the app already has; nothing new is saved.",
+          "affects": "Coin card"
+        }
+      ],
+      "chat": "New Sonnet chat",
+      "try": [
+        "Tap an empty album spot: a coin card shows mintage, melt today and \"Search eBay sold\".",
+        "Search a coin you don't own: the same card opens."
+      ]
+    },
+    {
+      "n": 4,
+      "stage": "now",
+      "name": "Fresh-start repo",
+      "model": "Sonnet",
+      "est": "1–2",
+      "actual": "",
+      "status": "next",
+      "when": "Sat 11-21",
+      "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
+      "items": [
+        {
+          "id": "N4 / G",
+          "size": "S",
+          "what": "Fresh-start repo",
+          "change": "Nothing changes in the app; it's a tidy home for the tester version.",
+          "affects": "Behind the scenes"
+        }
+      ],
+      "chat": "New Sonnet chat",
+      "try": [
+        "Nothing to tap in the app; follow the GitHub steps the chat gives you."
+      ]
+    },
+    {
+      "n": "4a",
+      "stage": "now",
+      "name": "Card for any coin you search",
+      "model": "Sonnet",
+      "est": "2–3",
+      "actual": "~2",
+      "status": "done",
+      "why": "The part of 3b that was left out: look up a coin you don't own and that isn't in an album, like at the pawn shop.",
+      "items": [
+        {
+          "id": "105 step 2 (left over)",
+          "size": "M",
+          "what": "Card on search results",
+          "change": "Search for a coin and tap a result to see the same coin card as an empty spot: key date, mintage, melt today, varieties, and how many you own. Also checks that the \"Search eBay sold\" and \"Add to want list\" buttons promised in 3b exist; adds them if not.",
+          "affects": "Search, coin card, want list"
+        }
+      ],
+      "chat": "New Sonnet chat",
+      "try": [
+        "Home: type 1916 dime in the new Search any coin box; you land on Coins with the rows.",
+        "Key date shows first with a small ⓘ; tap it to see how it's decided.",
+        "Tap a row for the card, then Add to want list."
+      ]
+    },
+    {
+      "n": "4b",
+      "stage": "now",
+      "name": "Private tester copy (plan, then build)",
+      "model": "Opus",
+      "est": "2–4",
+      "actual": "",
+      "status": "queued",
+      "chat": "New Opus chat",
+      "when": "after step 4",
+      "why": "Only the testers you invite can open the app, and your code stops being public, so nobody passes it around before you sell it.",
+      "items": [
+        {
+          "id": "plan first",
+          "size": "S",
+          "what": "Decide the details with you",
+          "change": "Questions for that chat: tester emails, the tester-copy name, and whether your own app stays on its current address (recommended for now, because your coins live on your phone at that address).",
+          "affects": "Nothing until you agree"
+        },
+        {
+          "id": "build",
+          "size": "M",
+          "what": "Tester copy behind sign-in",
+          "change": "Tester copy on Cloudflare Pages (free) behind Cloudflare Access (free up to 50 users): testers sign in with an email code; you can remove anyone. Shows \"Tester copy for [name]\". Code made private only once your own app no longer depends on the public GitHub site (making it private now would take your phone app offline).",
+          "affects": "Where testers open the app; your own app is not moved without a backup and your OK"
+        }
+      ],
+      "try": [
+        "Open the tester link in a private window: it asks for an email code.",
+        "Try an email that isn't on the list: it is refused."
+      ]
+    },
+    {
+      "n": "4c",
+      "stage": "now",
+      "name": "Mint \"Can't tell\" + Skip in Fix-up (plan)",
+      "model": "Opus",
+      "est": "1–2",
+      "actual": "",
+      "status": "queued",
+      "chat": "New Opus chat",
+      "when": "after 4b",
+      "why": "Plan how to tell \"no mint mark\", \"P\" and \"can't tell\" apart, and add a Skip in Fix-up tick, without breaking your 500+ saved coins.",
+      "items": [
+        {
+          "id": "new (11-18)",
+          "size": "L",
+          "what": "Plan only: mint \"Can't tell\" + smart default",
+          "change": "The mint dropdown gets No mint mark, P and Can't tell. \"Not chosen yet\" is the only to-do state. Years where only Philadelphia struck that coin fill in themselves. Opus maps everything that reads the mint, runs the 4-box check as a plan, and writes the Sonnet build list.",
+          "affects": "Saved coins (mint), Fix-up, mintage, albums, filters, reports, CSV, backup"
+        },
+        {
+          "id": "new (11-18)",
+          "size": "M",
+          "what": "Plan only: \"Skip in Fix-up\" tick",
+          "change": "A tick on a coin stops it from nagging you. It leaves a small skipped mark, and totals stay estimates. Planned together with the mint change because they touch the same screens.",
+          "affects": "Saved coins (new flag), Needs info, Fix-up"
+        },
+        {
+          "id": "new (11-18)",
+          "size": "S",
+          "what": "Make the \"coins need info\" line easy to see",
+          "change": "The Home line \"404 coins need info, totals may be off ›\" looks like plain text and is easy to miss. It becomes a gold-outlined button (maybe a \"Fix them\" chip) and jumps straight into the Fix-up run. Opus decides the spot and fits it into the schedule.",
+          "affects": "Home totals shelf, Needs info, Fix-up"
+        }
+      ],
+      "try": [
+        "Nothing to tap yet: this step is a plan. The build comes after."
+      ]
+    },
+    {
+      "n": 5,
+      "stage": "testers",
+      "name": "Album accuracy",
+      "model": "Sonnet",
+      "est": "2–4",
+      "actual": "~1 (tbd, his end reading)",
+      "status": "done",
+      "why": "Album spots always match real coins.",
+      "items": [
+        {
+          "id": "R4-8",
+          "size": "S",
+          "what": "Variety spots keep the variety",
+          "change": "A coin put in the 1909 VDB or 1878 7 Tail Feathers spot is saved as that variety.",
+          "affects": "Album spots, coin page"
+        },
+        {
+          "id": "R5-2",
+          "size": "S",
+          "what": "Proof-only dates marked",
+          "change": "The 1895 Morgan spot says \"Proof only\" and warns on a circulated grade.",
+          "affects": "Album spots"
+        },
+        {
+          "id": "R5-3",
+          "size": "S",
+          "what": "No made-up spots",
+          "change": "\"+ Add a spot\" refuses dates or mints the series never had.",
+          "affects": "Add a spot"
+        },
+        {
+          "id": "R5-4",
+          "size": "S",
+          "what": "Variety edit moves the coin",
+          "change": "Change a coin's variety and it moves to the matching spot (or asks).",
+          "affects": "Album grid"
+        },
+        {
+          "id": "R5-5",
+          "size": "S",
+          "what": "Hide spot asks",
+          "change": "\"This spot holds your 1879 VF-30. Hide it anyway?\" and \"4 coins will lose their spot\" when you shorten an album's years.",
+          "affects": "Edit spots, Edit album"
+        }
+      ],
+      "chat": "New Sonnet chat",
+      "started": "Wed 11-18 3:13pm",
+      "ended": "Wed 11-18 3:20pm",
+      "minutes": 7,
+      "try": [
+        "Open ?demo, Albums, a Morgan album: tap the 1895 spot. It says Proof only; try adding a circulated coin there and it asks for a proof grade.",
+        "Tap + Add a spot, enter 1922 (or 1880 with mint D): it says the series never had it.",
+        "Tap a filled spot, Edit spots, Hide spot: it asks first.",
+        "Edit album, shorten the years: a note says how many coins lose their spot; tap Save again to go ahead."
+      ]
+    },
+    {
+      "n": 6,
+      "stage": "testers",
+      "name": "Album tidy",
+      "model": "Sonnet",
+      "est": "2–3",
+      "actual": "",
+      "status": "queued",
+      "why": "Fewer leftovers and dead ends around albums.",
+      "items": [
+        {
+          "id": "R5-16",
+          "size": "S",
+          "what": "Delete album asks about its list",
+          "change": "\"Also delete its want list (52)?\"",
+          "affects": "Delete album"
+        },
+        {
+          "id": "R5-17",
+          "size": "S",
+          "what": "Honest melt",
+          "change": "Album says \"Needs silver price\" instead of $0.00.",
+          "affects": "Album page"
+        },
+        {
+          "id": "R4-36",
+          "size": "S",
+          "what": "Take out from the spot",
+          "change": "\"Take out of album\" right on a filled spot's menu (1 tap instead of 5).",
+          "affects": "Spot menu"
+        },
+        {
+          "id": "R4-30 + R4-28",
+          "size": "S",
+          "what": "One place at a time",
+          "change": "Coins leave their box slot when put in an album, and stop saying \"Holder: Album\" after leaving one.",
+          "affects": "Coin page, boxes"
+        },
+        {
+          "id": "R5-19",
+          "size": "S",
+          "what": "Want-list button does what it says",
+          "change": "\"Add to want list\" on an empty spot adds to this album's list in one tap.",
+          "affects": "Spot menu"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": 7,
+      "stage": "testers",
+      "name": "Upgrades and wanted",
+      "model": "Sonnet",
+      "est": "4–6",
+      "actual": "",
+      "status": "queued",
+      "why": "Upgrading a coin works end to end.",
+      "items": [
+        {
+          "id": "R4-35 (idea 100)",
+          "size": "S",
+          "what": "Wanted vs upgrade",
+          "change": "Spots say \"wanted\" or \"upgrade wanted\" so you can tell them apart.",
+          "affects": "Album spots"
+        },
+        {
+          "id": "R5-9",
+          "size": "S",
+          "what": "One upgrade mark",
+          "change": "The coin's \"Upgrade wanted\" tick and the spot's upgrade want are the same thing everywhere.",
+          "affects": "Spot, My Coins, want list"
+        },
+        {
+          "id": "R5-10",
+          "size": "S",
+          "what": "Upgrade for every grade",
+          "change": "\"Want an upgrade\" works for XF-45, AU-58 and the other 7 grades that miss it now.",
+          "affects": "Spot menu"
+        },
+        {
+          "id": "R5-7",
+          "size": "M",
+          "what": "Swap in the upgrade",
+          "change": "When the better coin arrives: \"Put the MS-65 in the 1881-S spot? Old one goes loose / box / sell.\"",
+          "affects": "Got it, album spots"
+        },
+        {
+          "id": "R5-6",
+          "size": "M",
+          "what": "Variety spots survive edits",
+          "change": "Changing an album's years and back keeps its variety spots.",
+          "affects": "Edit album"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": 8,
+      "stage": "testers",
+      "name": "Inherited and names",
+      "model": "Sonnet",
+      "est": "2–3",
+      "actual": "",
+      "status": "queued",
+      "why": "Inherited coins never get mixed up with your own or sold by mistake.",
+      "items": [
+        {
+          "id": "R4-2 (idea 104)",
+          "size": "S",
+          "what": "Inherited album label",
+          "change": "Inherited albums look different on My Albums and in want-list names.",
+          "affects": "My Albums"
+        },
+        {
+          "id": "R5-11",
+          "size": "S",
+          "what": "Never grouped",
+          "change": "Inherited albums are never auto-joined to a series with yours.",
+          "affects": "My Albums, Reorder"
+        },
+        {
+          "id": "R5-12",
+          "size": "S",
+          "what": "No twin names",
+          "change": "Two albums with the same number get \"(2)\" or ask for a name.",
+          "affects": "New album, Kept in list"
+        },
+        {
+          "id": "R4-5 + R4-6",
+          "size": "S",
+          "what": "Inherited guards everywhere",
+          "change": "Making a box a for-sale case, or editing a sold coin to Inherited, asks first.",
+          "affects": "Edit box, Edit coin"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": 9,
+      "stage": "testers",
+      "name": "Easy to read",
+      "model": "Sonnet",
+      "est": "2–4",
+      "actual": "",
+      "status": "queued",
+      "why": "Older eyes and iPhone testers can read everything.",
+      "items": [
+        {
+          "id": "R6-1 (P5)",
+          "size": "M",
+          "what": "Text size setting",
+          "change": "Options > Look: Normal / Large / Extra large. Works on iPhone too (iPhone ignores the phone's own setting in this app).",
+          "affects": "Whole app"
+        },
+        {
+          "id": "R6-2 + R6-11",
+          "size": "S",
+          "what": "Nothing cut off",
+          "change": "At large text, names wrap instead of being cut; album grades are easier to read.",
+          "affects": "Home, Coin Value, album page, Options"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": 10,
+      "stage": "testers",
+      "name": "Easy to tap",
+      "model": "Sonnet",
+      "est": "1–2",
+      "actual": "",
+      "status": "queued",
+      "why": "Fewer missed taps and slips.",
+      "items": [
+        {
+          "id": "R6-3, 4, 8, 9, 12",
+          "size": "S",
+          "what": "Bigger tap spots",
+          "change": "Help ⓘ, section headers, back links, menu rows and Close get comfortable 44 px tap areas.",
+          "affects": "Whole app"
+        },
+        {
+          "id": "R6-5 + R6-6",
+          "size": "S",
+          "what": "No accidental exits or stars",
+          "change": "eBay link moves to the coin page; the star in rows gets a gap so opening a coin doesn't star it.",
+          "affects": "Coin Value, My Coins, Home"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": 11,
+      "stage": "testers",
+      "name": "Slips and Undo",
+      "model": "Sonnet",
+      "est": "2–3",
+      "actual": "",
+      "status": "queued",
+      "why": "Mistakes are easy to take back.",
+      "items": [
+        {
+          "id": "R4-24 (idea 111)",
+          "size": "M",
+          "what": "Undo on one-tap buttons",
+          "change": "Refund, Take off sale, Move back get Undo; \"Return unsold\" asks first.",
+          "affects": "Coin page, case page"
+        },
+        {
+          "id": "R6-7",
+          "size": "S",
+          "what": "Messages stay longer",
+          "change": "Messages ~6 seconds, Undo ~15 seconds.",
+          "affects": "Message bar"
+        },
+        {
+          "id": "R4-26",
+          "size": "S",
+          "what": "Demo asks before wiping",
+          "change": "\"See a full sample\" asks before replacing practice coins.",
+          "affects": "Demo"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": 12,
+      "stage": "testers",
+      "name": "First day",
+      "model": "Sonnet",
+      "est": "3–4",
+      "actual": "",
+      "status": "queued",
+      "why": "A new tester's first 10 minutes make sense.",
+      "items": [
+        {
+          "id": "R4-34",
+          "size": "M",
+          "what": "Start on Collector; real Simple",
+          "change": "New users start on Collector; Simple really hides selling buttons.",
+          "affects": "Levels, coin page"
+        },
+        {
+          "id": "R4-38 + R4-41",
+          "size": "S",
+          "what": "Smoother setup",
+          "change": "Welcome card offers \"I have a backup file\"; New box explains what's wrong.",
+          "affects": "Welcome, New box"
+        },
+        {
+          "id": "R4-42 + R4-58",
+          "size": "S",
+          "what": "Clear words",
+          "change": "Fixes \"Placed in .\", \"Delete ?\", wrong help text; says \"No price list loaded\" instead of sounding like a checked answer; removes the \"coming soon\" photo line.",
+          "affects": "Messages, Add coin, values"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": 13,
+      "stage": "testers",
+      "name": "Numbers agree",
+      "model": "Sonnet",
+      "est": "3–4",
+      "actual": "",
+      "status": "queued",
+      "why": "Every screen shows the same totals.",
+      "items": [
+        {
+          "id": "R4-15",
+          "size": "M",
+          "what": "Business counted the same everywhere",
+          "change": "Album value, Home and reports all treat Business coins the same way.",
+          "affects": "Home, album page, reports"
+        },
+        {
+          "id": "R4-21 + R4-20",
+          "size": "S",
+          "what": "One coin count, right labels",
+          "change": "Home shows one \"how many coins\"; value labels make sense.",
+          "affects": "Home, report"
+        },
+        {
+          "id": "R4-16 + R4-61",
+          "size": "S",
+          "what": "Seller stock shows right",
+          "change": "Refunded coins return to the For sale list; Business-only Home shows your stock.",
+          "affects": "For sale, Home"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": 14,
+      "stage": "testers",
+      "name": "Seller accuracy",
+      "model": "Sonnet",
+      "est": "3–5",
+      "actual": "",
+      "status": "queued",
+      "why": "Testers who sell see correct numbers (new seller features wait for 2027).",
+      "items": [
+        {
+          "id": "R4-17",
+          "size": "M",
+          "what": "Sales reports agree",
+          "change": "Refund fees, deleted shows and tags add up the same in every report.",
+          "affects": "Sales Reports"
+        },
+        {
+          "id": "R4-9 + R4-10",
+          "size": "M",
+          "what": "No stuck mistakes",
+          "change": "Impossible years can be fixed; an unknown album number asks instead of guessing.",
+          "affects": "Add coin, New album"
+        },
+        {
+          "id": "R4-25 (words)",
+          "size": "S",
+          "what": "Honest restore warning",
+          "change": "Restore says it replaces albums, boxes and shows.",
+          "affects": "Restore"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": 15,
+      "stage": "testers",
+      "name": "Options regrouped",
+      "model": "Sonnet",
+      "est": "1–3",
+      "actual": "",
+      "status": "queued",
+      "why": "Less to wade through (your \"it's a lot\").",
+      "items": [
+        {
+          "id": "R4-48 (idea 109)",
+          "size": "M",
+          "what": "Tidy Options",
+          "change": "Options in a few clear sections, most-used first. No search box.",
+          "affects": "Options"
+        }
+      ],
+      "chat": "New Sonnet chat"
+    },
+    {
+      "n": "15c",
+      "stage": "testers",
+      "name": "Fix check before testers",
+      "model": "Opus",
+      "est": "3–5",
+      "actual": "",
+      "status": "queued",
+      "chat": "New Opus chat",
+      "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
+      "items": [
+        {
+          "id": "review",
+          "size": "M",
+          "what": "Re-run the fixed findings",
+          "change": "No app change. A report lists each fix as confirmed, half-done or broken; anything not confirmed goes back in the queue before testers.",
+          "affects": "Report only (reviews/)"
+        }
+      ],
+      "try": [
+        "Read the short report; nothing to tap."
+      ]
+    },
+    {
+      "n": 16,
+      "stage": "fill",
+      "name": "Fill-ins (leftover usage)",
+      "model": "Sonnet",
+      "est": "0–1 each",
+      "actual": "",
+      "status": "queued",
+      "why": "Small extras to use up the end of the week.",
+      "items": [
+        {
+          "id": "R4-27",
+          "size": "S",
+          "what": "Hide values everywhere",
+          "change": "Hide values also hides melt on every page.",
+          "affects": "All value screens"
+        },
+        {
+          "id": "R4-37",
+          "size": "S",
+          "what": "Where from filter",
+          "change": "Filter coins by where they came from (e.g. Inherited).",
+          "affects": "Filter panel"
+        },
+        {
+          "id": "R4-39",
+          "size": "S",
+          "what": "\"+\" on an empty box slot",
+          "change": "Offers \"Put a coin I have here\", not only a new coin.",
+          "affects": "Boxes, pockets"
+        },
+        {
+          "id": "R4-45 (idea 102)",
+          "size": "S",
+          "what": "Show missing when filtering",
+          "change": "Filtered lists can include coins you're missing.",
+          "affects": "My Coins"
+        },
+        {
+          "id": "R5-15",
+          "size": "S",
+          "what": "Move between albums",
+          "change": "Move a coin straight from one album's spot to another's.",
+          "affects": "Spot menu"
+        },
+        {
+          "id": "R5-18",
+          "size": "S",
+          "what": "Pocket album value",
+          "change": "Pocket albums show value and grades.",
+          "affects": "Pocket albums"
+        },
+        {
+          "id": "R5-20",
+          "size": "S",
+          "what": "No ID gaps after Undo",
+          "change": "Undo on Fill spots gives the coin ID numbers back.",
+          "affects": "Coin IDs"
+        },
+        {
+          "id": "R4-14",
+          "size": "S",
+          "what": "Two-tab sale guard",
+          "change": "Selling the same coin in two tabs warns instead of replacing.",
+          "affects": "Mark as sold"
+        }
+      ],
+      "chat": "New Sonnet chat"
     }
-   ],
-   "chat": "New Sonnet chat",
-   "try": [
-    "Open two albums of the same type: each spot says \"wanted\" only for its own album's list.",
-    "Add a coin, then start another: Where from shows \"Same as last: … ✕\" instead of being silently filled in.",
-    "Type a metal price and press Back fast: the price is still there. Start a coin, press Back: it asks \"Discard this coin?\"",
-    "Open Fill spots: nothing is ticked; tick 2, Save asks \"Add 2 coins?\""
-   ],
-   "started": "Tue 11-17 9:24pm",
-   "ended": "Tue 11-17 10:31pm",
-   "minutes": 67
-  },
-  {
-   "n": 2,
-   "stage": "now",
-   "name": "Grab it, log it, go",
-   "model": "Sonnet",
-   "est": "4–6",
-   "actual": "~1",
-   "status": "done",
-   "why": "Makes logging fast, and gives you one easy way to fix your 200+ coins that need info.",
-   "items": [
+  ],
+  "parked": [
     {
-     "id": "117",
-     "size": "M",
-     "what": "Fix-up run",
-     "change": "One button jumps to the next coin missing cost, where from, grade or mint; fill it in, Save, and it goes to the next one.",
-     "affects": "Needs info, coin edit"
+      "group": "Your call",
+      "items": [
+        {
+          "t": "Home shelf \"looks like a mess\" (idea 110): which screen? Also bookcase names written sideways (R6-10)",
+          "size": "M"
+        },
+        {
+          "t": "Dansco 7173 album contents: needs your album or Red Book (R5-21)",
+          "size": "S"
+        }
+      ]
     },
     {
-     "id": "R4-11 (small version)",
-     "size": "S",
-     "what": "\"Check mint\" in Needs info",
-     "change": "Coins where the mint wasn't chosen land in Needs info so the fix-up run catches them. No new saved field.",
-     "affects": "Needs info"
+      "group": "Later",
+      "items": [
+        {
+          "t": "Full melt table page (idea 113): the coin card's melt line covers buying for now",
+          "size": "M"
+        },
+        {
+          "t": "Shopping view from albums (ideas 101/103): decide after using the coin card",
+          "size": "M"
+        },
+        {
+          "t": "Restore over newer data, deeper fix (R4-25)",
+          "size": "M"
+        },
+        {
+          "t": "CSV round trip and album spots in CSV (R4-29, R5-8)",
+          "size": "M"
+        },
+        {
+          "t": "Bars beyond silver (R4-32)",
+          "size": "M"
+        },
+        {
+          "t": "How many separate coins question (R4-40)",
+          "size": "S"
+        },
+        {
+          "t": "Album by brand and name (idea 107)",
+          "size": "M"
+        },
+        {
+          "t": "Melt table (idea 113)",
+          "size": "M"
+        },
+        {
+          "t": "Pick photo side (idea 106)",
+          "size": "M (part 2 L)"
+        },
+        {
+          "t": "Dave pawn-shop sim run (idea 115)",
+          "size": "M"
+        },
+        {
+          "t": "Round + button covering content (R6-13)",
+          "size": "S"
+        }
+      ]
     },
     {
-     "id": "R4-31 + R4-22",
-     "size": "S",
-     "what": "Needs info behaves",
-     "change": "The Needs info filter no longer sticks after you leave My Coins, and foreign coins follow the same rules as US coins.",
-     "affects": "My Coins"
-    },
-    {
-     "id": "R5-14",
-     "size": "S",
-     "what": "Sections stay open",
-     "change": "If you opened Price or Photos on the last coin, they're open on the next one: about half the taps when logging a stack.",
-     "affects": "Add coin form"
-    },
-    {
-     "id": "R4-33",
-     "size": "S",
-     "what": "Search that understands you",
-     "change": "\"1921 morgan\", \"1950 D\", \"silver\" and \"grandpa\" find coins, not just exact phrases.",
-     "affects": "Search on My Coins"
-    },
-    {
-     "id": "R4-7",
-     "size": "M",
-     "what": "No double coins from Fill spots",
-     "change": "If you already own that date loose, Fill spots offers to put that coin in the spot instead of making a second one.",
-     "affects": "Fill spots"
+      "group": "2027 (selling)",
+      "items": [
+        {
+          "t": "Junk silver part-sell (R4-12)",
+          "size": "M"
+        },
+        {
+          "t": "Giveaway (R4-13)",
+          "size": "L"
+        },
+        {
+          "t": "Partial refund + refund date (R4-18)",
+          "size": "L"
+        },
+        {
+          "t": "Order edits reach all coins (R4-19)",
+          "size": "M"
+        },
+        {
+          "t": "Seller Mode shortcuts (R4-43)",
+          "size": "S"
+        },
+        {
+          "t": "Tax report polish (R4-44)",
+          "size": "M"
+        },
+        {
+          "t": "Business stock IDs (idea 112)",
+          "size": "M"
+        },
+        {
+          "t": "Date bought on tax rows (R4-59)",
+          "size": "S"
+        },
+        {
+          "t": "Sold coin shows its show (R4-60)",
+          "size": "S"
+        },
+        {
+          "t": "Trade-in value toward cost (idea 114, parked)",
+          "size": "L"
+        }
+      ]
     }
-   ],
-   "chat": "New Sonnet chat",
-   "try": [
-    "Tap the fix-up button: it opens the first coin missing info; Save jumps to the next one.",
-    "Search \"1921 morgan\" and \"silver\": coins show up.",
-    "Add a coin with Price open, then add another: Price is still open.",
-    "Fill spots on a date you already own loose: it offers to use that coin."
-   ],
-   "started": "Tue 11-17 10:33pm",
-   "ended": "Tue 11-17 11:17pm",
-   "minutes": 44
-  },
-  {
-   "n": "3a",
-   "stage": "now",
-   "name": "Know a key date: mintage list",
-   "model": "Sonnet",
-   "est": "3–5",
-   "actual": "~6",
-   "status": "done",
-   "why": "Mintages from U.S. Mint records, so key dates show on spots and coin pages even without a price file. Part 1 (v0.79.0) and part 2 (v0.80.0, 11-18) done: cents, nickels, dimes, quarters, halves, dollars, Seated series, 1964-65 by date. Spot-checked 11-18 against his Red Book: all 10 match once proofs (and the 1873-CC No Arrows line) are added.",
-   "items": [
+  ],
+  "prompt_template": "Let's start the coin work. Pipeline step {n}: {name}. Usage: [__/__]",
+  "done": [
     {
-     "id": "105 step 1",
-     "size": "M",
-     "what": "Mintage list from U.S. Mint records: part 1 done (v0.79.0)",
-     "change": "Mintages show on album spots and coin pages even without a price file. Each says \"from U.S. Mint records\". Free, public-domain source only. You spot-check ~10 key dates against your Red Book first.",
-     "affects": "Album spots, coin page"
+      "date": "11-17",
+      "name": "Big review R1–R6 (reports only)",
+      "ver": "",
+      "cost": "~17 (all six)",
+      "change": "Six simulated testers clicked through the app; 95 findings sorted into this pipeline. No app change."
     },
     {
-     "id": "105 step 1b",
-     "size": "M",
-     "what": "Fill the mintage gaps: done (v0.80.0)",
-     "change": "Added Barber, Walking Liberty and Franklin halves (commemoratives taken out), 1964 and 1965 coins by the date on them, Seated Liberty dimes, quarters, halves, half dimes and dollars, 3-cent silver and 20-cent pieces. Fixed 1900 Morgan and 1893 quarter (commemoratives were counted). Still left out: 1909 cents, 1916 dimes and quarters, 1938 and 1942 nickels, 1921 Philadelphia dollars, Capped Bust and older, minor coins before 1871, proofs, 1966 on.",
-     "affects": "Album spots, coin page"
+      "date": "11-17",
+      "name": "Want-list picker fix (idea 99, part 1)",
+      "ver": "v0.77.2",
+      "cost": "~0–1",
+      "change": "Adding missing coins to a list now names the list after the album and never offers another album's list."
+    },
+    {
+      "date": "11-16",
+      "name": "Quick fix 4b + 4c (idea 108)",
+      "ver": "v0.77.1",
+      "cost": "~1–3",
+      "change": "'How much to show' folds up; Photo fill hidden in Options."
+    },
+    {
+      "date": "11-16",
+      "name": "Kept in for boxes + Swap trays (34 + 35)",
+      "ver": "v0.77.0",
+      "cost": "~2",
+      "change": "Boxes can be kept inside other boxes; trays can be swapped between cases."
+    },
+    {
+      "date": "11-16",
+      "name": "Report filters (61)",
+      "ver": "v0.76.0",
+      "cost": "~1",
+      "change": "The insurance report can be filtered to just the coins you pick."
+    },
+    {
+      "date": "11-15",
+      "name": "Take out of album (46)",
+      "ver": "v0.75.0",
+      "cost": "~1",
+      "change": "Coins can be taken out of an album without deleting them."
+    },
+    {
+      "date": "11-17",
+      "name": "Step 1: Log it right (R4-1+R5-1, R4-3, R4-23, R4-4+R5-13)",
+      "ver": "v0.77.3",
+      "cost": "~3 weekly (9:24–10:31pm, 67 min)",
+      "change": "Albums use only their own want list; Add coin shows 'Same as last' chips; Back no longer loses typing (metal prices, Discard prompt); Fill spots starts unticked with an 'Add N coins?' check."
+    },
+    {
+      "date": "11-17",
+      "name": "Step 2: Grab it, log it, go (117, R4-11 small, R4-31 + R4-22, R5-14, R4-33, R4-7)",
+      "ver": "v0.78.0 (wording fix v0.78.1)",
+      "cost": "~1 weekly (10:33–11:17pm, 44 min; est. 4–6 was too high)",
+      "change": "A \"Fix the next coin\" button on Needs info walks you through each coin missing info (Save goes to the next one). Needs info also catches no Where from and an unchecked mint; Gift/Pocket change coins no longer say cost missing; the filter clears when you leave My Coins; search understands \"1921 morgan\", \"1950 D\", \"silver\", \"grandpa\"; Add coin keeps Price/Photos open; Fill spots offers your loose coin instead of adding a second one."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 3a part 1: mintage list from U.S. Mint records (105 step 1, PART DONE, step stays open)",
+      "ver": "v0.79.0",
+      "cost": "usage reading not yet given (~1:00-1:55am, ~55 min)",
+      "change": "Mintage now shows without a price file for cents, nickels, dimes, quarters, Morgan, Peace and trade dollars, marked \"from U.S. Mint records\" (pieces struck that year; Philadelphia includes proofs). Left out for now: halves, shared years (1909, 1916, 1921 P, 1938/1942), 1964-65, commemoratives. Every number checked against the book's printed totals."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 3a part 2: more mintages from U.S. Mint records (105 step 1b); step 3a done after Red Book spot-check",
+      "ver": "v0.80.0",
+      "cost": "started at weekly 34%; end reading not yet given (~8:41-9:35am, ~55 min, Opus)",
+      "change": "Mintage now also shows for Barber, Walking Liberty and Franklin halves, 1964 and 1965 coins (by date), Seated Liberty dimes, quarters, halves, half dimes and dollars, 3-cent silver and 20-cent pieces. 1900 Morgan and 1893 quarter fixed (commemoratives were counted)."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 3b: coin card shared piece (105 step 2 / 2b)",
+      "ver": "v0.81.0",
+      "cost": "started at session 25, weekly 38; end reading not yet given (Sonnet)",
+      "change": "Tap an empty album spot: a Key date tag (a very low mintage by the U.S. Mint list), metal and melt today, price-list value when one is loaded, varieties to look for, and how many of that date you own. Your owned coins' pages show the Key date tag, varieties and your count too. Not done: a card for search results."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 4a: card for any coin you search (105 step 2 left over)",
+      "ver": "v0.82.0",
+      "cost": "about 2 weekly (39 → 41), 12:18pm–1:45pm incl. ~20 min design Q&A (Sonnet)",
+      "change": "Type a date and coin in the Coins search box (1916-D dime, 1909 vdb): a row appears; tap it for the coin card with key date, mintage, metal and melt, price-list value if loaded, varieties, how many you own, Search eBay sold and Add to want list. Nothing is saved until you add it to a want list. Wording and Home box added in v0.82.1: Search any coin on Home, rows show mintage with Key date first and an ⓘ, 'Not in your coins' when none match."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 5: album accuracy",
+      "ver": "v0.83.0",
+      "cost": "~1 weekly (est), ~7 min build (Sonnet)",
+      "change": "A coin added to a variety spot (1909 VDB, 1878 7 Tail Feathers) keeps that variety. The 1895 Morgan spot says Proof only and asks for a proof grade. + Add a spot refuses dates and mints the series never had. Changing a coin's variety moves it to the matching spot. Hide spot, Remove spot and shortening an album's years ask first when coins sit in those spots."
     }
-   ],
-   "chat": "New Sonnet chat",
-   "try": [
-    "Open an empty spot for a 1921-S Walking Liberty half and a 1938-D Walking Liberty half: mintage shows, \"from U.S. Mint records\".",
-    "Open a 1964 Washington quarter (no mint mark): it says \"coins dated 1964\" and includes San Francisco coins.",
-    "Check ~10 key dates against your Red Book (mix of halves, cents, Morgans, Seated) and send any that differ in one message."
-   ]
-  },
-  {
-   "n": "3b",
-   "stage": "now",
-   "name": "Know a key date: coin card",
-   "model": "Sonnet",
-   "est": "3–5",
-   "actual": "",
-   "status": "done",
-   "why": "Look up any coin, owned or not, like at the pawn shop: mintage, melt and eBay sold in one place.",
-   "items": [
-    {
-     "id": "105 step 2",
-     "size": "M",
-     "what": "Card for a coin you don't own",
-     "change": "Tap an empty spot or a search result and see a coin card: mintage, key-date flag, melt today (from your silver price), a \"Search eBay sold\" button, and \"Add to want list\".",
-     "affects": "Album spots, search, want list"
-    },
-    {
-     "id": "105 step 2b",
-     "size": "S",
-     "what": "More facts on the coin card (added 11-18)",
-     "change": "The card also shows: metal and silver content (e.g. 90% silver, 0.36 oz); known varieties for that date to look for; your price-list value when one is loaded (shows the list's own name, e.g. Red Book or Greysheet; hidden when no list is loaded); and \"You own 2\" / \"Empty spot in your album\" so you don't buy a duplicate. Uses facts the app already has; nothing new is saved.",
-     "affects": "Coin card"
-    }
-   ],
-   "chat": "New Sonnet chat",
-   "try": [
-    "Tap an empty album spot: a coin card shows mintage, melt today and \"Search eBay sold\".",
-    "Search a coin you don't own: the same card opens."
-   ]
-  },
-  {
-   "n": 4,
-   "stage": "now",
-   "name": "Fresh-start repo",
-   "model": "Sonnet",
-   "est": "1–2",
-   "actual": "",
-   "status": "next",
-   "when": "Sat 11-21",
-   "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
-   "items": [
-    {
-     "id": "N4 / G",
-     "size": "S",
-     "what": "Fresh-start repo",
-     "change": "Nothing changes in the app; it's a tidy home for the tester version.",
-     "affects": "Behind the scenes"
-    }
-   ],
-   "chat": "New Sonnet chat",
-   "try": [
-    "Nothing to tap in the app; follow the GitHub steps the chat gives you."
-   ]
-  },
-  {
-   "n": "4a",
-   "stage": "now",
-   "name": "Card for any coin you search",
-   "model": "Sonnet",
-   "est": "2–3",
-   "actual": "~2",
-   "status": "done",
-   "why": "The part of 3b that was left out: look up a coin you don't own and that isn't in an album, like at the pawn shop.",
-   "items": [
-    {
-     "id": "105 step 2 (left over)",
-     "size": "M",
-     "what": "Card on search results",
-     "change": "Search for a coin and tap a result to see the same coin card as an empty spot: key date, mintage, melt today, varieties, and how many you own. Also checks that the \"Search eBay sold\" and \"Add to want list\" buttons promised in 3b exist; adds them if not.",
-     "affects": "Search, coin card, want list"
-    }
-   ],
-   "chat": "New Sonnet chat",
-   "try": [
-    "Home: type 1916 dime in the new Search any coin box; you land on Coins with the rows.",
-    "Key date shows first with a small ⓘ; tap it to see how it's decided.",
-    "Tap a row for the card, then Add to want list."
-   ]
-  },
-  {
-   "n": "4b",
-   "stage": "now",
-   "name": "Private tester copy (plan, then build)",
-   "model": "Opus",
-   "est": "2–4",
-   "actual": "",
-   "status": "queued",
-   "chat": "New Opus chat",
-   "when": "after step 4",
-   "why": "Only the testers you invite can open the app, and your code stops being public, so nobody passes it around before you sell it.",
-   "items": [
-    {
-     "id": "plan first",
-     "size": "S",
-     "what": "Decide the details with you",
-     "change": "Questions for that chat: tester emails, the tester-copy name, and whether your own app stays on its current address (recommended for now, because your coins live on your phone at that address).",
-     "affects": "Nothing until you agree"
-    },
-    {
-     "id": "build",
-     "size": "M",
-     "what": "Tester copy behind sign-in",
-     "change": "Tester copy on Cloudflare Pages (free) behind Cloudflare Access (free up to 50 users): testers sign in with an email code; you can remove anyone. Shows \"Tester copy for [name]\". Code made private only once your own app no longer depends on the public GitHub site (making it private now would take your phone app offline).",
-     "affects": "Where testers open the app; your own app is not moved without a backup and your OK"
-    }
-   ],
-   "try": [
-    "Open the tester link in a private window: it asks for an email code.",
-    "Try an email that isn't on the list: it is refused."
-   ]
-  },
-  {
-   "n": "4c",
-   "stage": "now",
-   "name": "Mint \"Can't tell\" + Skip in Fix-up (plan)",
-   "model": "Opus",
-   "est": "1–2",
-   "actual": "",
-   "status": "queued",
-   "chat": "New Opus chat",
-   "when": "after 4b",
-   "why": "Plan how to tell \"no mint mark\", \"P\" and \"can't tell\" apart, and add a Skip in Fix-up tick, without breaking your 500+ saved coins.",
-   "items": [
-    {
-     "id": "new (11-18)",
-     "size": "L",
-     "what": "Plan only: mint \"Can't tell\" + smart default",
-     "change": "The mint dropdown gets No mint mark, P and Can't tell. \"Not chosen yet\" is the only to-do state. Years where only Philadelphia struck that coin fill in themselves. Opus maps everything that reads the mint, runs the 4-box check as a plan, and writes the Sonnet build list.",
-     "affects": "Saved coins (mint), Fix-up, mintage, albums, filters, reports, CSV, backup"
-    },
-    {
-     "id": "new (11-18)",
-     "size": "M",
-     "what": "Plan only: \"Skip in Fix-up\" tick",
-     "change": "A tick on a coin stops it from nagging you. It leaves a small skipped mark, and totals stay estimates. Planned together with the mint change because they touch the same screens.",
-     "affects": "Saved coins (new flag), Needs info, Fix-up"
-    },
-    {
-     "id": "new (11-18)",
-     "size": "S",
-     "what": "Make the \"coins need info\" line easy to see",
-     "change": "The Home line \"404 coins need info, totals may be off ›\" looks like plain text and is easy to miss. It becomes a gold-outlined button (maybe a \"Fix them\" chip) and jumps straight into the Fix-up run. Opus decides the spot and fits it into the schedule.",
-     "affects": "Home totals shelf, Needs info, Fix-up"
-    }
-   ],
-   "try": [
-    "Nothing to tap yet: this step is a plan. The build comes after."
-   ]
-  },
-  {
-   "n": 5,
-   "stage": "testers",
-   "name": "Album accuracy",
-   "model": "Sonnet",
-   "est": "2–4",
-   "actual": "",
-   "status": "queued",
-   "why": "Album spots always match real coins.",
-   "items": [
-    {
-     "id": "R4-8",
-     "size": "S",
-     "what": "Variety spots keep the variety",
-     "change": "A coin put in the 1909 VDB or 1878 7 Tail Feathers spot is saved as that variety.",
-     "affects": "Album spots, coin page"
-    },
-    {
-     "id": "R5-2",
-     "size": "S",
-     "what": "Proof-only dates marked",
-     "change": "The 1895 Morgan spot says \"Proof only\" and warns on a circulated grade.",
-     "affects": "Album spots"
-    },
-    {
-     "id": "R5-3",
-     "size": "S",
-     "what": "No made-up spots",
-     "change": "\"+ Add a spot\" refuses dates or mints the series never had.",
-     "affects": "Add a spot"
-    },
-    {
-     "id": "R5-4",
-     "size": "S",
-     "what": "Variety edit moves the coin",
-     "change": "Change a coin's variety and it moves to the matching spot (or asks).",
-     "affects": "Album grid"
-    },
-    {
-     "id": "R5-5",
-     "size": "S",
-     "what": "Hide spot asks",
-     "change": "\"This spot holds your 1879 VF-30. Hide it anyway?\" and \"4 coins will lose their spot\" when you shorten an album's years.",
-     "affects": "Edit spots, Edit album"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 6,
-   "stage": "testers",
-   "name": "Album tidy",
-   "model": "Sonnet",
-   "est": "2–3",
-   "actual": "",
-   "status": "queued",
-   "why": "Fewer leftovers and dead ends around albums.",
-   "items": [
-    {
-     "id": "R5-16",
-     "size": "S",
-     "what": "Delete album asks about its list",
-     "change": "\"Also delete its want list (52)?\"",
-     "affects": "Delete album"
-    },
-    {
-     "id": "R5-17",
-     "size": "S",
-     "what": "Honest melt",
-     "change": "Album says \"Needs silver price\" instead of $0.00.",
-     "affects": "Album page"
-    },
-    {
-     "id": "R4-36",
-     "size": "S",
-     "what": "Take out from the spot",
-     "change": "\"Take out of album\" right on a filled spot's menu (1 tap instead of 5).",
-     "affects": "Spot menu"
-    },
-    {
-     "id": "R4-30 + R4-28",
-     "size": "S",
-     "what": "One place at a time",
-     "change": "Coins leave their box slot when put in an album, and stop saying \"Holder: Album\" after leaving one.",
-     "affects": "Coin page, boxes"
-    },
-    {
-     "id": "R5-19",
-     "size": "S",
-     "what": "Want-list button does what it says",
-     "change": "\"Add to want list\" on an empty spot adds to this album's list in one tap.",
-     "affects": "Spot menu"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 7,
-   "stage": "testers",
-   "name": "Upgrades and wanted",
-   "model": "Sonnet",
-   "est": "4–6",
-   "actual": "",
-   "status": "queued",
-   "why": "Upgrading a coin works end to end.",
-   "items": [
-    {
-     "id": "R4-35 (idea 100)",
-     "size": "S",
-     "what": "Wanted vs upgrade",
-     "change": "Spots say \"wanted\" or \"upgrade wanted\" so you can tell them apart.",
-     "affects": "Album spots"
-    },
-    {
-     "id": "R5-9",
-     "size": "S",
-     "what": "One upgrade mark",
-     "change": "The coin's \"Upgrade wanted\" tick and the spot's upgrade want are the same thing everywhere.",
-     "affects": "Spot, My Coins, want list"
-    },
-    {
-     "id": "R5-10",
-     "size": "S",
-     "what": "Upgrade for every grade",
-     "change": "\"Want an upgrade\" works for XF-45, AU-58 and the other 7 grades that miss it now.",
-     "affects": "Spot menu"
-    },
-    {
-     "id": "R5-7",
-     "size": "M",
-     "what": "Swap in the upgrade",
-     "change": "When the better coin arrives: \"Put the MS-65 in the 1881-S spot? Old one goes loose / box / sell.\"",
-     "affects": "Got it, album spots"
-    },
-    {
-     "id": "R5-6",
-     "size": "M",
-     "what": "Variety spots survive edits",
-     "change": "Changing an album's years and back keeps its variety spots.",
-     "affects": "Edit album"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 8,
-   "stage": "testers",
-   "name": "Inherited and names",
-   "model": "Sonnet",
-   "est": "2–3",
-   "actual": "",
-   "status": "queued",
-   "why": "Inherited coins never get mixed up with your own or sold by mistake.",
-   "items": [
-    {
-     "id": "R4-2 (idea 104)",
-     "size": "S",
-     "what": "Inherited album label",
-     "change": "Inherited albums look different on My Albums and in want-list names.",
-     "affects": "My Albums"
-    },
-    {
-     "id": "R5-11",
-     "size": "S",
-     "what": "Never grouped",
-     "change": "Inherited albums are never auto-joined to a series with yours.",
-     "affects": "My Albums, Reorder"
-    },
-    {
-     "id": "R5-12",
-     "size": "S",
-     "what": "No twin names",
-     "change": "Two albums with the same number get \"(2)\" or ask for a name.",
-     "affects": "New album, Kept in list"
-    },
-    {
-     "id": "R4-5 + R4-6",
-     "size": "S",
-     "what": "Inherited guards everywhere",
-     "change": "Making a box a for-sale case, or editing a sold coin to Inherited, asks first.",
-     "affects": "Edit box, Edit coin"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 9,
-   "stage": "testers",
-   "name": "Easy to read",
-   "model": "Sonnet",
-   "est": "2–4",
-   "actual": "",
-   "status": "queued",
-   "why": "Older eyes and iPhone testers can read everything.",
-   "items": [
-    {
-     "id": "R6-1 (P5)",
-     "size": "M",
-     "what": "Text size setting",
-     "change": "Options > Look: Normal / Large / Extra large. Works on iPhone too (iPhone ignores the phone's own setting in this app).",
-     "affects": "Whole app"
-    },
-    {
-     "id": "R6-2 + R6-11",
-     "size": "S",
-     "what": "Nothing cut off",
-     "change": "At large text, names wrap instead of being cut; album grades are easier to read.",
-     "affects": "Home, Coin Value, album page, Options"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 10,
-   "stage": "testers",
-   "name": "Easy to tap",
-   "model": "Sonnet",
-   "est": "1–2",
-   "actual": "",
-   "status": "queued",
-   "why": "Fewer missed taps and slips.",
-   "items": [
-    {
-     "id": "R6-3, 4, 8, 9, 12",
-     "size": "S",
-     "what": "Bigger tap spots",
-     "change": "Help ⓘ, section headers, back links, menu rows and Close get comfortable 44 px tap areas.",
-     "affects": "Whole app"
-    },
-    {
-     "id": "R6-5 + R6-6",
-     "size": "S",
-     "what": "No accidental exits or stars",
-     "change": "eBay link moves to the coin page; the star in rows gets a gap so opening a coin doesn't star it.",
-     "affects": "Coin Value, My Coins, Home"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 11,
-   "stage": "testers",
-   "name": "Slips and Undo",
-   "model": "Sonnet",
-   "est": "2–3",
-   "actual": "",
-   "status": "queued",
-   "why": "Mistakes are easy to take back.",
-   "items": [
-    {
-     "id": "R4-24 (idea 111)",
-     "size": "M",
-     "what": "Undo on one-tap buttons",
-     "change": "Refund, Take off sale, Move back get Undo; \"Return unsold\" asks first.",
-     "affects": "Coin page, case page"
-    },
-    {
-     "id": "R6-7",
-     "size": "S",
-     "what": "Messages stay longer",
-     "change": "Messages ~6 seconds, Undo ~15 seconds.",
-     "affects": "Message bar"
-    },
-    {
-     "id": "R4-26",
-     "size": "S",
-     "what": "Demo asks before wiping",
-     "change": "\"See a full sample\" asks before replacing practice coins.",
-     "affects": "Demo"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 12,
-   "stage": "testers",
-   "name": "First day",
-   "model": "Sonnet",
-   "est": "3–4",
-   "actual": "",
-   "status": "queued",
-   "why": "A new tester's first 10 minutes make sense.",
-   "items": [
-    {
-     "id": "R4-34",
-     "size": "M",
-     "what": "Start on Collector; real Simple",
-     "change": "New users start on Collector; Simple really hides selling buttons.",
-     "affects": "Levels, coin page"
-    },
-    {
-     "id": "R4-38 + R4-41",
-     "size": "S",
-     "what": "Smoother setup",
-     "change": "Welcome card offers \"I have a backup file\"; New box explains what's wrong.",
-     "affects": "Welcome, New box"
-    },
-    {
-     "id": "R4-42 + R4-58",
-     "size": "S",
-     "what": "Clear words",
-     "change": "Fixes \"Placed in .\", \"Delete ?\", wrong help text; says \"No price list loaded\" instead of sounding like a checked answer; removes the \"coming soon\" photo line.",
-     "affects": "Messages, Add coin, values"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 13,
-   "stage": "testers",
-   "name": "Numbers agree",
-   "model": "Sonnet",
-   "est": "3–4",
-   "actual": "",
-   "status": "queued",
-   "why": "Every screen shows the same totals.",
-   "items": [
-    {
-     "id": "R4-15",
-     "size": "M",
-     "what": "Business counted the same everywhere",
-     "change": "Album value, Home and reports all treat Business coins the same way.",
-     "affects": "Home, album page, reports"
-    },
-    {
-     "id": "R4-21 + R4-20",
-     "size": "S",
-     "what": "One coin count, right labels",
-     "change": "Home shows one \"how many coins\"; value labels make sense.",
-     "affects": "Home, report"
-    },
-    {
-     "id": "R4-16 + R4-61",
-     "size": "S",
-     "what": "Seller stock shows right",
-     "change": "Refunded coins return to the For sale list; Business-only Home shows your stock.",
-     "affects": "For sale, Home"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 14,
-   "stage": "testers",
-   "name": "Seller accuracy",
-   "model": "Sonnet",
-   "est": "3–5",
-   "actual": "",
-   "status": "queued",
-   "why": "Testers who sell see correct numbers (new seller features wait for 2027).",
-   "items": [
-    {
-     "id": "R4-17",
-     "size": "M",
-     "what": "Sales reports agree",
-     "change": "Refund fees, deleted shows and tags add up the same in every report.",
-     "affects": "Sales Reports"
-    },
-    {
-     "id": "R4-9 + R4-10",
-     "size": "M",
-     "what": "No stuck mistakes",
-     "change": "Impossible years can be fixed; an unknown album number asks instead of guessing.",
-     "affects": "Add coin, New album"
-    },
-    {
-     "id": "R4-25 (words)",
-     "size": "S",
-     "what": "Honest restore warning",
-     "change": "Restore says it replaces albums, boxes and shows.",
-     "affects": "Restore"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": 15,
-   "stage": "testers",
-   "name": "Options regrouped",
-   "model": "Sonnet",
-   "est": "1–3",
-   "actual": "",
-   "status": "queued",
-   "why": "Less to wade through (your \"it's a lot\").",
-   "items": [
-    {
-     "id": "R4-48 (idea 109)",
-     "size": "M",
-     "what": "Tidy Options",
-     "change": "Options in a few clear sections, most-used first. No search box.",
-     "affects": "Options"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  },
-  {
-   "n": "15c",
-   "stage": "testers",
-   "name": "Fix check before testers",
-   "model": "Opus",
-   "est": "3–5",
-   "actual": "",
-   "status": "queued",
-   "chat": "New Opus chat",
-   "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
-   "items": [
-    {
-     "id": "review",
-     "size": "M",
-     "what": "Re-run the fixed findings",
-     "change": "No app change. A report lists each fix as confirmed, half-done or broken; anything not confirmed goes back in the queue before testers.",
-     "affects": "Report only (reviews/)"
-    }
-   ],
-   "try": [
-    "Read the short report; nothing to tap."
-   ]
-  },
-  {
-   "n": 16,
-   "stage": "fill",
-   "name": "Fill-ins (leftover usage)",
-   "model": "Sonnet",
-   "est": "0–1 each",
-   "actual": "",
-   "status": "queued",
-   "why": "Small extras to use up the end of the week.",
-   "items": [
-    {
-     "id": "R4-27",
-     "size": "S",
-     "what": "Hide values everywhere",
-     "change": "Hide values also hides melt on every page.",
-     "affects": "All value screens"
-    },
-    {
-     "id": "R4-37",
-     "size": "S",
-     "what": "Where from filter",
-     "change": "Filter coins by where they came from (e.g. Inherited).",
-     "affects": "Filter panel"
-    },
-    {
-     "id": "R4-39",
-     "size": "S",
-     "what": "\"+\" on an empty box slot",
-     "change": "Offers \"Put a coin I have here\", not only a new coin.",
-     "affects": "Boxes, pockets"
-    },
-    {
-     "id": "R4-45 (idea 102)",
-     "size": "S",
-     "what": "Show missing when filtering",
-     "change": "Filtered lists can include coins you're missing.",
-     "affects": "My Coins"
-    },
-    {
-     "id": "R5-15",
-     "size": "S",
-     "what": "Move between albums",
-     "change": "Move a coin straight from one album's spot to another's.",
-     "affects": "Spot menu"
-    },
-    {
-     "id": "R5-18",
-     "size": "S",
-     "what": "Pocket album value",
-     "change": "Pocket albums show value and grades.",
-     "affects": "Pocket albums"
-    },
-    {
-     "id": "R5-20",
-     "size": "S",
-     "what": "No ID gaps after Undo",
-     "change": "Undo on Fill spots gives the coin ID numbers back.",
-     "affects": "Coin IDs"
-    },
-    {
-     "id": "R4-14",
-     "size": "S",
-     "what": "Two-tab sale guard",
-     "change": "Selling the same coin in two tabs warns instead of replacing.",
-     "affects": "Mark as sold"
-    }
-   ],
-   "chat": "New Sonnet chat"
-  }
- ],
- "parked": [
-  {
-   "group": "Your call",
-   "items": [
-    {
-     "t": "Home shelf \"looks like a mess\" (idea 110): which screen? Also bookcase names written sideways (R6-10)",
-     "size": "M"
-    },
-    {
-     "t": "Dansco 7173 album contents: needs your album or Red Book (R5-21)",
-     "size": "S"
-    }
-   ]
-  },
-  {
-   "group": "Later",
-   "items": [
-    {
-     "t": "Full melt table page (idea 113): the coin card's melt line covers buying for now",
-     "size": "M"
-    },
-    {
-     "t": "Shopping view from albums (ideas 101/103): decide after using the coin card",
-     "size": "M"
-    },
-    {
-     "t": "Restore over newer data, deeper fix (R4-25)",
-     "size": "M"
-    },
-    {
-     "t": "CSV round trip and album spots in CSV (R4-29, R5-8)",
-     "size": "M"
-    },
-    {
-     "t": "Bars beyond silver (R4-32)",
-     "size": "M"
-    },
-    {
-     "t": "How many separate coins question (R4-40)",
-     "size": "S"
-    },
-    {
-     "t": "Album by brand and name (idea 107)",
-     "size": "M"
-    },
-    {
-     "t": "Melt table (idea 113)",
-     "size": "M"
-    },
-    {
-     "t": "Pick photo side (idea 106)",
-     "size": "M (part 2 L)"
-    },
-    {
-     "t": "Dave pawn-shop sim run (idea 115)",
-     "size": "M"
-    },
-    {
-     "t": "Round + button covering content (R6-13)",
-     "size": "S"
-    }
-   ]
-  },
-  {
-   "group": "2027 (selling)",
-   "items": [
-    {
-     "t": "Junk silver part-sell (R4-12)",
-     "size": "M"
-    },
-    {
-     "t": "Giveaway (R4-13)",
-     "size": "L"
-    },
-    {
-     "t": "Partial refund + refund date (R4-18)",
-     "size": "L"
-    },
-    {
-     "t": "Order edits reach all coins (R4-19)",
-     "size": "M"
-    },
-    {
-     "t": "Seller Mode shortcuts (R4-43)",
-     "size": "S"
-    },
-    {
-     "t": "Tax report polish (R4-44)",
-     "size": "M"
-    },
-    {
-     "t": "Business stock IDs (idea 112)",
-     "size": "M"
-    },
-    {
-     "t": "Date bought on tax rows (R4-59)",
-     "size": "S"
-    },
-    {
-     "t": "Sold coin shows its show (R4-60)",
-     "size": "S"
-    },
-    {
-     "t": "Trade-in value toward cost (idea 114, parked)",
-     "size": "L"
-    }
-   ]
-  }
- ],
- "prompt_template": "Let's start the coin work. Pipeline step {n}: {name}. Usage: [__/__]",
- "done": [
-  {
-   "date": "11-17",
-   "name": "Big review R1–R6 (reports only)",
-   "ver": "",
-   "cost": "~17 (all six)",
-   "change": "Six simulated testers clicked through the app; 95 findings sorted into this pipeline. No app change."
-  },
-  {
-   "date": "11-17",
-   "name": "Want-list picker fix (idea 99, part 1)",
-   "ver": "v0.77.2",
-   "cost": "~0–1",
-   "change": "Adding missing coins to a list now names the list after the album and never offers another album's list."
-  },
-  {
-   "date": "11-16",
-   "name": "Quick fix 4b + 4c (idea 108)",
-   "ver": "v0.77.1",
-   "cost": "~1–3",
-   "change": "'How much to show' folds up; Photo fill hidden in Options."
-  },
-  {
-   "date": "11-16",
-   "name": "Kept in for boxes + Swap trays (34 + 35)",
-   "ver": "v0.77.0",
-   "cost": "~2",
-   "change": "Boxes can be kept inside other boxes; trays can be swapped between cases."
-  },
-  {
-   "date": "11-16",
-   "name": "Report filters (61)",
-   "ver": "v0.76.0",
-   "cost": "~1",
-   "change": "The insurance report can be filtered to just the coins you pick."
-  },
-  {
-   "date": "11-15",
-   "name": "Take out of album (46)",
-   "ver": "v0.75.0",
-   "cost": "~1",
-   "change": "Coins can be taken out of an album without deleting them."
-  },
-  {
-   "date": "11-17",
-   "name": "Step 1: Log it right (R4-1+R5-1, R4-3, R4-23, R4-4+R5-13)",
-   "ver": "v0.77.3",
-   "cost": "~3 weekly (9:24–10:31pm, 67 min)",
-   "change": "Albums use only their own want list; Add coin shows 'Same as last' chips; Back no longer loses typing (metal prices, Discard prompt); Fill spots starts unticked with an 'Add N coins?' check."
-  },
-  {
-   "date": "11-17",
-   "name": "Step 2: Grab it, log it, go (117, R4-11 small, R4-31 + R4-22, R5-14, R4-33, R4-7)",
-   "ver": "v0.78.0 (wording fix v0.78.1)",
-   "cost": "~1 weekly (10:33–11:17pm, 44 min; est. 4–6 was too high)",
-   "change": "A \"Fix the next coin\" button on Needs info walks you through each coin missing info (Save goes to the next one). Needs info also catches no Where from and an unchecked mint; Gift/Pocket change coins no longer say cost missing; the filter clears when you leave My Coins; search understands \"1921 morgan\", \"1950 D\", \"silver\", \"grandpa\"; Add coin keeps Price/Photos open; Fill spots offers your loose coin instead of adding a second one."
-  },
-  {
-   "date": "11-18",
-   "name": "Step 3a part 1: mintage list from U.S. Mint records (105 step 1, PART DONE, step stays open)",
-   "ver": "v0.79.0",
-   "cost": "usage reading not yet given (~1:00-1:55am, ~55 min)",
-   "change": "Mintage now shows without a price file for cents, nickels, dimes, quarters, Morgan, Peace and trade dollars, marked \"from U.S. Mint records\" (pieces struck that year; Philadelphia includes proofs). Left out for now: halves, shared years (1909, 1916, 1921 P, 1938/1942), 1964-65, commemoratives. Every number checked against the book's printed totals."
-  },
-  {
-   "date": "11-18",
-   "name": "Step 3a part 2: more mintages from U.S. Mint records (105 step 1b); step 3a done after Red Book spot-check",
-   "ver": "v0.80.0",
-   "cost": "started at weekly 34%; end reading not yet given (~8:41-9:35am, ~55 min, Opus)",
-   "change": "Mintage now also shows for Barber, Walking Liberty and Franklin halves, 1964 and 1965 coins (by date), Seated Liberty dimes, quarters, halves, half dimes and dollars, 3-cent silver and 20-cent pieces. 1900 Morgan and 1893 quarter fixed (commemoratives were counted)."
-  },
-  {
-   "date": "11-18",
-   "name": "Step 3b: coin card shared piece (105 step 2 / 2b)",
-   "ver": "v0.81.0",
-   "cost": "started at session 25, weekly 38; end reading not yet given (Sonnet)",
-   "change": "Tap an empty album spot: a Key date tag (a very low mintage by the U.S. Mint list), metal and melt today, price-list value when one is loaded, varieties to look for, and how many of that date you own. Your owned coins' pages show the Key date tag, varieties and your count too. Not done: a card for search results."
-  },
-  {
-   "date": "11-18",
-   "name": "Step 4a: card for any coin you search (105 step 2 left over)",
-   "ver": "v0.82.0",
-   "cost": "about 2 weekly (39 → 41), 12:18pm–1:45pm incl. ~20 min design Q&A (Sonnet)",
-   "change": "Type a date and coin in the Coins search box (1916-D dime, 1909 vdb): a row appears; tap it for the coin card with key date, mintage, metal and melt, price-list value if loaded, varieties, how many you own, Search eBay sold and Add to want list. Nothing is saved until you add it to a want list. Wording and Home box added in v0.82.1: Search any coin on Home, rows show mintage with Key date first and an ⓘ, 'Not in your coins' when none match."
-  }
- ]
+  ]
 }

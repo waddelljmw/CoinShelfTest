@@ -174,6 +174,10 @@ const actions = {
     const k = el.dataset.k;
     const gone = (a.slots || []).find((x) => slotKey(x) === k);
     const freed = gone && gone.id ? allCoins().filter((c) => c.slotId === gone.id) : [];
+    if (freed.length && !el.dataset.ok) {
+      confirmSheet("Remove this spot?", "This spot holds your " + slotLabel(gone) + " " + slotGrade(freed[0]) + ". The coin stays in the album under its date. Remove the spot anyway?", "Remove spot", () => actions.deleteSpot({ dataset: { ...el.dataset, ok: "1" } }));
+      return;
+    }
     put("a_" + a.id, { ...a, slots: (a.slots || []).filter((x) => slotKey(x) !== k) });
     freed.forEach((c) => { const x = { ...c }; delete x.slotId; saveCoin(x); }); // they fall back to their plain date spot
     if (!$("#sheet").hidden) closeSheet();
@@ -183,6 +187,13 @@ const actions = {
     const a = getAlbum(el.dataset.id);
     const k = el.dataset.k;
     const removed = new Set(a.removed || []);
+    if (!removed.has(k) && !el.dataset.ok) {
+      const s = (a.slots || []).find((x) => slotKey(x) === k), c = albumStats(a).filled.get(k);
+      if (s && c) {
+        confirmSheet("Hide this spot?", "This spot holds your " + slotLabel(s) + " " + slotGrade(c) + ". Hide it anyway? The coin stays in the album.", "Hide spot", () => actions.toggleSlot({ dataset: { ...el.dataset, ok: "1" } }));
+        return;
+      }
+    }
     removed.has(k) ? removed.delete(k) : removed.add(k);
     put("a_" + a.id, { ...a, removed: [...removed] });
     if (!$("#sheet").hidden) closeSheet();

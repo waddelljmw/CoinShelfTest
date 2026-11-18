@@ -13,7 +13,7 @@ const { chromium } = require("./_compat");
   });
   await p.waitForTimeout(150);
   const n0 = await p.evaluate(() => getAlbum("w").slots.length);
-  await p.click("[data-act=editAlbum]"); await p.selectOption("#editAlbumForm [name=proofs]", "all"); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200);
+  await p.click("[data-act=editAlbum]"); await p.selectOption("#editAlbumForm [name=proofs]", "all"); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); if (await p.$("#albumLoseNote")) { await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); } // asks first when coins would lose a spot
   const r = await p.evaluate(() => { const a = getAlbum("w"); const pf = a.slots.filter((s) => s.pf); return { n: a.slots.length, pf: pf.map((s) => s.y + s.m), owned: albumStats(a).owned }; });
   ok("proof spots added", r.n > n0 && r.pf.length > 0);
   ok("1970-S proof spot exists, S mint after 1968", r.pf.includes("1970S") && r.pf.filter((x) => +x.slice(0, 4) >= 1968).every((x) => x.endsWith("S")));
@@ -38,7 +38,7 @@ const { chromium } = require("./_compat");
   ok("proof want saved as proof", await p.evaluate(() => wants().some((w) => w.year === 1971 && w.mint === "S" && w.pf)));
   ok("proof want label says Proof", await p.evaluate(() => /Proof/.test(wantLabel(wants().find((w) => w.pf)))));
   // turning proofs off drops empty proof spots but keeps filled coin listed
-  await p.click("[data-act=editAlbum]"); await p.selectOption("#editAlbumForm [name=proofs]", ""); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200);
+  await p.click("[data-act=editAlbum]"); await p.selectOption("#editAlbumForm [name=proofs]", ""); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); if (await p.$("#albumLoseNote")) { await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); } // asks first when coins would lose a spot
   ok("proof spots removed when switched off", await p.evaluate(() => !getAlbum("w").slots.some((s) => s.pf && !s.custom)));
   // new album with proofs from the form
   await p.evaluate(() => go("albums")); await p.waitForTimeout(100); await p.click("[data-act=newAlbum]");
@@ -54,11 +54,11 @@ const { chromium } = require("./_compat");
   const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
   await p.evaluate(() => { const a = { kind: "album", id: "w", brand: "Whitman", number: "9122", name: "", typeId: "washington-silver", typeIds: ["washington-silver", "washington-clad"], layout: "dates", start: 1932, end: 1990, removed: [], createdAt: 1 }; a.slots = buildAlbumSlots(a.typeIds, "dates", 1932, 1990); put("a_w", a); go("album-w"); });
   await p.waitForTimeout(150);
-  await p.click("[data-act=editAlbum]"); await p.selectOption("#editAlbumForm [name=proofs]", "s"); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200);
+  await p.click("[data-act=editAlbum]"); await p.selectOption("#editAlbumForm [name=proofs]", "s"); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); if (await p.$("#albumLoseNote")) { await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); } // asks first when coins would lose a spot
   const pf = await p.evaluate(() => getAlbum("w").slots.filter((s) => s.pf).map((s) => s.y + s.m));
   ok("S-only: proofs 1968–1990, all S", pf.length > 0 && pf.every((x) => x.endsWith("S") && +x.slice(0, 4) >= 1968));
   console.log("S proofs:", pf.length, pf[0], "…", pf[pf.length - 1]);
-  await p.click("[data-act=editAlbum]"); await p.selectOption("#editAlbumForm [name=proofs]", "all"); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200);
+  await p.click("[data-act=editAlbum]"); await p.selectOption("#editAlbumForm [name=proofs]", "all"); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); if (await p.$("#albumLoseNote")) { await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); } // asks first when coins would lose a spot
   ok("switching to All adds the Philadelphia proofs once", await p.evaluate(() => { const ss = getAlbum("w").slots.filter((s) => s.pf); return ss.some((s) => s.y === 1950) && ss.length === new Set(ss.map(slotKey)).size; }));
   await b.close();
 })();
