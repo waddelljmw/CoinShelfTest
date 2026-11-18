@@ -213,6 +213,31 @@
       ]
     },
     {
+      "n": "4a",
+      "stage": "now",
+      "name": "Card for any coin you search",
+      "model": "Sonnet",
+      "est": "2–3",
+      "actual": "",
+      "status": "queued",
+      "when": "after step 4",
+      "why": "The part of 3b that was left out: look up a coin you don't own and that isn't in an album, like at the pawn shop.",
+      "items": [
+        {
+          "id": "105 step 2 (left over)",
+          "size": "M",
+          "what": "Card on search results",
+          "change": "Search for a coin and tap a result to see the same coin card as an empty spot: key date, mintage, melt today, varieties, and how many you own. Also checks that the \"Search eBay sold\" and \"Add to want list\" buttons promised in 3b exist; adds them if not.",
+          "affects": "Search, coin card, want list"
+        }
+      ],
+      "chat": "New Sonnet chat",
+      "try": [
+        "Search for a coin you don't own (e.g. 1916-D dime) and tap the result: the card shows.",
+        "Tap Add to want list on the card."
+      ]
+    },
+    {
       "n": "4b",
       "stage": "now",
       "name": "Private tester copy (plan, then build)",
@@ -919,6 +944,6 @@
       "ver": "v0.81.0",
       "cost": "started at session 25, weekly 38; end reading not yet given (Sonnet)",
       "change": "Tap an empty album spot: a Key date tag (a very low mintage by the U.S. Mint list), metal and melt today, price-list value when one is loaded, varieties to look for, and how many of that date you own. Your owned coins' pages show the Key date tag, varieties and your count too. Not done: a card for search results."
-  }
-]
+    }
+  ]
 }
