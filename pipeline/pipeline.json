@@ -192,6 +192,38 @@
    ]
   },
   {
+   "n": "4b",
+   "stage": "now",
+   "name": "Private tester copy (plan, then build)",
+   "model": "Opus",
+   "est": "2–4",
+   "actual": "",
+   "status": "queued",
+   "chat": "New Opus chat",
+   "when": "after step 4",
+   "why": "Only the testers you invite can open the app, and your code stops being public, so nobody passes it around before you sell it.",
+   "items": [
+    {
+     "id": "plan first",
+     "size": "S",
+     "what": "Decide the details with you",
+     "change": "Questions for that chat: tester emails, the tester-copy name, and whether your own app stays on its current address (recommended for now, because your coins live on your phone at that address).",
+     "affects": "Nothing until you agree"
+    },
+    {
+     "id": "build",
+     "size": "M",
+     "what": "Tester copy behind sign-in",
+     "change": "Tester copy on Cloudflare Pages (free) behind Cloudflare Access (free up to 50 users): testers sign in with an email code; you can remove anyone. Shows \"Tester copy for [name]\". Code made private only once your own app no longer depends on the public GitHub site (making it private now would take your phone app offline).",
+     "affects": "Where testers open the app; your own app is not moved without a backup and your OK"
+    }
+   ],
+   "try": [
+    "Open the tester link in a private window: it asks for an email code.",
+    "Try an email that isn't on the list: it is refused."
+   ]
+  },
+  {
    "n": 5,
    "stage": "testers",
    "name": "Album accuracy",
