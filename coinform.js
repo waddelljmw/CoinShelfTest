@@ -298,7 +298,7 @@ function errorFields(d) {
 // The holder the form shows: what was picked, else Album / Slab when that fits, else (new coins) the last holder used.
 function formHolder(d) {
   if (itemOf(d) !== "coin") return d.holder || "";
-  return normHolder(d.holder) || (d.albumId ? "Album" : d.gradeMode === "cert" ? "Slab" : d._isNew ? normHolder(d._lastHolder) : "");
+  return (d.albumId || normHolder(d.holder) !== "Album" ? normHolder(d.holder) : "") || (d.albumId ? "Album" : d.gradeMode === "cert" ? "Slab" : d._isNew ? normHolder(d._lastHolder) : "");
 }
 function holderFields(d) {
   const h = formHolder(d);

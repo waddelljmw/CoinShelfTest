@@ -14,7 +14,7 @@ const { chromium } = require("./_compat");
   await p.click(".slot:has-text('1922-S')");
   console.log("open slot sheet:", (await p.textContent(".sheet")).replace(/\s+/g, " ").trim().slice(0, 170));
   await p.screenshot({ path: "/tmp/slot-menu.png" });
-  await p.click("[data-act=slotWant]"); await p.waitForTimeout(150); await p.click("[data-act=slotWantAdd]"); await p.waitForTimeout(200);
+  await p.click("[data-act=slotWantQuick]"); await p.waitForTimeout(200);
   console.log("want saved:", JSON.stringify(await p.evaluate(() => { const w = findWant("peace-dollar", 1922, "S"); return w && { y: w.year, m: w.mint, album: w.albumId }; })));
   console.log("card shows:", (await p.textContent(".slot:has-text('1922-S')")).trim());
   await p.click(".slot:has-text('1922-S')");

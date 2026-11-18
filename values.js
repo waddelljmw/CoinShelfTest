@@ -211,7 +211,7 @@ const bestEach = (c) => {
 };
 const qtyOf = (c) => Math.max(1, num(c.qty) || 1);
 // Holder: saved choice, or for older coins (saved before holders existed) worked out from the album / certified fields.
-const holderOf = (c) => normHolder(c.holder) || (c.albumId ? "Album" : c.gradeMode === "cert" ? "Slab" : "");
+const holderOf = (c) => (c.albumId ? normHolder(c.holder) : normHolder(c.holder) === "Album" ? "" : normHolder(c.holder)) || (c.albumId ? "Album" : c.gradeMode === "cert" ? "Slab" : ""); // "Album" only while the coin is in one
 const holderText = (c) => { const h = holderOf(c); return h === "Other" ? (c.packaging || "").trim() || "Other" : h; };
 // The name of where an item is kept (album, box or stack), for search and lists.
 const keptName = (c) => [c.albumId && getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "", c.boxId && typeof getBox === "function" && getBox(c.boxId) ? getBox(c.boxId).name : "", stackOf(c)].filter(Boolean).join(" ");

@@ -201,14 +201,15 @@ const actions = {
   deleteAlbum: (el) => {
     const a = getAlbum(el.dataset.id);
     if (!a) return;
-    const inAlbum = allCoins().filter((c) => c.albumId === a.id);
-    const n = inAlbum.length;
-    confirmSheet("Delete " + a.name + "?", n ? n + " coin" + (n > 1 ? "s stay" : " stays") + " in your collection. They just lose their album spot." : "This album is empty.", "Delete album", () => {
-      inAlbum.forEach((c) => saveCoin({ ...c, albumId: "" }));
-      remove("a_" + a.id);
-      go("albums");
-      toast("Album deleted. Its coins are still in your collection.", { label: "Undo", fn: () => { put("a_" + a.id, a); inAlbum.forEach((c) => { const x = getCoin(c.id); if (x) saveCoin({ ...x, albumId: a.id }); }); } });
-    });
+    const n = allCoins().filter((c) => c.albumId === a.id).length;
+    const ws = wantsMadeFor(a).length;
+    const msg = (n ? n + " coin" + (n > 1 ? "s stay" : " stays") + " in your collection. They just lose their album spot." : "This album is empty.");
+    if (!ws) { confirmSheet("Delete " + a.name + "?", msg, "Delete album", () => deleteAlbumNow(a, false)); return; }
+    openSheet(`<div class="sheet-head"><h2>Delete ${esc(a.name)}?</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <p>${esc(msg)}</p><p>${ws} coin${ws > 1 ? "s are" : " is"} on want lists for this album. Delete ${ws > 1 ? "them" : "it"} too?</p>
+      <button class="btn danger block" data-act="delAlbumGo" data-id="${esc(a.id)}" data-w="1">Delete album and its want list coins</button>
+      <button class="btn block" style="margin-top:8px" data-act="delAlbumGo" data-id="${esc(a.id)}" data-w="0">Delete album, keep the wants</button>
+      <button class="btn block" style="margin-top:8px" data-act="closeSheet">Cancel</button>`);
   },
   // form
   gmode: (el) => { draft.gradeMode = el.dataset.v; if (draft.gradeMode === "raw" && draft.holder === "Slab") draft.holder = ""; if (draft.gradeMode === "cert" && draft.grade === "Junk") draft.grade = ""; renderCoinForm(); },
@@ -288,7 +289,21 @@ const actions = {
 };
 
 // Actions that change saved data; inert in a view-only snapshot. (+ Add coin stays as a try-out.)
-const SNAPSHOT_BLOCK = new Set(("pocketNew fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot " +
+// Delete an album; its coins stay (loose). With dropWants, the wants made for it go too, and its own "Missing from" list if that ends up empty. One Undo puts it all back.
+function deleteAlbumNow(a, dropWants) {
+  if (!a) return;
+  const inAlbum = allCoins().filter((c) => c.albumId === a.id);
+  const ws = dropWants ? wantsMadeFor(a) : [];
+  const own = dropWants ? wantLists().find((l) => l.name === missingSuggest(a).name) : null;
+  inAlbum.forEach((c) => { const x = { ...c, albumId: "" }; delete x.slotId; if (normHolder(x.holder) === "Album") x.holder = ""; saveCoin(x); });
+  ws.forEach((w) => remove("w_" + w.id));
+  const dropList = own && own.id !== DEFAULT_LIST_ID && !wantsIn(own.id).length ? own : null;
+  if (dropList) remove("wl_" + dropList.id);
+  remove("a_" + a.id);
+  closeSheet(); go("albums");
+  toast("Album deleted. Its coins are still in your collection.", { label: "Undo", fn: () => { put("a_" + a.id, a); inAlbum.forEach((c) => saveCoin(c)); if (dropList) saveWantList(dropList); ws.forEach(saveWant); render(); } });
+}
+const SNAPSHOT_BLOCK = new Set(("pocketNew fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot slotWantQuick slotTakeOut delAlbumGo " +
   "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd lookupWant slotUnwant missing missingQuick missQuickAdd missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup savePriceFile reorderAlbums sortAlbumsDate moveAlbum").split(" "));
 document.addEventListener("click", (e) => {

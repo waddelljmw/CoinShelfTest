@@ -33,7 +33,7 @@ const { chromium } = require("./_compat");
   // slot menu asks for a list and hides lists for other types
   await p.evaluate(() => { const a = { kind: "album", id: "mo", brand: "Whitman", number: "1", name: "", typeId: "morgan-dollar", start: 1878, end: 1879, removed: [], createdAt: 1 }; a.slots = buildSlots("morgan-dollar", 1878, 1879); put("a_mo", a); go("album-mo"); });
   await p.waitForTimeout(150);
-  await p.click(".slot >> nth=0"); await p.click(".btn-want");
+  await p.click(".slot >> nth=0"); await p.evaluate(() => actions.slotWant(document.querySelector("[data-act=slotWantQuick]")));
   const opts = await p.$$eval("#slotListPick option", (o) => o.map((x) => x.textContent));
   ok("slot picker offers only fitting lists", !opts.some((x) => /Peace/.test(x)) && opts.includes("General") && opts.includes("Key dates"));
   await p.selectOption("#slotListPick", { label: "Key dates" }); await p.click("[data-act=slotWantAdd]"); await p.waitForTimeout(150);

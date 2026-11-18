@@ -430,10 +430,10 @@ function openSlotMenu(el) {
     ${ws.length ? `<div class="card small">${ws.map((w) => `<div class="rowline"><span>★ ${esc(listNameOf(w))}${w.grade ? " · target " + esc(w.grade) : ""}${num(w.maxPrice) != null ? " · up to " + money(num(w.maxPrice)) : ""}</span><button class="link-btn" style="color:var(--bad)" data-act="slotUnwant" data-id="${esc(w.id)}">Remove</button></div>`).join("")}</div>
          <div class="btn-row"><button class="btn" data-go="wants">View want list</button></div>` : ""}
     ${coin && upG ? `<button class="btn block btn-want" data-act="slotWant" data-upgrade="1" ${sd}>★ Want an upgrade (above ${esc(coin.grade)})</button>` : ""}
-    ${!coin && (!ws.length || moreLists) ? `<button class="btn block btn-want" data-act="slotWant" ${sd}>★ ${ws.length ? "Add to another want list" : "Add to want list"}</button>
-         ${ws.length ? "" : `<div class="hint">Adds ${esc(label)} with no typing. You can set a target grade and price on the Want List later.</div>`}` : ""}
+    ${!coin && (!ws.length || moreLists) ? `<button class="btn block btn-want" data-act="${ws.length ? "slotWant" : "slotWantQuick"}" ${sd}>★ ${ws.length ? "Add to another want list" : "Add to want list"}</button>
+         ${ws.length ? "" : `<div class="hint">One tap: adds ${esc(label)} to "${esc(missingSuggest(a).name)}". You can set a target grade and price on the Want List later.</div>`}` : ""}
     <div class="btn-row">
-      ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button>` : ""}
+      ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button><button class="btn" data-act="slotTakeOut" data-id="${esc(coin.id)}">Take out of album</button>` : ""}
       <a class="btn" style="text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>
     </div>`);
 }
@@ -506,7 +506,8 @@ function slotUse(el) {
   const s0 = spotFromEl(a, el);
   const spot = (s0.id && (aa.slots || []).find((x) => x.id === s0.id)) || (aa.slots || []).find((x) => slotKey(x) === slotKey(s0));
   const before = { ...c };
-  const next = { ...c, albumId: a.id };
+  const next = { ...c };
+  applyKept(next, "a:" + a.id); // also leaves its box slot, so a coin is in one place at a time
   if (spot) next.slotId = spot.id;
   saveCoin(next);
   const gone = spot ? dropSpotWants(aa, [spot]) : [];
@@ -580,6 +581,37 @@ Object.assign(actions, {
   wlNew: () => { wlReturn = null; openNewListForm(); },
   wlNewQuick: (el) => { wlReturn = { kind: "quick", albumId: el.dataset.id }; openNewListForm(); },
   slotWantAdd: () => slotWantAdd(),
+  // One tap from an empty spot: add it to this album's own list ("Missing from <album>"), making the list the first time.
+  slotWantQuick: (el) => {
+    const a = getAlbum(el.dataset.album);
+    if (!a) return;
+    const s = spotFromEl(a, el), tid = slotType(a, s), y = s.set ? "" : s.y;
+    const sug = missingSuggest(a);
+    let listId = sug.id, newListId = "";
+    if (listId === "__auto") {
+      const types = albumTypes(a);
+      const nl = { kind: "wantlist", id: uid(), name: sug.name, scope: types.length === 1 ? "type" : "any", typeId: types.length === 1 ? types[0] : "", grade: "", createdAt: Date.now() };
+      saveWantList(nl);
+      listId = newListId = nl.id;
+    }
+    const wl = getWantList(listId);
+    if (!listAccepts(wl, tid)) { if (newListId) remove("wl_" + newListId); return actions.slotWant(el); }
+    if (spotFindWant(a, s, listId)) { closeSheet(); toast("Already on " + wl.name + "."); return; }
+    const x = newWant({ typeId: tid, year: y, mint: s.m, pf: s.pf, variety: s.v || "", albumId: a.id, listId, grade: wl.scope === "type-grade" ? wl.grade : "" });
+    saveWant(x);
+    closeSheet();
+    toast("Added to " + wl.name + ".", { label: "Undo", fn: () => { remove("w_" + x.id); if (newListId) remove("wl_" + newListId); render(); } });
+  },
+  slotTakeOut: (el) => {
+    const c = getCoin(el.dataset.id);
+    if (!c) return;
+    const x = { ...c };
+    applyKept(x, "");
+    saveCoin(x);
+    closeSheet(); render();
+    toast("Taken out of the album. The coin is still in your collection.", { label: "Undo", fn: () => { saveCoin(c); render(); } });
+  },
+  delAlbumGo: (el) => deleteAlbumNow(getAlbum(el.dataset.id), el.dataset.w === "1"),
   // Cancelling a new list goes back to the form you came from, with nothing lost.
   wlCancel: () => {
     const ret = wlReturn;
@@ -661,3 +693,5 @@ document.addEventListener("change", (e) => {
     const b = $("[data-act=missAdd]"); if (b) b.disabled = !missingPick.chosen.size;
   }
 });
+// The wants made for one album (each carries its albumId).
+const wantsMadeFor = (a) => [...store.docs.values()].filter((d) => d.kind === "want" && d.albumId === a.id);

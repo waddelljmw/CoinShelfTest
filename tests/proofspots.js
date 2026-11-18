@@ -34,7 +34,7 @@ const { chromium } = require("./_compat");
   await p.waitForTimeout(100);
   ok("regular 1976-S fills regular spot, not proof", await p.evaluate(() => { const st = albumStats(getAlbum("w")); return st.filled.get("1976|S") && st.filled.get("1976|S").id === "c76" && !st.filled.get("1976|S|PF"); }));
   // wants: proof spot want separate from regular
-  await p.click('.slot:has-text("1971-S Proof")'); await p.click("[data-act=slotWant]"); await p.waitForTimeout(100); await p.click("[data-act=slotWantAdd]"); await p.waitForTimeout(150);
+  await p.click('.slot:has-text("1971-S Proof")'); await p.click("[data-act=slotWantQuick]"); await p.waitForTimeout(200);
   ok("proof want saved as proof", await p.evaluate(() => wants().some((w) => w.year === 1971 && w.mint === "S" && w.pf)));
   ok("proof want label says Proof", await p.evaluate(() => /Proof/.test(wantLabel(wants().find((w) => w.pf)))));
   // turning proofs off drops empty proof spots but keeps filled coin listed
