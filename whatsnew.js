@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.82.1": [
+    "Home now has a Search any coin box. Type a year and coin (like 1916 dime) and you land on the Coins page with the matching coins to look up, Key date first. Tap the small ⓘ next to Key date to see how it's decided. When none of your coins match, it says Not in your coins.",
+  ],
   "0.82.0": [
     "Look up any coin: type a date and coin in the Coins search box (like 1916-D dime or 1909 vdb) and tap the row that appears. You get the coin card: mintage, key date flag, melt today, varieties and how many you own, plus Search eBay sold and Add to want list. Nothing is saved until you add it to a want list.",
   ],

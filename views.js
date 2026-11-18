@@ -61,6 +61,7 @@ function render() {
   HIDE_NOW = !!settings().hideValues && (r.view === "home" || r.view === "coin");
   try { main.innerHTML = fn(r); } finally { HIDE_NOW = false; }
   if (keepSearch != null) { const s = $("#coinSearch"); if (s) { s.focus(); s.setSelectionRange(keepSearch, keepSearch); } }
+  else if (focusCoinSearch) { const s = $("#coinSearch"); if (s) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); focusCoinSearch = false; } }
 }
 
 // Small tags for the new statuses and Upgrade wanted.
@@ -92,6 +93,9 @@ function homeSection(key, title, inner) {
   const open = !(settings().homeClosed || {})[key];
   return `<h2 class="fold"><button class="fold-btn" data-act="homeSec" data-v="${key}" aria-expanded="${open}"><span>${title}</span><i aria-hidden="true">${open ? "▾" : "▸"}</i></button></h2>${open ? inner : ""}`;
 }
+// Home search: type anything and you land on the Coins page with it already searched (lookup rows show there).
+const homeSearchBox = () => `<div class="toolbar" style="margin:0 0 10px"><input type="search" id="homeSearch" placeholder="Search any coin" aria-label="Search any coin"></div>`;
+let focusCoinSearch = false; // set by the Home search box: the Coins page search takes over typing
 function viewHome() {
   const s = settings();
   const everything = ownedCoins().filter((c) => !c.biz);
@@ -112,7 +116,7 @@ function viewHome() {
     ...stacksPresent().map((n) => { const on = !hiddenStacks().includes(n); return `<button class="chip ${on ? "on" : ""}" data-act="toggleStack" data-v="${esc(n)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(n)} · ${sum(everything.filter((c) => stackOf(c) === n), qtyOf)}</button>`; }),
   ];
   let html = `${typeof backupReminder === "function" ? backupReminder() : ""}${(store.mode === "local" || store.mode === "demo") && !allCoins().some((c) => c.status !== "deleted") ? `${welcomeCard()}` : ""}<h1 class="sr-only">Your cabinet</h1>
-  ${eyeButton()}
+  ${homeSearchBox()}${eyeButton()}
   ${chips.length ? `<div class="chips home-chips" aria-label="Count in the totals">${chips.join("")}</div>` : ""}
   ${typeof shelfHtml === "function" ? shelfHtml(owned, { total, melt, count }) : ""}
   ${fromBook || leftOut().length || noValue ? `<div class="small muted home-notes">${[
@@ -260,16 +264,16 @@ function viewCoins() {
       ${fams.map((f) => `<button class="chip ${listState.family === f ? "on" : ""} ${famCounts[f] ? "" : "zero"}" data-act="fam" data-v="${esc(f)}">${esc(f)}${famCounts[f] ? " · " + famCounts[f] : ""}</button>`).join("")}
     </div>
     <div class="toolbar">
-      <input type="search" id="coinSearch" placeholder="Search" value="${esc(listState.q)}" data-list="q">
+      <input type="search" id="coinSearch" placeholder="Search your coins" value="${esc(listState.q)}" data-list="q">
     </div>
-    ${typeof lookupRowsHtml === "function" && listState.status === "owned" ? lookupRowsHtml(listState.q) : ""}
+    ${typeof lookupRowsHtml === "function" ? lookupRowsHtml(listState.q) : ""}${listState.q.trim() && lookupMatches(listState.q).length && list.length ? `<h2 style="font-size:15px;margin:10px 2px 4px">In your coins</h2>` : ""}
     ${typeof coinsControls === "function" ? coinsControls(base, list) : (listState.q.trim() ? searchLine(list) : "")}
     ${listState.f && listState.f.inc && list.length && listState.status === "owned" ? `<button class="btn primary" style="width:100%;margin:6px 0" data-act="fixupStart">Fix the next coin \u203A (${list.length} left)</button>` : ""}
     <div class="toolbar">
       <select data-list="sort" aria-label="Sort by">${[["year", "Year"], ["value", "Value"], ["melt", "Melt value"], ["acquired", "Date acquired"], ["type", "Coin type"]].map(([k, l]) => `<option value="${k}" ${listState.sort === k ? "selected" : ""}>Sort: ${l}</option>`).join("")}</select>
       <button class="btn" data-act="dir" style="flex:0 0 auto">${listState.dir === "asc" ? "↑ Low to high" : "↓ High to low"}</button>
     </div>
-    ${list.length ? `<div class="list">${list.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c, { miss: true }))).join("")}</div>${typeof selFootHtml === "function" ? selFootHtml() : ""}` : `<div class="card empty">${base.length ? "No coins match these filters." : listState.status === "sold" ? "No sold coins yet." : "No coins yet. Tap <b>+</b> to add one."}</div>`}`;
+    ${list.length ? `<div class="list">${list.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c, { miss: true }))).join("")}</div>${typeof selFootHtml === "function" ? selFootHtml() : ""}` : `<div class="card empty">${listState.q.trim() ? "Not in your coins." : base.length ? "No coins match these filters." : listState.status === "sold" ? "No sold coins yet." : "No coins yet. Tap <b>+</b> to add one."}</div>`}`;
 }
 
 // One small line under the search box: count, value and melt of the coins found.

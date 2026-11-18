@@ -313,6 +313,7 @@ document.addEventListener("input", (e) => {
   const el = e.target;
   if (el.id === "typeSearch") { if (draft) draft._typeQ = el.value; showTypeList(el.value); return; } // keep what was typed even if the form redraws (e.g. after the year)
   if (el.id === "spotY") { refreshSpotHints(); return; }
+  if (el.id === "homeSearch") { listState.q = el.value; listState.status = "owned"; focusCoinSearch = true; if (location.hash === "#coins") render(); else go("coins"); return; }
   if (el.dataset.list === "q") { listState.q = el.value; render(); return; }
   if (el.dataset.setting) {
     clearTimeout(spotTimer);

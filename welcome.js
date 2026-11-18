@@ -10,12 +10,13 @@ const WORDS = {
   keptin: ["Kept in", "Where the coin physically is: an album, a storage box, a display box, or loose in a flip."],
   seller: ["Seller Mode", "Extra tools for people who buy and sell coins: business stock, shows and sales reports. Leave it off if you only collect."],
   snapshot: ["Snapshot", "A view-only copy of your collection saved as one file. Friends can look at it but can't change anything."],
+  keydate: ["Key date", "A date with a very low mintage: 10% or less of a typical year for that coin, and under 1.5 million struck. The app works it out from U.S. Mint records. It's the app's own rule, not anyone's official list."],
   details: ["Details coin", "A coin with a problem (cleaned, damaged, repaired). It has no Red Book value because the book prices undamaged coins."],
 };
 let shownWords = new Set();
 const wordsReset = () => { shownWords = new Set(); }; // the ⓘ shows only where a word first appears on a page
-function wi(k) {
-  if (!WORDS[k] || shownWords.has(k)) return "";
+function wi(k, always) { // always: show on every row (the Key date tag), not only the first one on a page
+  if (!WORDS[k] || (!always && shownWords.has(k))) return "";
   shownWords.add(k);
   return `<button type="button" class="info-btn" data-act="word" data-w="${k}" aria-label="What is ${esc(WORDS[k][0])}?">ⓘ</button>`;
 }
