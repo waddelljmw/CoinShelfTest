@@ -13,12 +13,13 @@ const { chromium } = require("./_compat");
     saveWantList({ kind: "wantlist", id: "l2", name: "Birthday ideas", scope: "any", createdAt: 5 });
     // an old-style want (one list only) still reads fine
     saveWant(newWant({ typeId: "morgan-dollar", year: 1881, mint: "S", albumId: "m1" }));
-    saveWant(newWant({ typeId: "morgan-dollar", year: 1881, mint: "S", listId: "l2", grade: "MS-65" }));
+    saveWant(newWant({ typeId: "morgan-dollar", year: 1881, mint: "S", listId: "l2", grade: "MS-65", albumId: "m1" }));
     go("album-m1");
   });
   await p.waitForTimeout(200);
   check("album spot shows wanted ×2", (await p.textContent(".slot:has-text('1881')")).includes("wanted ×2") || (await p.$$eval(".slot", (x) => x.some((e) => e.textContent.includes("wanted ×2")))));
-  check("wantsFor finds both lists", await p.evaluate(() => wantsFor("morgan-dollar", 1881, "S", "", false).length === 2));
+  check("wantsFor finds every list", await p.evaluate(() => wantsFor("morgan-dollar", 1881, "S", "", false).length === 2));
+  check("R4-1: this album counts only its own wants (not the other album's)", await p.evaluate(() => { const a = getAlbum("m1"); const s = albumStats(a).slots.find((x) => x.y === 1881 && x.m === "S"); return spotWants(a, s).length === 2; }));
 
   // want list page shows the tag and which lists
   await p.evaluate(() => go("wants")); await p.waitForTimeout(150);
@@ -72,5 +73,13 @@ const { chromium } = require("./_compat");
   await p.click("[data-act=awGot]"); await p.waitForTimeout(150);
   check("Got it fills New album", await p.evaluate(() => document.querySelector("#albumForm [name=number]").value === "7070" && document.querySelector("#albumForm [name=brand]").value === "Dansco"));
   check("Got it takes it off the wish list", await p.evaluate(() => albumWants().length === 0));
-  console.log("errors", errors); await b.close();
+  console.log("errors", errors); { const rr = await p.evaluate(() => {
+    const mk = (l, al) => saveWant(newWant({ typeId: "morgan-dollar", year: 1885, mint: "S", listId: l, albumId: al }));
+    const a = getAlbum("m1"), s = albumStats(a).slots.find((x) => x.y === 1885 && x.m === "S"); const was = spotWants(a, s).length;
+    mk("l2", "m1"); mk("l2", "m2"); mk("l2", "m1");
+    const mine = spotWants(a, s), other = wants().filter((w) => w.albumId === "m2").length;
+    const dropped = dropSpotWants(a, [s]).length;
+    return mine.length === was + 2 && mine.every((w) => w.albumId === "m1") && dropped === was + 2 && wants().filter((w) => w.albumId === "m2").length === other && other === 1 || JSON.stringify([mine.length, dropped, other]);
+  }); console.log(rr === true ? "ok R4-1: filling the spot crosses off only this album's wants" : "FAIL R4-1 drop " + rr); }
+  await b.close();
 })();

@@ -256,8 +256,8 @@ const actions = {
   srcChip: (el) => {
     const v = el.dataset.v, y = $(".sheet").scrollTop;
     if (v === "__more") (draft._open = draft._open || {}).purchase = true;
-    else if (draft._sourceKind === v) { draft._sourceKind = ""; draft.source = ""; } // tap again to clear
-    else applySourceKind(draft, v);
+    else if (draft._sourceKind === v) { draft._sourceKind = ""; draft.source = ""; delete (draft._carry || {}).s; } // tap again to clear
+    else { applySourceKind(draft, v); delete (draft._carry || {}).s; }
     renderCoinForm(); $(".sheet").scrollTop = y;
   },
   fetchSpot: () => fetchSpotPrices(false),
@@ -308,6 +308,7 @@ $("#menuBtn").addEventListener("click", () => {
 $("#fab").addEventListener("click", () => openCoinForm(null));
 
 let spotTimer = null;
+const spotPending = {}; // metal prices typed but not saved yet
 document.addEventListener("input", (e) => {
   const el = e.target;
   if (el.id === "typeSearch") { if (draft) draft._typeQ = el.value; showTypeList(el.value); return; } // keep what was typed even if the form redraws (e.g. after the year)
@@ -330,10 +331,11 @@ document.addEventListener("input", (e) => {
     return;
   }
   if (el.dataset.spot) {
+    spotPending[el.dataset.spot] = num(el.value); // remember what was typed now: a fast Back must not wipe the other prices
     clearTimeout(spotTimer);
     spotTimer = setTimeout(() => {
-      const spot = {};
-      $$("[data-spot]").forEach((i) => { spot[i.dataset.spot] = num(i.value); });
+      const spot = { ...(settings().spot || {}), ...spotPending };
+      Object.keys(spotPending).forEach((k) => delete spotPending[k]);
       const stamp = new Date().toISOString();
       saveSettings({ spot, spotUpdated: stamp }, true); // quiet: a redraw here would close the box you're typing in
       const u = $("#spotStamp"); if (u) u.textContent = "Last updated " + stampText(stamp) + ".";
@@ -425,7 +427,7 @@ document.addEventListener("change", (e) => {
     }
   }
 });
-["input", "change"].forEach((ev) => document.addEventListener(ev, () => setTimeout(() => { if (draft) stashDraft(); }, 0))); // keep the stashed new coin current as he types
+["input", "change"].forEach((ev) => document.addEventListener(ev, (e) => { if (e.isTrusted !== false && e.target.closest && e.target.closest("#sheet")) formTouched = true; setTimeout(() => { if (draft) stashDraft(); }, 0); })); // keep the stashed new coin current as he types
 document.addEventListener("toggle", (e) => { // remember which sections you opened, so redrawing the form keeps them open
   const k = e.target.dataset && e.target.dataset.sec;
   if (k && draft) (draft._open = draft._open || {})[k] = e.target.open;
@@ -447,3 +449,13 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") { dismissS
 
 // Start once every script (sheets.js, photofill.js) has loaded.
 document.addEventListener("DOMContentLoaded", () => { render(); Promise.resolve(initStore()).then(() => { try { if (!restoreDraft()) maybeShowWhatsNew(); } catch (e) { /* never block the app */ } }); });
+
+Object.assign(actions, {
+  discardYes: () => closeSheet(),
+  carryClear: (el) => { // clear one thing the form carried over from the last coin
+    const k = el.dataset.k, y = $(".sheet").scrollTop;
+    if (k === "source") { draft.source = ""; draft._sourceKind = ""; delete draft._carry.s; delete draft.boughtShowId; if (draft.payMethod && draft.payMethod === draft._payAuto) { draft.payMethod = ""; draft._payAuto = ""; } }
+    else if (k === "holder") draft._lastHolder = "";
+    renderCoinForm(); $(".sheet").scrollTop = y;
+  },
+}); // "Discard this coin?" -> Discard

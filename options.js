@@ -250,7 +250,21 @@ document.addEventListener("click", (e) => {
   const k = sheetXTap; sheetXTap = null;
   if (k && e.isTrusted && Date.now() - k.t < 400 && Math.abs(e.clientX - k.x) < 30 && Math.abs(e.clientY - k.y) < 30 && !e.target.closest("#sheet, #sheetTop")) { e.preventDefault(); e.stopPropagation(); }
 }, true);
+// Typing in an open form (new coin, Fill spots, new album): Back or a tap outside asks before throwing it away.
+let formTouched = false;
+function sheetUnsaved() {
+  if (!formTouched || $("#sheet").hidden) return "";
+  if (draft && draft._isNew) return "coin";
+  if ($("#fillForm")) return "list";
+  if ($("#albumForm")) return "album";
+  return "";
+}
+function askDiscard(kind) {
+  openSheetOver(`<div class="sheet-head"><h2>Discard this ${kind}?</h2></div><p>What you typed will be lost.</p>
+    <div class="btn-row"><button class="btn danger" data-act="discardYes">Discard</button><button class="btn primary" data-act="wordBack">Keep editing</button></div>`);
+}
 function closeSheet() {
+  formTouched = false;
   const w = $("#sheet");
   w.hidden = true;
   w.innerHTML = "";
@@ -274,14 +288,14 @@ window.addEventListener("popstate", () => {
   if (sheetMarks && history.state && history.state.sheet && history.state.d >= sheetMarks) { sheetSkipping = true; history.back(); return; } // Forward onto a pop-up entry that was already closed by Back: stay put, keep the form and its typing
   if (sheetMarks) { // the person pressed Back with a pop-up open: close only the top pop-up
     sheetMarks--;
-    if (!sheetLayerBack()) { const w = $("#sheet"); w.hidden = true; w.innerHTML = ""; document.body.style.overflow = ""; draft = null; sheetLayers = []; hideTopSheet(); if (typeof clearStash === "function") clearStash(); sheetMarks = 0; }
+    if (!sheetLayerBack()) { const kind = sheetUnsaved(); if (kind) { sheetMark(); askDiscard(kind); return; } formTouched = false; const w = $("#sheet"); w.hidden = true; w.innerHTML = ""; document.body.style.overflow = ""; draft = null; sheetLayers = []; hideTopSheet(); if (typeof clearStash === "function") clearStash(); sheetMarks = 0; }
     return;
   }
   if (now || (was && same && !justSkipped)) { sheetSkipping = true; history.back(); } // landed on, or just left, a left-over pop-up entry: it is the same page, so step over it
 });
 window.addEventListener("hashchange", () => { sheetLastHref = location.href; sheetOnMark = !!(history.state && (history.state.sheet || history.state.stale)); });
 // Escape or tapping outside: some pop-ups (like New want list) go back instead of closing.
-function dismissSheet() { if (sheetLayers.length) { actions.wordBack(); return; } if (typeof sheetDismiss === "function" && sheetDismiss()) return; closeSheet(); }
+function dismissSheet() { if (sheetLayers.length) { actions.wordBack(); return; } if (typeof sheetDismiss === "function" && sheetDismiss()) return; const kind = sheetUnsaved(); if (kind) { askDiscard(kind); return; } closeSheet(); }
 $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") dismissSheet(); });
 document.addEventListener("click", (e) => { if (e.target.id === "sheetTop") dismissSheet(); });
 
