@@ -136,7 +136,10 @@ function recordMintage(c) {
   const row = (MINT_RECORDS[c.typeId] || {})[Number(c.year)];
   const m = normMint(c.mint) || "P", n = row ? row[m] : null;
   if (n == null) return null;
-  return { text: n.toLocaleString("en-US"), shared: !!c.variety, proof: false, sms: false, note: MINT_SOURCE + ", struck that year" + (m === "P" ? ", includes any proofs" : "") };
+  const y = Number(c.year), dated = typeof MINT_DATED !== "undefined" && MINT_DATED[y];
+  const how = dated ? dated + (y === 1964 && m === "P" ? (MINT_SF_1964[c.typeId] ? ", includes proofs and San Francisco coins (no mint mark)" : ", includes proofs") : "")
+    : "struck that year" + (m === "P" ? ", includes any proofs" : "");
+  return { text: n.toLocaleString("en-US"), shared: !!c.variety, proof: false, sms: false, note: MINT_SOURCE + ", " + how };
 }
 function bookMintage(c) {
   const bt = bookTable(c);
