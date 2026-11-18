@@ -257,6 +257,11 @@ function needsOf(c) {
   if (checkMint(c)) m.push("check mint");
   return m;
 }
+// Plain wording for what a coin still needs: "Missing: grade, cost. Check the mint mark."
+function needsText(c) {
+  const m = needsOf(c), mint = m.includes("check mint"), rest = m.filter((x) => x !== "check mint");
+  return [rest.length ? "Missing: " + rest.join(", ") : "", mint ? "Check the mint mark" : ""].filter(Boolean).join(". ");
+}
 const needInfoCoins = () => countedCoins().filter((c) => needsOf(c).length); // only coins counted in the Home total
 const valueGapCoins = () => countedCoins().filter((c) => missingOf(c).length); // the ones that make totals estimates
 const NEED_NOTE = "Some coins are missing a grade, a cost or the date inherited, so totals are estimates.";

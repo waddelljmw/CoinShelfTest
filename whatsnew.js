@@ -1,7 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.78.1": [
+    "Fix-up wording: the button now says \"Fix the next coin\", and the Needs info tags read \"Missing: grade, cost. Check the mint mark.\"",
+  ],
   "0.78.0": [
-    "Fix-up run: on My Coins, open Needs info and tap \"Fix up next coin\". It opens the first coin missing a grade, cost, where from or mint; fill it in, Save, and it jumps to the next one. Skip or Stop any time.",
+    "Fix-up run: on My Coins, open Needs info and tap \"Fix the next coin\". It opens the first coin missing a grade, cost, where from or mint; fill it in, Save, and it jumps to the next one. Skip or Stop any time.",
     "Needs info now also catches coins with no Where from, and US coins with no mint chosen from a year that had D or S mints. Pick P once if it really is Philadelphia. Totals are only marked as estimates for what really changes them.",
     "Gift and Pocket change coins no longer say \"Missing: cost\" (they cost $0), for US and foreign coins alike. The Needs info filter now ends when you leave My Coins.",
     "Search understands you: \"1921 morgan\", \"1950 D\", \"silver\" and \"grandpa\" find coins. Every word must match; a single letter means a mint mark.",
