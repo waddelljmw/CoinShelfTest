@@ -1,6 +1,6 @@
 {
-  "updated": "Wed Nov 18, 2026, 1:55am",
-  "app": "v0.79.0",
+  "updated": "2026-11-18",
+  "app": "v0.80.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
     "weekly_now": 32,
@@ -133,7 +133,7 @@
       "est": "3–5",
       "actual": "",
       "status": "partial",
-      "why": "Mintages from U.S. Mint records, so key dates show on spots and coin pages even without a price file. PART DONE 11-18 (v0.79.0): clean years of cents, nickels, dimes, quarters, Morgan, Peace and trade dollars. NOT finished until the gaps below are filled.",
+      "why": "Mintages from U.S. Mint records, so key dates show on spots and coin pages even without a price file. Part 1 (v0.79.0) and part 2 (v0.80.0, 11-18) done: cents, nickels, dimes, quarters, halves, dollars, Seated series, 1964-65 by date. WAITS for your Red Book spot-check of ~10 key dates; then it is marked done.",
       "items": [
         {
           "id": "105 step 1",
@@ -145,15 +145,16 @@
         {
           "id": "105 step 1b",
           "size": "M",
-          "what": "Fill the mintage gaps (open)",
-          "change": "Get mintage for what the first list had to leave out: Walking Liberty, Franklin and Kennedy halves; Seated, Capped Bust and early series; years where two coin types share one year (1909 cents, 1916 dimes and quarters, 1921 Philadelphia dollars, 1938/1942 nickels); 1964-65 dates; commemoratives; proof counts; modern years. The Mint's 1792-1965 book can't split these by itself, so each needs a second source or the Mint's own extra tables (commemoratives and 1964-65 by-date tables are in the same book). Source choice and spot-check with your Red Book come first.",
+          "what": "Fill the mintage gaps: done (v0.80.0), waits for your spot-check",
+          "change": "Added Barber, Walking Liberty and Franklin halves (commemoratives taken out), 1964 and 1965 coins by the date on them, Seated Liberty dimes, quarters, halves, half dimes and dollars, 3-cent silver and 20-cent pieces. Fixed 1900 Morgan and 1893 quarter (commemoratives were counted). Still left out: 1909 cents, 1916 dimes and quarters, 1938 and 1942 nickels, 1921 Philadelphia dollars, Capped Bust and older, minor coins before 1871, proofs, 1966 on.",
           "affects": "Album spots, coin page"
         }
       ],
       "chat": "New Sonnet chat",
       "try": [
-        "Tap an empty spot for a 1916-D Mercury dime, 1931-S Lincoln cent or 1893-S Morgan: mintage shows, marked \"from U.S. Mint records\".",
-        "Check ~10 key dates against your Red Book and send any that differ. Halves show no mintage yet (that is the open gap)."
+        "Open an empty spot for a 1921-S Walking Liberty half and a 1938-D Walking Liberty half: mintage shows, \"from U.S. Mint records\".",
+        "Open a 1964 Washington quarter (no mint mark): it says \"coins dated 1964\" and includes San Francisco coins.",
+        "Check ~10 key dates against your Red Book (mix of halves, cents, Morgans, Seated) and send any that differ in one message."
       ]
     },
     {

@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.80.0": [
+    "More mintages from U.S. Mint records: Barber, Walking Liberty and Franklin halves (commemoratives taken out), 1964 and 1965 coins by the date on them, and the Seated Liberty series, 3-cent silver and 20-cent pieces. The 1900 Morgan and 1893 quarter numbers no longer count the commemoratives.",
+  ],
   "0.79.0": [
     "Mintage now shows even without a price file, for the common US series (cents, nickels, dimes, quarters, Morgan and Peace dollars, trade dollars). It says \"from U.S. Mint records\" and counts coins struck that year. Tap an empty album spot or open a coin to see it. Halves and a few overlap years are not in yet.",
   ],
