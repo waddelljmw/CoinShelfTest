@@ -449,7 +449,7 @@
           "id": "118b",
           "size": "S",
           "what": "New source: Coin roll hunting",
-          "change": "Source list gets \"Coin roll hunting\" (fills Price paid with face). Pocket change and Gift stay $0. Source can be switched in one tap, also for a whole batch. Quick-add remembers your last source until you change it.",
+          "change": "Source list gets \"Coin roll hunting\". Price paid fills with face value for Coin roll hunting, Pocket change and Bank roll (you paid face); only Gift stays $0; every other source (eBay, Coin Shop...) stays blank for you to enter. This changes idea 94 (Pocket change used to fill $0); it only sets defaults for new coins. Any source in the list can be picked, and quick-add remembers your last source until you change it, also for a whole batch.",
           "affects": "Source list, Fill spots"
         }
       ],
