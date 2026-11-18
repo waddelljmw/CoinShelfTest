@@ -21,10 +21,18 @@ function keyDateInfo(c) {
   const limit = Math.min(Math.round(med * KEY_SHARE), KEY_ABS);
   return n <= limit ? { n, limit } : null;
 }
-// How many of this date and mint you own (all varieties, all albums).
-function ownCountOf(c) {
-  if (!c || !c.typeId || !c.year) return 0;
-  return ownedCoins().filter((o) => itemOf(o) === "coin" && o.typeId === c.typeId && String(o.year) === String(c.year) && (normMint(o.mint) || "P") === (normMint(c.mint) || "P")).reduce((s, o) => s + qtyOf(o), 0);
+// The owned coins of this date and mint (all varieties, all albums).
+function ownedOfDate(c) {
+  if (!c || !c.typeId || !c.year) return [];
+  return ownedCoins().filter((o) => itemOf(o) === "coin" && o.typeId === c.typeId && String(o.year) === String(c.year) && (normMint(o.mint) || "P") === (normMint(c.mint) || "P"));
+}
+function ownCountOf(c) { return ownedOfDate(c).reduce((s, o) => s + qtyOf(o), 0); }
+// "You own 2: F-12, G-4" / "2× F-12" / "no grade" (a blank grade); one entry per coin, repeats grouped.
+function ownGradesText(c) {
+  const g = {}, order = [];
+  ownedOfDate(c).forEach((o) => { const k = o.grade || "no grade"; if (!(k in g)) { g[k] = 0; order.push(k); } g[k] += qtyOf(o); });
+  const n = order.reduce((s, k) => s + g[k], 0);
+  return n ? `You own ${n}: ${order.map((k) => (g[k] > 1 ? `${g[k]}× ${k}` : k)).join(", ")}` : "";
 }
 // c = the coin (or pretend coin for an empty spot). opts.spot: an empty spot (adds metal, melt and price-list value);
 // opts.skipId: the coin page's own id; opts.inAlbum: the spot's coin is already in this album.
@@ -45,7 +53,7 @@ function coinCardHtml(c, opts) {
   const vs = knownVarieties(c);
   if (vs.length) lines.push(`<div>Varieties to look for: ${esc(vs.join(", "))}</div>`);
   const own = ownCountOf(c);
-  if (opts.spot) lines.push(`<div><b>${opts.inAlbum ? "This spot is filled" : own ? "Not in this album yet" : "Empty spot in your album"}</b>${own ? ` · You own ${own} of this date` : ""}</div>`);
-  else if (own > 1) lines.push(`<div>You own ${own} of this date and mint</div>`);
+  if (opts.spot) lines.push(`<div><b>${opts.inAlbum ? "This spot is filled" : own ? "Not in this album yet" : "Empty spot in your album"}</b>${own ? ` · ${esc(ownGradesText(c))}` : ""}</div>`);
+  else if (own > 1) lines.push(`<div>${esc(ownGradesText(c))}</div>`);
   return lines.length ? `<div class="card small" style="margin:0 0 10px">${lines.join("")}</div>` : "";
 }

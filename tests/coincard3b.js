@@ -21,7 +21,7 @@ const ok = (name, v) => { console.log((v ? "PASS " : "FAIL ") + name); if (!v) p
       own: ownCountOf(wheat14), own25: ownCountOf(mk({ typeId: "lincoln-wheat", year: 1925, mint: "P" })), ownNone: ownCountOf(mk({ typeId: "mercury-dime", year: 1916, mint: "D" })),
       spotKey: coinCardHtml(wheat14, { spot: true }), spotEmpty: coinCardHtml(mk({ typeId: "washington-silver", year: 1940, mint: "S" }), { spot: true }),
       spotFilled: coinCardHtml(wheat14, { spot: true, inAlbum: true }),
-      ownedPage: coinCardHtml(getCoin("k1")), ownedPlain: coinCardHtml(getCoin("k3")),
+      ownedPage: coinCardHtml(getCoin("k1")), ownedPlain: coinCardHtml(getCoin("k3")), sameTxt: (put("c_k4", { kind: "coin", id: "k4", status: "owned", typeId: "lincoln-wheat", year: 1926, mint: "", grade: "F-12", price: 1, qty: 2, createdAt: 4 }), ownGradesText(mk({ typeId: "lincoln-wheat", year: 1926, mint: "P" }))), blankTxt: (put("c_k5", { kind: "coin", id: "k5", status: "owned", typeId: "lincoln-wheat", year: 1927, mint: "", grade: "", price: 1, qty: 1, createdAt: 5 }), ownGradesText(mk({ typeId: "lincoln-wheat", year: 1927, mint: "P" }))),
       varieties: coinCardHtml(mk({ typeId: "lincoln-wheat", year: 1955, mint: "" })),
     };
   });
@@ -29,15 +29,16 @@ const ok = (name, v) => { console.log((v ? "PASS " : "FAIL ") + name); if (!v) p
   ok("common dates not flagged", r.notKeys.every((x) => !x));
   ok("proof gets no key flag", !r.proofNo);
   ok("you-own counts both coins of the date", r.own === 2 && r.own25 === 1 && r.ownNone === 0);
-  ok("empty spot card: key date, metal row skipped for copper, own count", /Key date/.test(r.spotKey) && /Not in this album yet/.test(r.spotKey) && /You own 2/.test(r.spotKey));
+  ok("empty spot card: key date, metal row skipped for copper, own count", /Key date/.test(r.spotKey) && /Not in this album yet/.test(r.spotKey) && /You own 2: F-12, G-4/.test(r.spotKey));
   ok("empty spot with nothing owned says empty spot, melt shown for silver", /Empty spot in your album/.test(r.spotEmpty) && /Silver: 0\.18/.test(r.spotEmpty));
+  ok("same grade shows 2× F-12, blank shows no grade", r.sameTxt === "You own 2: 2× F-12" && r.blankTxt === "You own 1: no grade");
   ok("filled spot says so", /This spot is filled/.test(r.spotFilled));
-  ok("owned coin page card shows key date and count, no melt row", /Key date/.test(r.ownedPage) && /You own 2/.test(r.ownedPage) && !/melt today/.test(r.ownedPage));
+  ok("owned coin page card shows key date and count, no melt row", /Key date/.test(r.ownedPage) && /You own 2: F-12, G-4/.test(r.ownedPage) && !/melt today/.test(r.ownedPage));
   ok("owned common coin with count 1 shows no card", r.ownedPlain === "");
   ok("1955 wheat varieties listed", /Varieties to look for/.test(r.varieties));
   await p.evaluate(() => go("coin-k1")); await p.waitForTimeout(300);
   const page = await p.evaluate(() => document.body.innerText);
-  ok("coin page renders the card", /Key date/.test(page) && /You own 2/.test(page));
+  ok("coin page renders the card", /Key date/.test(page) && /You own 2: F-12, G-4/.test(page));
   ok("no page errors", errors.length === 0);
   if (errors.length) console.log(errors);
   await b.close();
