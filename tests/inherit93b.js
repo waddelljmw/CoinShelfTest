@@ -27,8 +27,8 @@ const { chromium } = require("./_compat");
   ok("acquired date counts", r.inhAcq === 0); ok("inherited still needs grade", r.inhNoGrade === "grade");
   // Home line and estimate marks
   await p.evaluate(() => {
-    saveCoin({ ...blankCoin(), id: "a1", typeId: "morgan-dollar", typeName: "Morgan Dollar", year: 1880, mint: "S", grade: "VF-20" });
-    saveCoin({ ...blankCoin(), id: "a2", typeId: "morgan-dollar", typeName: "Morgan Dollar", year: 1881, mint: "S", grade: "VF-20", paid: "30" });
+    saveCoin({ ...blankCoin(), id: "a1", typeId: "morgan-dollar", typeName: "Morgan Dollar", year: 1880, mint: "S", grade: "VF-20", source: "Coin Shop" });
+    saveCoin({ ...blankCoin(), id: "a2", typeId: "morgan-dollar", typeName: "Morgan Dollar", year: 1881, mint: "S", grade: "VF-20", paid: "30", source: "Coin Shop" });
     go("home");
   });
   await p.waitForTimeout(250);

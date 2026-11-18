@@ -13,13 +13,21 @@ function fillGradesFor(a, s) {
   const proofOk = (g) => (s.pf ? isProofGrade(g) : !(a.proofs && isProofGrade(g)));
   return GRADES.filter(proofOk);
 }
+// A loose coin you already own that fits this spot (R4-7): offered instead of making a second coin.
+function fillLooseFor(a, s, taken) {
+  if (s.set) return null;
+  const pfOk = (c) => (s.pf ? isProofGrade(c.grade) : !(a.proofs && isProofGrade(c.grade)));
+  return ownedCoins().find((c) => itemOf(c) === "coin" && !c.albumId && !(taken && taken.has(c.id)) && c.typeId === slotType(a, s) && num(c.year) === s.y && normMint(c.mint) === s.m && pfOk(c) && (!s.v || varietyFits(c.variety, s.v) || varietyFits(c.spotVariety, s.v))) || null;
+}
 function fillRow(a, s, i, mode) {
   const t = TYPE_BY_ID[slotType(a, s)];
   const multi = albumTypes(a).length > 1 && !s.set && t;
-  return `<div class="fill-row" data-i="${i}" style="display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line,#ddd)">
+  const loose = fillLooseFor(a, s);
+  return `<div class="fill-row" data-i="${i}" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line,#ddd)">
     <input type="checkbox" class="fill-on" aria-label="Have ${esc(slotLabel(s))}" style="flex:none;width:22px;height:22px">
     <span style="flex:1;min-width:0"><b>${esc(slotLabel(s))}</b>${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}${multi ? ` <span class="small muted">${esc(shortName(t))}</span>` : ""}</span>
     <select class="fill-grade" aria-label="Grade for ${esc(slotLabel(s))}" style="flex:none;width:92px"><option value="">Grade?</option>${fillGradesFor(a, s).map((g) => `<option>${esc(g)}</option>`).join("")}</select>
+    ${loose ? `<label class="small" style="flex-basis:100%;padding-left:30px"><input type="checkbox" class="fill-use" checked> Use my loose coin (${esc(gradeText(loose) || "no grade")}) instead of adding a second one</label>` : ""}
     ${mode === "each" ? `<input type="number" class="fill-paid" inputmode="decimal" min="0" step="0.01" placeholder="$ paid" aria-label="Price paid for ${esc(slotLabel(s))}" style="flex:none;width:76px">` : ""}
   </div>`;
 }
@@ -62,7 +70,7 @@ function openFillAlbum(albumId, fresh) {
 }
 // Read what is typed on the quick list.
 function fillRead() {
-  const rows = $$("#fillRows .fill-row").map((r) => ({ i: num(r.dataset.i), on: r.querySelector(".fill-on").checked, grade: r.querySelector(".fill-grade").value, paid: (r.querySelector(".fill-paid") || {}).value || "" }));
+  const rows = $$("#fillRows .fill-row").map((r) => ({ i: num(r.dataset.i), on: r.querySelector(".fill-on").checked, grade: r.querySelector(".fill-grade").value, use: !!(r.querySelector(".fill-use") || {}).checked, paid: (r.querySelector(".fill-paid") || {}).value || "" }));
   const g = (id) => ($(id) ? $(id).value : "");
   return { rows, total: g("#fillTotal"), date: g("#fillDate"), source: g("#fillSource") };
 }
@@ -70,7 +78,7 @@ function fillWrite(k) {
   $$("#fillRows .fill-row").forEach((r) => {
     const x = k.rows.find((y) => y.i === num(r.dataset.i));
     if (!x) return;
-    r.querySelector(".fill-on").checked = x.on; r.querySelector(".fill-grade").value = x.grade;
+    r.querySelector(".fill-on").checked = x.on; r.querySelector(".fill-grade").value = x.grade; { const u = r.querySelector(".fill-use"); if (u) u.checked = x.use; }
     const p = r.querySelector(".fill-paid"); if (p) p.value = x.paid;
   });
   if ($("#fillTotal")) $("#fillTotal").value = k.total;
@@ -117,9 +125,11 @@ function fillSave() {
     return;
   }
   fillUi.armed = false;
-  const base = Date.now(), ids = [];
+  const base = Date.now(), ids = [], taken = new Set(), undo = [];
   on.forEach((r, n) => {
     const paid = parts ? moneyStr(parts[n]) : fillUi.mode === "each" && num(r.paid) != null ? moneyStr(num(r.paid)) : "";
+    const loose = r.use ? fillLooseFor(a, spots[r.i], taken) : null;
+    if (loose) { taken.add(loose.id); undo.push({ ...loose }); saveCoin({ ...loose, albumId: a.id, slotId: spots[r.i].id }); return; } // the coin you already have goes in the spot
     const c = fillCoin(a, spots[r.i], r.grade, paid, k.date, k.source.trim(), base + n);
     saveCoin(c); ids.push(c.id);
   });
@@ -128,8 +138,8 @@ function fillSave() {
   const gone = typeof dropSpotWants === "function" ? dropSpotWants(a, on.map((r) => spots[r.i])) : [];
   closeSheet();
   go("album-" + a.id);
-  toast("Added " + ids.length + " coin" + (ids.length === 1 ? "" : "s") + " to " + albumTitle(a) + (gone.length ? "; " + gone.length + " crossed off its want list" : "") + ".", {
-    label: "Undo", fn: () => { ids.forEach((id) => remove("c_" + id)); gone.forEach(saveWant); toast("Removed all " + ids.length + " coins."); render(); },
+  toast((ids.length ? "Added " + ids.length + " coin" + (ids.length === 1 ? "" : "s") : "Placed") + (undo.length ? (ids.length ? " and placed " : " ") + undo.length + " you already had" : "") + " in " + albumTitle(a) + (gone.length ? "; " + gone.length + " crossed off its want list" : "") + ".", {
+    label: "Undo", fn: () => { ids.forEach((id) => remove("c_" + id)); undo.forEach((c) => saveCoin(c)); gone.forEach(saveWant); toast("Undone."); render(); },
   });
 }
 Object.assign(actions, {

@@ -158,7 +158,7 @@ function openFilterPanel() {
     ${customGrades.length ? field("Custom grade", sel("gCustom", "Any", customGrades, f.gCustom || "")) : ""}
     <div class="grid2">${field("Value from ($)", `<input type="number" inputmode="decimal" data-flt="vFrom" value="${esc(f.vFrom || "")}">`)}${field("Value to ($)", `<input type="number" inputmode="decimal" data-flt="vTo" value="${esc(f.vTo || "")}">`)}</div>
     ${field("Favorites", sel("fav", "All coins", [["1", "Favorites only"]], f.fav || ""))}
-    ${field("Missing information", sel("inc", "Any", [["1", "Needs info (grade, cost or date)"]], f.inc || ""))}
+    ${field("Missing information", sel("inc", "Any", [["1", "Needs info (grade, cost, where from or mint)"]], f.inc || ""))}
     <div class="f"><span>Problems and errors <span class="muted small">(any of the ticked)</span></span>${FLT_PROBS.map(([k, l]) => `<label class="chk"><input type="checkbox" data-flt-prob="${k}" ${(f.probs || []).includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div>
     <div class="btn-row" style="margin-top:10px"><button class="btn primary" data-act="fltApply">Show results</button><button class="btn" data-act="fltClear">Clear all</button></div>
     <div class="card" style="margin-top:12px"><b>Save this filter</b><div class="rowline" style="gap:8px"><input type="text" data-flt-name placeholder="e.g. Inherited silver" maxlength="40"><button class="btn" data-act="fltSave">Save</button></div></div>`);
@@ -353,6 +353,9 @@ Object.assign(actions, {
     openFilterPanel();
     toast("Deleted saved filter “" + gone.name + "”.", { label: "Undo", fn: () => { saveSettings({ savedFilters: before }); toast("Back again."); } });
   },
+  fixupStart: () => { fixup.on = true; fixup.skip = []; fixupNext(); },
+  fixupSkip: () => { if (draft && draft.id) fixup.skip.push(draft.id); closeSheet(); fixupNext(); },
+  fixupStop: () => { fixup.on = false; closeSheet(); },
   needInfo: () => { Object.assign(listState, { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", f: { inc: "home" } }); go("coins"); },
   selStart: () => { listState.sel = new Set(); render(); },
   selDone: () => { listState.sel = null; render(); },
@@ -422,3 +425,18 @@ Object.assign(actions, {
   },
 });
 if (typeof SNAPSHOT_BLOCK !== "undefined") ["mvGo", "hdGo", "pcOpen", "pcGo", "fltSave", "fltRenSave", "fltDel", "fltUndo"].forEach((a) => SNAPSHOT_BLOCK.add(a));
+
+/* --- Fix-up run (idea 117): one button walks through the coins that need info; Save goes to the next --- */
+const fixup = { on: false, skip: [] };
+const fixupQueue = () => (listState._shown && listState.f && listState.f.inc ? listState._shown : needInfoCoins()).map((c) => getCoin(c.id)).filter((c) => c && needsOf(c).length && !fixup.skip.includes(c.id));
+function fixupNext() {
+  const q = fixupQueue();
+  if (!q.length) { fixup.on = false; toast("Fix-up done. Nothing left that needs info."); render(); return; }
+  openCoinForm(q[0].id);
+}
+// Small bar at the top of the edit form while a run is going.
+function fixupBar(d) {
+  if (!fixup.on || d._isNew) return "";
+  const left = fixupQueue().length;
+  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b>Fix-up: ${left} left</b><div class="small">Needs: ${esc(needsOf(d).join(", ") || "nothing")}. For mint, pick P if it's Philadelphia. Save goes to the next coin.</div><div class="row" style="gap:8px;margin-top:6px"><button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div></div>`;
+}

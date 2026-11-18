@@ -18,11 +18,13 @@ function restoreDraft() {
     draft = d; renderCoinForm(); toast("Picking up the coin you were adding."); return true;
   } catch (e) { clearStash(); return false; }
 }
+let carryOpen = {}; // sections left open on the last new coin; the next new coin opens them too
 function openCoinForm(id) {
   const existing = id ? getCoin(id) : null;
   draft = existing ? JSON.parse(JSON.stringify(existing)) : blankCoin();
   draft._isNew = !existing;
   if (!existing) { const s = settings(); draft.source = s.lastSource || ""; draft._lastHolder = s.lastHolder || ""; draft._carry = { s: 1 }; } // quick-add: remember last source and holder
+  if (!existing) draft._open = { ...carryOpen };
   draft._newAlbum = { brand: "Whitman", number: "" };
   draft._status = statusKey(draft);
   draft._goneReason = (draft.gone && draft.gone.reason) || "";
@@ -110,6 +112,7 @@ function renderCoinForm() {
   const noun = it === "set" ? "set" : it === "roll" ? "roll" : "coin";
   if (d._isNew && !d.typeId && !d.typeName && !d._what) return whatPicker();
   document.querySelectorAll(`#coinForm[data-coin="${d.id}"] details[data-sec]`).forEach((x) => { (d._open = d._open || {})[x.dataset.sec] = x.open; }); // keep sections as you left them
+  if (d._isNew) carryOpen = { ...d._open }; // the next new coin starts with the same sections open (R5-14)
   const t = TYPE_BY_ID[d.typeId];
   const other = it !== "bullion" && (d._isNew && !d.typeId && d._what === "other" || !d._isNew && !t);
   if (d.grade && d.grade !== "Other") d._proof = isProofGrade(d.grade); // a grade that's set decides the switch
@@ -135,6 +138,7 @@ function renderCoinForm() {
     </div>`;
   openSheet(`<div class="sheet-head"><h2>${d._isNew ? (d._stay ? "Add coin to album" : "Add " + noun) : "Edit " + noun}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
+  ${typeof fixupBar === "function" ? fixupBar(d) : ""}
   <form id="coinForm" data-coin="${d.id}" autocomplete="off">
     ${d._isNew && !d._replaces ? `<div class="hint" id="blankHint">Any field can be left blank. Fill in what you know; you can add the rest later.</div>` : ""}
     ${d._replaces ? `<div class="hint" id="readdNote">Copied from your old entry: year, grade, price, photos and notes. Album spot and variety are cleared. The old entry goes to Recently deleted.</div>` : ""}
