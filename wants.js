@@ -14,11 +14,18 @@ const findWant = (typeId, year, mint, variety, listId, pf) => wants().find((w) =
 // Every list the same coin is on (a coin can be wanted on several lists, each with its own grade).
 const wantsFor = (typeId, year, mint, variety, pf) => wants().filter((w) => wantMatch(w, typeId, year, mint, variety, pf));
 const wantsOf = (w) => wantsFor(w.typeId, w.year, w.mint, w.variety, w.pf);
-const spotWants = (a, s) => wantsFor(slotType(a, s), s.set ? "" : s.y, s.m, s.v, s.pf);
+// An album only counts the wants made for it (their albumId), never another album's list.
+const spotWants = (a, s) => wantsFor(slotType(a, s), s.set ? "" : s.y, s.m, s.v, s.pf).filter((w) => w.albumId === a.id);
 const wantedTag = (n) => (n > 1 ? "wanted ×" + n : "wanted");
 const listNameOf = (w) => { const l = getWantList(w.listId || DEFAULT_LIST_ID); return l ? l.name : "General"; };
 // The spot's want for one list (proof spots have their own wants).
-const spotFindWant = (a, s, listId) => findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v, listId, s.pf);
+const spotFindWant = (a, s, listId) => (listId ? findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v, listId, s.pf) : spotWants(a, s)[0]);
+// Filling a spot (Fill spots, "Put a coin I already have here") crosses it off this album's own want list. Returns the removed wants, for Undo.
+function dropSpotWants(a, spots) {
+  const gone = [];
+  spots.forEach((s) => spotWants(a, s).forEach((w) => { if (!gone.includes(w)) { remove("w_" + w.id); gone.push(w); } }));
+  return gone;
+}
 const wantLabel = (w) => [w.year ? String(w.year) + (w.mint ? "-" + w.mint : "") : "", w.typeName, w.denom, w.pf ? "Proof" : ""].filter(Boolean).join(" ") + (w.variety ? " · " + w.variety : "");
 // A pretend coin, so Red Book, eBay and mintage lookups work for a want.
 const wantAsCoin = (w) => ({ typeId: w.typeId, typeName: w.typeName, denom: w.denom, year: w.year, mint: w.mint, variety: w.variety || "", gradeMode: "raw", grade: w.grade || "", label: "", snapBook: w.snapBook });
@@ -285,7 +292,7 @@ function saveWantForm(form) {
 function askWantRemove(c) {
   if (!c || !c.typeId || itemOf(c) !== "coin") return;
   const hits = wants().filter((w) => w.typeId === c.typeId && String(w.year) === String(c.year) && normMint(w.mint) === normMint(c.mint)
-    && !!w.pf === isProofGrade(c.grade) && (!w.variety || varietyFits(c.variety, w.variety) || varietyFits(c.spotVariety, w.variety)));
+    && (!w.albumId || w.albumId === c.albumId) && !!w.pf === isProofGrade(c.grade) && (!w.variety || varietyFits(c.variety, w.variety) || varietyFits(c.spotVariety, w.variety)));
   if (!hits.length) return;
   confirmSheet("This is on your want list", wantLabel(hits[0]) + " is on your want list. Remove it?", "Remove from list", () => { hits.forEach((w) => remove("w_" + w.id)); toast("Removed from your want list."); });
 }
@@ -501,9 +508,10 @@ function slotUse(el) {
   const next = { ...c, albumId: a.id };
   if (spot) next.slotId = spot.id;
   saveCoin(next);
+  const gone = spot ? dropSpotWants(aa, [spot]) : [];
   closeSheet();
   render();
-  toast("Placed in " + a.name + ".", { label: "Undo", fn: () => { saveCoin(before); render(); } });
+  toast("Placed in " + a.name + (gone.length ? " and crossed off its want list" : "") + ".", { label: "Undo", fn: () => { saveCoin(before); gone.forEach(saveWant); render(); } });
 }
 // Open slot: add the coin you already have, filled in and placed in this album.
 function slotHave(el) {

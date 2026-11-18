@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.77.3": [
+    "Each album now uses only its own want list: filling a spot (any way, including Fill spots) crosses it off that album's list.",
+    "Add coin shows what it carried over from your last coin as \"Same as last: Coin Show ✕\", one tap to clear. Fill spots starts with nothing ticked and asks \"Add 12 coins?\" before saving.",
+    "Typing is no longer lost: Back no longer wipes your metal prices, and Back on a half-filled coin asks \"Discard this coin?\".",
+  ],
   "0.77.2": [
     "Adding missing coins from an album now suggests that album's own want list (or a new one named for it). Two albums of the same coin no longer share one list.",
   ],

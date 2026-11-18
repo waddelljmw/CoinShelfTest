@@ -22,7 +22,7 @@ function openCoinForm(id) {
   const existing = id ? getCoin(id) : null;
   draft = existing ? JSON.parse(JSON.stringify(existing)) : blankCoin();
   draft._isNew = !existing;
-  if (!existing) { const s = settings(); draft.source = s.lastSource || ""; draft._lastHolder = s.lastHolder || ""; } // quick-add: remember last source and holder
+  if (!existing) { const s = settings(); draft.source = s.lastSource || ""; draft._lastHolder = s.lastHolder || ""; draft._carry = { s: 1 }; } // quick-add: remember last source and holder
   draft._newAlbum = { brand: "Whitman", number: "" };
   draft._status = statusKey(draft);
   draft._goneReason = (draft.gone && draft.gone.reason) || "";
@@ -59,7 +59,12 @@ function sourceChips(d) {
   const names = [...common, "Inherited"]; // Inherited last, so a buyer does not tap it by mistake (it blocks selling)
   const cur = d._sourceKind;
   if (cur && cur !== "Other" && !names.includes(cur)) names.push(cur); // a chosen source stays visible
-  return `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">More…</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}</div>`;
+  // Nothing is carried over silently: what was filled in from the last coin shows as "Same as last: X ✕", one tap to clear.
+  const cs = [];
+  if (d._isNew && d._carry && d._carry.s && d.source === (settings().lastSource || "")) cs.push(["source", "Where from: " + d.source]);
+  if (d._isNew && d._carry && !d.holder && !d.albumId && d.gradeMode !== "cert" && normHolder(d._lastHolder)) cs.push(["holder", "Holder: " + normHolder(d._lastHolder)]);
+  const carry = cs.length ? `<div class="f"><span class="muted small">Same as your last coin (tap to clear)</span><div class="chips wrap">${cs.map(([k, t]) => `<button type="button" class="chip on" data-act="carryClear" data-k="${k}" aria-label="Clear ${esc(t)}">Same as last: ${esc(t)} ✕</button>`).join("")}</div></div>` : "";
+  return carry + `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">More…</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}</div>`;
 }
 // First render of a coin: figure out whether its saved source is a known choice or custom text.
 function initSourceKind(d) {

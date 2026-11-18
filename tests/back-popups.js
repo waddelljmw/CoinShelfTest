@@ -32,8 +32,12 @@ const { chromium } = require("./_compat");
     await p.click(".info-btn >> nth=0"); await p.waitForTimeout(100); await p.click("[data-act=wordBack]"); await p.waitForTimeout(250);
     ok("✕ on ⓘ also keeps typing", !(await topOpen()) && !!(await p.$("#coinForm")) && (await p.inputValue("[data-f=year]")) === "1881");
   } else console.log("SKIP no ⓘ on form");
-  await p.goBack(); await p.waitForTimeout(200);
-  ok("Back closes the form", await shut());
+  await p.goBack(); await p.waitForTimeout(250);
+  ok("R4-23: Back on a half-filled coin asks 'Discard this coin?' and keeps the form", !(await shut()) && /Discard this coin\?/.test(await p.textContent("#sheetTop")));
+  await p.click("#sheetTop [data-act=wordBack]"); await p.waitForTimeout(300);
+  ok("Keep editing keeps the typing", !(await shut()) && (await p.inputValue("[data-f=year]")) === "1881");
+  await p.goBack(); await p.waitForTimeout(250); await p.click("#sheetTop [data-act=discardYes]"); await p.waitForTimeout(250);
+  ok("Discard closes the form", await shut());
   // 3. Close with ✕ then Back goes to the previous page, not a dead press
   await p.click("#fab"); await p.click("[data-act=closeSheet] >> nth=0"); await p.waitForTimeout(250);
   await p.evaluate(() => go("home")); await p.waitForTimeout(150); await p.evaluate(() => go("album-alb1")); await p.waitForTimeout(150);
