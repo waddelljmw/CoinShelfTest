@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.82.0": [
+    "Look up any coin: type a date and coin in the Coins search box (like 1916-D dime or 1909 vdb) and tap the row that appears. You get the coin card: mintage, key date flag, melt today, varieties and how many you own, plus Search eBay sold and Add to want list. Nothing is saved until you add it to a want list.",
+  ],
   "0.81.0": [
     "Coin card: tap an empty album spot to see a Key date tag for low mintages, the metal and melt today, varieties to look for, and how many of that date you own. Your own coins' pages show the Key date tag, varieties and your count too. Key date here means a very low mintage by the U.S. Mint list, so a few well-known semi-keys may not be tagged.",
   ],
