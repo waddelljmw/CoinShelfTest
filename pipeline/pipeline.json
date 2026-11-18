@@ -1,6 +1,6 @@
 {
   "updated": "2026-11-18",
-  "app": "v0.83.0",
+  "app": "v0.84.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
     "weekly_now": 41,
@@ -370,8 +370,8 @@
       "name": "Album tidy",
       "model": "Sonnet",
       "est": "2–3",
-      "actual": "",
-      "status": "queued",
+      "actual": "~1 (tbd, his end reading)",
+      "status": "done",
       "why": "Fewer leftovers and dead ends around albums.",
       "items": [
         {
@@ -417,7 +417,16 @@
           "affects": "Album page"
         }
       ],
-      "chat": "New Sonnet chat"
+      "chat": "New Sonnet chat",
+      "started": "Wed 11-18 4:15pm",
+      "ended": "Wed 11-18 4:57pm",
+      "minutes": 42,
+      "try": [
+        "Tap a filled album spot: 'Take out of album' is there (then Undo).",
+        "Tap an empty spot: 'Add to want list' adds it right away to the album's own list.",
+        "Open an album with hidden spots: '3 spots hidden · Show' under the totals.",
+        "Delete a test album that has want-list coins: it asks about them."
+      ]
     },
     {
       "n": 7,
@@ -465,7 +474,13 @@
           "affects": "Edit album"
         }
       ],
-      "chat": "New Sonnet chat"
+      "chat": "New Sonnet chat",
+      "try": [
+        "Tap an album spot you own: 'Want an upgrade' works for any grade (try XF-45).",
+        "Spots say 'wanted' or 'upgrade wanted'.",
+        "Add a better coin for an upgrade spot: it offers to swap it in.",
+        "Change an album's years and back: variety spots are still there."
+      ]
     },
     {
       "n": 8,
@@ -1012,6 +1027,13 @@
       "ver": "v0.83.0",
       "cost": "~1 weekly (est), ~7 min build (Sonnet)",
       "change": "A coin added to a variety spot (1909 VDB, 1878 7 Tail Feathers) keeps that variety. The 1895 Morgan spot says Proof only and asks for a proof grade. + Add a spot refuses dates and mints the series never had. Changing a coin's variety moves it to the matching spot. Hide spot, Remove spot and shortening an album's years ask first when coins sit in those spots."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 6: album tidy",
+      "ver": "v0.84.0",
+      "cost": "~1 weekly (est), ~42 min (Sonnet)",
+      "change": "Take out of album is on a filled spot's menu. Add to want list on an empty spot adds to the album's own list in one tap. Deleting an album asks if its want-list coins should go too. A coin put in an album leaves its box slot, and 'Holder: Album' clears after it leaves. Album melt says 'Needs silver price' instead of $0.00. The album page shows how many spots are hidden, with Show."
     }
   ]
 }
