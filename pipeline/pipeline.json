@@ -1,9 +1,9 @@
 {
  "updated": "2026-11-18",
- "app": "v0.82.1",
+ "app": "v0.82.2",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 40,
+  "weekly_now": 41,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -218,7 +218,7 @@
    "name": "Card for any coin you search",
    "model": "Sonnet",
    "est": "2–3",
-   "actual": "tbd (about 1)",
+   "actual": "~2",
    "status": "done",
    "why": "The part of 3b that was left out: look up a coin you don't own and that isn't in an album, like at the pawn shop.",
    "items": [
@@ -267,6 +267,37 @@
    "try": [
     "Open the tester link in a private window: it asks for an email code.",
     "Try an email that isn't on the list: it is refused."
+   ]
+  },
+  {
+   "n": "4c",
+   "stage": "now",
+   "name": "Mint \"Can't tell\" + Skip in Fix-up (plan)",
+   "model": "Opus",
+   "est": "1–2",
+   "actual": "",
+   "status": "queued",
+   "chat": "New Opus chat",
+   "when": "after 4b",
+   "why": "Plan how to tell \"no mint mark\", \"P\" and \"can't tell\" apart, and add a Skip in Fix-up tick, without breaking your 500+ saved coins.",
+   "items": [
+    {
+     "id": "new (11-18)",
+     "size": "L",
+     "what": "Plan only: mint \"Can't tell\" + smart default",
+     "change": "The mint dropdown gets No mint mark, P and Can't tell. \"Not chosen yet\" is the only to-do state. Years where only Philadelphia struck that coin fill in themselves. Opus maps everything that reads the mint, runs the 4-box check as a plan, and writes the Sonnet build list.",
+     "affects": "Saved coins (mint), Fix-up, mintage, albums, filters, reports, CSV, backup"
+    },
+    {
+     "id": "new (11-18)",
+     "size": "M",
+     "what": "Plan only: \"Skip in Fix-up\" tick",
+     "change": "A tick on a coin stops it from nagging you. It leaves a small skipped mark, and totals stay estimates. Planned together with the mint change because they touch the same screens.",
+     "affects": "Saved coins (new flag), Needs info, Fix-up"
+    }
+   ],
+   "try": [
+    "Nothing to tap yet: this step is a plan. The build comes after."
    ]
   },
   {
@@ -949,7 +980,7 @@
    "date": "11-18",
    "name": "Step 4a: card for any coin you search (105 step 2 left over)",
    "ver": "v0.82.0",
-   "cost": "started at session 33, weekly 39; end reading not yet given (Sonnet)",
+   "cost": "about 2 weekly (39 → 41), 12:18pm–1:45pm incl. ~20 min design Q&A (Sonnet)",
    "change": "Type a date and coin in the Coins search box (1916-D dime, 1909 vdb): a row appears; tap it for the coin card with key date, mintage, metal and melt, price-list value if loaded, varieties, how many you own, Search eBay sold and Add to want list. Nothing is saved until you add it to a want list. Wording and Home box added in v0.82.1: Search any coin on Home, rows show mintage with Key date first and an ⓘ, 'Not in your coins' when none match."
   }
  ]

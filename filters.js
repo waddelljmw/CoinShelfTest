@@ -438,5 +438,5 @@ function fixupNext() {
 function fixupBar(d) {
   if (!fixup.on || d._isNew) return "";
   const left = fixupQueue().length;
-  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b>Fix-up: ${left} ${left === 1 ? "coin" : "coins"} left</b><div class="small">${esc(needsText(d) || "Nothing missing")}. If the mint is Philadelphia, pick P. Save moves to the next coin.</div><div class="row" style="gap:8px;margin-top:6px"><button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div></div>`;
+  return `<div class="card" style="background:#fff7e0;color:#2a2418;margin-bottom:10px"><b>Fix-up: ${left} ${left === 1 ? "coin" : "coins"} left</b><div class="small" style="color:#4a4130">${esc(needsText(d) || "Nothing missing")}.${needsOf(d).includes("check mint") ? " If the mint is Philadelphia, pick P." : ""} Save moves to the next coin.</div><div class="row" style="gap:8px;margin-top:6px"><button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div></div>`;
 }
