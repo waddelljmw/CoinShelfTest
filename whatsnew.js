@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.81.0": [
+    "Coin card: tap an empty album spot to see a Key date tag for low mintages, the metal and melt today, varieties to look for, and how many of that date you own. Your own coins' pages show the Key date tag, varieties and your count too. Key date here means a very low mintage by the U.S. Mint list, so a few well-known semi-keys may not be tagged.",
+  ],
   "0.80.0": [
     "More mintages from U.S. Mint records: Barber, Walking Liberty and Franklin halves (commemoratives taken out), 1964 and 1965 coins by the date on them, and the Seated Liberty series, 3-cent silver and 20-cent pieces. The 1900 Morgan and 1893 quarter numbers no longer count the commemoratives.",
   ],

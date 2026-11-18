@@ -351,7 +351,7 @@ function viewCoin(r) {
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""} <button class="star" data-act="favToggle" data-id="${esc(c.id)}" aria-pressed="${!!c.fav}" aria-label="${c.fav ? "Remove from favorites" : "Add to favorites"}">${c.fav ? "★" : "☆"}</button></h1>
     ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>${wherePartsOf(c).slice(1).map((x) => " \u203A " + esc(x)).join("")}</div>` : ""}
     <div class="small muted" style="margin:-4px 0 8px">ID <b>${c.cid ? esc(c.cid) : "No ID"}</b> <button class="link-btn" data-act="editId" data-id="${esc(c.id)}">${c.cid ? "Change" : "Add"}</button>${(c.oldCids || []).length ? ` · old ID${c.oldCids.length > 1 ? "s" : ""}: ${esc(c.oldCids.join(", "))}` : ""}</div>
-    ${mintageLine(c)}${typeof coinInhHtml === "function" ? coinInhHtml(c) : ""}
+    ${mintageLine(c)}${c.status === "owned" && itemOf(c) === "coin" ? coinCardHtml(c) : ""}${typeof coinInhHtml === "function" ? coinInhHtml(c) : ""}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
       ${row("Status", esc(STATUS_TEXT[statusKey(c)] || "") + (c.upgrade && c.status === "owned" ? " · Upgrade wanted" : ""))}
