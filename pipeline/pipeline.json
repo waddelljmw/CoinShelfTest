@@ -1,9 +1,9 @@
 {
  "updated": "2026-11-18",
- "app": "v0.82.0",
+ "app": "v0.82.1",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 39,
+  "weekly_now": 40,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -232,9 +232,9 @@
    ],
    "chat": "New Sonnet chat",
    "try": [
-    "Coins page: type 1916-D dime in the search box, tap the row under it: the card shows.",
-    "Tap Add to want list on the card, then open it again: it says already on your want list.",
-    "Type 1909 vdb and 1921 morgan: rows appear too."
+    "Home: type 1916 dime in the new Search any coin box; you land on Coins with the rows.",
+    "Key date shows first with a small ⓘ; tap it to see how it's decided.",
+    "Tap a row for the card, then Add to want list."
    ]
   },
   {
@@ -950,7 +950,7 @@
    "name": "Step 4a: card for any coin you search (105 step 2 left over)",
    "ver": "v0.82.0",
    "cost": "started at session 33, weekly 39; end reading not yet given (Sonnet)",
-   "change": "Type a date and coin in the Coins search box (1916-D dime, 1909 vdb): a row appears; tap it for the coin card with key date, mintage, metal and melt, price-list value if loaded, varieties, how many you own, Search eBay sold and Add to want list. Nothing is saved until you add it to a want list."
+   "change": "Type a date and coin in the Coins search box (1916-D dime, 1909 vdb): a row appears; tap it for the coin card with key date, mintage, metal and melt, price-list value if loaded, varieties, how many you own, Search eBay sold and Add to want list. Nothing is saved until you add it to a want list. Wording and Home box added in v0.82.1: Search any coin on Home, rows show mintage with Key date first and an ⓘ, 'Not in your coins' when none match."
   }
  ]
 }

@@ -40,7 +40,7 @@ const fs = require("fs"), path = require("path");
   await p.evaluate(() => closeSheet());
   // 5. every plain word is used somewhere
   const code = fs.readdirSync(path.resolve(__dirname, "..")).filter((f) => f.endsWith(".js")).map((f) => fs.readFileSync(path.resolve(__dirname, "..", f), "utf8")).join("\n");
-  const unused = await p.evaluate(() => Object.keys(WORDS)).then((ks) => ks.filter((k) => !new RegExp(`wi\\("${k}"\\)`).test(code)));
+  const unused = await p.evaluate(() => Object.keys(WORDS)).then((ks) => ks.filter((k) => !new RegExp(`wi\\("${k}"[,)]`).test(code)));
   ok("every ⓘ word is shown somewhere" + (unused.length ? " (unused: " + unused.join(", ") + ")" : ""), unused.length === 0);
   ok("no page errors", errors.length === 0);
   if (errors.length) console.log(errors.join("\n"));

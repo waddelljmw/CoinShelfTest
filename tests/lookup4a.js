@@ -18,7 +18,14 @@ const ok = (name, v) => { console.log((v ? "PASS " : "FAIL ") + name); if (!v) p
   ok("wrong mint (1916-O) gives no row", r.bad === 0);
   ok("no mint typed lists each mint struck", r.noMint >= 2);
   await p.evaluate(() => { listState.q = "1916-D dime"; go("coins"); }); await p.waitForTimeout(300);
-  ok("row shows under the search box", /Look up a coin/.test(await p.evaluate(() => document.body.innerText)));
+  ok("row shows under the search box", /Not owned\? Tap to see it/.test(await p.evaluate(() => document.body.innerText)));
+  const rowTxt = await p.evaluate(() => document.querySelector('[data-act="lookupOpen"]').closest(".rowline").innerText);
+  ok("row: Key date first, then name and mintage", /^Key date/.test(rowTxt.trim()) && /1916-D Mercury Dime/.test(rowTxt) && /264,000/.test(rowTxt));
+  ok("empty message says Not in your coins", /Not in your coins\./.test(await p.evaluate(() => document.body.innerText)));
+  ok("search box says Search your coins", (await p.evaluate(() => $("#coinSearch").placeholder)) === "Search your coins");
+  await p.click('.rowline .info-btn'); await p.waitForTimeout(200);
+  ok("tapping the info mark explains the key date rule", /own rule, not anyone/.test(await p.evaluate(() => document.body.innerText)));
+  await p.evaluate(() => closeSheet());
   await p.click('[data-act="lookupOpen"]'); await p.waitForTimeout(300);
   const txt = await p.evaluate(() => document.body.innerText);
   ok("card: key date, mintage, melt, you don't own, eBay, want button", /Key date/.test(txt) && /Mintage/.test(txt) && /Silver: 0\.072 oz/.test(txt) && /You don't own this one yet/.test(txt) && /Search eBay sold/.test(txt) && /Add to want list/.test(txt));
@@ -29,6 +36,11 @@ const ok = (name, v) => { console.log((v ? "PASS " : "FAIL ") + name); if (!v) p
   ok("added to the want list once", w === 1);
   await p.evaluate(() => { openSheet("x"); }); await p.evaluate(() => { closeSheet(); lookupOpen({ dataset: { t: "mercury-dime", y: "1916", m: "D" } }); }); await p.waitForTimeout(200);
   ok("second time says already on want list", /Already on your want list/.test(await p.evaluate(() => document.body.innerText)));
+  await p.evaluate(() => { closeSheet(); listState.q = ""; go("home"); }); await p.waitForTimeout(300);
+  ok("Home has a Search any coin box", (await p.evaluate(() => (document.querySelector("#homeSearch") || {}).placeholder)) === "Search any coin");
+  await p.click("#homeSearch"); await p.keyboard.type("1916 dime", { delay: 20 }); await p.waitForTimeout(400);
+  const hs = await p.evaluate(() => ({ hash: location.hash, q: $("#coinSearch") && $("#coinSearch").value, focus: document.activeElement && document.activeElement.id }));
+  ok("typing on Home lands on Coins with the words and keeps typing", hs.hash === "#coins" && hs.q === "1916 dime" && hs.focus === "coinSearch");
   ok("no page errors", errors.length === 0);
   await b.close();
 })();
