@@ -429,6 +429,40 @@
       ]
     },
     {
+      "n": "6b",
+      "stage": "testers",
+      "name": "Quick-add pocket change",
+      "model": "Sonnet",
+      "est": "1–2",
+      "actual": "",
+      "status": "next",
+      "why": "Fill an album fast with everyday coins without grading each one. Added 11-18 by him (idea 118: quick-add for pocket-change coins); goes before step 7 because he is waiting on it to enter coins.",
+      "items": [
+        {
+          "id": "118a",
+          "size": "M",
+          "what": "Circulated, face value",
+          "change": "Everyday clad or base-metal coins in normal spots can be added as \"Circulated (not graded)\", valued at face. Never for silver or 40% silver (1965–70 Kennedy halves stay melt), key dates, variety spots, proofs, mint-set or uncirculated coins; those still ask for a grade.",
+          "affects": "Fill spots, Add coin, Grade"
+        },
+        {
+          "id": "118b",
+          "size": "S",
+          "what": "New source: Coin roll hunting",
+          "change": "Source list gets \"Coin roll hunting\" (fills Price paid with face). Pocket change and Gift stay $0. Source can be switched in one tap, also for a whole batch.",
+          "affects": "Source list, Fill spots"
+        }
+      ],
+      "try": [
+        "Fill spots on a Washington or Kennedy album: tick a few clad coins, add them as Circulated.",
+        "Check a 1965–70 Kennedy half is still treated as silver (melt).",
+        "Switch a batch from Pocket change to Coin roll hunting; Price paid becomes face.",
+        "Open a proof spot: it still asks for a grade."
+      ],
+      "note": "First check (read-only): if \"Circulated\" would change how coins are saved (new saved value or conversion), stop and ask him; then Opus plans it with the 4-box check.",
+      "chat": "New Sonnet chat"
+    },
+    {
       "n": 7,
       "stage": "testers",
       "name": "Upgrades and wanted",
