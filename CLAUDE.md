@@ -15,6 +15,16 @@ Read this, then only the **This week** box in `PLAN.md` (don't read the whole pl
 - **Work smarter:** whenever a GitHub feature, test automation, splitting files, or another setup would save tokens, speed up work or improve the code (within good coding practice), tell him in one line and do it. Anything touching his saved coin data still needs his OK first.
 - **Say which model to use before each next step.** Opus: planning, reviews, anything that reshapes stored data. Sonnet: building, routine fixes, data entry (album lists, coin dates).
 
+## Pipeline (decided 11-17)
+- The work queue is `pipeline/pipeline.json`, shown on the page **https://claude.ai/artifact/TK4NoA9NmYnhyb6xFvY8Rg** (artifact slug `d51312cb-ee58-4793-9a5f-4e44aea565bb`, files `index.html` + `pipeline.json`). Steps run in order; each step = one new chat (step 3 is two: 3a, 3b).
+- Start prompt for a step: *"Let's start the coin work. Pipeline step N: name. Usage: [__/__]"*. Read only that step in `pipeline.json` (its items say what to build and how the app should change), plus CLAUDE.md. Build only what the step lists; side ideas go to his notes.
+- **After every merge**, update `pipeline.json` in the same PR or a docs PR: step `status` → `done` and `actual` (real weekly points from his readings), add a `done` entry (date, name, version, cost, what changed for him), next step `status` → `next`, `updated`, `app`, `week.weekly_now`. Then republish the artifact with publish_files (slug above, mode patch, both files). Adjust later `est` values when real costs disagree.
+- **"Where are we?"**: read `pipeline.json` only; answer in one line + the page link.
+- Sizes: every item has S/M/L; keep that when adding items.
+
+## Planning day (decided 11-17)
+Start from the existing queue, never a blank plan: (1) check the queue: done, waiting, still in the right order? (2) sort new items (his phone notes, new review findings) onto a tap-to-sort bucket page beside the waiting ones (Now / Before testers / Later / 2027 / Your call), each with a suggested spot; (3) talk it through: themes, his priorities, and where Claude disagrees with a suggestion; (4) re-order: new items slot in where they belong, urgent can jump the line; (5) top up: always more lined up than a week can use, plus small fill-ins; (6) lock: minutes, PLAN.md, `pipeline.json` + republish, next prompt. No build plan before his OK.
+
 ## Cost rules (agreed 2026-11-04, written in 2026-11-10)
 - Keep build chats short; **new chat after each merge**. Side ideas go to his phone notes, not discussed in build chats.
 - Models: **Opus** for planning, reviews and changes to how coins are saved; **Sonnet** for everything else. **Fable** only for one-off deep planning when he has free Fable usage.
