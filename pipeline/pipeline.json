@@ -50,7 +50,13 @@
      "affects": "Fill spots sheet"
     }
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "try": [
+    "Open two albums of the same type: each spot says \"wanted\" only for its own album's list.",
+    "Add a coin, then start another: Where from shows \"Same as last: … ✕\" instead of being silently filled in.",
+    "Type a metal price and press Back fast: the price is still there. Start a coin, press Back: it asks \"Discard this coin?\"",
+    "Open Fill spots: nothing is ticked; tick 2, Save asks \"Add 2 coins?\""
+   ]
   },
   {
    "n": 2,
@@ -105,7 +111,13 @@
      "affects": "Fill spots"
     }
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "try": [
+    "Tap the fix-up button: it opens the first coin missing info; Save jumps to the next one.",
+    "Search \"1921 morgan\" and \"silver\": coins show up.",
+    "Add a coin with Price open, then add another: Price is still open.",
+    "Fill spots on a date you already own loose: it offers to use that coin."
+   ]
   },
   {
    "n": "3a",
@@ -125,7 +137,11 @@
      "affects": "Album spots, coin page"
     }
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "try": [
+    "Open a Morgan album: spots show mintage marked \"from U.S. Mint records\".",
+    "Check ~10 key dates against your Red Book and send any that differ."
+   ]
   },
   {
    "n": "3b",
@@ -145,7 +161,11 @@
      "affects": "Album spots, search, want list"
     }
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "try": [
+    "Tap an empty album spot: a coin card shows mintage, melt today and \"Search eBay sold\".",
+    "Search a coin you don't own: the same card opens."
+   ]
   },
   {
    "n": 4,
@@ -166,7 +186,10 @@
      "affects": "Behind the scenes"
     }
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "try": [
+    "Nothing to tap in the app; follow the GitHub steps the chat gives you."
+   ]
   },
   {
    "n": 5,
@@ -562,6 +585,29 @@
     }
    ],
    "chat": "New Sonnet chat"
+  },
+  {
+   "n": "15c",
+   "stage": "testers",
+   "name": "Fix check before testers",
+   "model": "Opus",
+   "est": "3–5",
+   "actual": "",
+   "status": "queued",
+   "chat": "New Opus chat",
+   "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
+   "items": [
+    {
+     "id": "review",
+     "size": "M",
+     "what": "Re-run the fixed findings",
+     "change": "No app change. A report lists each fix as confirmed, half-done or broken; anything not confirmed goes back in the queue before testers.",
+     "affects": "Report only (reviews/)"
+    }
+   ],
+   "try": [
+    "Read the short report; nothing to tap."
+   ]
   },
   {
    "n": 16,

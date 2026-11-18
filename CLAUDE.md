@@ -21,6 +21,8 @@ Read this, then only the **This week** box in `PLAN.md` (don't read the whole pl
 - **After every merge**, update `pipeline.json` in the same PR or a docs PR: step `status` → `done` and `actual` (real weekly points from his readings), add a `done` entry (date, name, version, cost, what changed for him), next step `status` → `next`, `updated`, `app`, `week.weekly_now`. Then republish the artifact with publish_files (slug above, mode patch, both files). Adjust later `est` values when real costs disagree.
 - **"Where are we?"**: read `pipeline.json` only; answer in one line + the page link.
 - Sizes: every item has S/M/L; keep that when adding items.
+- **Try-it list:** every step has `try` (2–4 things he taps in `?demo` after the merge, ~2 min). Write it for the next step if missing. After merging, tell him to open the page and do the step's Try-it list.
+- **Fix check (step 15c, Opus) before testers:** a simulated tester re-runs every fixed finding and confirms it's gone; anything not confirmed goes back in the queue.
 
 ## Planning day (decided 11-17)
 Start from the existing queue, never a blank plan: (1) check the queue: done, waiting, still in the right order? (2) sort new items (his phone notes, new review findings) onto a tap-to-sort bucket page beside the waiting ones (Now / Before testers / Later / 2027 / Your call), each with a suggested spot; (3) talk it through: themes, his priorities, and where Claude disagrees with a suggestion; (4) re-order: new items slot in where they belong, urgent can jump the line; (5) top up: always more lined up than a week can use, plus small fill-ins; (6) lock: minutes, PLAN.md, `pipeline.json` + republish, next prompt. No build plan before his OK.

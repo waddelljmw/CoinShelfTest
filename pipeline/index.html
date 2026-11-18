@@ -36,6 +36,7 @@ pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);borde
 .tabs button{flex:1;font:inherit;font-weight:700;min-height:46px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
 .tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .size{font-size:13px;font-weight:700;margin-top:4px}
+.tryb{background:#eef6f0}@media (prefers-color-scheme:dark){.tryb{background:#1f3326}}
 </style></head><body><main>
 <div class="sub" id="upd"></div>
 <h1>Coin Cabinet pipeline</h1>
@@ -69,7 +70,7 @@ fetch("pipeline.json").then(r=>r.json()).then(d=>{
  const cur=d.steps.find(s=>s.status==="building")||d.steps.find(s=>s.status==="next")||d.steps.find(s=>s.status!=="done");
  document.getElementById("road").innerHTML=d.steps.map(s=>`<div class="dot ${s.status==="done"?"done":s.stage}${s===cur?" cur":""}" title="${esc(s.name)}">${s.status==="done"?"✓":s.n}</div>`).join("");
  if(cur){const pr=d.prompt_template.replace("{n}",cur.n).replace("{name}",cur.name);
-  document.getElementById("startnext").innerHTML=`<div class="sub">START NEXT</div><div class="big">${esc(cur.chat)}</div><div class="sub">Step ${cur.n}: ${esc(cur.name)} · about ${esc(cur.est)} weekly points</div><div style="margin-top:6px">${esc(cur.why)}</div><pre id="np">${esc(pr)}</pre><button class="copy" id="cp">Copy the prompt</button>`;
+  document.getElementById("startnext").innerHTML=`<div class="sub">START NEXT</div><div class="big">${esc(cur.chat)}</div><div class="sub">Step ${cur.n}: ${esc(cur.name)} · about ${esc(cur.est)} weekly points</div><div style="margin-top:6px">${esc(cur.why)}</div>${cur.try?`<div class="sub" style="margin-top:6px">After it merges: open this step below for the 🧪 Try-it list.</div>`:""}<pre id="np">${esc(pr)}</pre><button class="copy" id="cp">Copy the prompt</button>`;
   document.getElementById("cp").onclick=async function(){try{await navigator.clipboard.writeText(document.getElementById("np").textContent);this.textContent="Copied ✓"}catch(e){this.textContent="Select the text above"}};}
  if(cur)document.getElementById("here").innerHTML=`<div class="you">▲ YOU ARE HERE: step ${cur.n}, ${esc(cur.name)}</div><div class="why">${esc(cur.why)}</div><div class="sub">${esc(cur.model)} · about ${esc(cur.est)} weekly points</div>`;
  const w=d.week;const nowHi=d.steps.filter(s=>s.stage==="now"&&s.status!=="done").reduce((a,s)=>a+hi(s.est),0);
@@ -79,7 +80,7 @@ fetch("pipeline.json").then(r=>r.json()).then(d=>{
   `<div class="mark" style="left:${w.weekly_now}%">now ${w.weekly_now}%</div><div class="mark" style="left:${w.build_cap}%">build stop ${w.build_cap}%</div><div class="mark" style="left:${w.fill_cap}%;top:36px">${w.fill_cap}%</div>`;
  document.getElementById("rule").textContent=w.rule;
  document.getElementById("steps").innerHTML=d.steps.map(s=>`<details class="step"${s===cur?" open":""}><summary><div class="st-top"><div><span class="chip ${s.stage}">${STAGE[s.stage]}</span><span class="chip ${s.status}">${ST[s.status]||s.status}</span><div class="st-name">${s.n}. ${esc(s.name)}</div><div class="size">Size: ${sizeSum(s.items)}</div></div><div class="st-cost">est <b>${esc(s.est)}</b> wk pts${s.actual?`<br>real <b>${esc(s.actual)}</b>`:""}<br><b>${esc(s.chat||s.model)}</b>${s.when?"<br>"+esc(s.when):""}</div></div><div class="why">${esc(s.why)}</div></summary>`+
-  s.items.map(i=>`<div class="item"><span class="chip ${i.size}">${i.size}</span><span class="w">${esc(i.what)}</span> <span class="id">${esc(i.id)}</span><div class="c">${esc(i.change)}</div><div class="a">Affects: ${esc(i.affects)}</div></div>`).join("")+`</details>`).join("");
+  s.items.map(i=>`<div class="item"><span class="chip ${i.size}">${i.size}</span><span class="w">${esc(i.what)}</span> <span class="id">${esc(i.id)}</span><div class="c">${esc(i.change)}</div><div class="a">Affects: ${esc(i.affects)}</div></div>`).join("")+(s.try?`<div class="item tryb"><b>🧪 Try it after it merges</b> <span class="sub">(safe test app: <a href="https://waddelljmw.github.io/CoinShelfTest/?demo">?demo</a>, ~2 min)</span><ul>${s.try.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`:`<div class="item sub">🧪 Try-it list: written by the build chat.</div>`)+`</details>`).join("");
  document.getElementById("parked").innerHTML=d.parked.map(g=>`<div class="card"><b>${esc(g.group)}</b><ul>${g.items.map(x=>`<li><span class="chip ${x.size[0]}">${esc(x.size)}</span>${esc(x.t)}</li>`).join("")}</ul></div>`).join("");
  document.getElementById("done").innerHTML=d.done.map(x=>`<div class="card"><div class="st-top"><div><span class="chip done">✓ ${esc(x.date)}</span><b>${esc(x.name)}</b></div><div class="st-cost">${x.ver?esc(x.ver)+"<br>":""}real <b>${esc(x.cost)}</b> wk pts</div></div><div class="why">${esc(x.change)}</div></div>`).join("");
  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["q","d","w"].forEach(t=>document.getElementById("tab-"+t).hidden=t!==b.dataset.t)});
