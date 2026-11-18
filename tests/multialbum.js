@@ -55,7 +55,7 @@ const { chromium } = require("./_compat");
   await p.fill("[data-f=year]", "1884"); await p.selectOption("[data-f=mint]", "O"); await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(200);
   ok("1884-O Morgan fills the Morgan spot", await p.evaluate((id) => { const st = albumStats(getAlbum(id)); return st.owned === 1 && st.filled.get("set:morgan-dollar").year === 1884; }, set.id));
   // want from a set spot
-  await p.click('.slot:has-text("Barber")'); await p.click("[data-act=slotWant]"); await p.waitForTimeout(100); await p.click("[data-act=slotWantAdd]"); await p.waitForTimeout(150);
+  await p.click('.slot:has-text("Barber")'); await p.click("[data-act=slotWantQuick]"); await p.waitForTimeout(200);
   ok("Barber dime want added (any year)", await p.evaluate(() => wants().some((w) => w.typeId === "barber-dime" && w.year === "")));
   ok("set spot shows wanted", (await p.textContent('.slot:has-text("Barber")')).includes("wanted"));
   // missing picker

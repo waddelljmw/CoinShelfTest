@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.84.0": [
+    "Albums are tidier: tap a filled spot and choose Take out of album (one tap, Undo). Tap an empty spot and Add to want list adds it to that album's own list right away. Deleting an album asks if its want-list coins should go too. A coin put in an album leaves its box slot, and no longer says Holder: Album after it leaves. Album melt says Needs silver price when no price is entered, and the album page shows how many spots are hidden, with a Show button.",
+  ],
   "0.83.0": [
     "Album spots are more accurate: a coin added to a variety spot (like 1909 VDB or 1878 7 Tail Feathers) keeps that variety; the 1895 Morgan spot says Proof only and asks for a proof grade; + Add a spot refuses dates and mint marks the series never had; changing a coin's variety moves it to the matching spot; and Hide spot or shortening an album's years asks first when coins sit in those spots.",
   ],

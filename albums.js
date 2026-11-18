@@ -139,6 +139,7 @@ function albumStats(a) {
     owned: filled.size, total: slots.length,
     value: sum(coins, (c) => (bestEach(c) || 0) * qtyOf(c)),
     melt: sum(coins, (c) => (meltEach(c) || 0) * qtyOf(c)),
+    meltNeeds: SPOT_METALS.filter((m) => coins.some((c) => meltKey(c) === m.key && ozEach(c) && spotPerOz(m.key) == null)), // metals with no price yet
   };
 }
 const albumsView = { reorder: false };
@@ -224,8 +225,9 @@ function viewAlbum(r) {
       <div class="stat"><div class="k">Owned</div><div class="v">${st.owned}/${st.total}</div></div>
       <div class="stat"><div class="k">Missing</div><div class="v">${st.total - st.owned}</div><button class="link-btn small" data-act="missing" data-id="${esc(a.id)}">Show missing</button></div>
       <div class="stat"><div class="k">Album value</div><div class="v">${money(st.value, "$0.00")}</div></div>
-      <div class="stat"><div class="k">Album melt</div><div class="v">${money(st.melt, "$0.00")}</div></div>
+      <div class="stat"><div class="k">Album melt</div><div class="v">${st.meltNeeds.length && !st.melt ? `<span class="small">Needs ${esc(metalWords(st.meltNeeds))} price</span>` : money(st.melt, "$0.00")}</div>${st.meltNeeds.length && st.melt ? `<div class="small muted">Needs ${esc(metalWords(st.meltNeeds))} price</div>` : ""}</div>
     </div>
+    ${(a.removed || []).length && !editing ? `<div class="small muted" style="margin:-4px 0 10px">${(a.removed || []).length} spot${(a.removed || []).length > 1 ? "s" : ""} hidden · <button class="link-btn" data-act="editSlots" data-id="${esc(a.id)}">Show</button></div>` : ""}
     <div class="bar" style="margin:12px 0 16px"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div>
     ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(a.id) : ""}
     ${!editing && typeof pageSelHtml === "function" ? pageSelHtml([...st.filled.values(), ...extras]) : ""}

@@ -73,6 +73,7 @@ function applyKept(d, v) {
   if (d.albumId) delete d.slotId;
   delete d._newStack;
   d.albumId = ""; d.boxId = ""; d.boxRow = ""; d.boxSlot = ""; d.boxTray = ""; delete d._boxFor;
+  if (normHolder(d.holder) === "Album" && !v.startsWith("a:") && v !== "__new") d.holder = ""; // "Holder: Album" only while it is in an album
   if (v === "__new") d.albumId = "__new";
   else if (v.startsWith("a:")) d.albumId = v.slice(2);
   else if (v.startsWith("b:")) d.boxId = v.slice(2);
