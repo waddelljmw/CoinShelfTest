@@ -262,6 +262,7 @@ function viewCoins() {
     <div class="toolbar">
       <input type="search" id="coinSearch" placeholder="Search" value="${esc(listState.q)}" data-list="q">
     </div>
+    ${typeof lookupRowsHtml === "function" && listState.status === "owned" ? lookupRowsHtml(listState.q) : ""}
     ${typeof coinsControls === "function" ? coinsControls(base, list) : (listState.q.trim() ? searchLine(list) : "")}
     ${listState.f && listState.f.inc && list.length && listState.status === "owned" ? `<button class="btn primary" style="width:100%;margin:6px 0" data-act="fixupStart">Fix the next coin \u203A (${list.length} left)</button>` : ""}
     <div class="toolbar">
