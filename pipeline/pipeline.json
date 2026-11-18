@@ -449,7 +449,7 @@
           "id": "118b",
           "size": "S",
           "what": "New source: Coin roll hunting",
-          "change": "Source list gets \"Coin roll hunting\" (fills Price paid with face). Pocket change and Gift stay $0. Source can be switched in one tap, also for a whole batch.",
+          "change": "Source list gets \"Coin roll hunting\" (fills Price paid with face). Pocket change and Gift stay $0. Source can be switched in one tap, also for a whole batch. Quick-add remembers your last source until you change it.",
           "affects": "Source list, Fill spots"
         }
       ],
