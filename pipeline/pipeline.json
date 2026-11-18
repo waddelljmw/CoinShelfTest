@@ -1,6 +1,6 @@
 {
- "updated": "Tue Nov 17, 2026, 9pm",
- "app": "v0.77.2",
+ "updated": "Tue Nov 17, 2026, 11pm",
+ "app": "v0.77.3",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
   "weekly_now": 28,
@@ -17,8 +17,8 @@
    "name": "Log it right",
    "model": "Sonnet",
    "est": "3–5",
-   "actual": "",
-   "status": "next",
+   "actual": "tbd (end reading pending)",
+   "status": "done",
    "why": "Stops the app from saving things wrong without telling you, before you log more coins.",
    "items": [
     {
@@ -65,7 +65,7 @@
    "model": "Sonnet",
    "est": "4–6",
    "actual": "",
-   "status": "queued",
+   "status": "next",
    "why": "Makes logging fast, and gives you one easy way to fix your 200+ coins that need info.",
    "items": [
     {
@@ -831,6 +831,13 @@
    "ver": "v0.75.0",
    "cost": "~1",
    "change": "Coins can be taken out of an album without deleting them."
+  },
+  {
+   "date": "11-17",
+   "name": "Step 1: Log it right (R4-1+R5-1, R4-3, R4-23, R4-4+R5-13)",
+   "ver": "v0.77.3",
+   "cost": "tbd",
+   "change": "Albums use only their own want list; Add coin shows 'Same as last' chips; Back no longer loses typing (metal prices, Discard prompt); Fill spots starts unticked with an 'Add N coins?' check."
   }
  ]
 }
