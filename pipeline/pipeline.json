@@ -3,7 +3,7 @@
   "app": "v0.80.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-    "weekly_now": 32,
+    "weekly_now": 34,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -132,8 +132,8 @@
       "model": "Sonnet",
       "est": "3–5",
       "actual": "",
-      "status": "partial",
-      "why": "Mintages from U.S. Mint records, so key dates show on spots and coin pages even without a price file. Part 1 (v0.79.0) and part 2 (v0.80.0, 11-18) done: cents, nickels, dimes, quarters, halves, dollars, Seated series, 1964-65 by date. WAITS for your Red Book spot-check of ~10 key dates; then it is marked done.",
+      "status": "done",
+      "why": "Mintages from U.S. Mint records, so key dates show on spots and coin pages even without a price file. Part 1 (v0.79.0) and part 2 (v0.80.0, 11-18) done: cents, nickels, dimes, quarters, halves, dollars, Seated series, 1964-65 by date. Spot-checked 11-18 against his Red Book: all 10 match once proofs (and the 1873-CC No Arrows line) are added.",
       "items": [
         {
           "id": "105 step 1",
@@ -145,7 +145,7 @@
         {
           "id": "105 step 1b",
           "size": "M",
-          "what": "Fill the mintage gaps: done (v0.80.0), waits for your spot-check",
+          "what": "Fill the mintage gaps: done (v0.80.0)",
           "change": "Added Barber, Walking Liberty and Franklin halves (commemoratives taken out), 1964 and 1965 coins by the date on them, Seated Liberty dimes, quarters, halves, half dimes and dollars, 3-cent silver and 20-cent pieces. Fixed 1900 Morgan and 1893 quarter (commemoratives were counted). Still left out: 1909 cents, 1916 dimes and quarters, 1938 and 1942 nickels, 1921 Philadelphia dollars, Capped Bust and older, minor coins before 1871, proofs, 1966 on.",
           "affects": "Album spots, coin page"
         }
@@ -164,7 +164,7 @@
       "model": "Sonnet",
       "est": "2–4",
       "actual": "",
-      "status": "queued",
+      "status": "next",
       "why": "Look up any coin, owned or not, like at the pawn shop: mintage, melt and eBay sold in one place.",
       "items": [
         {
@@ -898,6 +898,13 @@
       "ver": "v0.79.0",
       "cost": "usage reading not yet given (~1:00-1:55am, ~55 min)",
       "change": "Mintage now shows without a price file for cents, nickels, dimes, quarters, Morgan, Peace and trade dollars, marked \"from U.S. Mint records\" (pieces struck that year; Philadelphia includes proofs). Left out for now: halves, shared years (1909, 1916, 1921 P, 1938/1942), 1964-65, commemoratives. Every number checked against the book's printed totals."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 3a part 2: more mintages from U.S. Mint records (105 step 1b); step 3a done after Red Book spot-check",
+      "ver": "v0.80.0",
+      "cost": "started at weekly 34%; end reading not yet given (~8:41-9:35am, ~55 min, Opus)",
+      "change": "Mintage now also shows for Barber, Walking Liberty and Franklin halves, 1964 and 1965 coins (by date), Seated Liberty dimes, quarters, halves, half dimes and dollars, 3-cent silver and 20-cent pieces. 1900 Morgan and 1893 quarter fixed (commemoratives were counted)."
     }
   ]
 }
