@@ -3,7 +3,7 @@
  "app": "v0.82.1",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 40,
+  "weekly_now": 41,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -218,7 +218,7 @@
    "name": "Card for any coin you search",
    "model": "Sonnet",
    "est": "2–3",
-   "actual": "tbd (about 1)",
+   "actual": "~2",
    "status": "done",
    "why": "The part of 3b that was left out: look up a coin you don't own and that isn't in an album, like at the pawn shop.",
    "items": [
@@ -949,7 +949,7 @@
    "date": "11-18",
    "name": "Step 4a: card for any coin you search (105 step 2 left over)",
    "ver": "v0.82.0",
-   "cost": "started at session 33, weekly 39; end reading not yet given (Sonnet)",
+   "cost": "about 2 weekly (39 → 41), 12:18pm–1:45pm incl. ~20 min design Q&A (Sonnet)",
    "change": "Type a date and coin in the Coins search box (1916-D dime, 1909 vdb): a row appears; tap it for the coin card with key date, mintage, metal and melt, price-list value if loaded, varieties, how many you own, Search eBay sold and Add to want list. Nothing is saved until you add it to a want list. Wording and Home box added in v0.82.1: Search any coin on Home, rows show mintage with Key date first and an ⓘ, 'Not in your coins' when none match."
   }
  ]
