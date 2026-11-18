@@ -49,7 +49,7 @@ const { chromium } = require("./_compat");
   // removing a custom spot frees its coin to a plain spot rather than losing it
   await p.click("[data-act=editSlots]");
   const i3 = await p.evaluate(() => getAlbum("m1").slots.findIndex((s) => s.v === "Seven over Eight"));
-  await p.click(`[data-act=spotEdit][data-i='${i3}']`); await p.click("#spotEditForm [data-act=deleteSpot]"); await p.waitForTimeout(150);
+  await p.click(`[data-act=spotEdit][data-i='${i3}']`); await p.click("#spotEditForm [data-act=deleteSpot]"); await p.waitForTimeout(150); if (await p.$("[data-act=confirmOk]")) { await p.click("[data-act=confirmOk]"); await p.waitForTimeout(150); } // removing a filled spot asks first (step 5)
   ok("coin's spot link cleared after spot removed", (await p.evaluate(() => !("slotId" in ownedCoins().find((c) => c.notes === "coin for 7/8 Tail Feathers")))));
   // legacy album without ids still fills by date
   await p.evaluate(() => { put("a_old", { kind: "album", id: "old", brand: "Dansco", number: "1", name: "", typeId: "peace-dollar", start: 1921, end: 1922, removed: [], createdAt: 1, slots: [{ y: 1921, m: "" }, { y: 1922, m: "" }] }); saveCoin({ ...blankCoin(), typeId: "peace-dollar", typeName: "Peace Dollar", year: 1922, mint: "", albumId: "old", grade: "VF-20" }); });

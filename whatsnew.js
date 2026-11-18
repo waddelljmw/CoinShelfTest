@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.83.0": [
+    "Album spots are more accurate: a coin added to a variety spot (like 1909 VDB or 1878 7 Tail Feathers) keeps that variety; the 1895 Morgan spot says Proof only and asks for a proof grade; + Add a spot refuses dates and mint marks the series never had; changing a coin's variety moves it to the matching spot; and Hide spot or shortening an album's years asks first when coins sit in those spots.",
+  ],
   "0.82.1": [
     "Home now has a Search any coin box. Type a year and coin (like 1916 dime) and you land on the Coins page with the matching coins to look up, Key date first. Tap the small ⓘ next to Key date to see how it's decided. When none of your coins match, it says Not in your coins.",
   ],
