@@ -53,7 +53,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // old spot taken: goes to Nothing special and is listed
   await ev(() => { mkTaken(); function mkTaken() { put("c_t", { ...blankCoin(), id: "t", typeName: "Taker", year: "1991", status: "owned", qty: 1, boxId: "st", boxRow: "1", boxSlot: "1" }, true); } });
-  await ev(() => actions.caseReturnAll({ dataset: { id: "dc" } })); await p.waitForTimeout(150);
+  await ev(() => { actions.caseReturnAll({ dataset: { id: "dc" } }); actions.confirmOk(); }); await p.waitForTimeout(150);
   ok("return all: coin whose spot is taken goes to Nothing special", await ev(() => { const c = getCoin("x"); return !c.boxId && !c.albumId && c.stage === ""; }));
   ok("it is listed on screen", await ev(() => document.querySelector("#sheet").textContent.includes("Nothing special") && document.querySelector("#sheet").textContent.includes("1990 Test")));
   ok("already For sale stays For sale", await ev(() => getCoin("y").stage === "forsale" && getCoin("y").boxId === "st" && getCoin("y").boxSlot === "2"));
@@ -61,7 +61,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("nothing is left in the case", await ev(() => boxCoins(getBox("dc")).length === 0));
   await ev(() => document.querySelector('[data-act="caseUndo"]').click()); await p.waitForTimeout(150);
   ok("one Undo puts them all back", await ev(() => boxCoins(getBox("dc")).length === 4 && getCoin("x").stage === "forsale" && getCoin("y").boxId === "dc"));
-  await ev(() => actions.caseReturnAll({ dataset: { id: "dc" } })); await p.waitForTimeout(100);
+  await ev(() => { actions.caseReturnAll({ dataset: { id: "dc" } }); actions.confirmOk(); }); await p.waitForTimeout(100);
 
   // seller mode off hides the pieces, keeps the data
   await ev(() => saveSeller({ on: false }, true));

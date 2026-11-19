@@ -248,11 +248,13 @@ document.addEventListener("change", (e) => {
   $("#costBox").innerHTML = showCostFields({ type: f.elements.type.value, role: f.elements.role.value }, vals);
 });
 
+let caseReturnOk = false; // set while "Return them" is confirmed
 Object.assign(actions, {
   caseOut: (el) => { const c = getCoin(el.dataset.id); if (c && c.status === "owned") caseReturn([c], labelOf(c) + " taken out."); },
   caseReturnAll: (el) => {
     const b = getBox(el.dataset.id), cs = b ? boxCoins(b) : [];
     if (!cs.length) { toast("Nothing in this case."); return; }
+    if (!caseReturnOk) return confirmSheet("Return all unsold coins?", cs.length + " coin" + (cs.length > 1 ? "s" : "") + " leave the case and go back to where they were kept. You can Undo right after.", "Return them", () => { caseReturnOk = true; actions.caseReturnAll(el); caseReturnOk = false; });
     caseReturn(cs, "Returned " + cs.length + " coin" + (cs.length > 1 ? "s" : "") + ".");
   },
   caseUndo: () => {

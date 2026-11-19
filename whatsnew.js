@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.89.0": [
+    "Easier to take back: Take off For sale now has Undo, Return unsold coins asks first, and messages stay on screen longer (Undo stays about 15 seconds).",
+    "In the demo, See a full sample collection asks before replacing the practice coins you added.",
+  ],
   "0.88.1": [
     "Easier to tap: the ⓘ help buttons, folding section bars, back links, menu rows and Close buttons now have comfortable, bigger tap areas.",
     "The star on a coin row has its own space at the right edge, so opening a coin no longer stars it by mistake. The small eBay link under each coin on Coin Value is gone (use Check eBay sold on the coin page).",
