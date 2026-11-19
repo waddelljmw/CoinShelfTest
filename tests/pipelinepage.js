@@ -1,0 +1,39 @@
+// Process update 11-19: the pipeline page loads, shows Questions box, road, Test checklist, Notes inbox; ticks/notes/answers save through a stand-in db.
+const { chromium } = require("./_compat");
+const http = require("http"), fs = require("fs"), path = require("path");
+(async () => {
+  const root = path.resolve(__dirname, "../pipeline");
+  const srv = http.createServer((q, r) => { const f = path.join(root, q.url === "/" ? "index.html" : q.url.split("?")[0]); fs.readFile(f, (e, b) => { if (e) { r.writeHead(404); r.end(); } else { r.writeHead(200, { "content-type": f.endsWith(".json") ? "application/json" : "text/html" }); r.end(b); } }); }).listen(0);
+  const port = srv.address().port;
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+  const errors = []; p.on("pageerror", (e) => errors.push(e.message));
+  await p.addInitScript(() => {
+    const docs = new Map(), subs = [];
+    const fire = () => subs.forEach((s) => s());
+    const snapDocs = (col) => [...docs].filter(([k]) => k.startsWith(col + "/") && !k.slice(col.length + 1).includes("/")).map(([k, v]) => ({ id: k.split("/").pop(), data: () => v }));
+    const mkdoc = (path) => ({ set: async (d) => { docs.set(path, d); fire(); }, update: async (d) => { docs.set(path, { ...(docs.get(path) || {}), ...d }); fire(); } });
+    const db = { doc: mkdoc, collection: (c) => ({ add: async (d) => { docs.set(c + "/n" + docs.size, d); fire(); }, onSnapshot: (next) => { const s = () => next({ docs: snapDocs(c) }); subs.push(s); setTimeout(s, 0); return () => {}; } }) };
+    window.__docs = docs;
+    window.claude = { use: async (n) => (n === "db" ? db : null) };
+  });
+  await p.goto("http://127.0.0.1:" + port + "/"); await p.waitForTimeout(500);
+  const ok = (name, cond) => console.log((cond ? "PASS " : "FAIL ") + name);
+  ok("empty Questions box says nothing waiting", /Nothing waiting on you/.test(await p.textContent("#qbox")));
+  ok("YOU ARE HERE is step 16", /YOU ARE HERE: step 16/.test(await p.textContent("#here")));
+  ok("waiting steps are faded in the road", (await p.$$(".dot.wait")).length >= 3);
+  await p.fill("#use", "18/57"); await p.click('[data-m="keep"]');
+  ok("prompt has mode and usage", /keep going to \d+%/.test(await p.textContent("#np")));
+  await p.fill("#use", "18/57");
+  ok("usage lands in prompt", /Usage: \[18\/57\]/.test(await p.textContent("#np")));
+  await p.evaluate(() => window.__docs.set("questions/q1", { q: "Which 9 checks?", asked: "11-19", status: "open" })); await p.evaluate(() => { document.querySelector('[data-t="n"]').click(); });
+  await p.click('[data-t="t"]'); await p.waitForTimeout(100);
+  await p.click("#test input[data-id]"); await p.waitForTimeout(150);
+  ok("a test tick is saved", await p.evaluate(() => [...window.__docs].some(([k, v]) => k.startsWith("ticks/") && v.done)));
+  await p.click('[data-t="n"]'); await p.fill("#nt", "buy a loupe"); await p.check("#nb"); await p.click("#ns"); await p.waitForTimeout(150);
+  ok("note saved and listed with blocks chip", /buy a loupe/.test(await p.textContent("#notes")) && /blocks entering coins/.test(await p.textContent("#notes")));
+  await p.click(".dot >> nth=0"); await p.waitForTimeout(100);
+  ok("tapping a bubble shows the Queue", !(await p.$eval("#tab-q", (e) => e.hidden)));
+  ok("no page errors", errors.length === 0);
+  if (process.env.SHOT) { await p.evaluate(() => scrollTo(0, 0)); await p.screenshot({ path: process.env.SHOT }); await p.click('[data-t="t"]'); await p.screenshot({ path: process.env.SHOT.replace(".png", "-t.png") }); }
+  await b.close(); srv.close();
+})();
