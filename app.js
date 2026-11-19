@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.86.0";
+const APP_VERSION = "0.87.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -308,6 +308,7 @@ function albumSeriesKeys(list) {
       if (a === b || a.brand !== b.brand) return;
       const pb = numParts(b.number);
       if (pb.pre !== pa.pre || Math.abs(pb.n - pa.n) !== 1) return;
+      if (!!a.inherited !== !!b.inherited) return; // an inherited album is never joined to one of yours automatically
       const fa = albumFamilies(a);
       if (![...albumFamilies(b)].some((f) => fa.has(f))) return;
       const k = key.get(a.id) || key.get(b.id) || "auto:" + a.id;

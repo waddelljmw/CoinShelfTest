@@ -3,6 +3,17 @@
 // Spine color picker (used for "Other" brand albums; Whitman, Dansco, Harris and Littleton have their own colors).
 const albumColorField = (val) => `<label class="f"><span>Spine color <span class="muted small">(used when the brand is Other)</span></span><select name="color">${BOX_COLORS.filter((x) => x[0] !== "clear").map((x) => `<option value="${x[0]}" ${(val || "red") === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>`;
 const albumTitle = (a) => a.name || [a.brand, a.number].filter(Boolean).join(" ") || "Album";
+// Same, with "(inherited)" added for an inherited album (My Albums cards, want-list names).
+const albumLabel = (a) => albumTitle(a) + (a.inherited ? " (inherited)" : "");
+// An album with no name of its own and the same brand + number as another gets "(2)", "(3)"... so two never look alike.
+function uniqueAlbumName(a) {
+  if (a.name) return false;
+  const used = new Set(albums().filter((x) => x.id !== a.id).map(albumTitle)), base = albumTitle(a);
+  if (!used.has(base)) return false;
+  let n = 2; while (used.has(base + " (" + n + ")")) n++;
+  a.name = base + " (" + n + ")";
+  return true;
+}
 // A slot is one spot in an album: year, mint mark, and optionally a variety (e.g. "8 Tail Feathers").
 // Type-set spots ("set") hold one coin of a type, any date. "tx" marks a date spot shared by two of the album's types.
 // "pf" marks a proof spot (only a coin with a PR grade fills it).
@@ -199,7 +210,7 @@ function viewAlbums() {
     const done = st.total && st.owned === st.total;
     const numLine = a.name && (a.brand !== "Other" || a.number) ? [a.brand !== "Other" ? a.brand : "", a.number && "No. " + a.number].filter(Boolean).join(" ") : "";
     return `<button class="card" style="display:block;width:100%;text-align:left" data-go="album-${esc(a.id)}">
-        <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(albumTitle(a))}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</b><span class="num">${st.owned}/${st.total}</span></div>
+        <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(albumTitle(a))}${a.inherited ? `<span class="chip" style="margin-left:6px;font-weight:normal">Inherited</span>` : ""}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</b><span class="num">${st.owned}/${st.total}</span></div>
         ${numLine ? `<div class="small">${esc(numLine)}</div>` : ""}
         <div class="small muted">${esc(isSetAlbum(a) ? "Type set · " + albumTypes(a).length + " types" : albumTypeText(a))}${a.start ? " · " + a.start + "–" + a.end : ""} · ${money(st.value, "$0.00")}</div>
         <div class="bar"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div></button>`;

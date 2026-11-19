@@ -85,10 +85,12 @@ function doNewAlbum(form) {
   if (fd.get("brand") === "Other") a.color = String(fd.get("color") || "red");
   if (typeof applyAlbumKept === "function") applyAlbumKept(a, fd);
   a.slots = buildAlbumSlots(types, layout, start, end, proofs, info0 && info0.spotVarieties);
+  const twin = uniqueAlbumName(a);
   put("a_" + a.id, a);
   types.forEach(touchType);
   closeSheet();
   go("album-" + a.id);
+  if (twin) toast("Same number as another album, so this one is called " + a.name + ". You can rename it.");
   if (fd.get("fill") === "has" && typeof openFillAlbum === "function") { fillUi.fresh = true; openFillAlbum(a.id, true); } // already has coins: open the quick list
 }
 // "Part of a series" in Edit album: link this album with another, or unlink it.
@@ -186,9 +188,11 @@ function saveEditAlbum(form) {
     slots = set ? [...kept, ...added] : sortSlots([...kept, ...added]);
   }
   const removed = a.removed || [];
-  put("a_" + a.id, applyAlbumKept({ ...a, color: String(fd.get("color") || a.color || "red"), brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, inherited: !!fd.get("inherited"), proofs, slots, removed, ...seriesFromForm(a, fd) }, fd));
+  const edited = applyAlbumKept({ ...a, color: String(fd.get("color") || a.color || "red"), brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, inherited: !!fd.get("inherited"), proofs, slots, removed, ...seriesFromForm(a, fd) }, fd);
+  const twin = uniqueAlbumName(edited);
+  put("a_" + a.id, edited);
   closeSheet();
-  toast("Album saved.");
+  toast(twin ? "Same number as another album, so this one is called " + edited.name + ". You can rename it." : "Album saved.");
 }
 
 // New album: the years follow the coin types picked (earliest start to latest end).

@@ -109,11 +109,28 @@ function inhLeaveAsk(d) {
     <div class="btn-row"><button class="btn danger" data-act="inhLeaveOk">Change it</button><button class="btn" data-act="inhLeaveKeep">Keep Inherited</button></div>`);
   return true;
 }
+// A sold coin whose Source is changed to Inherited: ask first (it would leave sold results and profit).
+function inhSoldAsk(d) {
+  if (d._isNew || d._srcOk) return false;
+  const prev = getCoin(d.id);
+  if (!prev || prev.status !== "sold" || isInherited(prev) || !isInherited(d)) return false;
+  openSheetOver(`<div class="sheet-head"><h2>Make this sold coin inherited?</h2><button class="x" data-act="inhSoldKeep" aria-label="Close">✕</button></div>
+    <p>This coin is already sold. Marking it Inherited takes it out of sold results and profit. Only go on if it really came to you by inheritance.</p>
+    <div class="btn-row"><button class="btn danger" data-act="inhSoldOk">Change it</button><button class="btn" data-act="inhSoldKeep">Keep as it was</button></div>`);
+  return true;
+}
 function inhLeaveClose(then) { // take the question off the form, then carry on (same steps as wordBack)
   if (sheetLayers.length && sheetMarks) { sheetMarks--; sheetPopping = true; sheetPopCb = () => { sheetLayerBack(); then(); }; history.back(); }
   else { hideTopSheet(); sheetLayers = []; then(); }
 }
 Object.assign(actions, {
+  inhSoldOk: () => inhLeaveClose(() => { if (draft) { draft._srcOk = true; saveDraft(); } }),
+  inhSoldKeep: () => inhLeaveClose(() => {
+    const prev = draft && getCoin(draft.id);
+    if (!prev) return;
+    ["source", "inhId", "inhValue", "origAlbum"].forEach((k) => { if (prev[k] === undefined) delete draft[k]; else draft[k] = prev[k]; });
+    delete draft._sourceKind; renderCoinForm();
+  }),
   inhLeaveOk: () => inhLeaveClose(() => { if (draft) { draft._srcOk = true; saveDraft(); } }),
   inhLeaveKeep: () => inhLeaveClose(() => {
     const prev = draft && getCoin(draft.id);

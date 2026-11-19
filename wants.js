@@ -84,7 +84,7 @@ function wantRow(w) {
   const rb = w.grade ? bookPrice(fake) : null;
   const a = w.albumId ? getAlbum(w.albumId) : null;
   const n = wantsOf(w).length;
-  const sub = [isUpgradeWant(w) ? "Upgrade" : "", w.grade ? "Target " + w.grade : "Any grade", num(w.maxPrice) != null ? "pay up to " + money(num(w.maxPrice)) : "", a ? "for " + albumTitle(a) : ""].filter(Boolean).join(" · ");
+  const sub = [isUpgradeWant(w) ? "Upgrade" : "", w.grade ? "Target " + w.grade : "Any grade", num(w.maxPrice) != null ? "pay up to " + money(num(w.maxPrice)) : "", a ? "for " + albumLabel(a) : ""].filter(Boolean).join(" · ");
   return `<div class="coin-row" style="display:block">
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
       <span class="coin-main"><span class="coin-label">${esc(wantLabel(w))}${n > 1 ? ` <button class="link-btn small" data-act="wantWhere" data-id="${esc(w.id)}" title="Tap to see which lists">${wantedTag(n)}</button>` : ""}</span><span class="coin-sub">${esc(sub)}</span>
@@ -367,7 +367,7 @@ const missingPick = { albumId: null, chosen: new Set(), listId: "" };
 // Suggested list for an album: the list already made for this album, else a new one named "<Type> – Missing from <album>" (never another album's list).
 function missingSuggest(a) {
   const types = albumTypes(a), t = types.length === 1 ? TYPE_BY_ID[types[0]] : null;
-  const name = (t ? shortName(t) + " – " : "") + "Missing from " + albumTitle(a);
+  const name = (t ? shortName(t) + " – " : "") + "Missing from " + albumLabel(a);
   const lists = wantLists();
   const same = lists.find((l) => l.name === name);
   if (same) return { id: same.id, name };

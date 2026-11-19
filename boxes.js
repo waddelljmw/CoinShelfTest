@@ -276,6 +276,7 @@ function readTrays(form, count, first) {
   }
   return out;
 }
+let boxSaleForm = null;
 function saveBoxForm(form) {
   const f = new FormData(form); let id = form.dataset.id;
   const name = String(f.get("name") || "").trim();
@@ -291,6 +292,16 @@ function saveBoxForm(form) {
   }
   if (!name || (spots && (!(rows >= 1 && rows <= 50) || !(perRow >= 1 && perRow <= 100)))) { toast(isCase && spots ? "Add a name, and how many rows and spots." : spots ? "Add a name, 1–50 rows or columns and 1–100 slots in each." : "Add a name."); return; }
   const old = id && getBox(id);
+  if (old && isCase && f.get("forSale") === "on" && !caseOn(old) && !form._saleOk) { // turning a box into a for-sale case with inherited coins inside: ask first
+    const n = boxCoins(old).filter((c) => c.status === "owned" && isInherited(c)).length;
+    if (n) {
+      boxSaleForm = form;
+      openSheetOver(`<div class="sheet-head"><h2>Make this a for-sale case?</h2><button class="x" data-act="boxSaleKeep" aria-label="Close">✕</button></div>
+        <p>${n} inherited coin${n === 1 ? "" : "s"} sit${n === 1 ? "s" : ""} in this box. Inherited coins can't go in a for-sale case. Go on only if you really mean to sell ${n === 1 ? "it" : "them"}.</p>
+        <div class="btn-row"><button class="btn danger" data-act="boxSaleOk">Yes, for sale</button><button class="btn" data-act="boxSaleKeep">Not for sale</button></div>`);
+      return;
+    }
+  }
   const before = old ? JSON.parse(JSON.stringify(old)) : null;
   let coinsBefore = [];
   if (old && spots) {
@@ -326,6 +337,8 @@ function missingWheat() {
   return { total: all.length, missing: all.filter((s) => !have.has(s.y + "|" + s.m)) };
 }
 Object.assign(actions, {
+  boxSaleOk: () => inhLeaveClose(() => { const fm = boxSaleForm; boxSaleForm = null; if (fm) { fm._saleOk = true; saveBoxForm(fm); } }),
+  boxSaleKeep: () => inhLeaveClose(() => { const fm = boxSaleForm; boxSaleForm = null; const sw = fm && fm.querySelector("[name=forSale]"); if (sw) sw.checked = false; }),
   boxTray: (el) => { boxTab[el.dataset.id] = +el.dataset.v || 1; render(); },
   trayChange: (el) => { const r = el.closest(".tray-row"); r.querySelector("[data-tr=changed]").value = "1"; r.querySelector("[data-fields]").hidden = false; r.querySelector("[data-same]").hidden = true; el.hidden = true; },
   boxNew: () => { boxReturn = null; boxForm(null); },
