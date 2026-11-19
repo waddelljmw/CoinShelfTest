@@ -114,7 +114,7 @@ function shelfStacks(owned) {
     return `<button class="sh-group" data-go="stacks"><span class="sh-pile">${pile}</span><span class="sh-cap">${esc(name)}<br>${oz.toFixed(oz < 10 ? 2 : 1)} oz</span></button>`;
   });
   const coins = owned.filter((c) => itemOf(c) === "coin" && !stackOf(c));
-  groups.push(`<button class="sh-group" data-go="coins"><span class="sh-pile">${discs(coins, 9) || `<i class="sh-coin empty"></i>`}</span><span class="sh-cap">My Coins<br>${sum(coins, qtyOf)}</span></button>`);
+  groups.push(`<button class="sh-group" data-go="coins"><span class="sh-pile">${discs(coins, 9) || `<i class="sh-coin empty"></i>`}</span><span class="sh-cap">My Coins</span></button>`);
   const rolls = owned.filter((c) => itemOf(c) === "roll");
   if (rolls.length) {
     const tubes = rolls.slice(0, 3).map((c, i) => `<i class="sh-roll ${rollColor(c) ? "rc-" + rollColor(c) : discCls(c)}" style="height:${[64, 56, 70][i]}px"></i>`).join("");

@@ -1,9 +1,9 @@
 {
  "updated": "2026-11-19",
- "app": "v0.90.0",
+ "app": "v0.90.1",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 48,
+  "weekly_now": 52,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -738,8 +738,8 @@
    "name": "Numbers agree",
    "model": "Sonnet",
    "est": "3–4",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "why": "Every screen shows the same totals.",
    "items": [
     {
@@ -778,7 +778,7 @@
    "model": "Sonnet",
    "est": "3–5",
    "actual": "",
-   "status": "queued",
+   "status": "next",
    "why": "Testers who sell see correct numbers (new seller features wait for 2027).",
    "items": [
     {
@@ -1175,6 +1175,13 @@
    "ver": "v0.90.0",
    "cost": "end reading pending (Sonnet)",
    "change": "A brand-new app starts on Collector (existing collections unchanged; restoring a backup keeps the backup's own level). Simple hides For sale, Mark as sold and Business. Welcome card has I have a backup file. New box explains what's missing inside the form. Clearer words: album names in Placed in / Delete, Spot price help covers copper per pound, No price list loaded yet, the photo coming-soon line is gone."
+  },
+  {
+   "date": "11-19",
+   "name": "Step 13: numbers agree",
+   "ver": "v0.90.1",
+   "cost": "end reading pending (Sonnet)",
+   "change": "Album value leaves Business coins out, like Home. Home no longer shows a second coin number on the shelf. A nickel worth only face now says Face value, a coin with no value shows a dash on Coin Value, and the premium list uses the same value as everywhere else. Refunded or moved-back coins return to the For sale list. A Business-only Home points to Business stock instead of 'No coins yet'. Inventory report marks Business coins. Sold results says it covers Personal and Business, all years."
   }
  ]
 }

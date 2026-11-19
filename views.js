@@ -143,7 +143,7 @@ function viewHome() {
   if (s.showSold) html += soldCard();
 
   const recent = everything.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
-  if (s.showAdded !== false) html += homeSection("added", "Recently added", recent.length ? `<div class="list">${recent.map((c) => coinRow(c)).join("")}</div>` : `<div class="card empty">No coins yet. Tap <b>+</b> to add your first coin.</div>`);
+  if (s.showAdded !== false) html += homeSection("added", "Recently added", recent.length ? `<div class="list">${recent.map((c) => coinRow(c)).join("")}</div>` : ownedCoins().some((c) => c.biz) ? `<div class="card empty">Everything you own is Business stock. <button class="link-btn" data-act="bizList">See Business stock</button></div>` : `<div class="card empty">No coins yet. Tap <b>+</b> to add your first coin.</div>`);
 
   const sold = soldCoins().slice().sort((a, b) => {
     const da = (a.sold && a.sold.date) || "", db = (b.sold && b.sold.date) || "";
@@ -182,7 +182,7 @@ function soldCard() {
   return homeSection("soldres", "Sold results", `<div class="stats">
     <div class="stat" data-act="seeSold" role="button" tabindex="0" style="cursor:pointer"><div class="k">Sold</div><div class="v">${sum(sold, qtyOf)}</div><div class="small muted">${money(revenue, "$0.00")} in sales · tap to see</div></div>
     <div class="stat"><div class="k">Margin</div><div class="v ${signCls(margin)}">${pct(margin)}</div><div class="small muted">${money(profit, "$0.00")} profit${sellerOn() ? " before show costs" : ""}</div></div>
-  </div><div class="small muted" style="margin:6px 0 4px">After what you paid, fees, shipping and insurance${sellerOn() ? ", <b>before show costs</b>" : ""}. Inherited coins aren't counted.</div>`);
+  </div><div class="small muted" style="margin:6px 0 4px">After what you paid, fees, shipping and insurance${sellerOn() ? ", <b>before show costs</b>" : ""}. Personal and Business sales together, all years. Inherited coins aren't counted.</div>`);
 }
 
 function viewValue() {
@@ -193,17 +193,18 @@ function viewValue() {
   const byFam = {};
   owned.forEach((c) => {
     const f = familyOf(c);
-    byFam[f] = byFam[f] || { n: 0, v: 0, m: 0 };
+    byFam[f] = byFam[f] || { n: 0, v: 0, m: 0, any: false };
+    if (bestEach(c) != null) byFam[f].any = true;
     byFam[f].n += qtyOf(c);
     byFam[f].v += (bestEach(c) || 0) * qtyOf(c);
     byFam[f].m += (meltEach(c) || 0) * qtyOf(c);
   });
   const fams = Object.entries(byFam).sort((a, b) => b[1].v - a[1].v);
   const top = owned.slice().sort((a, b) => (bestEach(b) || 0) * qtyOf(b) - (bestEach(a) || 0) * qtyOf(a)).slice(0, 10);
-  const premium = owned.filter((c) => valueEach(c) != null && meltEach(c)).map((c) => ({ c, p: valueEach(c) / meltEach(c) - 1 })).sort((a, b) => b.p - a.p).slice(0, 5);
+  const premium = owned.filter((c) => bestEach(c) != null && meltEach(c)).map((c) => ({ c, p: bestEach(c) / meltEach(c) - 1 })).sort((a, b) => b.p - a.p).slice(0, 5);
   return `<h1>Coin Value</h1>
     <h2>By coin type</h2>
-    <div class="card">${fams.map(([f, x]) => `<div class="rowline"><span>${esc(f)}<div class="small muted">${x.n} coin${x.n > 1 ? "s" : ""}${x.m ? " · melt " + money(x.m) : ""}</div></span><span class="num">${money(x.v)}</span></div>`).join("")}</div>
+    <div class="card">${fams.map(([f, x]) => `<div class="rowline"><span>${esc(f)}<div class="small muted">${x.n} coin${x.n > 1 ? "s" : ""}${x.m ? " · melt " + money(x.m) : ""}</div></span><span class="num">${x.any ? money(x.v) : "—"}</span></div>`).join("")}</div>
     <h2>Most valuable</h2>
     <div class="list">${top.map((c) => coinRow(c)).join("")}</div>
     ${premium.length ? `<h2>Highest premium over melt</h2><div class="card">${premium.map(({ c, p }) => `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}</button><span class="num ${signCls(p)}">${pct(p)} · <a href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">eBay ↗</a></span></div>`).join("")}</div>` : ""}

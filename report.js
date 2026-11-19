@@ -93,7 +93,7 @@ async function thumbDataUrl(photo) {
   } catch (e) { return ""; }
 }
 
-const SOURCE_TEXT = { entered: "Owner's value", get book() { return bookName(); }, melt: "Melt", face: "Face value (no metal price)" };
+const SOURCE_TEXT = { entered: "Owner's value", get book() { return bookName(); }, melt: "Melt", face: "Face value" };
 
 async function buildReport(opts) {
   const s = settings();
@@ -116,7 +116,7 @@ async function buildReport(opts) {
   const rows = coins.map((c, i) => {
     const v = bestEach(c), q = qtyOf(c), mt = meltEach(c);
     const certLine = c.gradeMode === "cert" && c.cert ? `<div class="sub">Cert ${esc(c.cert)}</div>` : "";
-    const inh = inheritanceOf(c), extra = [isInherited(c) ? (inh && (inh.earlier || []).length ? "Inherited: " + esc(inhHistory(inh)) : "Inherited" + (inh ? " from " + esc(inhLabel(inh)) : "")) : "", c.cac ? "CAC " + esc(c.cac) : "", c.acquired ? "Acquired " + esc(c.acquired) : "", c.variety ? esc(c.variety) : "", c.fbl ? "Full Bell Lines" : "", c.sms ? "Special Mint Set" : ""].filter(Boolean).join(" · ");
+    const inh = inheritanceOf(c), extra = [c.biz ? "Business stock" : "", isInherited(c) ? (inh && (inh.earlier || []).length ? "Inherited: " + esc(inhHistory(inh)) : "Inherited" + (inh ? " from " + esc(inhLabel(inh)) : "")) : "", c.cac ? "CAC " + esc(c.cac) : "", c.acquired ? "Acquired " + esc(c.acquired) : "", c.variety ? esc(c.variety) : "", c.fbl ? "Full Bell Lines" : "", c.sms ? "Special Mint Set" : ""].filter(Boolean).join(" · ");
     return `<tr>
       <td class="n">${i + 1}</td>
       ${opts.photos ? `<td class="ph">${thumbs[c.id] ? `<img src="${thumbs[c.id]}" alt="">` : ""}</td>` : ""}

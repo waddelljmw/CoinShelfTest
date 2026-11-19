@@ -200,7 +200,8 @@ function valueSource(c) {
   if (isJunk(c)) return "melt";
   if (num(c.value) != null) return "entered";
   if (!hasProblems(c) && bookPrice(c) != null) return "book";
-  return meltEach(c) != null ? "melt" : faceEach(c) != null ? "face" : null;
+  const m = meltEach(c), f = faceEach(c);
+  return m != null && !(f != null && m < f) ? "melt" : f != null ? "face" : null; // same rule as bestEach: melt under face shows as face
 }
 // Best available value: entered value, else melt.
 // Last resort for a single coin with no value, no Red Book price and no melt: its face value (catalog coins only).
