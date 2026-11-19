@@ -152,10 +152,15 @@ document.addEventListener("change", (e) => {
     delete f.dataset.whereFromShow;
     return;
   }
-  if (!f || !w || f.elements.whereType.value) return; // never change a "Where" already picked
-  f.elements.whereType.value = w.whereType;
-  f.elements.whereType.dispatchEvent(new Event("change", { bubbles: true }));
-  if (f.elements.whereDetail && w.whereDetail) f.elements.whereDetail.value = w.whereDetail;
+  if (!f || !w) return;
+  const cur = f.elements.whereType.value;
+  if (cur && cur !== w.whereType) return; // never change a "Where" already picked
+  if (!cur) {
+    f.elements.whereType.value = w.whereType;
+    f.elements.whereType.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  const d = f.elements.whereDetail, prev = String(f.dataset.whereFromShow || "").split("|")[1] || "";
+  if (d && w.whereDetail && (!d.value.trim() || d.value === prev)) d.value = w.whereDetail; // fills the show name; never over a name you typed
   f.dataset.whereFromShow = w.whereType + "|" + (w.whereDetail || "");
 });
 

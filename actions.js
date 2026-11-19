@@ -10,6 +10,13 @@ function toast(msg, action) {
   toastTimer = setTimeout(() => { t.hidden = true; }, action ? 15000 : 6000); // messages ~6 seconds, Undo ~15 seconds (R6-7)
 }
 
+// Tap the message, or swipe it sideways or down, to close it (the Undo button still works). It never blocks what's under it for long.
+function toastClose() { clearTimeout(toastTimer); const t = $("#toast"); if (t) t.hidden = true; }
+let toastTouch = null;
+document.addEventListener("click", (e) => { if (e.target.closest && e.target.closest("#toast") && !e.target.closest("button")) toastClose(); });
+document.addEventListener("touchstart", (e) => { toastTouch = e.target.closest && e.target.closest("#toast") && e.touches[0] ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null; }, { passive: true });
+document.addEventListener("touchend", (e) => { const s = toastTouch, t = e.changedTouches[0]; toastTouch = null; if (s && t && (Math.abs(t.clientX - s.x) > 30 || t.clientY - s.y > 20)) toastClose(); }, { passive: true });
+
 /* ---------- events ---------- */
 // Sold coin back to stock. keepRecord = Refund or cancel (sale kept as Refunded); otherwise a plain move back.
 function returnToStock(el, keepRecord, collect) { // collect (optional list): used by Refund whole order; gathers what Undo must put back and shows no message
@@ -402,6 +409,7 @@ document.addEventListener("input", (e) => {
   if (itemOf(draft) === "set" && (f === "year" || f === "setKind")) { autoSetOz(draft); const oi = $("[data-f=oz]"); if (oi && !draft._ozEdited) oi.value = draft.oz; }
   refreshFormHints();
 });
+document.addEventListener("input", (e) => { if (e.target.id === "albumTypeFind") albumTypeSearch(e.target, false); });
 document.addEventListener("focusin", (e) => { if (e.target.id === "typeSearch") showTypeList(e.target.value); });
 document.addEventListener("change", (e) => {
   const el = e.target;
@@ -410,13 +418,7 @@ document.addEventListener("change", (e) => {
   if (el.id === "photoInput") { addPhotos([...el.files]); return; }
   if (el.id === "receiptInput") { addPhotos([...el.files], "receiptPhotos"); return; }
   if (el.id === "spotM") { refreshSpotHints(); return; }
-  if (el.id === "albumTypeFind") { // Add album: type a few letters, pick a coin type from the list
-    const q = el.value.trim().toLowerCase();
-    const t = COIN_TYPES.find((x) => x.name.toLowerCase() === q) || (q.length > 2 ? (COIN_TYPES.filter((x) => x.name.toLowerCase().includes(q)).length === 1 ? COIN_TYPES.find((x) => x.name.toLowerCase().includes(q)) : null) : null);
-    const sel = $("#albumTypes select[data-albumtype]");
-    if (t && sel) { sel.value = t.id; const f = el.form; if (f) { f.dataset.touched = "1"; const nm = f.querySelector("[name=name]"); if (nm && f.id === "albumForm") nm.placeholder = t.name; } albumYearsFromTypes(); }
-    return;
-  }
+  if (el.id === "albumTypeFind") { albumTypeSearch(el, true); return; } // Add album: type a coin (and years), pick from the list
   if (el.dataset.albumtype != null) { albumYearsFromTypes(); return; }
   if (el.id === "albumLayout") { const h = $("#albumHint"); if (h) h.textContent = el.value === "set" ? "Add each coin type your type set holds. Each gets one spot, and any date fills it. The years are just for your reference." : "Use the years printed on your album. Each coin type gets spots for the dates and mint marks struck in those years."; return; }
   if (!draft) return;

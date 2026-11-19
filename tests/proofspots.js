@@ -42,7 +42,7 @@ const { chromium } = require("./_compat");
   ok("proof spots removed when switched off", await p.evaluate(() => !getAlbum("w").slots.some((s) => s.pf && !s.custom)));
   // new album with proofs from the form
   await p.evaluate(() => go("albums")); await p.waitForTimeout(100); await p.click("[data-act=newAlbum]");
-  await p.selectOption("#albumTypes select >> nth=0", "franklin-half"); await p.selectOption("#albumForm [name=proofs]", "all"); await p.click("#albumForm button[type=submit]"); await p.waitForTimeout(200);
+  await p.evaluate((id) => { const el = document.querySelector("#albumTypeFind"); el.value = TYPE_BY_ID[id].name; albumTypeSearch(el, true); }, "franklin-half"); await p.selectOption("#albumForm [name=proofs]", "all"); await p.click("#albumForm button[type=submit]"); await p.waitForTimeout(200);
   ok("new Franklin album has proof spots", await p.evaluate(() => { const a = albums().find((x) => x.typeId === "franklin-half"); return a.proofs && a.slots.some((s) => s.pf && s.y === 1955); }));
   ok("no page errors", errors.length === 0); if (errors.length) console.log(errors);
   await b.close();
