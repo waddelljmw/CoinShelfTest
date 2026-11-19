@@ -3,7 +3,7 @@ const { chromium } = require("playwright"); // plain: _compat would auto-open Op
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
   const errors = []; p.on("pageerror", (e) => errors.push(e.message));
-  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
+  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300); await p.evaluate(() => saveSettings({ level: "everything" }, true)); // a new app starts on Collector (step 12); these tests need the whole app
   const isOpen = (key) => p.evaluate((k) => { const el = document.querySelector(`[data-act=optSec][data-v="${k}"]`); return el && el.getAttribute("aria-expanded") === "true"; }, key);
   // Home spot-price link → Options with Spot prices open
   await p.evaluate(() => saveSettings({ hideSpot: {}, optOpen: {} })); await p.waitForTimeout(150);

@@ -2,7 +2,7 @@ const { chromium } = require("./_compat");
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 700 }, deviceScaleFactor: 1 });
   const errors = []; p.on("pageerror", (e) => errors.push(e.message));
-  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
+  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300); await p.evaluate(() => saveSettings({ level: "everything" }, true)); // a new app starts on Collector (step 12); these tests need the whole app
   const visible = () => p.$$eval("#menu > *", (x) => x.filter((e) => !e.hidden).map((e) => e.textContent.trim()));
   const want = ["My Cabinet", "My Coins", "My Albums", "Storage", "Want List", "Coin Value", "Insurance Report", "PCGS Photograde", "Options"];
   const wantBiz = ["My Cabinet", "My Coins", "My Albums", "Storage", "Want List", "Coin Value", "Insurance Report", "PCGS Photograde", "My Business", "Shows", "Sales Reports", "Options"];

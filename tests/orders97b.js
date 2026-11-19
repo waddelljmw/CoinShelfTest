@@ -5,7 +5,7 @@ const ok = (name, v, x) => console.log((v ? "ok   " : "FAIL ") + name + (x != nu
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 390, height: 844 } });
   const errors = []; p.on("pageerror", (e) => errors.push(e.message));
-  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
+  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300); await p.evaluate(() => saveSettings({ level: "everything" }, true)); // a new app starts on Collector (step 12); these tests need the whole app
   const ev = (fn, arg) => p.evaluate(fn, arg);
 
   // shareMoney: pieces always add back to the total
