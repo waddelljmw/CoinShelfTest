@@ -17,6 +17,9 @@ const wantsOf = (w) => wantsFor(w.typeId, w.year, w.mint, w.variety, w.pf);
 // An album only counts the wants made for it (their albumId), never another album's list.
 const spotWants = (a, s) => wantsFor(slotType(a, s), s.set ? "" : s.y, s.m, s.v, s.pf).filter((w) => w.albumId === a.id);
 const wantedTag = (n) => (n > 1 ? "wanted ×" + n : "wanted");
+// An upgrade want is one made with "Want an upgrade" (notes say "Upgrade"). A spot shows "upgrade wanted" when all its wants are upgrades, else "wanted".
+const isUpgradeWant = (w) => w.notes === "Upgrade";
+const spotTag = (ws) => (ws.length && ws.every(isUpgradeWant) ? "upgrade wanted" + (ws.length > 1 ? " ×" + ws.length : "") : wantedTag(ws.length));
 const listNameOf = (w) => { const l = getWantList(w.listId || DEFAULT_LIST_ID); return l ? l.name : "General"; };
 // The spot's want for one list (proof spots have their own wants).
 const spotFindWant = (a, s, listId) => (listId ? findWant(slotType(a, s), s.set ? "" : s.y, s.m, s.v, listId, s.pf) : spotWants(a, s)[0]);
@@ -81,7 +84,7 @@ function wantRow(w) {
   const rb = w.grade ? bookPrice(fake) : null;
   const a = w.albumId ? getAlbum(w.albumId) : null;
   const n = wantsOf(w).length;
-  const sub = [w.grade ? "Target " + w.grade : "Any grade", num(w.maxPrice) != null ? "pay up to " + money(num(w.maxPrice)) : "", a ? "for " + albumTitle(a) : ""].filter(Boolean).join(" · ");
+  const sub = [isUpgradeWant(w) ? "Upgrade" : "", w.grade ? "Target " + w.grade : "Any grade", num(w.maxPrice) != null ? "pay up to " + money(num(w.maxPrice)) : "", a ? "for " + albumTitle(a) : ""].filter(Boolean).join(" · ");
   return `<div class="coin-row" style="display:block">
     <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
       <span class="coin-main"><span class="coin-label">${esc(wantLabel(w))}${n > 1 ? ` <button class="link-btn small" data-act="wantWhere" data-id="${esc(w.id)}" title="Tap to see which lists">${wantedTag(n)}</button>` : ""}</span><span class="coin-sub">${esc(sub)}</span>
@@ -296,6 +299,51 @@ function askWantRemove(c) {
   if (!hits.length) return;
   confirmSheet("This is on your want list", wantLabel(hits[0]) + " is on your want list. Remove it?", "Remove from list", () => { hits.forEach((w) => remove("w_" + w.id)); toast("Removed from your want list."); });
 }
+// A new coin that fits a spot another coin already holds, and is better (or the old one was marked Upgrade wanted): offer the swap.
+function swapCandidate(c) {
+  const a = c.albumId && getAlbum(c.albumId);
+  if (!a || itemOf(c) !== "coin" || c.status !== "owned" || qtyOf(c) !== 1) return null;
+  const st = albumStats(a);
+  if ([...st.filled.values()].some((h) => h.id === c.id)) return null; // it found its own spot
+  for (const s of st.slots) {
+    const old = st.filled.get(slotKey(s));
+    if (!old || old.id === c.id || s.set || qtyOf(old) !== 1) continue;
+    const fits = num(c.year) === s.y && normMint(c.mint) === s.m && c.typeId === slotType(a, s) && !!s.pf === isProofGrade(c.grade) && (!s.v || varietyFits(c.variety, s.v) || varietyFits(c.spotVariety, s.v));
+    if (!fits) continue;
+    const gi = GRADES.indexOf(c.grade), oi = GRADES.indexOf(old.grade);
+    if (old.upgrade || (gi > 0 && oi > 0 && gi > oi)) return { slot: s, old };
+  }
+  return null;
+}
+const swapGrade = (x) => (x.gradeMode === "cert" ? gradeText(x) : x.grade || "coin");
+function openSwapSheet(c, sw) {
+  const boxes = allBoxes();
+  const idAttr = `data-id="${esc(c.id)}" data-old="${esc(sw.old.id)}"`;
+  openSheet(`<div class="sheet-head"><h2>Put the ${esc(swapGrade(c))} in the spot?</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <p><b>${esc(slotLabel(sw.slot))}</b> already holds your ${esc(swapGrade(sw.old))}. Where should that one go?</p>
+    <div class="btn-row"><button class="btn primary" data-act="swapGo" ${idAttr} data-to="loose">Swap · old one loose</button></div>
+    ${boxes.length ? `<label class="f"><span>Or into a box</span><select id="swapBox">${boxes.map((b) => `<option value="${esc(b.id)}">${esc(b.name || "Box")}</option>`).join("")}</select></label><div class="btn-row"><button class="btn" data-act="swapGo" ${idAttr} data-to="box">Swap · old one to the box</button></div>` : ""}
+    ${isInherited(sw.old) ? "" : `<div class="btn-row"><button class="btn" data-act="swapGo" ${idAttr} data-to="forsale">Swap · old one for sale</button></div>`}
+    <div class="btn-row"><button class="btn" data-act="closeSheet">Keep both for now</button></div>
+    <div class="hint">Nothing is deleted. The better coin takes the spot, and the old one stays in your collection.</div>`);
+}
+function swapGo(el) {
+  const n = getCoin(el.dataset.id), o = getCoin(el.dataset.old), a = n && getAlbum(n.albumId);
+  if (!n || !o || !a) { closeSheet(); return; }
+  const st = albumStats(a);
+  const s = st.slots.find((x) => { const h = st.filled.get(slotKey(x)); return h && h.id === o.id; });
+  if (!s) { closeSheet(); return; }
+  const to = el.dataset.to, boxId = ($("#swapBox") || {}).value || "";
+  const ups = spotWants(a, s).filter(isUpgradeWant);
+  const nn = { ...n, ...(s.id ? { slotId: s.id } : {}) };
+  const oo = { ...o, upgrade: false };
+  applyKept(oo, to === "box" && boxId ? "b:" + boxId : "");
+  if (to === "forsale" && !isInherited(o)) oo.stage = "forsale";
+  saveCoin(nn); saveCoin(oo);
+  ups.forEach((w) => remove("w_" + w.id));
+  closeSheet(); render();
+  toast("Swapped. The " + swapGrade(n) + " is in the spot.", { label: "Undo", fn: () => { saveCoin(n); saveCoin(o); ups.forEach((w) => saveWant(w)); render(); } });
+}
 // "Got it": open the add-coin form filled in from the want; saving the coin removes the want.
 function gotWant(id) {
   const w = getWant(id);
@@ -442,14 +490,44 @@ function slotWant(el) {
   const a = getAlbum(el.dataset.album);
   if (!a) return;
   const s = spotFromEl(a, el);
-  const up = el.dataset.upgrade ? upgradeGrade(el.dataset.coin ? getCoin(el.dataset.coin) : albumSpotCoin(a, s)) : "";
-  openSlotWantPicker({ album: a.id, y: s.set ? "" : s.y, m: s.m || "", v: s.v || "", typeId: slotType(a, s), pf: !!s.pf, ...(up ? { upgrade: up } : {}) });
+  const own = el.dataset.upgrade ? (el.dataset.coin ? getCoin(el.dataset.coin) : albumSpotCoin(a, s)) : null;
+  const up = own ? upgradeGrade(own) : "";
+  openSlotWantPicker({ album: a.id, y: s.set ? "" : s.y, m: s.m || "", v: s.v || "", typeId: slotType(a, s), pf: !!s.pf, ...(up ? { upgrade: up, coinId: own.id } : {}) });
 }
-// The next grade up from a coin's grade (same family: MS stays MS, PR stays PR); "" if there isn't one.
+// The next grade up from a coin's grade; "" if there isn't one. Circulated grades run on into MS-60 (AU-58 goes to MS-60); MS stays MS, PR stays PR.
 function upgradeGrade(c) {
   if (!c || !c.grade) return "";
   const i = GRADES.indexOf(c.grade), g = GRADES[i + 1];
-  return i > 0 && g && g.slice(0, 2) === c.grade.slice(0, 2) ? g : "";
+  if (i < 1 || !g) return "";
+  const fam = (x) => (/^(MS|PR)/.test(x) ? x.slice(0, 2) : "C");
+  return fam(g) === fam(c.grade) || (fam(c.grade) === "C" && g === "MS-60") ? g : "";
+}
+// The coin sitting in the spot a want was made for (null if none). Used to keep the coin's "Upgrade wanted" tick and the spot's upgrade want as one mark.
+function coinForWant(w) {
+  const a = w.albumId && getAlbum(w.albumId);
+  if (!a) return null;
+  const st = albumStats(a);
+  const s = st.slots.find((x) => slotType(a, x) === w.typeId && String(x.set ? "" : x.y) === String(w.year) && normMint(x.m) === normMint(w.mint) && (x.v || "") === (w.variety || "") && !!x.pf === !!w.pf);
+  return s ? st.filled.get(slotKey(s)) || null : null;
+}
+// After an upgrade want goes away: clear the coin's tick unless another upgrade want still holds the spot.
+function untickForWant(w) {
+  if (!isUpgradeWant(w)) return;
+  const c = coinForWant(w);
+  if (c && c.upgrade && !wantsOf(w).some((x) => x.id !== w.id && x.albumId === w.albumId && isUpgradeWant(x))) saveCoin({ ...c, upgrade: false });
+}
+// Saving a coin: ticking "Upgrade wanted" on a coin in an album spot makes the spot's upgrade want; unticking removes it.
+function syncUpgradeMark(c, prev) {
+  const a = c.albumId && getAlbum(c.albumId);
+  if (!a || itemOf(c) !== "coin" || !!c.upgrade === !!(prev && prev.upgrade)) return;
+  const st = albumStats(a);
+  const s = st.slots.find((x) => { const h = st.filled.get(slotKey(x)); return h && h.id === c.id; });
+  if (!s) return;
+  const mine = spotWants(a, s).filter(isUpgradeWant);
+  if (c.upgrade && !mine.length) {
+    ensureDefaultList();
+    saveWant(newWant({ typeId: slotType(a, s), year: s.set ? "" : s.y, mint: s.m, variety: s.v || "", pf: !!s.pf, albumId: a.id, listId: DEFAULT_LIST_ID, grade: upgradeGrade(c), notes: "Upgrade" }));
+  } else if (!c.upgrade) mine.forEach((w) => remove("w_" + w.id));
 }
 const albumSpotCoin = (a, s) => { const st = albumStats(a); return st.filled.get(slotKey(s)) || null; };
 function openSlotWantPicker(d, preselect) {
@@ -479,6 +557,7 @@ function slotWantAdd() {
   const tid = d.typeId || slotType(a, { y, m: d.m });
   if (!listAccepts(wl, tid)) { toast("That list is for a different coin type."); return; }
   if (!findWant(tid, y, d.m, d.v, listId, d.pf)) saveWant(newWant({ typeId: tid, year: y, mint: d.m, variety: d.v, pf: d.pf, albumId: a.id, listId, grade: wl && wl.scope === "type-grade" ? wl.grade : d.upgrade || "", notes: d.upgrade ? "Upgrade" : "" }));
+  if (d.upgrade && d.coinId) { const oc = getCoin(d.coinId); if (oc && !oc.upgrade) saveCoin({ ...oc, upgrade: true }); }
   closeSheet();
   toast("Added to " + ((wl && wl.name) || "your want list") + ".");
 }
@@ -557,8 +636,10 @@ Object.assign(actions, {
   wantRemove: (el) => {
     const w = getWant(el.dataset.id);
     if (!w) return;
+    const c = coinForWant(w);
     remove("w_" + w.id);
-    toast("Removed from your want list.", { label: "Undo", fn: () => saveWant(w) });
+    untickForWant(w);
+    toast("Removed from your want list.", { label: "Undo", fn: () => { saveWant(w); if (c && isUpgradeWant(w)) saveCoin(c); } });
   },
   wantGot: (el) => gotWant(el.dataset.id),
   slotMenu: openSlotMenu,
@@ -566,7 +647,7 @@ Object.assign(actions, {
   slotHave,
   slotUseList,
   slotUse,
-  slotUnwant: (el) => { const w = getWant(el.dataset.id); if (w) { remove("w_" + w.id); closeSheet(); toast("Removed from your want list.", { label: "Undo", fn: () => saveWant(w) }); } },
+  slotUnwant: (el) => { const w = getWant(el.dataset.id); if (w) { const c = coinForWant(w); remove("w_" + w.id); untickForWant(w); closeSheet(); toast("Removed from your want list.", { label: "Undo", fn: () => { saveWant(w); if (c && isUpgradeWant(w)) saveCoin(c); } }); } },
   wantWhere: (el) => {
     const w = getWant(el.dataset.id);
     if (!w) return;
@@ -602,6 +683,7 @@ Object.assign(actions, {
     closeSheet();
     toast("Added to " + wl.name + ".", { label: "Undo", fn: () => { remove("w_" + x.id); if (newListId) remove("wl_" + newListId); render(); } });
   },
+  swapGo: (el) => swapGo(el),
   slotTakeOut: (el) => {
     const c = getCoin(el.dataset.id);
     if (!c) return;

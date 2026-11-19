@@ -1,9 +1,9 @@
 {
   "updated": "2026-11-18",
-  "app": "v0.85.0",
+  "app": "v0.86.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-    "weekly_now": 41,
+    "weekly_now": 47,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -482,8 +482,8 @@
       "name": "Upgrades and wanted",
       "model": "Sonnet",
       "est": "4–6",
-      "actual": "",
-      "status": "next",
+      "actual": "~1–2 (tbd, his end reading)",
+      "status": "done",
       "why": "Upgrading a coin works end to end.",
       "items": [
         {
@@ -528,7 +528,9 @@
         "Spots say 'wanted' or 'upgrade wanted'.",
         "Add a better coin for an upgrade spot: it offers to swap it in.",
         "Change an album's years and back: variety spots are still there."
-      ]
+      ],
+      "started": "Wed 11-18 10:21pm",
+      "ended": "Wed 11-18 10:34pm"
     },
     {
       "n": 8,
@@ -537,7 +539,7 @@
       "model": "Sonnet",
       "est": "2–3",
       "actual": "",
-      "status": "queued",
+      "status": "next",
       "why": "Inherited coins never get mixed up with your own or sold by mistake.",
       "items": [
         {
@@ -1089,6 +1091,13 @@
       "ver": "v0.85.0",
       "cost": "started at [11/46]; end reading pending (Sonnet), started 7:50pm",
       "change": "Fill spots has a Circulated (not graded) choice on everyday clad, Jefferson and Lincoln spots, valued at face, no new saved field. New source Coin roll hunting; Pocket change, Coin roll hunting and Bank roll fill Price paid with face, Gift stays $0. Fill spots remembers your last source. Kennedy halves made only for collectors show an NIFC tag. Spreadsheet keeps Not graded coins, Filter has Not graded, demo has 3 pocket-change coins."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 7: upgrades and wanted",
+      "ver": "v0.86.0",
+      "cost": "started at [20/47]; end reading pending (Sonnet), started 10:21pm",
+      "change": "Want an upgrade works for every grade (XF-45 to AU-50, AU-58 to MS-60). Spots say upgrade wanted or wanted. The coin's Upgrade wanted tick and the spot's upgrade want are one mark. A better coin for a filled spot asks to swap in; the old one goes loose, to a box or for sale. Changing an album's years and back keeps its variety spots. No new saved field."
     }
   ]
 }

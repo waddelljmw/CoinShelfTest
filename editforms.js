@@ -181,7 +181,8 @@ function saveEditAlbum(form) {
     }
     const have = new Set(kept.map(slotKey));
     // Add standard spots for new types and new years only (spots you removed before stay removed).
-    const added = buildAlbumSlots(types, layout, start, end, proofs).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end, oldPf));
+    const info = typeof lookupAlbum === "function" ? lookupAlbum(a.brand, a.number) : null; // the album's own variety spots (e.g. 1878 Morgan) come back with the years
+    const added = buildAlbumSlots(types, layout, start, end, proofs, info && info.spotVarieties).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end, oldPf));
     slots = set ? [...kept, ...added] : sortSlots([...kept, ...added]);
   }
   const removed = a.removed || [];

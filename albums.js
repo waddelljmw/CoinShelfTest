@@ -252,8 +252,8 @@ function viewAlbum(r) {
           ${canL || canR ? `<span class="slot-mv"><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="-1" ${canL ? "" : "disabled"} aria-label="Move earlier">◀</button><button data-act="moveSpot" data-id="${esc(a.id)}" data-i="${i}" data-d="1" ${canR ? "" : "disabled"} aria-label="Move later">▶</button></span>` : ""}
         </div>`;
       }
-      const onN = spotWants(a, s).length;
-      const tag = onN ? `<span class="g" style="color:var(--accent)">★ ${wantedTag(onN)}</span>` : "";
+      const sw = spotWants(a, s);
+      const tag = sw.length ? `<span class="g" style="color:var(--accent)">★ ${spotTag(sw)}</span>` : "";
       return hit
         ? `<button class="slot have${listState.sel ? " sel" + (listState.sel.has(hit.id) ? " on" : "") : ""}" ${listState.sel ? `data-act="selToggle" data-id="${esc(hit.id)}" aria-pressed="${listState.sel.has(hit.id)}"` : `data-act="slotMenu" ${data} data-coin="${esc(hit.id)}"`}>${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${hit.origAlbum ? `<span class="g" style="color:var(--accent)">original</span>` : ""}${tag}</button>`
         : `<button class="slot" data-act="slotMenu" ${data}${listState.sel ? " disabled" : ""}>${esc(lab)}${vLine}${tag || `<span class="g">open</span>`}</button>`;
