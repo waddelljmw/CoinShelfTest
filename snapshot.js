@@ -13,7 +13,7 @@ const SNAP_PRIVATE = [
 ];
 
 // Settings a viewer needs to display coins. Everything else (seller details, inheritances, fees, counters, backups...) stays out.
-const SNAP_SETTINGS = ["kind", "spot", "spotUpdated", "hideSpot", "hideValues", "homeClosed", "hiddenGroups", "hiddenStacks", "showSold", "showHistory", "showAdded", "showSoldList", "showMeltSec", "bookEdition", "shelfStyle", "shelfLayout", "level", "albumOrder"];
+const SNAP_SETTINGS = ["kind", "spot", "spotUpdated", "hideSpot", "hideValues", "homeClosed", "hiddenGroups", "hiddenStacks", "showSold", "showHistory", "showAdded", "showSoldList", "showMeltSec", "bookEdition", "shelfStyle", "textSize", "shelfLayout", "level", "albumOrder"];
 // Coin fields that never go into a snapshot, whatever the switches say.
 const SNAP_COIN_DROP = ["inhId", "inhValue", "origAlbum", "sellLater", "ask", "biz", "caseName"];
 

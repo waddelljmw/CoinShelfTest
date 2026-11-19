@@ -121,6 +121,7 @@ const actions = {
   idStyle: (el) => saveSettings({ idStyle: ["own", "running", "off"].includes(el.dataset.v) ? el.dataset.v : "app" }),
   idRenumber: () => idRenumberAsk(),
   idUndoRenumber: () => { undoRenumber(); render(); toast("Back to the old IDs."); },
+  textSize: (el) => { saveSettings({ textSize: ["large", "xl"].includes(el.dataset.v) ? el.dataset.v : "normal" }); applyTextSize(); },
   shelfStyle: (el) => saveSettings({ shelfStyle: el.dataset.v === "safe" ? "safe" : "bookcase" }),
   hideValues: () => saveSettings({ hideValues: !settings().hideValues }),
   optSec: (el) => { const o = { ...(settings().optOpen || {}) }; if (o[el.dataset.v]) delete o[el.dataset.v]; else o[el.dataset.v] = true; saveSettings({ optOpen: o }); },
@@ -309,7 +310,7 @@ function deleteAlbumNow(a, dropWants) {
   toast("Album deleted. Its coins are still in your collection.", { label: "Undo", fn: () => { put("a_" + a.id, a); inAlbum.forEach((c) => saveCoin(c)); if (dropList) saveWantList(dropList); ws.forEach(saveWant); render(); } });
 }
 const SNAPSHOT_BLOCK = new Set(("pocketNew fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot slotWantQuick slotTakeOut swapGo delAlbumGo " +
-  "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd lookupWant slotUnwant missing missingQuick missQuickAdd missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
+  "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale textSize shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd lookupWant slotUnwant missing missingQuick missQuickAdd missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup savePriceFile reorderAlbums sortAlbumsDate moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const starEl = e.target.closest("[data-act=favToggle]"); // the star inside a list row must not open the coin
