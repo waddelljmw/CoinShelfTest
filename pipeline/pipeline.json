@@ -1,9 +1,9 @@
 {
  "updated": "2026-11-19",
- "app": "v0.90.3",
+ "app": "v0.91.0",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 53,
+  "weekly_now": 54,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -660,7 +660,7 @@
    "name": "Slips and Undo",
    "model": "Sonnet",
    "est": "2–3",
-   "actual": "",
+   "actual": "~1 together",
    "status": "done",
    "why": "Mistakes are easy to take back.",
    "items": [
@@ -699,7 +699,7 @@
    "name": "First day",
    "model": "Sonnet",
    "est": "3–4",
-   "actual": "",
+   "actual": "~1 together",
    "status": "done",
    "why": "A new tester's first 10 minutes make sense.",
    "items": [
@@ -811,7 +811,7 @@
    "name": "Fix bundle 13b",
    "model": "Sonnet",
    "est": "2–3",
-   "actual": "tbd",
+   "actual": "~1 (your reading to be added)",
    "status": "done",
    "why": "Three small fixes from your own use, before Options is regrouped.",
    "items": [
@@ -853,8 +853,8 @@
    "name": "Options regrouped",
    "model": "Sonnet",
    "est": "1–3",
-   "actual": "",
-   "status": "queued",
+   "actual": "tbd (your reading to be added)",
+   "status": "done",
    "why": "Less to wade through (your \"it's a lot\").",
    "items": [
     {
@@ -865,7 +865,15 @@
      "affects": "Options"
     }
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "12:31pm",
+   "ended": "12:52pm",
+   "minutes": null,
+   "try": [
+    "Options: six group headings, Prices and selling first, Demo and help last.",
+    "Tap Try the demo under Demo and help.",
+    "Open a section, leave and come back: it stays open."
+   ]
   },
   {
    "n": "15c",
@@ -874,7 +882,7 @@
    "model": "Opus",
    "est": "3–5",
    "actual": "",
-   "status": "queued",
+   "status": "next",
    "chat": "New Opus chat",
    "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
    "items": [
@@ -1208,14 +1216,14 @@
    "date": "11-19",
    "name": "Step 11: slips and undo",
    "ver": "v0.89.0",
-   "cost": "done together with step 12, started at [2/50]; end reading pending (Sonnet)",
+   "cost": "~1 weekly for 11 + 12 together (Sonnet)",
    "change": "Take off For sale has Undo (Refund and Move back already did). Return unsold coins and the demo's See a full sample collection ask first. Messages stay ~6 seconds, Undo ~15 seconds. No saved coin data changes."
   },
   {
    "date": "11-19",
    "name": "Step 12: first day",
    "ver": "v0.90.0",
-   "cost": "end reading pending (Sonnet)",
+   "cost": "~1 weekly for 11 + 12 together (Sonnet)",
    "change": "A brand-new app starts on Collector (existing collections unchanged; restoring a backup keeps the backup's own level). Simple hides For sale, Mark as sold and Business. Welcome card has I have a backup file. New box explains what's missing inside the form. Clearer words: album names in Placed in / Delete, Spot price help covers copper per pound, No price list loaded yet, the photo coming-soon line is gone."
   },
   {
@@ -1236,8 +1244,15 @@
    "date": "11-19",
    "name": "Fix bundle 13b",
    "ver": "v0.90.3",
-   "cost": "end reading pending (Sonnet)",
+   "cost": "~1 weekly (your reading to be added) (Sonnet)",
    "change": "New album has a type-to-search box and no pre-filled coin type; Create waits for a type, and Kennedy 1964-2002 picks every Kennedy type and the years. Picking a show in Mark as sold fills the show name. Pop-up messages close when you tap or swipe them."
+  },
+  {
+   "date": "11-19",
+   "name": "Step 15: Options regrouped",
+   "ver": "v0.91.0",
+   "cost": "end reading pending (Sonnet)",
+   "change": "Options now has six groups, most-used first: Prices and selling, Backup and your data, Reports and sharing, Look and Home, Adding coins, Demo and help. Sections still fold; nothing saved changes."
   }
  ]
 }

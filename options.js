@@ -105,14 +105,14 @@ function redBookHtml() {
       <div class="hint" id="priceMsg">${Object.keys(PRICE_BOOK.series || {}).length ? "Keep a saved price file somewhere safe, like Google Drive." : "No prices yet. Tap Load a price file and pick the file you saved from this app. Typed values and melt still work."}</div>`}</div>`;
 }
 // Options: every section folds shut (closed by default, remembered). Splits the page at each heading.
-// Options sections sit under five group headings (Seller Mode keeps its own). Each section still folds on its own.
+// Options sections sit under six group headings, most-used first (step 15). Each section still folds on its own.
 const OPT_GROUPS = [
-  ["Prices and values", ["spot-prices", "selling", "photo-fill"]],
-  ["Look", ["text-size", "shelf-style", "home-shelf", "show-on-home"]],
+  ["Prices and selling", ["spot-prices", "selling", "photo-fill", "seller-mode"]],
+  ["Backup and your data", ["backup-and-restore", "spreadsheet", "recently-deleted"]],
+  ["Reports and sharing", ["insurance-report", "share-a-snapshot", "share-coin-cabinet"]],
+  ["Look and Home", ["text-size", "shelf-style", "home-shelf", "show-on-home"]],
   ["Adding coins", ["adding-coins", "coin-id-style", "inheritances"]],
-  ["Your data", ["spreadsheet", "backup-and-restore", "share-a-snapshot", "insurance-report", "recently-deleted"]],
-  ["Share and help", ["share-coin-cabinet", "try-the-demo", "guided-first-coin", "whats-new", "report-a-problem"]],
-  ["Seller Mode", ["seller-mode"]],
+  ["Demo and help", ["try-the-demo", "guided-first-coin", "whats-new", "report-a-problem"]],
 ];
 function viewOptions() {
   const open = settings().optOpen || {};
@@ -133,7 +133,7 @@ function viewOptions() {
   const grouped = OPT_GROUPS.map(([name, keys]) => {
     const mine = secs.filter((x) => !used.has(x) && keys.some((k) => x.key === k || x.key.startsWith(k + "-")));
     mine.forEach((x) => used.add(x));
-    return mine.length ? (name === "Seller Mode" ? "" : `<h3 class="optgroup">${name}</h3>`) + mine.map((x) => x.html).join("") : "";
+    return mine.length ? `<h3 class="optgroup">${name}</h3>` + mine.map((x) => x.html).join("") : "";
   }).join("");
   return head + (lvl ? lvl.html : "") + grouped + secs.filter((x) => !used.has(x)).map((x) => x.html).join("") + foot;
 }
