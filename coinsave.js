@@ -145,6 +145,7 @@ async function saveDraft() {
   closeSheet();
   if (many) { await manySave(c, d); return; }
   await saveCoin(c);
+  if (typeof syncUpgradeMark === "function") syncUpgradeMark(c, prev); // the coin's "Upgrade wanted" tick and the spot's upgrade want stay one mark
   if (d._replaces) {
     const old = getCoin(d._replaces);
     if (old) {
@@ -156,12 +157,13 @@ async function saveDraft() {
     }
   }
   const wantAsk = isNew && !d._fromWant && typeof askWantRemove === "function"; // a normal Add coin that matches a want asks after the page changes
-  if (isNew && d._stay) { toast("Added to " + (getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "the album") + "."); if (wantAsk) askWantRemove(c); return; } // stay on the album
+  const swapAsk = isNew && typeof swapCandidate === "function" ? swapCandidate(c) : null; // a better coin for a spot that is already filled asks to swap
+  if (isNew && d._stay) { toast("Added to " + (getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "the album") + "."); if (swapAsk) openSwapSheet(c, swapAsk); else if (wantAsk) askWantRemove(c); return; } // stay on the album
   if (!isNew && typeof fixup !== "undefined" && fixup.on) { if (needsOf(c).length) fixup.skip.push(c.id); toast("Saved."); fixupNext(); return; } // fix-up run: on to the next coin
   toast(isNew ? (firstEver ? "Coin added. Tap the + button to add the next one." : "Coin added.") : "Saved.");
   if (isNew) go("coin-" + c.id);
   if (isNew) askMetalPrice(c);
-  if (wantAsk) askWantRemove(c);
+  if (swapAsk) openSwapSheet(c, swapAsk); else if (wantAsk) askWantRemove(c);
 }
 
 // Resize to at most 1600px and save as JPEG (also converts iPhone HEIC photos the browser can show).

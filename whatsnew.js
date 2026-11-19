@@ -1,5 +1,11 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.86.0": [
+    "Want an upgrade now works for every grade (XF-45 goes to AU-50, AU-58 to MS-60, and so on).",
+    "Album spots say \u201Cupgrade wanted\u201D or \u201Cwanted\u201D so you can tell them apart. The coin's Upgrade wanted tick and the spot's upgrade want are now the same mark.",
+    "When a better coin arrives for a filled spot, the app asks to swap it in and sends the old coin loose, to a box, or for sale.",
+    "Changing an album's years and back keeps its variety spots (like the three 1878 Morgan spots).",
+  ],
   "0.85.0": [
     "Quick-add pocket change: on Fill spots, everyday coins (clad dimes, quarters and halves, Jefferson nickels from 1946, Lincoln cents from 1959) can be added as Circulated (not graded). No grade needed, valued at face. Silver, proofs, key dates and variety spots still ask for a grade.",
     "New source Coin roll hunting. Pocket change, Coin roll hunting and Bank roll fill Price paid with face value; Gift stays $0. Fill spots remembers your last source and has one-tap source buttons.",

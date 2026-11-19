@@ -60,7 +60,7 @@ const { chromium } = require("./_compat");
   check("picker says target MS-64", (await p.textContent(".sheet")).includes("MS-64"));
   await p.click("[data-act=slotWantAdd]"); await p.waitForTimeout(100);
   check("upgrade want saved with MS-64", await p.evaluate(() => wants().some((w) => w.year === 1884 && w.mint === "O" && w.grade === "MS-64")));
-  check("upgradeGrade edges", await p.evaluate(() => upgradeGrade({ grade: "MS-70" }) === "" && upgradeGrade({ grade: "AU-58" }) === "" ? true : upgradeGrade({ grade: "AU-58" }) === "MS-60" ? false : true));
+  check("upgradeGrade edges", await p.evaluate(() => upgradeGrade({ grade: "MS-70" }) === "" && upgradeGrade({ grade: "PR-70" }) === "" && upgradeGrade({ grade: "AU-58" }) === "MS-60" && upgradeGrade({ grade: "XF-45" }) === "AU-50"));
 
   // album wish list
   await p.evaluate(() => go("wants")); await p.waitForTimeout(150);
