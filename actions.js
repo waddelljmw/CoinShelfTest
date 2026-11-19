@@ -267,9 +267,14 @@ const actions = {
   spotAsk: (el) => { draft._spotAsk = el.dataset.v; const y = $(".sheet").scrollTop; renderCoinForm(); $(".sheet").scrollTop = y; },
   srcChip: (el) => {
     const v = el.dataset.v, y = $(".sheet").scrollTop;
-    if (v === "__more") (draft._open = draft._open || {}).purchase = true;
+    if (v === "__more") draft._srcMore = !draft._srcMore;
     else if (draft._sourceKind === v) { draft._sourceKind = ""; draft.source = ""; delete (draft._carry || {}).s; } // tap again to clear
     else { applySourceKind(draft, v); delete (draft._carry || {}).s; }
+    renderCoinForm(); $(".sheet").scrollTop = y;
+  },
+  circTick: (el) => { // Circulated (not graded) on the coin form: the existing noGrade flag, plus a face-value source so the label reads right
+    draft.noGrade = el.checked; const y = $(".sheet").scrollTop;
+    if (draft.noGrade && !String(draft.source || "").trim()) applySourceKind(draft, "Pocket change");
     renderCoinForm(); $(".sheet").scrollTop = y;
   },
   fetchSpot: () => fetchSpotPrices(false),

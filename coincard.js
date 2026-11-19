@@ -37,17 +37,22 @@ function nifcOf(c) {
   return y >= 2002 && y <= 2020 && (m === "P" || m === "D");
 }
 // Can this album spot be quick-added as Circulated? Never silver, 40% silver, proofs, mint sets, variety spots or key dates (the NIFC halves you find in rolls stay allowed).
-function quickAddOk(a, s) {
-  if (!s || s.set || s.pf || s.v || !s.y) return false;
-  const id = slotType(a, s), y = Number(s.y), m = normMint(s.m) || "P";
-  if (!QUICK_TYPES.includes(id)) return false;
+function quickOkFor(id, y, mint) {
+  y = Number(y); const m = normMint(mint) || "P";
+  if (!QUICK_TYPES.includes(id) || !y) return false;
   if (id === "jefferson-nickel" && y < 1946) return false;
   if (m === "W") return false;
   if (m === "S" && !((id === "jefferson-nickel" && y <= 1955) || (id === "lincoln-memorial-copper" && y <= 1974))) return false; // other S mints are proofs
-  if (typeof proofOnlySpot === "function" && proofOnlySpot(a, s)) return false;
-  if (!nifcOf({ typeId: id, year: y, mint: s.m }) && keyDateInfo({ typeId: id, year: y, mint: s.m })) return false;
+  if (!nifcOf({ typeId: id, year: y, mint }) && keyDateInfo({ typeId: id, year: y, mint })) return false;
   return true;
 }
+function quickAddOk(a, s) {
+  if (!s || s.set || s.pf || s.v || !s.y) return false;
+  if (typeof proofOnlySpot === "function" && proofOnlySpot(a, s)) return false;
+  return quickOkFor(slotType(a, s), s.y, s.m);
+}
+// The Add/Edit coin form: can this coin be marked Circulated? Everyday types only, not proof, not a variety.
+const quickCoinOk = (d) => itemOf(d) === "coin" && !isProofGrade(d.grade) && !d.sms && !d.variety && quickOkFor(d.typeId, d.year, d.mint);
 // The owned coins of this date and mint (all varieties, all albums).
 function ownedOfDate(c) {
   if (!c || !c.typeId || !c.year) return [];

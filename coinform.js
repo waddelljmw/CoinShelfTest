@@ -66,6 +66,7 @@ function sourceChips(d) {
   const common = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 3);
   ["Coin Shop", "Coin Show", "eBay"].forEach((x) => { if (common.length < 3 && !common.includes(x)) common.push(x); });
   const names = [...common, "Inherited"]; // Inherited last, so a buyer does not tap it by mistake (it blocks selling)
+  if (d._srcMore) sourceOptions().forEach((x) => { if (!names.includes(x)) names.push(x); }); // More…: every source in the list shows as a chip
   const cur = d._sourceKind;
   if (cur && cur !== "Other" && !names.includes(cur)) names.push(cur); // a chosen source stays visible
   // Nothing is carried over silently: what was filled in from the last coin shows as "Same as last: X ✕", one tap to clear.
@@ -73,7 +74,7 @@ function sourceChips(d) {
   if (d._isNew && d._carry && d._carry.s && d.source === (settings().lastSource || "")) cs.push(["source", "Where from: " + d.source]);
   if (d._isNew && d._carry && !d.holder && !d.albumId && d.gradeMode !== "cert" && normHolder(d._lastHolder)) cs.push(["holder", "Holder: " + normHolder(d._lastHolder)]);
   const carry = cs.length ? `<div class="f"><span class="muted small">Same as your last coin (tap to clear)</span><div class="chips wrap">${cs.map(([k, t]) => `<button type="button" class="chip on" data-act="carryClear" data-k="${k}" aria-label="Clear ${esc(t)}">Same as last: ${esc(t)} ✕</button>`).join("")}</div></div>` : "";
-  return carry + `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">More…</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}</div>`;
+  return carry + `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">${d._srcMore ? "Fewer" : "More…"}</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}</div>`;
 }
 // First render of a coin: figure out whether its saved source is a known choice or custom text.
 function initSourceKind(d) {
@@ -173,7 +174,7 @@ function renderCoinForm() {
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
       <div class="hint">Not sure of the grade? Compare your coin with photos: <a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
-      ${!d.grade ? `<label class="switch"><span>Can't grade this one<div class="small muted">For common worn coins. They stop showing under Needs info.</div></span><input type="checkbox" data-fcheck="noGrade" ${d.noGrade ? "checked" : ""}></label>` : ""}
+      ${!d.grade ? (quickCoinOk(d) ? `<label class="switch"><span>Circulated (not graded)<div class="small muted">An everyday coin from pocket change or a roll. No grade needed; valued at face. Fills Where from with Pocket change if it is blank.</div></span><input type="checkbox" data-act="circTick" ${d.noGrade ? "checked" : ""}></label>` : `<label class="switch"><span>Can't grade this one<div class="small muted">For common worn coins. They stop showing under Needs info.</div></span><input type="checkbox" data-fcheck="noGrade" ${d.noGrade ? "checked" : ""}></label>`) : ""}
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
       ${it === "coin" && (d.typeName || d.year) ? `<div class="hint"><a id="ebayLink" href="${esc(ebayUrl(d))}" target="_blank" rel="noopener">Check eBay sold ↗</a></div>` : ""}
