@@ -4,7 +4,7 @@
 /* ---------- plain-words help: one list, add new words here ---------- */
 const WORDS = {
   melt: ["Melt value", "What the metal in a coin would be worth by weight if it were melted. It only applies to silver, gold and other metal coins."],
-  spot: ["Spot price", "Today's market price for one ounce of a metal. The app uses it to work out melt values."],
+  spot: ["Spot price", "Today's market price for a metal: per ounce for gold, silver and platinum, per pound for copper. The app uses it to work out melt values."],
   redbook: ["Red Book", "The yearly price guide for U.S. coins. The app uses its values for a coin unless you type in your own."],
   rawslab: ["Raw / Slab", "Raw means a coin that is not in a sealed holder. A slab is a coin graded and sealed in hard plastic by a service such as PCGS or NGC."],
   keptin: ["Kept in", "Where the coin physically is: an album, a storage box, a display box, or loose in a flip."],
@@ -26,7 +26,7 @@ function welcomeCard() {
   return `<div class="card welcome"><b>${store.mode === "demo" ? "Demo walkthrough" : "Welcome to Coin Cabinet"}</b>
     <div class="small muted" style="margin:4px 0 8px">${store.mode === "demo" ? "Follow the steps to add a made-up practice coin and see how the app works. Nothing is saved, and your real coins are not here." : "Keep track of every coin you own, what it's worth and where it's kept."}</div>
     <div class="btn-row"><button class="btn primary block" data-act="startCollection">${store.mode === "demo" ? "Start the demo walkthrough" : "Start my collection"}</button>
-    ${store.mode === "demo" ? `<button class="btn block" data-act="demoFull">See a full sample collection</button>` : `<button class="btn block" data-act="tryDemo">Try with sample coins</button>`}</div></div>`;
+    ${store.mode === "demo" ? `<button class="btn block" data-act="demoFull">See a full sample collection</button>` : `<button class="btn block" data-act="tryDemo">Try with sample coins</button><button class="btn block" data-act="openBackup">I have a backup file</button>`}</div></div>`;
 }
 
 /* ---------- guided first coin ---------- */

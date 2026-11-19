@@ -88,7 +88,7 @@ function mergeRestored(id, body) {
     const out = { ...body };
     // A setting counts as "set on this device" only if it differs from the default (a brand-new app saves all defaults).
     const isDefault = (k, v) => k in DEFAULT_SETTINGS && JSON.stringify(v) === JSON.stringify(DEFAULT_SETTINGS[k]);
-    Object.entries(here).forEach(([k, v]) => { if (v != null && v !== "" && !(Array.isArray(v) && !v.length) && k !== "spot" && !isDefault(k, v)) out[k] = v; });
+    Object.entries(here).forEach(([k, v]) => { if (v != null && v !== "" && !(Array.isArray(v) && !v.length) && k !== "spot" && !(k === "level" && restoreFresh) && !isDefault(k, v)) out[k] = v; });
     out.spot = { ...(body.spot || {}) };
     Object.entries(here.spot || {}).forEach(([m, v]) => { if (v != null && v !== "") out.spot[m] = v; });
     const order = [...(here.albumOrder || []), ...(body.albumOrder || [])];
@@ -105,6 +105,7 @@ function mergeRestored(id, body) {
 }
 // Restore: read the file, check it, then ask before adding.
 let restorePending = null;
+let restoreFresh = false; // restoring into a phone with no coins: the starting level (Collector) must not beat the backup's own
 async function readRestoreFile(file) {
   const msg = $("#restoreMsg");
   const say = (t) => { if (msg) msg.textContent = t; };
@@ -139,6 +140,7 @@ async function doRestore() {
     } catch (e) { failed++; }
   }
   const fix = (p) => { const k = p && (p.lid ? "lid:" + p.lid : p.id ? "id:" + p.id : null); return (k && newRef.get(k)) || p; };
+  restoreFresh = !allCoins().length;
   restoreRenumbered = 0; restoreDone = new Set();
   restoreIncoming = new Set(data.docs.filter((x) => x && x.id && x.id.startsWith("c_")).map((x) => (x.data && x.data.id) || x.id.slice(2)));
   // 2) Records, one at a time so large backups don't overwhelm saving.

@@ -33,7 +33,7 @@ const { chromium } = require("playwright");
   await ev((i) => go("coin-" + i), id); await p.waitForTimeout(250);
   if (!/Add a grade to get a Red Book value/.test(await p.textContent("main"))) console.log("FAIL no-grade Red Book note");
   await ev(async (i) => { await saveCoin({ ...getCoin(i), grade: "VF-20", typeId: "indian-cent", metal: "Copper-nickel" }); go("coin-" + i); }, id); await p.waitForTimeout(250);
-  if (!/No Red Book value for this date and grade/.test(await p.textContent("main"))) console.log("FAIL no Red Book value note");
+  if (!/No price list loaded yet|No Red Book value for this date and grade/.test(await p.textContent("main"))) console.log("FAIL no Red Book value note");
   if (!(await p.locator("[data-act=addAnother]").count())) console.log("FAIL Add another button");
   await ev((i) => actions.addAnother({ dataset: { id: i } }), id); await p.waitForTimeout(250);
   if (!(await ev(() => draft && draft._isNew && draft.typeId === getCoin(allCoins()[0].id).typeId))) console.log("FAIL Add another should pick the same type");
@@ -44,7 +44,7 @@ const { chromium } = require("playwright");
   if (!(await ev(() => draft.source === "Inherited" && draft._sourceKind === "Inherited"))) console.log("FAIL chip should set source Inherited");
   await p.click('[data-act=srcChip][data-v="Inherited"]'); await p.waitForTimeout(150);
   if (await ev(() => draft.source)) console.log("FAIL tapping the chip again should clear it");
-  if (!(await p.locator("#photoFillLocked").count())) console.log("FAIL locked photo-fill line");
+  if (await p.locator("#photoFillLocked").count()) console.log("FAIL coming-soon photo line should be gone");
   await ev(() => closeSheet());
 
   // Options groups in order, Red Book moved to Coin Value

@@ -277,6 +277,14 @@ function readTrays(form, count, first) {
   return out;
 }
 let boxSaleForm = null;
+// New box: say what is wrong right inside the form (a toast fades before it can be read).
+function boxWarn(form, msg) {
+  toast(msg);
+  let e = form.querySelector("#boxWarn");
+  if (!e) { e = document.createElement("div"); e.id = "boxWarn"; e.className = "hint"; e.setAttribute("role", "alert"); e.style.cssText = "color:#b3261e;font-weight:600"; const sb = form.querySelector("[type=submit]"); const row = sb && sb.parentNode; if (row && row !== form) row.parentNode.insertBefore(e, row); else form.insertBefore(e, sb && sb.parentNode === form ? sb : null); }
+  e.textContent = msg;
+  if (e.scrollIntoView) e.scrollIntoView({ block: "nearest" });
+}
 function saveBoxForm(form) {
   const f = new FormData(form); let id = form.dataset.id;
   const name = String(f.get("name") || "").trim();
@@ -286,11 +294,11 @@ function saveBoxForm(form) {
   let trays = [{ rows, perRow }];
   if (spots && !isCase) {
     const n = Math.round(+f.get("trays")) || 1;
-    if (!(n >= 1 && n <= 12)) { toast("Trays: pick 1 to 12."); return; }
+    if (!(n >= 1 && n <= 12)) { boxWarn(form, "Trays: pick 1 to 12."); return; }
     trays = readTrays(form, n, { rows, perRow });
-    if (trays.some((t) => !(t.rows >= 1 && t.rows <= 50) || !(t.perRow >= 1 && t.perRow <= 100))) { toast("Each tray needs 1–50 rows or columns and 1–100 slots in each."); return; }
+    if (trays.some((t) => !(t.rows >= 1 && t.rows <= 50) || !(t.perRow >= 1 && t.perRow <= 100))) { boxWarn(form, "Each tray needs 1–50 rows or columns and 1–100 slots in each."); return; }
   }
-  if (!name || (spots && (!(rows >= 1 && rows <= 50) || !(perRow >= 1 && perRow <= 100)))) { toast(isCase && spots ? "Add a name, and how many rows and spots." : spots ? "Add a name, 1–50 rows or columns and 1–100 slots in each." : "Add a name."); return; }
+  if (!name || (spots && (!(rows >= 1 && rows <= 50) || !(perRow >= 1 && perRow <= 100)))) { boxWarn(form, isCase && spots ? "Add a name, and how many rows and spots." : spots ? "Add a name, 1–50 rows or columns and 1–100 slots in each." : "Add a name."); return; }
   const old = id && getBox(id);
   if (old && isCase && f.get("forSale") === "on" && !caseOn(old) && !form._saleOk) { // turning a box into a for-sale case with inherited coins inside: ask first
     const n = boxCoins(old).filter((c) => c.status === "owned" && isInherited(c)).length;

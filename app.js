@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.89.0";
+const APP_VERSION = "0.90.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -137,6 +137,7 @@ async function initStore() {
   if (!window.claude || typeof window.claude.use !== "function") {
     // On its own (not inside Claude): save on this device.
     if (typeof initLocalStore === "function" && await initLocalStore()) {
+      if (![...store.docs.keys()].some((k) => !/^(settings|history|pricebook)$/.test(k)) && !settings().level) saveSettings({ level: "collector" }, true); // a brand-new app starts on Collector (R4-34); an existing collection with no level stays Everything
       loadPriceBook();
       if (typeof scheduleHistory === "function") scheduleHistory();
       render();

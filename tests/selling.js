@@ -5,7 +5,7 @@ const { chromium } = require("./_compat");
   await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
   await p.click("#fab"); await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0");
   await p.fill("[data-f=year]", "1880"); await p.selectOption("[data-f=mint]", "O"); await p.fill("[data-f=qty]", "2"); await p.fill("[data-f=paid]", "40");
-  const lock = await p.locator("#photoFillLocked").count(); console.log("lock button:", lock); if (lock !== 1) console.log("FAIL lock");
+  const lock = await p.locator("#photoFillLocked").count(); console.log("coming-soon line:", lock); if (lock !== 0) console.log("FAIL coming-soon line should be gone");
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(200);
   // set For sale with an asking price on the coin page edit form
   const id = await p.evaluate(() => allCoins()[0].id);
