@@ -50,7 +50,7 @@ const { chromium } = require("playwright");
   // Options groups in order, Red Book moved to Coin Value
   await ev(() => go("options")); await p.waitForTimeout(250);
   const groups = await ev(() => [...document.querySelectorAll(".optgroup")].map((e) => e.textContent));
-  if (groups.join("|") !== "Prices and values|Look|Adding coins|Your data|Share and help") console.log("FAIL Options group order: " + groups.join("|"));
+  if (groups.join("|") !== "Prices and selling|Backup and your data|Reports and sharing|Look and Home|Adding coins|Demo and help") console.log("FAIL Options group order: " + groups.join("|"));
   if (await p.locator('[data-v="red-book-values"]').count()) console.log("FAIL Red Book table should not be in Options");
   await ev(() => go("value")); await p.waitForTimeout(250);
   if (!/Red Book edition/.test(await p.textContent("main"))) console.log("FAIL Red Book table should be on Coin Value");
