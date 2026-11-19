@@ -149,8 +149,8 @@ function albumStats(a) {
   return {
     coins, slots, filled,
     owned: filled.size, total: slots.length,
-    value: sum(coins, (c) => (bestEach(c) || 0) * qtyOf(c)),
-    melt: sum(coins, (c) => (meltEach(c) || 0) * qtyOf(c)),
+    value: sum(coins.filter((c) => !c.biz), (c) => (bestEach(c) || 0) * qtyOf(c)), // Business stock is counted apart, as on Home
+    melt: sum(coins.filter((c) => !c.biz), (c) => (meltEach(c) || 0) * qtyOf(c)),
     meltNeeds: SPOT_METALS.filter((m) => coins.some((c) => meltKey(c) === m.key && ozEach(c) && spotPerOz(m.key) == null)), // metals with no price yet
   };
 }

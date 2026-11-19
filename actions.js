@@ -21,7 +21,7 @@ function returnToStock(el, keepRecord, collect) { // collect (optional list): us
     const same = (x) => ["typeId", "year", "mint", "grade", "gradeMode", "variety", "cert"].every((k) => String(x[k] || "") === String(c[k] || ""));
     // Another piece of the same lot still in the collection (and not changed since): rejoin it.
     const home = lot ? allCoins().find((x) => x.id !== c.id && x.status === "owned" && (x.lotId || x.id) === lot && same(x)) : null;
-    const undo = (docs) => toast("Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
+    const undo = (docs, msg) => toast(msg || "Back in your collection.", { label: "Undo", fn: () => { docs.forEach((d) => put("c_" + d.id, d)); toast("Undone. The sale is back."); } });
     if (home) {
       const ask = num(home.ask) != null || num(c.ask) != null ? { ask: String(r2((num(home.ask) || 0) + (num(c.ask) || 0))) } : {};
       const all = [...refs(home), ...refs(c)];
@@ -33,14 +33,15 @@ function returnToStock(el, keepRecord, collect) { // collect (optional list): us
       return;
     }
     const n = { ...c, status: "owned" };
+    if (!isInherited(c) && (num(c.ask) != null || c.biz)) n.stage = "forsale"; // it was for sale: back on the For sale list
     delete n.sold;
     delete n.splitFrom;
     if (refs(c).length) n.refunds = refs(c);
     const note = (typeof freeSpotOnReturn === "function" ? freeSpotOnReturn(n) : "");
     saveCoin(n);
     if (collect) { collect.push(c); return; }
-    undo([c]);
-    if (note) toast("Back in your collection." + note, { label: "Undo", fn: () => { put("c_" + c.id, c); toast("Undone. The sale is back."); } });
+    undo([c], n.stage === "forsale" ? "Back on your For sale list." : "");
+    if (note) toast((n.stage === "forsale" ? "Back on your For sale list." : "Back in your collection.") + note, { label: "Undo", fn: () => { put("c_" + c.id, c); toast("Undone. The sale is back."); } });
   
 }
 
