@@ -19,7 +19,7 @@ const srv = http.createServer((q, r) => {
   // 1. a collection that already exists (no level saved) stays on Everything
   await p.evaluate(() => {
     put("c_k1", { ...blankCoin(), id: "k1", typeId: "morgan-dollar", typeName: "Morgan Dollar", year: 1880, grade: "VF-20", status: "owned", qty: 1, paid: "30", notes: "keep me", boxId: "bx1", albumId: "al1" }, true);
-    put("settings", { ...settings(), hideSpot: { gold: true }, showAdded: false, seller: { on: true } }, true);
+    const s0 = { ...settings(), hideSpot: { gold: true }, showAdded: false, seller: { on: true } }; delete s0.level; put("settings", s0, true); // an existing collection: no level saved
     render();
   });
   await p.waitForTimeout(200);

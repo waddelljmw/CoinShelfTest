@@ -150,7 +150,7 @@ function renderCoinForm() {
   <form id="coinForm" data-coin="${d.id}" autocomplete="off">
     ${d._isNew && !d._replaces ? `<div class="hint" id="blankHint">Any field can be left blank. Fill in what you know; you can add the rest later.</div>` : ""}
     ${d._replaces ? `<div class="hint" id="readdNote">Copied from your old entry: year, grade, price, photos and notes. Album spot and variety are cleared. The old entry goes to Recently deleted.</div>` : ""}
-    ${d._isNew && !other && it === "coin" ? (store.mode === "demo" && typeof demoFillCard === "function" ? demoFillCard(d) : sampleApi ? photoFillButton(d) : photoFillLockedButton()) : ""}
+    ${d._isNew && !other && it === "coin" ? (store.mode === "demo" && typeof demoFillCard === "function" ? demoFillCard(d) : sampleApi ? photoFillButton(d) : "") : ""}
     ${it === "bullion" ? bullionTopHtml(d) : it === "set" ? setTopHtml(d) : `${yearFirst ? yearFirstHtml(d, t) : ""}${typeBlock}
     ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
     <div class="grid2">

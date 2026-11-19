@@ -170,7 +170,9 @@ function noBookNote(c) {
   if (itemOf(c) !== "coin" || isJunk(c) || hasProblems(c) || num(c.value) != null) return "";
   if (!c.grade || c.grade === "Other") return "Add a grade to get a " + bookName() + " value.";
   const b = bookLookup(c);
-  return b && b.price != null ? "" : "No " + bookName() + " value for this date and grade.";
+  if (b && b.price != null) return "";
+  if (!(PRICE_BOOK && Object.keys(PRICE_BOOK.series || {}).length)) return "No price list loaded yet, so this coin has no " + bookName() + " value. Load one in Options > Red Book values."; // not a checked answer
+  return "No " + bookName() + " value for this date and grade.";
 }
 const bookPrice = (c) => { const b = bookLookup(c); return b && b.price != null ? b.price : null; };
 function bookText(b) {

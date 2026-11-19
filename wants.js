@@ -592,7 +592,7 @@ function slotUse(el) {
   const gone = spot ? dropSpotWants(aa, [spot]) : [];
   closeSheet();
   render();
-  toast("Placed in " + a.name + (gone.length ? " and crossed off its want list" : "") + ".", { label: "Undo", fn: () => { saveCoin(before); gone.forEach(saveWant); render(); } });
+  toast("Placed in " + albumTitle(a) + (gone.length ? " and crossed off its want list" : "") + ".", { label: "Undo", fn: () => { saveCoin(before); gone.forEach(saveWant); render(); } });
 }
 // Open slot: add the coin you already have, filled in and placed in this album.
 function slotHave(el) {

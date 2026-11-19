@@ -1,5 +1,11 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.90.0": [
+    "A brand-new app now starts on Collector (albums, storage, want lists), so the first screens are simpler. You can switch to Everything in Options > How much to show. Existing collections are not changed.",
+    "Simple now really hides the selling buttons (For sale, Mark as sold, Business) on a coin's page.",
+    "The welcome card has I have a backup file, which opens Backup and restore. New box now says what is missing right inside the form.",
+    "Clearer words: album names show properly in Placed in and Delete messages, the Spot price help covers copper per pound, a coin with no price list says No price list loaded yet, and the old photo coming-soon line is gone.",
+  ],
   "0.89.0": [
     "Easier to take back: Take off For sale now has Undo, Return unsold coins asks first, and messages stay on screen longer (Undo stays about 15 seconds).",
     "In the demo, See a full sample collection asks before replacing the practice coins you added.",

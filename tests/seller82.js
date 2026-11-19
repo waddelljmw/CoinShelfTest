@@ -5,7 +5,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 390, height: 844 } });
   const errors = []; p.on("pageerror", (e) => errors.push(e.message));
-  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
+  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300); await p.evaluate(() => saveSettings({ level: "everything" }, true)); // a new app starts on Collector (step 12); these tests need the whole app
   const ev = (fn, arg) => p.evaluate(fn, arg);
   await ev(() => {
     const mk = (id, o) => put("c_" + id, { ...blankCoin(), id, typeName: "Test", year: "1990", value: "10", paid: "4", qty: 1, status: "owned", ...o }, true);

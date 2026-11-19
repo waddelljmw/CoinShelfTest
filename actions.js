@@ -206,8 +206,8 @@ const actions = {
     const n = allCoins().filter((c) => c.albumId === a.id).length;
     const ws = wantsMadeFor(a).length;
     const msg = (n ? n + " coin" + (n > 1 ? "s stay" : " stays") + " in your collection. They just lose their album spot." : "This album is empty.");
-    if (!ws) { confirmSheet("Delete " + a.name + "?", msg, "Delete album", () => deleteAlbumNow(a, false)); return; }
-    openSheet(`<div class="sheet-head"><h2>Delete ${esc(a.name)}?</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    if (!ws) { confirmSheet("Delete " + albumTitle(a) + "?", msg, "Delete album", () => deleteAlbumNow(a, false)); return; }
+    openSheet(`<div class="sheet-head"><h2>Delete ${esc(albumTitle(a))}?</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
       <p>${esc(msg)}</p><p>${ws} coin${ws > 1 ? "s are" : " is"} on want lists for this album. Delete ${ws > 1 ? "them" : "it"} too?</p>
       <button class="btn danger block" data-act="delAlbumGo" data-id="${esc(a.id)}" data-w="1">Delete album and its want list coins</button>
       <button class="btn block" style="margin-top:8px" data-act="delAlbumGo" data-id="${esc(a.id)}" data-w="0">Delete album, keep the wants</button>
