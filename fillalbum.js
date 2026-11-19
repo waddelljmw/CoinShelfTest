@@ -26,7 +26,7 @@ function fillRow(a, s, i, mode) {
   return `<div class="fill-row" data-i="${i}" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line,#ddd)">
     <input type="checkbox" class="fill-on" aria-label="Have ${esc(slotLabel(s))}" style="flex:none;width:22px;height:22px">
     <span style="flex:1;min-width:0"><b>${esc(slotLabel(s))}</b>${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}${multi ? ` <span class="small muted">${esc(shortName(t))}</span>` : ""}</span>
-    <select class="fill-grade" aria-label="Grade for ${esc(slotLabel(s))}" style="flex:none;width:92px"><option value="">Grade?</option>${fillGradesFor(a, s).map((g) => `<option>${esc(g)}</option>`).join("")}</select>
+    <select class="fill-grade" aria-label="Grade for ${esc(slotLabel(s))}" style="flex:none;width:92px"><option value="">Grade?</option>${quickAddOk(a, s) ? `<option value="__circ">Circulated (not graded)</option>` : ""}${fillGradesFor(a, s).map((g) => `<option>${esc(g)}</option>`).join("")}</select>
     ${loose ? `<label class="small" style="flex-basis:100%;padding-left:30px"><input type="checkbox" class="fill-use" checked> Use my loose coin (${esc(gradeText(loose) || "no grade")}) instead of adding a second one</label>` : ""}
     ${mode === "each" ? `<input type="number" class="fill-paid" inputmode="decimal" min="0" step="0.01" placeholder="$ paid" aria-label="Price paid for ${esc(slotLabel(s))}" style="flex:none;width:76px">` : ""}
   </div>`;
@@ -56,8 +56,9 @@ function openFillAlbum(albumId, fresh) {
     ${mode === "total" ? `<label class="f"><span>Total paid for all the coins</span><input type="number" id="fillTotal" inputmode="decimal" min="0" step="0.01" placeholder="Split evenly across the ticked coins"></label>` : ""}
     <div class="grid2">
       <label class="f"><span>Date acquired</span><input type="date" id="fillDate"></label>
-      <label class="f"><span>Where from</span><input type="text" id="fillSource" list="fillSourceList" value="${esc(a.inherited ? "Inherited" : "")}" placeholder="optional"></label>
+      <label class="f"><span>Where from</span><input type="text" id="fillSource" list="fillSourceList" value="${esc(a.inherited ? "Inherited" : settings().lastFillSource || "")}" placeholder="optional"></label>
     </div>
+    <div class="chips" style="margin:0 0 6px">${["Pocket change", "Coin roll hunting", "Bank roll"].map((x) => `<button type="button" class="chip" data-act="fillSrc" data-v="${x}">${x}</button>`).join("")}</div>
     <datalist id="fillSourceList">${sourceOptions().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
     <div class="btn-row" style="margin:6px 0"><button type="button" class="btn" data-act="fillTick" data-v="1">Tick all</button><button type="button" class="btn" data-act="fillTick" data-v="0">Untick all</button></div>
     ${fillGuideLink(a, spots)}
@@ -91,13 +92,16 @@ function fillCount() {
   if (el) el.textContent = $$("#fillRows .fill-on").filter((c) => c.checked).length + " of " + $$("#fillRows .fill-on").length + " spots ticked.";
 }
 // Build the coin record for one spot. Same fields the Add coin form fills, so the coin behaves like any other.
-function fillCoin(a, s, grade, paid, date, source, at) {
+function fillCoin(a, s, grade0, paid, date, source, at) {
+  const circ = grade0 === "__circ", grade = circ ? "" : grade0;
   const c = blankCoin();
   const t = TYPE_BY_ID[slotType(a, s)];
   if (t) Object.assign(c, { typeId: t.id, typeName: shortName(t), family: t.family, denom: t.denom, metal: t.metal, oz: t.oz || "" });
   c.year = s.set ? "" : s.y; c.mint = s.m || "";
   c.albumId = a.id; c.slotId = s.id; c.holder = "Album";
   c.grade = grade; c.paid = paid; c.acquired = date; c.createdAt = at;
+  if (circ) c.noGrade = true; // Circulated (not graded) reuses the "can't grade" flag: no new saved field
+  if (circ && !source) source = "Pocket change"; // the label needs a face-value source
   if (source) { if (source === "Inherited" || a.inherited) applySourceKind(c, "Inherited"); else c.source = source; }
   else if (a.inherited) applySourceKind(c, "Inherited");
   delete c._sourceKind; delete c._payAuto; delete c._paidAuto;
@@ -114,6 +118,7 @@ function fillSave() {
   const on = k.rows.filter((r) => r.on);
   if (!on.length) { toast("Tick at least one spot, or Cancel."); return; }
   const bad = on.find((r) => spots[r.i] && spots[r.i].pf && r.grade && !isProofGrade(r.grade));
+  if (on.some((r) => r.grade === "__circ" && !quickAddOk(a, spots[r.i]))) { toast("Circulated isn't allowed on that spot. Pick a grade."); return; }
   if (bad) { toast(slotLabel(spots[bad.i]) + " is a proof spot. Pick a proof grade (PR-60 to PR-70), or untick it."); return; }
   if (k.rows.some((r) => r.on && num(r.paid) != null && num(r.paid) < 0)) { toast("A price can't be negative."); return; }
   const total = k.total === "" ? null : num(k.total);
@@ -127,13 +132,15 @@ function fillSave() {
   fillUi.armed = false;
   const base = Date.now(), ids = [], taken = new Set(), undo = [];
   on.forEach((r, n) => {
-    const paid = parts ? moneyStr(parts[n]) : fillUi.mode === "each" && num(r.paid) != null ? moneyStr(num(r.paid)) : "";
+    const src = k.source.trim() || (r.grade === "__circ" ? "Pocket change" : ""), t0 = TYPE_BY_ID[slotType(a, spots[r.i])];
+    const paid = parts ? moneyStr(parts[n]) : fillUi.mode === "each" && num(r.paid) != null ? moneyStr(num(r.paid)) : fillUi.mode === "each" && isFaceSource({ source: src }) && t0 && t0.face ? moneyStr(t0.face) : ""; // you paid face for pocket change, roll hunting and bank rolls
     const loose = r.use ? fillLooseFor(a, spots[r.i], taken) : null;
     if (loose) { taken.add(loose.id); undo.push({ ...loose }); saveCoin({ ...loose, albumId: a.id, slotId: spots[r.i].id }); return; } // the coin you already have goes in the spot
     const c = fillCoin(a, spots[r.i], r.grade, paid, k.date, k.source.trim(), base + n);
     saveCoin(c); ids.push(c.id);
   });
   if (typeof ensureIds === "function") ensureIds();
+  if (k.source.trim() && k.source.trim() !== "Inherited" && settings().lastFillSource !== k.source.trim()) saveSettings({ lastFillSource: k.source.trim() }, true); // quick-add remembers your last source
   albumTypes(a).forEach(touchType);
   const gone = typeof dropSpotWants === "function" ? dropSpotWants(a, on.map((r) => spots[r.i])) : [];
   closeSheet();
@@ -147,5 +154,6 @@ Object.assign(actions, {
   fillTick: (el) => { $$("#fillRows .fill-on").forEach((b) => { b.checked = el.dataset.v === "1"; }); fillCount(); },
   fillMode: (el) => { const id = $("#fillForm").dataset.id; fillUi.mode = el.dataset.v; openFillAlbum(id, undefined); },
   fillGo: fillSave,
+  fillSrc: (el) => { const i = $("#fillSource"); if (i) { i.value = el.dataset.v; fillCount(); } },
 });
 document.addEventListener("change", (e) => { if (e.target.classList && (e.target.classList.contains("fill-on") || e.target.classList.contains("fill-grade"))) fillCount(); });

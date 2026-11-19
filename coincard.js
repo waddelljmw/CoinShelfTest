@@ -21,6 +21,33 @@ function keyDateInfo(c) {
   const limit = Math.min(Math.round(med * KEY_SHARE), KEY_ABS);
   return n <= limit ? { n, limit } : null;
 }
+// Step 6b: quick-add for pocket change. No new grade and no new saved field: a coin with no grade and the existing noGrade flag reads as "Circulated (not graded)" when it came from pocket change, coin roll hunting or a bank roll.
+const FACE_SOURCES = ["pocket change", "coin roll hunting", "bank roll"]; // you paid face, so Price paid fills with face
+const isFaceSource = (c) => FACE_SOURCES.includes(String((c && c.source) || "").trim().toLowerCase());
+const noGradeWord = (c) => (isFaceSource(c) ? "Circulated (not graded)" : "Not graded");
+// Everyday types that can be quick-added, picked by type (not by metal): clad dimes, quarters and halves, Jefferson nickels from 1946, Lincoln cents from 1959.
+const QUICK_TYPES = ["roosevelt-clad", "emerging-liberty-dime", "washington-clad", "state-quarter", "atb-quarter", "women-quarter", "semiq-quarter", "kennedy-clad", "enduring-liberty-half",
+  "jefferson-nickel", "jefferson-westward", "lincoln-memorial-copper", "lincoln-memorial-zinc", "lincoln-bicentennial", "lincoln-shield"];
+// Kennedy halves made only for collectors (not intended for circulation): 1970-D, 1987-P, 1987-D and 2002 to 2020 (from 2021 they circulate again). Worked out when read, never saved.
+function nifcOf(c) {
+  if (!c || !["kennedy-40", "kennedy-clad"].includes(c.typeId) || !c.year || isProofGrade(c.grade) || c.sms) return false;
+  const y = Number(c.year), m = normMint(c.mint) || "P";
+  if (y === 1970) return m === "D";
+  if (y === 1987) return m === "P" || m === "D";
+  return y >= 2002 && y <= 2020 && (m === "P" || m === "D");
+}
+// Can this album spot be quick-added as Circulated? Never silver, 40% silver, proofs, mint sets, variety spots or key dates (the NIFC halves you find in rolls stay allowed).
+function quickAddOk(a, s) {
+  if (!s || s.set || s.pf || s.v || !s.y) return false;
+  const id = slotType(a, s), y = Number(s.y), m = normMint(s.m) || "P";
+  if (!QUICK_TYPES.includes(id)) return false;
+  if (id === "jefferson-nickel" && y < 1946) return false;
+  if (m === "W") return false;
+  if (m === "S" && !((id === "jefferson-nickel" && y <= 1955) || (id === "lincoln-memorial-copper" && y <= 1974))) return false; // other S mints are proofs
+  if (typeof proofOnlySpot === "function" && proofOnlySpot(a, s)) return false;
+  if (!nifcOf({ typeId: id, year: y, mint: s.m }) && keyDateInfo({ typeId: id, year: y, mint: s.m })) return false;
+  return true;
+}
 // The owned coins of this date and mint (all varieties, all albums).
 function ownedOfDate(c) {
   if (!c || !c.typeId || !c.year) return [];
@@ -42,6 +69,7 @@ function coinCardHtml(c, opts) {
   const lines = [];
   const key = keyDateInfo(c);
   if (key) lines.push(`<div>${KEY_CHIP}${opts.info ? keyInfoBtn() : ""} only ${key.n.toLocaleString("en-US")} struck, ${Math.round(key.n / typeMedianMintage(c.typeId) * 100)}% of a typical ${esc(t ? shortName(t) : "year")} year <span class="muted">(low mintage)</span></div>`);
+  if (nifcOf(c)) lines.push(`<div>${NIFC_CHIP} not intended for circulation <span class="muted">(the U.S. Mint sold these only to collectors)</span></div>`);
   if ((opts.spot || opts.lookup) && t && t.oz) {
     const melt = meltEach({ metal: t.metal, oz: t.oz });
     lines.push(`<div>${esc(t.metal)}: ${Math.round(t.oz * 1000) / 1000} oz${melt != null ? ` · melt today ${money(melt)}` : ""}</div>`);
@@ -89,6 +117,7 @@ function lookupMatches(q) {
 const lookupLabel = (r) => { const t = TYPE_BY_ID[r.typeId]; return `${r.year}${r.mint ? "-" + r.mint : ""} ${t ? shortName(t) : ""} ${t ? t.denom : ""}`.replace(/\s+/g, " ").trim(); };
 // The small ⓘ beside a Key date tag; its words open only when tapped (WORDS.keydate in welcome.js).
 const keyInfoBtn = () => wi("keydate", true);
+const NIFC_CHIP = `<span class="chip" style="background:var(--warn,#f5d27a);color:#222;padding:1px 8px;border-radius:10px;font-weight:600">NIFC</span>`;
 const KEY_CHIP = `<span class="chip" style="background:var(--warn,#f5d27a);color:#222;padding:1px 8px;border-radius:10px;font-weight:600">Key date</span>`;
 // Rows under the Coins search box: one per date and mint you typed, Key date tag first, then name and mintage.
 function lookupRowsHtml(q) {
