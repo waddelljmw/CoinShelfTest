@@ -19,7 +19,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   ok("eBay link follows the date", /1881-S/.test(await p.evaluate(() => decodeURIComponent((document.querySelector("#ebayLink") || {}).href || ""))));
   await p.evaluate(() => { closeSheet(); put("c_t", { ...blankCoin(), id: "t", typeName: "Test coin", year: "1990", value: "50", status: "owned" }); go("value"); });
   await p.waitForTimeout(200);
-  ok("Coin Value page has eBay links", /eBay sold/.test(await p.textContent("main")) && (await p.$$("main a[href*=ebay]")).length >= 1);
+  ok("Coin Value page has no eBay links under rows (moved to the coin page, step 10)", (await p.$$("main a[href*=ebay]")).length === 0);
   await p.evaluate(() => { put("c_g", { ...blankCoin(), id: "g", typeId: "buffalo-nickel", typeName: "Buffalo Nickel", year: "1920", grade: "VF-20", status: "owned" }); go("coin-g"); });
   await p.waitForTimeout(200);
   ok("coin page has a PCGS photos link near the grade", await p.evaluate(() => !!document.querySelector("main a[href$='#/Buffalo/Grades']")));
