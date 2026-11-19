@@ -120,7 +120,7 @@ async function readRestoreFile(file) {
   confirmSheet("Restore this backup?",
     `Backup from ${String(data.made || "").slice(0, 10) || "an unknown date"}: ${coins} coins, ${data.docs.filter((d) => d.data && (d.data.kind === "album" || isPocketDoc(d.data))).length} albums, ${Object.keys(data.photos || {}).length} photos.` +
     (replaces ? ` ${replaces} coin${replaces === 1 ? " is" : "s are"} already here and will be replaced by the backup's copy.` : "") +
-    " Albums and want lists that are in both are replaced by the backup's copy too. Your settings and value history here are kept and combined with the backup's. Nothing here is deleted.",
+    " Albums, boxes, shows and want lists that are in both are replaced by the backup's copy too, so anything you added to them since the backup is lost. Your settings and value history here are kept and combined with the backup's. Nothing here is deleted.",
     "Restore", () => doRestore());
 }
 async function doRestore() {

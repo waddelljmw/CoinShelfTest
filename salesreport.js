@@ -39,7 +39,8 @@ function repData(p) {
   // Platforms (Business sales only). Gross includes shipping and sales tax, the way platforms report it on a 1099-K.
   const plat = {};
   biz.forEach((c) => { const k = c.sold.whereType || "Not recorded"; (plat[k] = plat[k] || []).push(c); });
-  const platforms = Object.keys(plat).sort().map((k) => { const x = soldTotals(plat[k]); return { name: k, n: x.n, gross: r2(x.receipts + x.tax), fees: x.fees, check: REP_1099.has(k) }; });
+  refunded.forEach((x) => { const k = x.whereType || "Not recorded"; if (!plat[k]) plat[k] = []; }); // a platform with only a refund still shows its fees
+  const platforms = Object.keys(plat).sort().map((k) => { const x = soldTotals(plat[k]); const rf = refunded.filter((y) => (y.whereType || "Not recorded") === k); return { name: k, n: x.n, gross: r2(x.receipts + x.tax), fees: r2(x.fees + sum(rf, (y) => num(y.fees))), check: REP_1099.has(k) }; });
   // Business stock at the end of the period, at cost: held then = still owned now, or sold after the period ended; bought on or before the end (no date = counted).
   const heldThen = (c) => !c.acquired || String(c.acquired).slice(0, 10) <= r.end;
   const stockCoins = [...bizCoins(), ...soldCoins().filter((c) => isBiz(c) && !isInherited(c) && c.sold && String(c.sold.date || "").slice(0, 10) > r.end)].filter(heldThen);
@@ -125,14 +126,15 @@ function buildSalesReportCsv(d) {
   const cols = ["Type", "Date", "Item", "Qty", "Where", "Show", "Sold for", "Shipping charged", "Sales tax collected", "Platform fees", "Shipping paid", "Insurance", "Cost", "Profit", "Buyer", "Order number", "Tracking number"];
   const line = (type) => (c) => { const s = c.sold, sh = s.showId && typeof getShow === "function" ? getShow(s.showId) : null; return [type, s.date, labelOf(c), qtyOf(c), whereText(s), sh ? sh.name : "", num(s.amount), num(s.shipCharged), num(s.salesTax), num(s.fees), num(s.shipping), num(s.insurance), costOf(c), saleProfit(c), s.to || "", s.orderNo || "", s.trackNo || ""]; };
   const order = (l) => [...l].sort((a, b) => String(a.sold.date).localeCompare(String(b.sold.date)));
-  const rows = [[`Sales report ${d.r.label}`], cols, ...order(d.biz).map(line("Business")), ...order(d.pers).map(line("Personal")), [],
+  const refLine = (type) => (x) => [type, String(x.date || "").slice(0, 10), "Refunded sale (money given back; fees and shipping you paid)", "", whereText(x), "", "", "", "", num(x.fees), num(x.shipping), num(x.insurance), "", -refundCost(x), "", "", ""];
+  const rows = [[`Sales report ${d.r.label}`], cols, ...order(d.biz).map(line("Business")), ...(d.refunded || []).map(refLine("Business refunded")), ...order(d.pers).map(line("Personal")), ...(d.persRefunded || []).map(refLine("Personal refunded")), [],
     ...repSections(d, (n) => n).flatMap(([title, list]) => [[title], ...list.map(([k, v]) => [k, v])]),
     ["By platform (gross includes shipping and sales tax)"], ["Platform", "Sold", "Gross", "Fees"], ...d.platforms.map((x) => [x.name, x.n, x.gross, x.fees])];
   return rows.map((r) => r.map((v) => csvCell(v)).join(",")).join("\n");
 }
 /* ---- Step 9.3d: tax records. Year-end list of every sale (Business, Personal and Inherited) for your tax preparer. ---- */
 const TAX_NOTE = "Records for your tax preparer, not tax advice. Coins are collectibles; your preparer decides the rates.";
-const TAX_COLS = ["Date bought", "Date sold", "Item", "Qty", "Cost incl. fees", "Sale price", "Fees", "Gain", "Held over 1 year", "Inherited"];
+const TAX_COLS = ["Date bought", "Date sold", "Item", "Qty", "Cost incl. fees", "Sale price", "Fees", "Gain", "Held over 1 year", "Inherited", "Type", "Shipping and insurance paid"];
 // Cost for the tax list: an inherited coin uses its value when inherited (each × qty), otherwise what you paid plus tax, shipping and fees.
 const taxCost = (c) => (isInherited(c) && inhValueOf(c) != null ? r2(inhValueOf(c) * qtyOf(c)) : costOf(c));
 // Day you got it: the date acquired, or for an inherited coin its inheritance date.
@@ -147,16 +149,21 @@ function taxData(year) {
   const rows = soldCoins().filter((c) => c.sold && String(c.sold.date || "").slice(0, 4) === String(year))
     .sort((a, b) => String(a.sold.date).localeCompare(String(b.sold.date)))
     .map((c) => {
-      const s = c.sold, cost = taxCost(c), price = num(s.amount) || 0, fees = num(s.fees) || 0, bought = taxBought(c), soldOn = String(s.date || "").slice(0, 10);
-      return [bought, soldOn, labelOf(c), qtyOf(c), cost, price, fees, cost == null ? "" : r2(price - fees - cost), isInherited(c) ? "Yes" : heldOverYear(bought, soldOn), isInherited(c) ? "Yes" : "No"];
+      const s = c.sold, cost = taxCost(c), price = num(s.amount) || 0, fees = num(s.fees) || 0, ship = (num(s.shipping) || 0) + (num(s.insurance) || 0), bought = taxBought(c), soldOn = String(s.date || "").slice(0, 10);
+      return [bought, soldOn, labelOf(c), qtyOf(c), cost, price, fees, cost == null ? "" : r2(price - fees - ship - cost), isInherited(c) ? "Yes" : heldOverYear(bought, soldOn), isInherited(c) ? "Yes" : "No", isInherited(c) ? "Inherited" : isBiz(c) ? "Business" : "Personal", ship];
     });
+  // Refunded sales: no sale any more, but the fees and shipping you paid are still costs.
+  refundRecs().filter((x) => String(x.date || "").slice(0, 4) === String(year) && refundCost(x) > 0).forEach((x) => {
+    rows.push(["", String(x.date || "").slice(0, 10), "Refunded sale", "", "", "", num(x.fees) || 0, r2(-refundCost(x)), "", "No", x.biz ? "Business refunded" : "Personal refunded", r2((num(x.shipping) || 0) + (num(x.insurance) || 0))]);
+  });
+  rows.sort((a, b) => String(a[1]).localeCompare(String(b[1])));
   return rows;
 }
 function buildTaxCsv(year) {
   const rows = taxData(year);
   const totalGain = r2(sum(rows, (r) => num(r[7]) || 0));
   return [[`Tax records ${year}`], [TAX_NOTE], TAX_COLS, ...rows, [], ["Total gain (only sales with a known cost)", "", "", "", "", "", "", totalGain],
-    ["Gain = sale price − fees − cost. Shipping and sales tax are not included. Blank cost or date = not entered yet."]]
+    ["Gain = sale price − fees − shipping and insurance paid − cost. Sales tax is not included. Refunded sales show only their fees and shipping. Blank cost or date = not entered yet."]]
     .map((r) => r.map((v) => csvCell(v)).join(",")).join("\n");
 }
 async function saveRepFile(name, data) {

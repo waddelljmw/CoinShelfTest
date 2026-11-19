@@ -79,6 +79,8 @@ function doNewAlbum(form) {
   if (start > end) [start, end] = [end, start];
   const prob = albumProblem(types, layout, start, end);
   if (prob) { toast(prob); return; }
+  // A number we don't know must not quietly give the first coin type: the type has to be picked by hand.
+  if (!info0 && String(fd.get("number") || "").trim() && fd.get("brand") !== "Other" && !form.dataset.touched) { toast("That album number isn't in our list. Pick the coin type and years yourself, then tap Create."); return; }
   const proofs = (layout !== "set" && fd.get("proofs")) || "";
   if (proofs && !hasProofs(types)) { toast("The app doesn't have proof dates for these coin types yet. Add proof spots with + Add a spot."); return; }
   const a = { kind: "album", id: uid(), brand: fd.get("brand"), number: info0 ? info0.number : (fd.get("number") || "").trim(), name: (fd.get("name") || "").trim(), inherited: !!fd.get("inherited"), typeId: types[0], typeIds: types, layout, start, end, proofs, removed: [], createdAt: Date.now() };

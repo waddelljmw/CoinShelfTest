@@ -145,10 +145,18 @@ const showSaleDefault = (c) => (sellerOn() && !isInherited(c) ? whereFromShow(sh
 document.addEventListener("change", (e) => {
   if (e.target.id !== "showId") return;
   const f = e.target.closest("#sellForm"), s = getShow(e.target.value), w = whereFromShow(s);
+  if (f && !e.target.value && f.dataset.whereFromShow && f.elements.whereType.value + "|" + ((f.elements.whereDetail && f.elements.whereDetail.value) || "") === f.dataset.whereFromShow) { // "No show" takes back the Where the show filled in
+    f.elements.whereType.value = "";
+    f.elements.whereType.dispatchEvent(new Event("change", { bubbles: true }));
+    if (f.elements.whereDetail) f.elements.whereDetail.value = "";
+    delete f.dataset.whereFromShow;
+    return;
+  }
   if (!f || !w || f.elements.whereType.value) return; // never change a "Where" already picked
   f.elements.whereType.value = w.whereType;
   f.elements.whereType.dispatchEvent(new Event("change", { bubbles: true }));
   if (f.elements.whereDetail && w.whereDetail) f.elements.whereDetail.value = w.whereDetail;
+  f.dataset.whereFromShow = w.whereType + "|" + (w.whereDetail || "");
 });
 
 function showCard(s) {
@@ -291,7 +299,7 @@ Object.assign(actions, {
     const s = getShow(el.dataset.id);
     if (!s) return;
     const n = showSales(s).length;
-    confirmSheet("Delete " + s.name + "?", n ? "Its " + n + " sale" + (n > 1 ? "s stay" : " stays") + " in your records. They just aren't tied to a show." : "No sales are tied to this show.", "Delete show", () => {
+    confirmSheet("Delete " + s.name + "?", (n ? "Its " + n + " sale" + (n > 1 ? "s stay" : " stays") + " in your records. They just aren't tied to a show." : "No sales are tied to this show.") + (showCostTotal(s) ? " Its show costs (" + money(showCostTotal(s)) + ") are removed from your reports and tax figures too." : ""), "Delete show", () => {
       const copy = JSON.parse(JSON.stringify(s));
       remove("sh_" + s.id);
       go("shows");

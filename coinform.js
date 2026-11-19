@@ -564,7 +564,7 @@ function showTypeList(q) {
   const head = (txt) => `<div class="ta-head">${txt}</div>`;
   box.innerHTML = recent.length || rest.length
     ? (recent.length ? head("Recent") + recent.map(btn).join("") + (rest.length ? head("All types") : "") : "") + rest.map(btn).join("")
-    : `<div class="hint" style="padding:10px">${typeYear() != null ? "No coin type matches " + typeYear() + ". Check the year (or clear it), or type the coin type below instead." : "No match. Type the coin type below instead."}</div>`;
+    : `<div class="hint" style="padding:10px">${typeYear() != null ? "No US coin type was made in " + typeYear() + " (they run " + Math.min(...COIN_TYPES.map((t) => t.start)) + " to now). Check the year. If it is a foreign coin, medal or token, type it below; it is then saved as that kind of item and can't become a US coin later." : "No match. Type the coin type below instead."}</div>`;
   box.hidden = false;
 }
 

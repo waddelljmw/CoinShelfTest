@@ -40,7 +40,8 @@ function albumFormLookup(form) {
   const hint = $("#albumLookupHint");
   albumInfoPending = info;
   if (!hint) return;
-  if (!info) { hint.innerHTML = ""; delete form.dataset.found; delete form.dataset.shown; return; }
+  const typed = form.querySelector("[name=number]").value.trim();
+  if (!info) { hint.innerHTML = typed && form.querySelector("[name=brand]").value !== "Other" ? `<span style="color:#b26a00">That album number isn't in our list. Pick the coin type and years yourself below.</span>` : ""; delete form.dataset.found; delete form.dataset.shown; return; }
   // Leave the hint alone if it already shows this album (re-drawing it would swallow a tap on its button).
   const key = info.brand + "|" + info.number;
   if (form.dataset.shown === key) return;

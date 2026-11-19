@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-19",
- "app": "v0.90.1",
+ "app": "v0.90.2",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
   "weekly_now": 52,
@@ -777,8 +777,8 @@
    "name": "Seller accuracy",
    "model": "Sonnet",
    "est": "3–5",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "why": "Testers who sell see correct numbers (new seller features wait for 2027).",
    "items": [
     {
@@ -1182,6 +1182,13 @@
    "ver": "v0.90.1",
    "cost": "end reading pending (Sonnet)",
    "change": "Album value leaves Business coins out, like Home. Home no longer shows a second coin number on the shelf. A nickel worth only face now says Face value, a coin with no value shows a dash on Coin Value, and the premium list uses the same value as everywhere else. Refunded or moved-back coins return to the For sale list. A Business-only Home points to Business stock instead of 'No coins yet'. Inventory report marks Business coins. Sold results says it covers Personal and Business, all years."
+  },
+  {
+   "date": "11-19",
+   "name": "Step 14: seller accuracy",
+   "ver": "v0.90.2",
+   "cost": "end reading pending (Sonnet)",
+   "change": "Platform fees in the report now add up to the Summary after a refund; the Sales CSV lists refunded sales; the tax CSV has Type and shipping columns plus refunds, and its gain includes shipping. Picking No show takes back the Where the show filled in; Delete show says its costs leave your reports. An album number we don't know now asks you to pick the coin type; a year with no US coin explains what typing it yourself does. Restore says it replaces albums, boxes and shows."
   }
  ]
 }
