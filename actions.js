@@ -7,7 +7,7 @@ function toast(msg, action) {
   t.hidden = false;
   t._action = action ? action.fn : null;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.hidden = true; }, action ? 8000 : 2800);
+  toastTimer = setTimeout(() => { t.hidden = true; }, action ? 15000 : 6000); // messages ~6 seconds, Undo ~15 seconds (R6-7)
 }
 
 /* ---------- events ---------- */
@@ -44,6 +44,7 @@ function returnToStock(el, keepRecord, collect) { // collect (optional list): us
   
 }
 
+let demoFullOk = false; // set while "Replace" is confirmed
 const actions = {
   closeSheet,
   status: (el) => { listState.status = el.dataset.v; render(); },
@@ -289,7 +290,9 @@ const actions = {
   },
   tryDemo: () => { location.href = location.pathname + "?demo"; }, // opens fresh, so the real saved coins are never touched
   exitDemo: () => { location.href = location.pathname; },
-  demoFull: () => { if (store.mode !== "demo" || typeof demoDocs !== "function") return; if (guide) { guide = null; guideBubble(); } if (!$("#sheet").hidden) closeSheet(); demoLoadFull(); loadPriceBook(); if (location.hash !== "#home" && location.hash) go("home"); render(); },
+  demoFull: () => { if (store.mode !== "demo" || typeof demoDocs !== "function") return;
+    if (allCoins().length && !demoFullOk) return confirmSheet("Replace your practice coins?", "The full sample collection replaces the coins you added in this demo. Nothing real is touched.", "Replace", () => { demoFullOk = true; actions.demoFull(); demoFullOk = false; });
+    if (guide) { guide = null; guideBubble(); } if (!$("#sheet").hidden) closeSheet(); demoLoadFull(); loadPriceBook(); if (location.hash !== "#home" && location.hash) go("home"); render(); },
   demoFill: () => demoFillRun(),
   resetLabel: () => { draft.labelEdited = false; draft.label = ""; renderCoinForm(); },
 };

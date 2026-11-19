@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.88.1";
+const APP_VERSION = "0.89.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -334,7 +334,7 @@ const getAlbum = (id) => store.docs.get("a_" + id);
 function putForSale(id, on) {
   const c = getCoin(id); if (!c || c.status !== "owned" || isInherited(c)) return;
   const n = { ...c }; if (on) n.stage = "forsale"; else delete n.stage;
-  saveCoin(n); toast(on ? "Put up for sale." : "Taken off For sale.");
+  saveCoin(n); toast(on ? "Put up for sale." : "Taken off For sale.", { label: "Undo", fn: () => { saveCoin(c); toast("Undone."); } });
 }
 function saveCoin(c) {
   if (c.importBatch && getCoin(c.id)) { c = { ...c }; delete c.importBatch; }
