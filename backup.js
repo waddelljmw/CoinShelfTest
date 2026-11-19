@@ -3,7 +3,7 @@
 "use strict";
 
 const BACKUP_KIND = "coin-cabinet-backup";
-const BACKUP_REMIND_DAYS = 30;
+const BACKUP_REMIND_DAYS = 7;
 
 const blobToDataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
 const dataUrlToBlob = async (u) => (await fetch(u)).blob();

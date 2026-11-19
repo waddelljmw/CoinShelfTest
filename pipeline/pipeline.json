@@ -1,15 +1,15 @@
 {
  "updated": "2026-11-19",
- "app": "v0.91.0",
+ "app": "v0.91.1",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 54,
+  "weekly_now": 57,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
-  "rule": "Build up to 85% until Sunday's fantasy run, then use it up to 95% (Mon–Tue morning). Fantasy: Thu ~7pm and Sun 12:30pm, ~2 each."
+  "rule": "Build up to 85% until Sunday's fantasy run, then use it up to 95% (until the Tue 1pm ET reset). Fantasy runs: Thu ~7pm and Sun 12:30pm ET, ~1-2 points each, always kept in reserve."
  },
- "cost_note": "Estimates come from your measured usage log (Sonnet small fix 0–1, medium 1–3, Opus big build ~3). Each finished step records its real cost, and estimates are adjusted. Step 2 measured ~1 weekly vs est. 4–6: step sizes can be trimmed. Each step now logs clock start/end (started, ended, minutes) so time estimates can be added later.",
+ "cost_note": "Estimates come from your measured usage log. Each finished step records its real cost and clock times (started, ended, minutes), and estimates are adjusted. Sonnet steps have measured about 1 weekly point each, 20-45 minutes.",
  "steps": [
   {
    "n": 1,
@@ -59,7 +59,8 @@
    ],
    "started": "Tue 11-17 9:24pm",
    "ended": "Tue 11-17 10:31pm",
-   "minutes": 67
+   "minutes": 67,
+   "chats": 1
   },
   {
    "n": 2,
@@ -123,7 +124,8 @@
    ],
    "started": "Tue 11-17 10:33pm",
    "ended": "Tue 11-17 11:17pm",
-   "minutes": 44
+   "minutes": 44,
+   "chats": 1
   },
   {
    "n": "3a",
@@ -155,7 +157,8 @@
     "Open an empty spot for a 1921-S Walking Liberty half and a 1938-D Walking Liberty half: mintage shows, \"from U.S. Mint records\".",
     "Open a 1964 Washington quarter (no mint mark): it says \"coins dated 1964\" and includes San Francisco coins.",
     "Check ~10 key dates against your Red Book (mix of halves, cents, Morgans, Seated) and send any that differ in one message."
-   ]
+   ],
+   "chats": 1
   },
   {
    "n": "3b",
@@ -186,31 +189,8 @@
    "try": [
     "Tap an empty album spot: a coin card shows mintage, melt today and \"Search eBay sold\".",
     "Search a coin you don't own: the same card opens."
-   ]
-  },
-  {
-   "n": 4,
-   "stage": "now",
-   "name": "Fresh-start repo",
-   "model": "Sonnet",
-   "est": "1–2",
-   "actual": "",
-   "status": "next",
-   "when": "Sat 11-21",
-   "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
-   "items": [
-    {
-     "id": "N4 / G",
-     "size": "S",
-     "what": "Fresh-start repo",
-     "change": "Nothing changes in the app; it's a tidy home for the tester version.",
-     "affects": "Behind the scenes"
-    }
    ],
-   "chat": "New Sonnet chat",
-   "try": [
-    "Nothing to tap in the app; follow the GitHub steps the chat gives you."
-   ]
+   "chats": 1
   },
   {
    "n": "4a",
@@ -235,77 +215,8 @@
     "Home: type 1916 dime in the new Search any coin box; you land on Coins with the rows.",
     "Key date shows first with a small ⓘ; tap it to see how it's decided.",
     "Tap a row for the card, then Add to want list."
-   ]
-  },
-  {
-   "n": "4b",
-   "stage": "now",
-   "name": "Private tester copy (plan, then build)",
-   "model": "Opus",
-   "est": "2–4",
-   "actual": "",
-   "status": "queued",
-   "chat": "New Opus chat",
-   "when": "after step 4",
-   "why": "Only the testers you invite can open the app, and your code stops being public, so nobody passes it around before you sell it.",
-   "items": [
-    {
-     "id": "plan first",
-     "size": "S",
-     "what": "Decide the details with you",
-     "change": "Questions for that chat: tester emails, the tester-copy name, and whether your own app stays on its current address (recommended for now, because your coins live on your phone at that address).",
-     "affects": "Nothing until you agree"
-    },
-    {
-     "id": "build",
-     "size": "M",
-     "what": "Tester copy behind sign-in",
-     "change": "Tester copy on Cloudflare Pages (free) behind Cloudflare Access (free up to 50 users): testers sign in with an email code; you can remove anyone. Shows \"Tester copy for [name]\". Code made private only once your own app no longer depends on the public GitHub site (making it private now would take your phone app offline).",
-     "affects": "Where testers open the app; your own app is not moved without a backup and your OK"
-    }
    ],
-   "try": [
-    "Open the tester link in a private window: it asks for an email code.",
-    "Try an email that isn't on the list: it is refused."
-   ]
-  },
-  {
-   "n": "4c",
-   "stage": "now",
-   "name": "Mint \"Can't tell\" + Skip in Fix-up (plan)",
-   "model": "Opus",
-   "est": "1–2",
-   "actual": "",
-   "status": "queued",
-   "chat": "New Opus chat",
-   "when": "after 4b",
-   "why": "Plan how to tell \"no mint mark\", \"P\" and \"can't tell\" apart, and add a Skip in Fix-up tick, without breaking your 500+ saved coins.",
-   "items": [
-    {
-     "id": "new (11-18)",
-     "size": "L",
-     "what": "Plan only: mint \"Can't tell\" + smart default",
-     "change": "The mint dropdown gets No mint mark, P and Can't tell. \"Not chosen yet\" is the only to-do state. Years where only Philadelphia struck that coin fill in themselves. Opus maps everything that reads the mint, runs the 4-box check as a plan, and writes the Sonnet build list.",
-     "affects": "Saved coins (mint), Fix-up, mintage, albums, filters, reports, CSV, backup"
-    },
-    {
-     "id": "new (11-18)",
-     "size": "M",
-     "what": "Plan only: \"Skip in Fix-up\" tick",
-     "change": "A tick on a coin stops it from nagging you. It leaves a small skipped mark, and totals stay estimates. Planned together with the mint change because they touch the same screens.",
-     "affects": "Saved coins (new flag), Needs info, Fix-up"
-    },
-    {
-     "id": "new (11-18)",
-     "size": "S",
-     "what": "Make the \"coins need info\" line easy to see",
-     "change": "The Home line \"404 coins need info, totals may be off ›\" looks like plain text and is easy to miss. It becomes a gold-outlined button (maybe a \"Fix them\" chip) and jumps straight into the Fix-up run. Opus decides the spot and fits it into the schedule.",
-     "affects": "Home totals shelf, Needs info, Fix-up"
-    }
-   ],
-   "try": [
-    "Nothing to tap yet: this step is a plan. The build comes after."
-   ]
+   "chats": 1
   },
   {
    "n": 5,
@@ -362,7 +273,8 @@
     "Tap + Add a spot, enter 1922 (or 1880 with mint D): it says the series never had it.",
     "Tap a filled spot, Edit spots, Hide spot: it asks first.",
     "Edit album, shorten the years: a note says how many coins lose their spot; tap Save again to go ahead."
-   ]
+   ],
+   "chats": 1
   },
   {
    "n": 6,
@@ -426,7 +338,8 @@
     "Tap an empty spot: 'Add to want list' adds it right away to the album's own list.",
     "Open an album with hidden spots: '3 spots hidden · Show' under the totals.",
     "Delete a test album that has want-list coins: it asks about them."
-   ]
+   ],
+   "chats": 1
   },
   {
    "n": "6b",
@@ -474,7 +387,8 @@
     "Open a proof spot: it still asks for a grade."
    ],
    "note": "First check (read-only): if \"Circulated\" would change how coins are saved (new saved value or conversion), stop and ask him; then Opus plans it with the 4-box check.",
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "chats": 1
   },
   {
    "n": 7,
@@ -531,7 +445,8 @@
    ],
    "started": "Wed 11-18 10:21pm",
    "ended": "Wed 11-18 10:44pm",
-   "minutes": 23
+   "minutes": 23,
+   "chats": 1
   },
   {
    "n": 8,
@@ -581,7 +496,8 @@
     "New album with the same number as one you have: it is named (2).",
     "Edit a box to a for-sale case while it holds inherited coins: it asks first.",
     "Edit a sold coin and set Where from to Inherited: it asks first."
-   ]
+   ],
+   "chats": 1
   },
   {
    "n": 9,
@@ -616,7 +532,8 @@
     "Options > Look > Text size: tap Large, then Extra large; the whole app gets bigger.",
     "Home and Coin Value at Extra large: coin names wrap instead of being cut off.",
     "An album page: the grade under each spot is easier to read, even at Normal."
-   ]
+   ],
+   "chats": 1
   },
   {
    "n": 10,
@@ -652,7 +569,8 @@
     "On Add coin, tap the empty part of a section bar (like Purchase details): it opens.",
     "My Coins: tap the right side of a coin row; opening a coin no longer stars it. The star has its own spot at the edge.",
     "Coin Value: the small eBay link under each coin is gone; the coin page still has Check eBay sold."
-   ]
+   ],
+   "chats": 1
   },
   {
    "n": 11,
@@ -691,7 +609,8 @@
     "Put a coin up for sale, tap Take off For sale, then Undo.",
     "In a dealer case, tap Return unsold coins: it asks first.",
     "In ?demo, add a practice coin, then tap See a full sample collection: it asks first."
-   ]
+   ],
+   "chats": 1
   },
   {
    "n": 12,
@@ -730,7 +649,8 @@
     "Open the app in a private window: it starts on Collector, and the welcome card has I have a backup file.",
     "Options > How much to show > Simple, open a coin: no For sale or Mark as sold buttons.",
     "Boxes > New box > Save with an empty name: the message shows right in the form."
-   ]
+   ],
+   "chats": 1
   },
   {
    "n": 13,
@@ -769,7 +689,8 @@
     "Open the demo, add two coins, mark one Business, and compare Home, an album page and Reports: the totals should match.",
     "Look at Home: only one \"how many coins\" number.",
     "Refund a sold coin and check it is back on the For sale list."
-   ]
+   ],
+   "chats": 1
   },
   {
    "n": 14,
@@ -803,7 +724,13 @@
      "affects": "Restore"
     }
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "try": [
+    "Open a sales report after a refund: the platform fees add up to the Summary.",
+    "Export the tax CSV: it has Type, shipping and refund columns.",
+    "Mark a coin sold and pick No show: the Where the show filled in is taken back."
+   ],
+   "chats": 1
   },
   {
    "n": "13b",
@@ -845,7 +772,8 @@
    ],
    "started": "Thu 11-19 10:13am",
    "ended": "",
-   "minutes": null
+   "minutes": null,
+   "chats": 1
   },
   {
    "n": 15,
@@ -873,30 +801,8 @@
     "Options: six group headings, Prices and selling first, Demo and help last.",
     "Tap Try the demo under Demo and help.",
     "Open a section, leave and come back: it stays open."
-   ]
-  },
-  {
-   "n": "15c",
-   "stage": "testers",
-   "name": "Fix check before testers",
-   "model": "Opus",
-   "est": "3–5",
-   "actual": "",
-   "status": "next",
-   "chat": "New Opus chat",
-   "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
-   "items": [
-    {
-     "id": "review",
-     "size": "M",
-     "what": "Re-run the fixed findings",
-     "change": "No app change. A report lists each fix as confirmed, half-done or broken; anything not confirmed goes back in the queue before testers.",
-     "affects": "Report only (reviews/)"
-    }
    ],
-   "try": [
-    "Read the short report; nothing to tap."
-   ]
+   "chats": 1
   },
   {
    "n": 16,
@@ -905,8 +811,8 @@
    "model": "Sonnet",
    "est": "0–1 each",
    "actual": "",
-   "status": "queued",
-   "why": "Small extras to use up the end of the week.",
+   "status": "next",
+   "why": "Small extras that use up the end of the week, one chat, in order.",
    "items": [
     {
      "id": "R4-27",
@@ -966,6 +872,156 @@
     }
    ],
    "chat": "New Sonnet chat"
+  },
+  {
+   "n": 17,
+   "stage": "now",
+   "name": "Demo expansion",
+   "model": "Sonnet",
+   "est": "1-2",
+   "actual": "",
+   "status": "queued",
+   "chat": "New Sonnet chat",
+   "why": "A fuller made-up sample collection in ?demo so testers (and you) can try every feature without touching real coins.",
+   "items": [
+    {
+     "id": "demo (11-19 review)",
+     "size": "M",
+     "what": "Bigger sample collection in ?demo",
+     "change": "The made-up sample collection covers more of the app (albums, boxes, selling, want lists). Exact list to be confirmed with you at the start of the chat. Made-up coins only; nothing you saved changes.",
+     "affects": "?demo sample only"
+    }
+   ],
+   "try": [
+    "Open the ?demo link and tap See a full sample collection: albums, boxes and a sale are there to tap."
+   ]
+  },
+  {
+   "n": 4,
+   "stage": "now",
+   "name": "Fresh-start repo",
+   "model": "Sonnet",
+   "est": "1–2",
+   "actual": "",
+   "status": "queued",
+   "when": "Sat 11-21",
+   "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
+   "items": [
+    {
+     "id": "N4 / G",
+     "size": "S",
+     "what": "Fresh-start repo",
+     "change": "Nothing changes in the app; it's a tidy home for the tester version.",
+     "affects": "Behind the scenes"
+    },
+    {
+     "id": "process 11-19",
+     "size": "S",
+     "what": "Backup-before-shelf retired",
+     "change": "The old backup-before-shelf branch step is folded in here: the fresh-start repo is the safety copy, and main is never touched. Branches now clean up by themselves.",
+     "affects": "Behind the scenes"
+    }
+   ],
+   "chat": "New Sonnet chat",
+   "try": [
+    "Nothing to tap in the app; follow the GitHub steps the chat gives you."
+   ],
+   "after": "2026-11-21"
+  },
+  {
+   "n": "4c",
+   "stage": "now",
+   "name": "Mint \"Can't tell\" + Skip in Fix-up (plan + build)",
+   "model": "Opus",
+   "est": "3-5",
+   "actual": "",
+   "status": "queued",
+   "chat": "New Opus chat",
+   "when": "after step 4",
+   "why": "Tell \"no mint mark\", \"P\" and \"can't tell\" apart and add a Skip in Fix-up tick, without breaking your 500+ saved coins. One Opus chat plans it, then builds it.",
+   "items": [
+    {
+     "id": "new (11-18)",
+     "size": "L",
+     "what": "mint \"Can't tell\" + smart default",
+     "change": "The mint dropdown gets No mint mark, P and Can't tell. \"Not chosen yet\" is the only to-do state. Years where only Philadelphia struck that coin fill in themselves. Opus maps everything that reads the mint, runs the 4-box check as a plan, and then builds it in the same chat. It stops and asks you before it changes how mint is saved.",
+     "affects": "Saved coins (mint), Fix-up, mintage, albums, filters, reports, CSV, backup"
+    },
+    {
+     "id": "new (11-18)",
+     "size": "M",
+     "what": "\"Skip in Fix-up\" tick",
+     "change": "A tick on a coin stops it from nagging you. It leaves a small skipped mark, and totals stay estimates. Planned together with the mint change because they touch the same screens.",
+     "affects": "Saved coins (new flag), Needs info, Fix-up"
+    },
+    {
+     "id": "new (11-18)",
+     "size": "S",
+     "what": "Make the \"coins need info\" line easy to see",
+     "change": "The Home line \"404 coins need info, totals may be off ›\" looks like plain text and is easy to miss. It becomes a gold-outlined button (maybe a \"Fix them\" chip) and jumps straight into the Fix-up run. Opus decides the spot and fits it into the schedule.",
+     "affects": "Home totals shelf, Needs info, Fix-up"
+    }
+   ],
+   "try": [
+    "After it merges: open Fix-up and pick a mint for a coin; Can't tell and Skip are there."
+   ],
+   "needs": "4"
+  },
+  {
+   "n": "15c",
+   "stage": "testers",
+   "name": "Fix check before testers",
+   "model": "Opus",
+   "est": "3–5",
+   "actual": "",
+   "status": "queued",
+   "chat": "New Opus chat",
+   "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
+   "items": [
+    {
+     "id": "review",
+     "size": "M",
+     "what": "Re-run the fixed findings",
+     "change": "No app change. A report lists each fix as confirmed, half-done or broken; anything not confirmed goes back in the queue before testers.",
+     "affects": "Report only (reviews/)"
+    }
+   ],
+   "try": [
+    "Read the short report; nothing to tap."
+   ]
+  },
+  {
+   "n": "4b",
+   "stage": "now",
+   "name": "Private tester copy (plan, then build)",
+   "model": "Opus",
+   "est": "2–4",
+   "actual": "",
+   "status": "queued",
+   "chat": "New Opus chat",
+   "when": "after step 4",
+   "why": "Only the testers you invite can open the app, and your code stops being public, so nobody passes it around before you sell it.",
+   "items": [
+    {
+     "id": "plan first",
+     "size": "S",
+     "what": "Decide the details with you",
+     "change": "Questions for that chat: tester emails, the tester-copy name, and whether your own app stays on its current address (recommended for now, because your coins live on your phone at that address).",
+     "affects": "Nothing until you agree"
+    },
+    {
+     "id": "build",
+     "size": "M",
+     "what": "Tester copy behind sign-in",
+     "change": "Tester copy on Cloudflare Pages (free) behind Cloudflare Access (free up to 50 users): testers sign in with an email code; you can remove anyone. Shows \"Tester copy for [name]\". Code made private only once your own app no longer depends on the public GitHub site (making it private now would take your phone app offline).",
+     "affects": "Where testers open the app; your own app is not moved without a backup and your OK"
+    }
+   ],
+   "try": [
+    "Open the tester link in a private window: it asks for an email code.",
+    "Try an email that isn't on the list: it is refused."
+   ],
+   "needs": "4"
   }
  ],
  "parked": [
@@ -1077,7 +1133,7 @@
    ]
   }
  ],
- "prompt_template": "Let's start the coin work. Pipeline step {n}: {name}. Usage: [__/__]",
+ "prompt_template": "Let's start the coin work. Pipeline step {n}: {name}. Mode: {mode}. Usage: [{usage}]",
  "done": [
   {
    "date": "11-17",
@@ -1254,5 +1310,90 @@
    "cost": "end reading pending (Sonnet)",
    "change": "Options now has six groups, most-used first: Prices and selling, Backup and your data, Reports and sharing, Look and Home, Adding coins, Demo and help. Sections still fold; nothing saved changes."
   }
- ]
+ ],
+ "modes": [
+  "1 step",
+  "keep going to __%",
+  "overnight to __%"
+ ],
+ "cost_table": [
+  {
+   "what": "Sonnet step (S)",
+   "points": "~1",
+   "time": "20-45 min",
+   "basis": "measured on steps 2, 5, 7, 8"
+  },
+  {
+   "what": "Sonnet bigger step (M)",
+   "points": "1-3",
+   "time": "30-60 min",
+   "basis": "guess"
+  },
+  {
+   "what": "Opus plan or build",
+   "points": "2-3",
+   "time": "30-60 min",
+   "basis": "guess"
+  },
+  {
+   "what": "Opus review / fix check",
+   "points": "5-8",
+   "time": "60+ min",
+   "basis": "guess"
+  },
+  {
+   "what": "Fantasy run",
+   "points": "1-2",
+   "time": "short",
+   "basis": "usage log"
+  }
+ ],
+ "waiting": [
+  {
+   "t": "Use day: when you have a free hour",
+   "what": "You use the app for real with the Test checklist beside you. Planned tentatively around visitors and travel; never a fixed day.",
+   "when": "when you have a free hour"
+  }
+ ],
+ "tracking": [
+  {
+   "k": "bugs",
+   "label": "Bugs I find per week",
+   "how": "you enter"
+  },
+  {
+   "k": "points",
+   "label": "Weekly points per step",
+   "how": "from finished steps"
+  },
+  {
+   "k": "chats",
+   "label": "Chats per step",
+   "how": "from finished steps"
+  },
+  {
+   "k": "phone",
+   "label": "Phone minutes per step",
+   "how": "you enter"
+  },
+  {
+   "k": "backup",
+   "label": "Days since backup",
+   "how": "you tap I just backed up"
+  }
+ ],
+ "green_light": {
+  "note": "DRAFT list: Claude could not find your 9 checks in the repo, so these are proposed. Edit them in the Questions box.",
+  "checks": [
+   "All GitHub tests green on main",
+   "Fix check (15c) report read: every fix confirmed or back in the queue",
+   "Test checklist fully ticked",
+   "Notes inbox: nothing marked 'blocks entering coins' is open",
+   "Questions for you: nothing waiting",
+   "Backup made in the last 7 days and a restore tried",
+   "Fresh-start repo done (step 4)",
+   "Private tester copy works and refuses a stranger (step 4b)",
+   "Welcome PDF and survey link ready"
+  ]
+ }
 }

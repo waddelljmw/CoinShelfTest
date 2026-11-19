@@ -1,40 +1,61 @@
 # Working on Coin Cabinet
 
-Read this, then only the **This week** box in `PLAN.md` (don't read the whole plan). **Only planning sessions read `IDEAS.md`.**
-
-**Ideas:** when he mentions a new idea, ask if it should go on `IDEAS.md`. Add it only if he says yes.
+Read this, `pipeline/pipeline.json`, and from `PLAN.md` only the "Next session starts here" line + This week box. **Only planning sessions read `IDEAS.md`.**
 
 ## The person
-- Coin collector, **no app-building background**. Plain words.
-- **Token-conscious.** Short replies (aim for under 150 words). No recaps of steps already shown. Don't repeat merge/branch instructions he already knows beyond the two links.
-- **Start prompt (fast):** at the start of a session read only CLAUDE.md and from PLAN.md the "Next session starts here" line, the session table and the next unchecked step. The check is quick git/gh looks (PR merged, checklist ticked, Fix list empty), **no test run**. The exact prompt is on the "Starting a new chat" line in PLAN.md; give that one. **If an open PR already holds the step on the "Next session starts here" line** (that line only updates on merge), the next session is the one after it in the session table.
-- **"Let's start the coin work" / "go coin app":** read CLAUDE.md and the PLAN.md "Next session starts here" line + This week box, remind him to turn Notion off if it's on, ask his usage (session / weekly), and say in 1–2 lines what's next and its model. When he gives his usage, **start that item right away** (no separate "go"), unless he's on the wrong model (say switch, stop) or the usage stop / fantasy reserve says wait.
-- **End every finished task with the exact next prompt to copy** (and the model), plus 1–2 plain lines on **what that next step will do** (from `PLAN.md`), so he knows before he says go. After each merge, update the "Next session starts here" line in `PLAN.md` and mark finished items with ✅ (`- [x] ✅`); a weekly reminder reads it.
-- **When he says he's ending the session:** reply with only (1) anything unfinished (e.g. a PR not merged yet), (2) Sonnet or Opus for the next session, (3) the exact prompt to paste, taken from the Session plan in `PLAN.md`. (4) 1–2 lines on what that session will do.
-- **Session-end check:** At the end of each session, check the PR is merged, the checklist is ticked, the Fix list is empty; open bug reports are not checked while he is the only user (turn back on if he says so); if all is clear, give a short start prompt that skips the check, otherwise give the full one.
-- **Work smarter:** whenever a GitHub feature, test automation, splitting files, or another setup would save tokens, speed up work or improve the code (within good coding practice), tell him in one line and do it. Anything touching his saved coin data still needs his OK first.
-- **Say which model to use before each next step.** Opus: planning, reviews, anything that reshapes stored data. Sonnet: building, routine fixes, data entry (album lists, coin dates).
+- Coin collector, **no app-building background**. Plain words. Phone only; baby at home, so short blocks.
+- **Token-conscious.** Short replies (under ~150 words). No recaps. Never ask him to do what Claude can do itself (clock times, tracking).
+- **Answer questions first; build only after his OK.** When his message has feedback or questions, answer and discuss before deciding, building or merging.
+- **Push back:** when an idea is out of order, already covered, costly or risky, say "Push back:" + the reason + a recommendation. He wants to be challenged.
+- A new idea: if the app or plan already covers it, say so and don't add it. Otherwise ask, and add to `IDEAS.md` only on yes. Idea numbers and finding codes always come with a plain-words hint.
+- Teach briefly as we go. If a rename only changes internal names, say it isn't needed and skip it.
 
-## Pipeline (decided 11-17)
-- The work queue is `pipeline/pipeline.json`, shown on the page **https://claude.ai/artifact/TK4NoA9NmYnhyb6xFvY8Rg** (artifact slug `d51312cb-ee58-4793-9a5f-4e44aea565bb`, files `index.html` + `pipeline.json`). Steps run in order; each step = one new chat (step 3 is two: 3a, 3b).
-- Start prompt for a step: *"Let's start the coin work. Pipeline step N: name. Usage: [__/__]"*. Read only that step in `pipeline.json` (its items say what to build and how the app should change), plus CLAUDE.md. Build only what the step lists; side ideas go to his notes.
-- **After every merge**, update `pipeline.json` in the same PR or a docs PR: step `status` → `done` and `actual` (real weekly points from his readings), add a `done` entry (date, name, version, cost, what changed for him), next step `status` → `next`, `updated`, `app`, `week.weekly_now`. Then republish the artifact with publish_files (slug above, mode patch, both files). Adjust later `est` values when real costs disagree.
+## Chat start (every chat, same order)
+1. Open repo `waddelljmw/CoinShelfTest`. Read this file, `pipeline.json`, PLAN.md line + box. If Notion is on, remind him to turn it off.
+2. **Usage:** his reading comes in the start prompt `[session/weekly]`; ask only if missing. It is the **only** reading this chat and it closes the previous chat in `claude-usage-tracking`. Clock times come from the repo (`git log`, `date`), never from him.
+3. **Read the page data** (artifact `d51312cb-ee58-4793-9a5f-4e44aea565bb`; `db_list` collections `ticks`, `notes`, `questions`, `track`): test ticks, new notes, his answers in **Questions for you** and under notes.
+4. **Write a short reply under each new note** (where it went in the queue, or one question). Handle notes ticked "blocks entering coins" **first**. Clear answered questions (`status: "cleared"`).
+5. Then start the step (no separate "go"). Stop instead if he's on the wrong model (say switch) or the build cap / fantasy reserve says wait.
+
+## Run modes (he says one in the start prompt)
+- **1 step** (default) · **keep going to __%** · **overnight to __%**. Suggest the % from the pipeline estimates.
+- Never go past the build cap or into the fantasy reserve. **Stop** on any saved-data change, failing test or question; post the question to the page's **Questions for you** box (`questions/` doc: `{q, asked, status:"open"}`).
+- When a long job starts, set a phone timer for when it should end (works only if the Claude app is open on screen; if it fails, say so in a few words and go on).
+
+## Finishing a step
+- **Self-check before merging:** run the step's Try-it list in the test browser at phone size; look at 1–2 screenshots for contrast, tap size and large-text wrapping; write one line in the PR: `Self-checked: ...`.
+- Merge yourself when the work is finished, tests pass and self-check is done (see Doing a change, 7). Ask first for changes to how saved coin data is stored.
+- Then update `pipeline.json` (below), tell him in 1–2 lines what the next step does, its model, estimated weekly points and time, and give a whole new start prompt to copy (he only adds his usage). If the Try-it list is new, say to open the page's Test checklist.
+- **"end it":** tell him anything unfinished, Sonnet or Opus next (with reason), the exact prompt to paste, 1–2 lines on what it does.
+- **One chat checks, plans and builds** the step. Use a separate Opus chat only when saved data changes or for a review.
+- **Work smarter:** if a GitHub feature, test automation, splitting files or other setup would save tokens, speed things up or improve the code (within good practice), say so in a line and do it. Saved-coin-data changes need his OK first; check `IDEAS.md` for cost savings but keep the app simple.
+- **Models:** Opus for planning, reviews, anything reshaping stored data; Sonnet for building, fixes, data entry. Say which before each next step; suggest switches with a reason, never switch automatically.
+
+## Pipeline (decided 11-17, process update 11-19)
+- Queue = `pipeline/pipeline.json`, shown on the page **https://claude.ai/artifact/TK4NoA9NmYnhyb6xFvY8Rg** (slug above; files `index.html` + `pipeline.json`). Each step = one chat (3a/3b, 4b/4c are separate).
+- Start prompt: *"Let's start the coin work. Pipeline step N: name. Mode: 1 step. Usage: [__/__]"*. Read only that step plus this file; build only what it lists. Side ideas go to the page's Notes inbox.
+- **After every merge**, update `pipeline.json` in the same PR: step `status` → `done`, `actual` (weekly points from his readings), `started`/`ended`/`minutes` from the repo clock, a `done` entry, next ready step → `next`, `updated`, `app`, `week.weekly_now`. Then republish the artifact (publish_files, slug above, mode patch, both files). Fix later `est` values when real cost disagrees.
+- **YOU ARE HERE = the next ready step** (skips Waiting steps with a date that hasn't come).
 - **"Where are we?"**: read `pipeline.json` only; answer in one line + the page link.
-- Sizes: every item has S/M/L; keep that when adding items.
-- **Try-it list:** every step has `try` (2–4 things he taps in `?demo` after the merge, ~2 min). Write it for the next step if missing. After merging, tell him to open the page and do the step's Try-it list.
-- **Fix check (step 15c, Opus) before testers:** a simulated tester re-runs every fixed finding and confirms it's gone; anything not confirmed goes back in the queue.
+- Every item has S/M/L. Every step has `try` (2–4 plain taps in `?demo`, ~2 min); write it if missing. Test blocks are grouped in the page's Test checklist (10–15 min each), planned around his real life, never a fixed day.
+- **Fix check (15c, Opus) before testers:** a simulated tester re-runs every fixed finding.
 
-## Planning day (decided 11-17)
-Start from the existing queue, never a blank plan: (1) check the queue: done, waiting, still in the right order? (2) sort new items (his phone notes, new review findings) onto a tap-to-sort bucket page beside the waiting ones (Now / Before testers / Later / 2027 / Your call), each with a suggested spot; (3) talk it through: themes, his priorities, and where Claude disagrees with a suggestion; (4) re-order: new items slot in where they belong, urgent can jump the line; (5) top up: always more lined up than a week can use, plus small fill-ins; (6) lock: minutes, PLAN.md, `pipeline.json` + republish, next prompt. No build plan before his OK.
+## Weekly usage (replaces the 70% stop, weekly rhythm and top-3 rules)
+- His weekly usage resets **Tue 1pm ET**. Build to the **build cap (85%)** until Sunday's fantasy run, then up to **95%**.
+- **HARD RULE:** keep the fantasy reserve (Thu ~7pm and Sun 12:30pm ET runs, ~1–2 points each, through NFL week 17). Before work, check the reserve is still covered; if not, say so and suggest waiting for the reset.
+- **Cost table (guesses until measured):** Sonnet step ~1 weekly point, 20–45 min · Sonnet bigger M step 1–3, 30–60 min · Opus plan or build 2–3, 30–60 min · Opus review or fix check 5–8, 60+ min · a fantasy run 1–2.
+- Plan only when the queue runs low or notes pile up, not on a fixed day. Always keep more lined up than a week can use, plus small fill-ins.
 
-## Cost rules (agreed 2026-11-04, written in 2026-11-10)
-- Keep build chats short; **new chat after each merge**. Side ideas go to his phone notes, not discussed in build chats.
-- Models: **Opus** for planning, reviews and changes to how coins are saved; **Sonnet** for everything else. **Fable** only for one-off deep planning when he has free Fable usage.
-- GitHub runs the full test suite on every PR; while working, run only the related tests.
-- Reviews: one reviewer, deep on recent changes, light elsewhere; every 2–3 weeks or after big features.
-- Read page text, not screenshots. Group quick questions into one message.
-- **Costly to change later?** Ask it for every design choice and flag it when yes (build for his own use now, but so selling, other languages or reskins later need no rework).
-- **Planning day** writes minutes to `reviews/NN-planning-minutes-DATE.md` (decisions and reasons); PLAN.md keeps only the decisions.
+## Planning (when the queue is low or notes pile up)
+Start from the existing queue, never blank: (1) check the queue; (2) sort the page's unsorted notes and new findings into it and mark each note **sorted** with where it went; (3) talk it through with him, push back where you disagree; (4) re-order, urgent can jump; (5) top up past one week plus fill-ins; (6) lock: `PLAN.md`, `pipeline.json` + republish, next prompt. No build plan before his OK. Minutes go to `reviews/NN-planning-minutes-DATE.md`; PLAN.md keeps only decisions.
+
+## Cost rules (agreed 2026-11-04)
+- Short build chats; **new chat after each merge**. Models: Opus for planning, reviews, saved-data changes; Sonnet for the rest; **Fable** only for one-off deep planning when free.
+- GitHub runs the full test suite on every PR; while working, run only related tests. Reviews: one reviewer, deep on recent changes, every 2–3 weeks or after big features.
+- Read page text, not screenshots (except the self-check). Group quick questions into one message.
+- **Costly to change later?** Ask it for every design choice and flag it (build for his own use now, but so selling, other languages or reskins need no rework).
+- **Usage log:** one line per chat in `claude-usage-tracking` (reading, work type, model, why sessions/models switched).
+- **Stay at $0** beyond his Claude Pro plan: no paid tools or services.
 
 ## Doing a change (keep it cheap)
 0. **Stay small:** don't change unrelated files; reuse existing helpers before writing new ones; if a request has a risk (breaks old data, touches many files), say so in one line *before* building.
@@ -44,7 +65,7 @@ Start from the existing queue, never a blank plan: (1) check the queue: done, wa
 4. Add/adjust a test in `tests/`. Run **`node tests/run-all.js 2>&1 | tail -3`**; only look at details if something fails. Screenshots only for new layouts.
 5. Raise the version in **three places**: `APP_VERSION` (app.js), `version` (package.json), `CACHE` (sw.js). Fix → last number; feature → middle. New page files must be added to `FILES` in sw.js.
 6. Commit, push, open a PR with `gh api` (GraphQL is blocked).
-7. **Merge yourself when the work is finished and all tests pass** (no need to wait for "merge it"). Exception: ask first for anything that changes how saved coin data is stored, and for review-fix sessions. **GitHub enforces this:** `main` only accepts a merge when the checks `test` and `merge-gate` pass. When a step says "merge waits", add the label right after opening the PR: `gh api repos/waddelljmw/CoinShelfTest/issues/<n>/labels -f "labels[]=waits for review"`. Only the review session removes it (`gh api -X DELETE "repos/waddelljmw/CoinShelfTest/issues/<n>/labels/waits%20for%20review"`), after its fixes and his OK. Wait for both checks to finish before merging; never try to get around a failed check. Then: `gh api -X PUT repos/waddelljmw/CoinShelfTest/pulls/<n>/merge -f merge_method=merge -f sha=<HEAD>`, confirm `main` has it, tick `PLAN.md`, give **https://github.com/waddelljmw/CoinShelfTest/branches**. Remind him to tap **Update now** on the phone.
+7. **Merge yourself when the work is finished and all tests pass** (no need to wait for "merge it"). Exception: ask first for anything that changes how saved coin data is stored, and for review-fix sessions. **GitHub enforces this:** `main` only accepts a merge when the checks `test` and `merge-gate` pass. When a step says "merge waits", add the label right after opening the PR: `gh api repos/waddelljmw/CoinShelfTest/issues/<n>/labels -f "labels[]=waits for review"`. Only the review session removes it (`gh api -X DELETE "repos/waddelljmw/CoinShelfTest/issues/<n>/labels/waits%20for%20review"`), after its fixes and his OK. Wait for both checks to finish before merging; never try to get around a failed check. Then: `gh api -X PUT repos/waddelljmw/CoinShelfTest/pulls/<n>/merge -f merge_method=merge -f sha=<HEAD>`, confirm `main` has it, tick `PLAN.md`. Branches clean up by themselves (GitHub's auto-delete setting); don't list branches to delete. Remind him to tap **Update now** on the phone.
 7b. **After merging a bigger feature, prompt him to try it** with the safe test link **https://waddelljmw.github.io/CoinShelfTest/?demo** (sample coins, nothing saved) and, for empty-app flows, the main link in a private window. Say in 1–2 lines what to try and to send all findings in one message.
 8. Merging publishes the real app at **https://waddelljmw.github.io/CoinShelfTest/**. The Claude artifact (slug `11b5b1eb-a5c1-4157-8b05-2c9cda610e1f`) is only a test copy; don't publish there unless asked.
 
