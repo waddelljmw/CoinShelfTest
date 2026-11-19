@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-19",
- "app": "v0.90.3",
+ "app": "v0.91.0",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
   "weekly_now": 54,
@@ -853,8 +853,8 @@
    "name": "Options regrouped",
    "model": "Sonnet",
    "est": "1–3",
-   "actual": "",
-   "status": "next",
+   "actual": "tbd (your reading to be added)",
+   "status": "done",
    "why": "Less to wade through (your \"it's a lot\").",
    "items": [
     {
@@ -867,8 +867,13 @@
    ],
    "chat": "New Sonnet chat",
    "started": "12:31pm",
-   "ended": "",
-   "minutes": null
+   "ended": "12:52pm",
+   "minutes": null,
+   "try": [
+    "Options: six group headings, Prices and selling first, Demo and help last.",
+    "Tap Try the demo under Demo and help.",
+    "Open a section, leave and come back: it stays open."
+   ]
   },
   {
    "n": "15c",
@@ -877,7 +882,7 @@
    "model": "Opus",
    "est": "3–5",
    "actual": "",
-   "status": "queued",
+   "status": "next",
    "chat": "New Opus chat",
    "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
    "items": [
@@ -1241,6 +1246,13 @@
    "ver": "v0.90.3",
    "cost": "~1 weekly (your reading to be added) (Sonnet)",
    "change": "New album has a type-to-search box and no pre-filled coin type; Create waits for a type, and Kennedy 1964-2002 picks every Kennedy type and the years. Picking a show in Mark as sold fills the show name. Pop-up messages close when you tap or swipe them."
+  },
+  {
+   "date": "11-19",
+   "name": "Step 15: Options regrouped",
+   "ver": "v0.91.0",
+   "cost": "end reading pending (Sonnet)",
+   "change": "Options now has six groups, most-used first: Prices and selling, Backup and your data, Reports and sharing, Look and Home, Adding coins, Demo and help. Sections still fold; nothing saved changes."
   }
  ]
 }
