@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.88.1": [
+    "Easier to tap: the ⓘ help buttons, folding section bars, back links, menu rows and Close buttons now have comfortable, bigger tap areas.",
+    "The star on a coin row has its own space at the right edge, so opening a coin no longer stars it by mistake. The small eBay link under each coin on Coin Value is gone (use Check eBay sold on the coin page).",
+  ],
   "0.88.0": [
     "New Text size choice in Options (Normal, Large, Extra large). It works on iPhone too. Long coin names now wrap instead of being cut off at the larger sizes.",
     "Album spots show the grade and spot number bigger, and the small help lines are a little bigger.",

@@ -28,8 +28,9 @@ a { color: var(--accent-text); }
 .menu-btn span { display: block; width: 18px; height: 2px; background: var(--ink); border-radius: 2px; }
 .menu { position: fixed; top: 60px; right: 12px; z-index: 30; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: 0 10px 30px rgba(0,0,0,.18); display: flex; flex-direction: column; min-width: 210px; padding: 6px; max-height: calc(100vh - 76px); overflow-y: auto; }
-.menu button { text-align: left; background: none; border: 0; padding: 12px 14px; border-radius: 10px; }
-.menu button.menu-sub { padding: 8px 14px 8px 30px; font-size: 0.92em; }
+.menu { gap: 2px; }
+.menu button { text-align: left; background: none; border: 0; padding: 12px 14px; border-radius: 10px; min-height: 44px; }
+.menu button.menu-sub { padding: 10px 14px 10px 30px; font-size: 0.92em; }
 .menu .menu-head { padding: 10px 14px 2px; font-size: 0.75em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted, #777); }
 .menu button.on { background: var(--accent-soft); font-weight: 600; }
 
@@ -84,7 +85,7 @@ h2 { font-size: 17px; margin: 22px 0 10px; }
 .btn.block { width: 100%; }
 .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 .btn-row .btn { flex: 1 1 auto; }
-.link-btn { background: none; border: 0; color: var(--accent-text); padding: 0; font-weight: 600; }
+.link-btn { background: none; border: 0; color: var(--accent-text); padding: 12px 6px; margin: -12px -6px; font-weight: 600; } /* Step 10: tap area about 44 px, layout unchanged */
 
 .fab { position: fixed; right: 18px; bottom: 22px; width: 58px; height: 58px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink);
   font-size: 32px; line-height: 1; box-shadow: 0 8px 22px rgba(0,0,0,.25); z-index: 15; }
@@ -102,7 +103,7 @@ textarea { min-height: 80px; resize: vertical; }
 fieldset { border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 12px 12px; margin: 14px 0 0; }
 legend { font-weight: 600; padding: 0 6px; font-size: 14px; }
 details { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; margin-top: 14px; }
-summary { font-weight: 600; cursor: pointer; }
+summary { font-weight: 600; cursor: pointer; padding: 12px; margin: -10px -12px; min-height: 44px; box-sizing: border-box; }
 .hint { font-size: 13px; color: var(--muted); margin-top: 4px; }
 .switch { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); gap: 12px; }
 .switch:last-child { border-bottom: 0; }
@@ -112,7 +113,7 @@ summary { font-weight: 600; cursor: pointer; }
 .sheet { background: var(--bg); width: 100%; max-width: 760px; max-height: 94vh; overflow-y: auto; border-radius: 18px 18px 0 0; padding: 16px 16px 28px; }
 .sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; position: sticky; top: -16px; background: var(--bg); padding: 6px 0; z-index: 2; }
 .sheet-head h2 { margin: 0; font-size: 19px; }
-.x { border: 0; background: var(--chip); width: 34px; height: 34px; border-radius: 50%; font-size: 18px; }
+.x { border: 0; background: var(--chip); width: 44px; height: 44px; margin-left: 10px; flex: 0 0 44px; border-radius: 50%; font-size: 18px; }
 
 .photos { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .photos .ph { position: relative; }
@@ -360,7 +361,7 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 .slot.sel.on, .slot.full.on { outline: 2px solid var(--accent); }
 .slot.sel.on::after, .slot.full.on::after { content: "✓"; color: var(--accent); }
 /* Step 9.4b: welcome, guide bubble, plain-words help */
-.info-btn { border: 0; background: none; color: var(--accent); font-size: 15px; padding: 0 4px; cursor: pointer; line-height: 1; }
+.info-btn { border: 0; background: none; color: var(--accent); font-size: 15px; padding: 15px 12px; margin: -15px -8px; cursor: pointer; line-height: 1; }
 #guideBubble { position: fixed; left: 10px; right: 10px; max-width: 420px; margin: 0 auto; z-index: 60; background: #2a2218; color: #fff; border: 1px solid #e0a63a; border-radius: 12px; padding: 10px 12px; font-size: 15px; box-shadow: 0 6px 22px rgba(0,0,0,.35); }
 #guideBubble::after { content: ""; position: absolute; left: 50%; margin-left: -8px; border: 8px solid transparent; }
 #guideBubble.g-below::after { top: -16px; border-bottom-color: #e0a63a; }
@@ -374,8 +375,9 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 .star { background: none; border: 0; font-size: 24px; line-height: 1; padding: 4px 8px; color: var(--muted); cursor: pointer; vertical-align: middle; }
 .star[aria-pressed="true"] { color: #c98a00; }
 .coin-row { position: relative; }
-.coin-row .row-star { position: absolute; top: 2px; right: 6px; font-size: 20px; padding: 6px 10px; z-index: 1; }
-.coin-row .coin-val { padding-top: 14px; }
+.coin-row:has(> .row-star) { padding-right: 56px; }
+.coin-row.sel:has(> .row-star) { padding-right: 12px; } /* Step 10: the star has its own column with a gap, so opening a coin never stars it */
+.coin-row .row-star { position: absolute; top: 50%; transform: translateY(-50%); right: 0; width: 44px; height: 44px; display: grid; place-items: center; font-size: 22px; padding: 0; z-index: 1; }
 .coin-row.sel .row-star { display: none; }
 
 /* ---------- Step 9: text size (Options > Text size). One page-wide zoom; names wrap instead of being cut ---------- */

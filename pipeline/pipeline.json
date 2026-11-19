@@ -1,6 +1,6 @@
 {
-  "updated": "2026-11-18",
-  "app": "v0.87.0",
+  "updated": "2026-11-19",
+  "app": "v0.88.1",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
     "weekly_now": 48,
@@ -539,7 +539,7 @@
       "name": "Inherited and names",
       "model": "Sonnet",
       "est": "2–3",
-      "actual": "tbd (started at [26/48]; his end reading goes here)",
+      "actual": "~1",
       "status": "done",
       "why": "Inherited coins never get mixed up with your own or sold by mistake.",
       "items": [
@@ -589,8 +589,8 @@
       "name": "Easy to read",
       "model": "Sonnet",
       "est": "2–4",
-      "actual": "",
-      "status": "next",
+      "actual": "tbd (started at [31/49]; his end reading goes here)",
+      "status": "done",
       "why": "Older eyes and iPhone testers can read everything.",
       "items": [
         {
@@ -608,7 +608,15 @@
           "affects": "Home, Coin Value, album page, Options"
         }
       ],
-      "chat": "New Sonnet chat"
+      "chat": "New Sonnet chat",
+      "started": "Wed 11-18 11:29pm",
+      "ended": "Wed 11-18 11:58pm",
+      "minutes": 29,
+      "try": [
+        "Options > Look > Text size: tap Large, then Extra large; the whole app gets bigger.",
+        "Home and Coin Value at Extra large: coin names wrap instead of being cut off.",
+        "An album page: the grade under each spot is easier to read, even at Normal."
+      ]
     },
     {
       "n": 10,
@@ -616,8 +624,8 @@
       "name": "Easy to tap",
       "model": "Sonnet",
       "est": "1–2",
-      "actual": "",
-      "status": "queued",
+      "actual": "tbd (his end reading goes here)",
+      "status": "done",
       "why": "Fewer missed taps and slips.",
       "items": [
         {
@@ -635,7 +643,16 @@
           "affects": "Coin Value, My Coins, Home"
         }
       ],
-      "chat": "New Sonnet chat"
+      "chat": "New Sonnet chat",
+      "started": "Wed 11-18 11:58pm",
+      "ended": "Thu 11-19 12:20am",
+      "minutes": 22,
+      "try": [
+        "Open the menu and tap down the list: rows are bigger with small gaps.",
+        "On Add coin, tap the empty part of a section bar (like Purchase details): it opens.",
+        "My Coins: tap the right side of a coin row; opening a coin no longer stars it. The star has its own spot at the edge.",
+        "Coin Value: the small eBay link under each coin is gone; the coin page still has Check eBay sold."
+      ]
     },
     {
       "n": 11,
@@ -644,7 +661,7 @@
       "model": "Sonnet",
       "est": "2–3",
       "actual": "",
-      "status": "queued",
+      "status": "next",
       "why": "Mistakes are easy to take back.",
       "items": [
         {
@@ -1115,6 +1132,20 @@
       "ver": "v0.87.0",
       "cost": "started at [26/48]; end reading pending (Sonnet), ~15 min",
       "change": "Inherited albums show an Inherited tag on My Albums and \"(inherited)\" in want-list names. An inherited album is never auto-joined to a series with yours. Two albums with the same number get \"(2)\". Turning a box into a for-sale case with inherited coins inside asks first; so does changing a sold coin to Inherited. No new saved field."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 9: easy to read",
+      "ver": "v0.88.0",
+      "cost": "started at [31/49]; end reading pending (Sonnet), ~29 min",
+      "change": "New Text size choice in Options > Look: Normal, Large, Extra large (works on iPhone too). Names wrap instead of being cut at larger sizes. Album grades, spot numbers and help lines are bigger. No saved coin data changes."
+    },
+    {
+      "date": "11-19",
+      "name": "Step 10: easy to tap",
+      "ver": "v0.88.1",
+      "cost": "end reading pending (Sonnet), ~22 min",
+      "change": "Bigger tap areas for the ⓘ help buttons, folding section bars, back and small links, menu rows and Close buttons. The star on a coin row has its own space at the edge so opening a coin never stars it. The eBay link under Coin Value rows is gone."
     }
   ]
 }
