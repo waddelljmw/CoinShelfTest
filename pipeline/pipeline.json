@@ -1,9 +1,9 @@
 {
   "updated": "2026-11-18",
-  "app": "v0.86.0",
+  "app": "v0.87.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-    "weekly_now": 47,
+    "weekly_now": 48,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -482,7 +482,7 @@
       "name": "Upgrades and wanted",
       "model": "Sonnet",
       "est": "4–6",
-      "actual": "~1–2 (tbd, his end reading)",
+      "actual": "~1",
       "status": "done",
       "why": "Upgrading a coin works end to end.",
       "items": [
@@ -530,7 +530,8 @@
         "Change an album's years and back: variety spots are still there."
       ],
       "started": "Wed 11-18 10:21pm",
-      "ended": "Wed 11-18 10:34pm"
+      "ended": "Wed 11-18 10:44pm",
+      "minutes": 23
     },
     {
       "n": 8,
@@ -538,8 +539,8 @@
       "name": "Inherited and names",
       "model": "Sonnet",
       "est": "2–3",
-      "actual": "",
-      "status": "next",
+      "actual": "tbd (started at [26/48]; his end reading goes here)",
+      "status": "done",
       "why": "Inherited coins never get mixed up with your own or sold by mistake.",
       "items": [
         {
@@ -571,7 +572,16 @@
           "affects": "Edit box, Edit coin"
         }
       ],
-      "chat": "New Sonnet chat"
+      "chat": "New Sonnet chat",
+      "started": "Wed 11-18 10:55pm",
+      "ended": "Wed 11-18 11:10pm",
+      "minutes": 15,
+      "try": [
+        "My Albums: an inherited album has an Inherited tag.",
+        "New album with the same number as one you have: it is named (2).",
+        "Edit a box to a for-sale case while it holds inherited coins: it asks first.",
+        "Edit a sold coin and set Where from to Inherited: it asks first."
+      ]
     },
     {
       "n": 9,
@@ -580,7 +590,7 @@
       "model": "Sonnet",
       "est": "2–4",
       "actual": "",
-      "status": "queued",
+      "status": "next",
       "why": "Older eyes and iPhone testers can read everything.",
       "items": [
         {
@@ -1096,8 +1106,15 @@
       "date": "11-18",
       "name": "Step 7: upgrades and wanted",
       "ver": "v0.86.0",
-      "cost": "started at [20/47]; end reading pending (Sonnet), started 10:21pm",
+      "cost": "~1 weekly (26/48 end reading), ~23 min",
       "change": "Want an upgrade works for every grade (XF-45 to AU-50, AU-58 to MS-60). Spots say upgrade wanted or wanted. The coin's Upgrade wanted tick and the spot's upgrade want are one mark. A better coin for a filled spot asks to swap in; the old one goes loose, to a box or for sale. Changing an album's years and back keeps its variety spots. No new saved field."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 8: inherited and names",
+      "ver": "v0.87.0",
+      "cost": "started at [26/48]; end reading pending (Sonnet), ~15 min",
+      "change": "Inherited albums show an Inherited tag on My Albums and \"(inherited)\" in want-list names. An inherited album is never auto-joined to a series with yours. Two albums with the same number get \"(2)\". Turning a box into a for-sale case with inherited coins inside asks first; so does changing a sold coin to Inherited. No new saved field."
     }
   ]
 }

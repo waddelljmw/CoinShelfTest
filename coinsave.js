@@ -2,7 +2,8 @@
 async function saveDraft() {
   const d = draft;
   const firstEver = !!d._isNew && !allCoins().some((x) => x.status !== "deleted"); // for the + button pointer
-  if (typeof inhLeaveAsk === "function" && inhLeaveAsk(d)) return; // Edit: Source moved away from Inherited, ask first
+  if (typeof inhLeaveAsk === "function" && inhLeaveAsk(d)) return;
+  if (typeof inhSoldAsk === "function" && inhSoldAsk(d)) return; // Edit: a sold coin made Inherited, ask first // Edit: Source moved away from Inherited, ask first
   const c = { ...d };
   delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._srcMore; delete c._acqAuto; delete c._payAuto; delete c._paidAuto; delete c._replaces; delete c._proof; delete c._worn; delete c._none; delete c._preProof; // working copies aren't saved
   delete c._many; delete c._payMode; delete c._lotMode; delete c._spots; delete c._spotsFor; delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._carry; delete c._srcOk; delete c._status; delete c._goneReason; delete c._goneDate;
