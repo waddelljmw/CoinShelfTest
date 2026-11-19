@@ -53,6 +53,7 @@ function render() {
   const menuKey = r.view === "coin" || r.view === "forsale" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view === "show" ? "shows" : r.view;
   $$("#menu button").forEach((b) => b.classList.toggle("on", b.dataset.go === menuKey));
   if (typeof applyShelfStyle === "function") applyShelfStyle();
+  if (typeof applyTextSize === "function") applyTextSize();
   if (typeof syncShowsMenu === "function") syncShowsMenu();
   const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, shows: typeof viewShows === "function" ? viewShows : viewHome, show: typeof viewShow === "function" ? viewShow : viewHome, reports: typeof viewReports === "function" ? viewReports : viewHome, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
   // Keep the search box focus when the list re-renders.

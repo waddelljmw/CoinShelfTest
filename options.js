@@ -1,3 +1,7 @@
+// Step 9: text size. A setting (settings.textSize) that only changes how big the words look; no coin or other saved data is touched.
+const TEXT_SIZES = [["normal", "Normal"], ["large", "Large"], ["xl", "Extra large"]];
+const textSizeKey = () => { const k = settings().textSize; return k === "large" || k === "xl" ? k : "normal"; };
+function applyTextSize() { const k = textSizeKey(); if (k === "normal") document.documentElement.removeAttribute("data-text"); else document.documentElement.setAttribute("data-text", k); }
 // Photo guide page, Options page, live metal prices, pop-up sheet (split from app.js; plain script, shares the page's global names)
 /* --- Photo guide --- */
 function viewGuide() {
@@ -104,7 +108,7 @@ function redBookHtml() {
 // Options sections sit under five group headings (Seller Mode keeps its own). Each section still folds on its own.
 const OPT_GROUPS = [
   ["Prices and values", ["spot-prices", "selling", "photo-fill"]],
-  ["Look of Home", ["shelf-style", "home-shelf", "show-on-home"]],
+  ["Look", ["text-size", "shelf-style", "home-shelf", "show-on-home"]],
   ["Adding coins", ["adding-coins", "coin-id-style", "inheritances"]],
   ["Your data", ["spreadsheet", "backup-and-restore", "share-a-snapshot", "insurance-report", "recently-deleted"]],
   ["Share and help", ["share-coin-cabinet", "try-the-demo", "guided-first-coin", "whats-new", "report-a-problem"]],
@@ -144,6 +148,9 @@ function optionsHtml() {
       <div class="btn-row"><button class="btn" id="spotFetch" data-act="fetchSpot">Get live prices</button></div>
       <div class="hint">Filled in for you when the app opens, or tap the button. You can also type prices. <span id="spotStamp">${s.spotUpdated ? "Last updated " + esc(stampText(s.spotUpdated)) + "." : ""}</span> <a href="https://www.kitco.com/" target="_blank" rel="noopener">Look up current prices ↗</a></div>
     </div>
+    <h2>Text size</h2>
+    <div class="card"><div class="chips">${TEXT_SIZES.map(([k, n]) => { const on = textSizeKey() === k; return `<button class="chip ${on ? "on" : ""}" data-act="textSize" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>
+      <div class="hint">Makes all the words in the app bigger. This works the same on iPhone and Android. Only how the app looks changes, nothing saved.</div></div>
     <h2>Shelf style</h2>
     <div class="card"><div class="chips">${(typeof SHELF_STYLES !== "undefined" ? SHELF_STYLES : []).map(([k, n]) => { const on = shelfStyle() === k; return `<button class="chip ${on ? "on" : ""}" data-act="shelfStyle" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>
       <div class="hint">Bookcase: wood shelves; at night only the page around it goes dark. Safe: steel walls, dark all the time.</div></div>

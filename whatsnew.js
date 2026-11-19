@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.88.0": [
+    "New Text size choice in Options (Normal, Large, Extra large). It works on iPhone too. Long coin names now wrap instead of being cut off at the larger sizes.",
+    "Album spots show the grade and spot number bigger, and the small help lines are a little bigger.",
+  ],
   "0.86.0": [
     "Want an upgrade now works for every grade (XF-45 goes to AU-50, AU-58 to MS-60, and so on).",
     "Album spots say \u201Cupgrade wanted\u201D or \u201Cwanted\u201D so you can tell them apart. The coin's Upgrade wanted tick and the spot's upgrade want are now the same mark.",
