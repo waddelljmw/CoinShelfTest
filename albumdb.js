@@ -34,6 +34,7 @@ function applyAlbumInfo(form, info) {
   if (f("end")) f("end").value = info.end;
   if (f("proofs")) f("proofs").value = lookupProofs(info);
   if (f("layout")) f("layout").value = "dates";
+  if (typeof albumTypesChanged === "function") albumTypesChanged();
 }
 function albumFormLookup(form) {
   const info = lookupAlbum(form.querySelector("[name=brand]").value, form.querySelector("[name=number]").value);

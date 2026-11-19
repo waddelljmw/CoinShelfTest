@@ -40,7 +40,7 @@ const { chromium } = require("./_compat");
   await p.click("[data-act=newAlbum]"); await p.selectOption("#albumLayout", "set");
   await p.fill("#albumForm [name=name]", "US Type Set");
   const types = ["morgan-dollar", "barber-dime", "roosevelt-silver", "indian-cent", "ike-clad", "lincoln-wheat"];
-  await p.selectOption("#albumTypes select >> nth=0", types[0]);
+  await p.evaluate((id) => { const el = document.querySelector("#albumTypeFind"); el.value = TYPE_BY_ID[id].name; albumTypeSearch(el, true); }, types[0]);
   for (let i = 1; i < types.length; i++) { await p.click("[data-act=albumAddType]"); await p.selectOption(`#albumTypes select >> nth=${i}`, types[i]); }
   await p.click("#albumForm button[type=submit]"); await p.waitForTimeout(200);
   const set = await p.evaluate(() => { const a = albums().find((x) => x.name === "US Type Set"); return { id: a.id, n: a.slots.length, set: a.layout, labels: [...document.querySelectorAll(".slot")].map((e) => e.textContent.trim().slice(0, 18)) }; });

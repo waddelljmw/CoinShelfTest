@@ -85,7 +85,7 @@ const path = require("path");
   // new custom album
   await p.click("#menuBtn"); await p.click("#menu [data-go=albums]");
   await p.click("[data-act=newAlbum]");
-  await p.selectOption("#albumTypes select >> nth=0", "franklin-half");
+  await p.evaluate((id) => { const el = document.querySelector("#albumTypeFind"); el.value = TYPE_BY_ID[id].name; albumTypeSearch(el, true); }, "franklin-half");
   await p.click("#albumForm button[type=submit]"); await p.waitForTimeout(200);
   console.log("franklin slots", await p.$$eval(".slot", (r) => r.length));
   await p.click("#menuBtn"); await p.click("#menu [data-go=value]"); await shot("12-value");

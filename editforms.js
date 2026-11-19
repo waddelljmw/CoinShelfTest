@@ -14,37 +14,38 @@ function openEditId(id, msg) {
 function openNewAlbum() {
   openSheet(`<div class="sheet-head"><h2>New album</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <form id="albumForm">
+    <label class="f"><span>Coin type</span><input type="search" id="albumTypeFind" list="albumTypeList" placeholder="Type a coin, e.g. Kennedy 1964-2002" autocomplete="off"></label>
+    <datalist id="albumTypeList">${COIN_TYPES.map((t) => `<option value="${esc(t.name)}">`).join("")}</datalist>
+    <div class="hint" id="albumTypeHint">Pick a coin type to start. Add the years to fill in everything at once.</div>
     <div class="grid2">
       <label class="f"><span>Brand</span><select name="brand">${ALBUM_BRANDS.map((b) => `<option>${b}</option>`).join("")}</select></label>
       <label class="f"><span>Album number</span><input type="text" name="number" placeholder="9128"></label>
     </div>
     <div class="hint" id="albumLookupHint"></div>
     <label class="f"><span>Is the album empty?</span><select name="fill"><option value="empty">Empty, nothing in it yet</option><option value="has">Already has coins in it</option></select></label>
-    <label class="f"><span>Find coin type</span><input type="search" id="albumTypeFind" list="albumTypeList" placeholder="Type a few letters, e.g. fra" autocomplete="off"></label>
-    <datalist id="albumTypeList">${COIN_TYPES.map((t) => `<option value="${esc(t.name)}">`).join("")}</datalist>
-    <label class="f"><span>Name (optional)</span><input type="text" name="name" placeholder="${esc(firstAlbumType().name)}"></label>
+    <label class="f"><span>Name (optional)</span><input type="text" name="name" placeholder="Named after the coin type"></label>
     <div class="name-hint">The gray name is used if you leave this empty.</div>
     ${albumColorField("red")}
     <label class="f inline-check"><input type="checkbox" name="inherited"> <span>This album was inherited</span></label>
     ${typeof albumKeptField === "function" ? albumKeptField(null) : ""}
     <label class="f"><span>Kind of album</span><select name="layout" id="albumLayout">
       <option value="dates">Dates and mint marks (most albums)</option><option value="set">Type set (one coin of each type)</option></select></label>
-    ${albumTypeRows([firstAlbumType().id])}
+    ${albumTypeRows([], true)}
     ${proofSelect("")}
     <div class="grid2">
-      <label class="f"><span>From year</span><input type="number" name="start" id="albumStart" value="${firstAlbumType().start}"></label>
-      <label class="f"><span>To year</span><input type="number" name="end" id="albumEnd" value="${typeLastYear(firstAlbumType())}"></label>
+      <label class="f"><span>From year</span><input type="number" name="start" id="albumStart" placeholder="e.g. 1964"></label>
+      <label class="f"><span>To year</span><input type="number" name="end" id="albumEnd" placeholder="e.g. 2002"></label>
     </div>
     <div class="hint" id="albumHint">Use the years printed on your album. Each coin type gets spots for the dates and mint marks struck in those years. You can add, hide or reorder spots later.</div>
-    <div class="btn-row"><button class="btn primary" type="submit">Create album</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
+    <div class="btn-row"><button class="btn primary" type="submit" id="albumCreate" disabled>Create album</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
 // One coin-type picker per type in the album, with "+ Add another coin type".
 function albumTypeRow(id, i) {
   return `<div class="type-row"><select name="typeId" data-albumtype>${typeOptions(id)}</select>${i ? `<button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button>` : ""}</div>`;
 }
-function albumTypeRows(ids) {
-  return `<div class="f"><span>Coin types in this album</span><div id="albumTypes">${ids.map(albumTypeRow).join("")}</div>
+function albumTypeRows(ids, hidden) {
+  return `<div class="f" id="albumTypesBlock" ${hidden ? "hidden" : ""}><span>Coin types in this album</span><div id="albumTypes">${ids.map(albumTypeRow).join("")}</div>
     <button type="button" class="link-btn" data-act="albumAddType">+ Add another coin type</button></div>`;
 }
 function proofSelect(cur) {
@@ -201,6 +202,7 @@ function saveEditAlbum(form) {
 function albumYearsFromTypes() {
   const f = $("#albumForm");
   if (!f || !$("#albumStart")) return;
+  albumTypesChanged();
   const ts = readAlbumTypes(f).map((id) => TYPE_BY_ID[id]);
   if (!ts.length) return;
   $("#albumStart").value = Math.min(...ts.map((t) => t.start));
@@ -212,3 +214,36 @@ function openMissing(id) { openMissingPicker(id); }
 
 /* CSV import and export live in sheets.js */
 
+
+// New album: Create stays off until a coin type is picked; the type list shows once it has a row.
+function albumTypesChanged() {
+  const f = $("#albumForm");
+  if (!f) return;
+  const b = $("#albumCreate"), blk = $("#albumTypesBlock"), box = $("#albumTypes");
+  if (b) b.disabled = !readAlbumTypes(f).length;
+  if (blk && box) blk.hidden = !box.children.length;
+}
+// New album search box: "Kennedy", "Franklin Half Dollar" or "Kennedy 1964-2002" (all Kennedy types in those years, years filled in).
+function albumTypeSearch(el, final) {
+  const f = el.form, hint = $("#albumTypeHint");
+  const raw = el.value.trim().toLowerCase();
+  const say = (m) => { if (hint) hint.textContent = m; };
+  if (!f || !raw) { say("Pick a coin type to start. Add the years to fill in everything at once."); return; }
+  const yrs = (raw.match(/\b(?:1[6-9]|20)\d\d\b/g) || []).map(Number);
+  const words = raw.replace(/\b(?:1[6-9]|20)\d\d\b/g, " ").replace(/[-–—,]|\bto\b|\bthrough\b/g, " ").split(/\s+/).filter(Boolean);
+  const range = yrs.length >= 2 ? [Math.min(...yrs), Math.max(...yrs)] : null;
+  const exact = !yrs.length && COIN_TYPES.find((t) => t.name.toLowerCase() === raw);
+  if (!exact && !range && !final) return; // while typing, only act on a full name or a year range
+  let hits = exact ? [exact] : COIN_TYPES.filter((t) => words.length && words.every((w) => (t.name + " " + t.family).toLowerCase().includes(w)));
+  if (yrs.length && !exact) { const a = range ? range[0] : yrs[0], b = range ? range[1] : yrs[0]; hits = hits.filter((t) => t.start <= b && typeLastYear(t) >= a); }
+  if (!exact && !range && hits.length > 1) { say(hits.length + " coin types match. Keep typing, or add the years (like 1964-2002) to take every type in them."); return; }
+  if (!hits.length) { say(words.length && words.join("").length > 1 ? "No coin type matches. Try fewer letters." : ""); return; }
+  if (hits.length > 6) { say("Too many match. Type more of the name."); return; }
+  const box = $("#albumTypes");
+  if (box) box.innerHTML = hits.map((t, i) => albumTypeRow(t.id, i)).join("");
+  f.dataset.touched = "1";
+  const nm = f.querySelector("[name=name]"); if (nm) nm.placeholder = hits[0].name;
+  albumYearsFromTypes();
+  if (range) { $("#albumStart").value = range[0]; $("#albumEnd").value = range[1]; }
+  say(hits.length > 1 ? "Picked " + hits.length + " coin types, years " + $("#albumStart").value + "–" + $("#albumEnd").value + ". Check the list below." : "Picked: " + hits[0].name + ".");
+}

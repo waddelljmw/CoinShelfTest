@@ -1,9 +1,9 @@
 {
  "updated": "2026-11-19",
- "app": "v0.90.2",
+ "app": "v0.90.3",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 52,
+  "weekly_now": 53,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -738,7 +738,7 @@
    "name": "Numbers agree",
    "model": "Sonnet",
    "est": "3–4",
-   "actual": "reading pending",
+   "actual": "~1 together",
    "status": "done",
    "why": "Every screen shows the same totals.",
    "items": [
@@ -777,7 +777,7 @@
    "name": "Seller accuracy",
    "model": "Sonnet",
    "est": "3–5",
-   "actual": "reading pending",
+   "actual": "~1 together",
    "status": "done",
    "why": "Testers who sell see correct numbers (new seller features wait for 2027).",
    "items": [
@@ -804,6 +804,48 @@
     }
    ],
    "chat": "New Sonnet chat"
+  },
+  {
+   "n": "13b",
+   "stage": "testers",
+   "name": "Fix bundle 13b",
+   "model": "Sonnet",
+   "est": "2–3",
+   "actual": "tbd",
+   "status": "done",
+   "why": "Three small fixes from your own use, before Options is regrouped.",
+   "items": [
+    {
+     "id": "13b-1",
+     "size": "M",
+     "what": "New album: search for the coin type",
+     "change": "No pre-filled coin type. A type-to-search box sits at the top; Create stays off until a type is picked. Typing Kennedy 1964-2002 picks all the Kennedy types in those years and fills in the years.",
+     "affects": "New album"
+    },
+    {
+     "id": "13b-2",
+     "size": "S",
+     "what": "Mark as sold fills the show name",
+     "change": "Picking a show also fills the Which coin show? name, even if Where was already Coin show. A name you typed is never overwritten.",
+     "affects": "Mark as sold"
+    },
+    {
+     "id": "13b-3 (idea 123, part)",
+     "size": "S",
+     "what": "Pop-ups close on tap or swipe",
+     "change": "Tap the message, or swipe it sideways or down, to close it so it stops covering what you type. Undo still works. (Shorter times are still open in idea 123.)",
+     "affects": "All pop-up messages"
+    }
+   ],
+   "chat": "New Sonnet chat",
+   "try": [
+    "Albums > New album: the coin type is empty and Create is grey. Type Kennedy 1964-2002 and see three types and the years fill in.",
+    "Mark as sold in Seller Mode: pick a show and check the show name fills in.",
+    "Do anything that shows a message (add to want list) and tap or swipe it away."
+   ],
+   "started": "10:13am",
+   "ended": "",
+   "minutes": null
   },
   {
    "n": 15,
@@ -1189,6 +1231,13 @@
    "ver": "v0.90.2",
    "cost": "end reading pending (Sonnet)",
    "change": "Platform fees in the report now add up to the Summary after a refund; the Sales CSV lists refunded sales; the tax CSV has Type and shipping columns plus refunds, and its gain includes shipping. Picking No show takes back the Where the show filled in; Delete show says its costs leave your reports. An album number we don't know now asks you to pick the coin type; a year with no US coin explains what typing it yourself does. Restore says it replaces albums, boxes and shows."
+  },
+  {
+   "date": "11-19",
+   "name": "Fix bundle 13b",
+   "ver": "v0.90.3",
+   "cost": "end reading pending (Sonnet)",
+   "change": "New album has a type-to-search box and no pre-filled coin type; Create waits for a type, and Kennedy 1964-2002 picks every Kennedy type and the years. Picking a show in Mark as sold fills the show name. Pop-up messages close when you tap or swipe them."
   }
  ]
 }

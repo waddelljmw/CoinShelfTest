@@ -11,7 +11,7 @@ const { chromium } = require("./_compat");
   await p.evaluate((id) => { const f = document.querySelector("#albumForm"); f.querySelector("[name=brand]").value = "Other"; f.querySelector("[name=number]").value = "Fill test"; f.querySelector("[name=fill]").value = "has"; const sel = f.querySelector("[name^=type], select.album-type, [data-album-type]"); }, typeId);
   ok("New album asks if it is empty", await p.isVisible("[name=fill]"));
   // set type, years, then submit
-  await p.evaluate((id) => { const f = document.querySelector("#albumForm"); const s = [...f.querySelectorAll("select")].find((x) => [...x.options].some((o) => o.value === id)); if (s) s.value = id; f.querySelector("#albumStart").value = 1878; f.querySelector("#albumEnd").value = 1879; }, typeId);
+  await p.evaluate((id) => { const f = document.querySelector("#albumForm"); const el = f.querySelector("#albumTypeFind"); el.value = TYPE_BY_ID[id].name; albumTypeSearch(el, true); f.querySelector("#albumStart").value = 1878; f.querySelector("#albumEnd").value = 1879; }, typeId);
   await p.click("#albumForm button[type=submit]"); await p.waitForTimeout(300);
   ok("quick list opens for an album that has coins", await p.isVisible("#fillForm"));
   const n = await p.locator("#fillRows .fill-row").count();
