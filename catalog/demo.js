@@ -104,6 +104,8 @@ function demoDocs() {
   al.slots = buildAlbumSlots(al.typeIds, "dates", al.start, al.end, "");
   docs.push(["a_demoalbum2", al]);
   al.slots.filter((s) => s.y >= 1947).slice(0, 12).forEach((s, i) => add(mk("lincoln-wheat", s.y, s.m, ["VF-30", "XF-40", "AU-50", "MS-63"][i % 4], 1 + (i % 3), { holder: "Album", albumId: al.id, slotId: s.id, source: "Pocket change" })));
+  // Pocket-change coins added with quick-add: no grade, valued at face.
+  [["roosevelt-clad", 1999, "D", 0.1, "Pocket change"], ["washington-clad", 1988, "P", 0.25, "Coin roll hunting"], ["kennedy-clad", 1996, "P", 0.5, "Bank roll"]].forEach(([t, y, m, p, src]) => add(mk(t, y, m, "", p, { noGrade: true, source: src, holder: "", gradeMode: "raw" })));
   // Business stock, shows, sold coins.
   DEMO_BUSINESS.forEach(([t, y, m, g, p, ask]) => add(mk(t, y, m, g, p, { biz: true, stage: "forsale", ask: String(ask), holder: "Plastic flip", source: "Coin Show" })));
   const show = { kind: "show", id: "demoshow", name: "Sample Coin Show", start: day(21), type: "coinshow", place: "Anytown Convention Hall", role: "seller", costs: { table: 150 }, createdAt: Date.now() - 30 * 86400000 };

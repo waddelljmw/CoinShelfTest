@@ -36,6 +36,7 @@ function extraFilter(c) {
   if (yF != null && y < yF) return false;
   if (yT != null && y > yT) return false;
   if (f.mint && normMint(c.mint) !== (f.mint === "P" ? "" : f.mint)) return false;
+  if (f.ng && !(itemOf(c) === "coin" && !c.grade && c.noGrade)) return false;
   if (f.gCustom && !(c.grade === "Other" && c.customGrade === f.gCustom)) return false;
   if (f.gFrom || f.gTo) {
     const r = gradeRank(c.grade);
@@ -70,6 +71,7 @@ function fltChips() {
   if (f.kept) add("kept", "Kept in: " + fltKeptName(f.kept));
   if (f.yFrom || f.yTo) add("year", "Year " + (f.yFrom || "…") + "–" + (f.yTo || "…"));
   if (f.mint) add("mint", "Mint: " + (f.mint === "P" ? "P / none" : f.mint));
+  if (f.ng) add("ng", "Not graded");
   if (f.gCustom) add("grade", "Grade: " + f.gCustom);
   else if (f.gFrom || f.gTo) add("grade", "Grade " + (f.gFrom || "any") + " to " + (f.gTo || "any"));
   if (f.vFrom || f.vTo) add("value", "Value " + (f.vFrom ? "$" + f.vFrom : "…") + "–" + (f.vTo ? "$" + f.vTo : "…"));
@@ -78,7 +80,7 @@ function fltChips() {
   if ((f.probs || []).length) add("probs", FLT_PROBS.filter(([k]) => f.probs.includes(k)).map(([, l]) => l).join(" or "));
   return out;
 }
-const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"], value: ["vFrom", "vTo"], probs: ["probs"], inc: ["inc"] };
+const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"], ng: ["ng"], value: ["vFrom", "vTo"], probs: ["probs"], inc: ["inc"] };
 
 // The Select bar (shared by My Coins, album pages and box pages): count, Select all / Clear, and the bulk buttons.
 function selBarHtml(picked, shown) {
@@ -155,6 +157,7 @@ function openFilterPanel() {
     <div class="grid2">${field("Year from", `<input type="number" inputmode="numeric" data-flt="yFrom" value="${esc(f.yFrom || "")}">`)}${field("Year to", `<input type="number" inputmode="numeric" data-flt="yTo" value="${esc(f.yTo || "")}">`)}</div>
     ${field("Mint mark", sel("mint", "Any", FLT_MINTS, f.mint || ""))}
     <div class="grid2">${field("Grade from", sel("gFrom", "Any", GRADES, f.gFrom || ""))}${field("Grade to", sel("gTo", "Any", GRADES, f.gTo || ""))}</div>
+    ${field("Grading", sel("ng", "All coins", [["1", "Not graded only"]], f.ng || ""))}
     ${customGrades.length ? field("Custom grade", sel("gCustom", "Any", customGrades, f.gCustom || "")) : ""}
     <div class="grid2">${field("Value from ($)", `<input type="number" inputmode="decimal" data-flt="vFrom" value="${esc(f.vFrom || "")}">`)}${field("Value to ($)", `<input type="number" inputmode="decimal" data-flt="vTo" value="${esc(f.vTo || "")}">`)}</div>
     ${field("Favorites", sel("fav", "All coins", [["1", "Favorites only"]], f.fav || ""))}
@@ -171,7 +174,7 @@ function fltRead() {
   if (v("metal") !== undefined) listState.metal = v("metal");
   if (v("cert") !== undefined) listState.cert = v("cert");
   const f = {};
-  ["group", "stack", "biz", "holder", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "vFrom", "vTo", "inc", "fav"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
+  ["group", "stack", "biz", "holder", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "ng", "vFrom", "vTo", "inc", "fav"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
   const probs = [...document.querySelectorAll("#sheet [data-flt-prob]:checked")].map((e) => e.dataset.fltProb);
   if (probs.length) f.probs = probs;
   listState.f = f;

@@ -1,6 +1,6 @@
 {
   "updated": "2026-11-18",
-  "app": "v0.84.0",
+  "app": "v0.85.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
     "weekly_now": 41,
@@ -434,15 +434,15 @@
       "name": "Quick-add pocket change",
       "model": "Sonnet",
       "est": "1–2",
-      "actual": "",
-      "status": "next",
+      "actual": "~? (started at 11/46; his end reading goes here)",
+      "status": "done",
       "why": "Fill an album fast with everyday coins without grading each one. Added 11-18 by him (idea 118: quick-add for pocket-change coins); goes before step 7 because he is waiting on it to enter coins.",
       "items": [
         {
           "id": "118a",
           "size": "M",
           "what": "Circulated, face value",
-          "change": "Everyday clad or base-metal coins in normal spots can be added as \"Circulated (not graded)\", valued at face. Never for silver or 40% silver (1965–70 Kennedy halves stay melt), key dates, variety spots, proofs, mint-set or uncirculated coins; those still ask for a grade.",
+          "change": "Everyday coins in normal spots can be added as \"Circulated (not graded)\", valued at face, with no new grade and no new saved field (it reuses the \"Can't grade this one\" flag). Allowed by type, not metal: clad dimes, quarters and halves, Jefferson nickels 1946+, Lincoln cents 1959+. Silver, 40% silver, key dates, variety spots, proofs and mint sets still ask for a grade.",
           "affects": "Fill spots, Add coin, Grade"
         },
         {
@@ -451,6 +451,20 @@
           "what": "New source: Coin roll hunting",
           "change": "Source list gets \"Coin roll hunting\". Price paid fills with face value for Coin roll hunting, Pocket change and Bank roll (you paid face); only Gift stays $0; every other source (eBay, Coin Shop...) stays blank for you to enter. This changes idea 94 (Pocket change used to fill $0); it only sets defaults for new coins. Any source in the list can be picked, and quick-add remembers your last source until you change it, also for a whole batch.",
           "affects": "Source list, Fill spots"
+        },
+        {
+          "id": "118c",
+          "size": "S",
+          "what": "NIFC tag",
+          "change": "Kennedy halves 1970-D, 1987-P, 1987-D and 2002-2020 show an NIFC tag (not intended for circulation) next to any grade on the coin card, album spot and coin page. Worked out when read, nothing saved. 2021 and later circulate, so no tag.",
+          "affects": "Coin card, album spot, coin page"
+        },
+        {
+          "id": "118d",
+          "size": "S",
+          "what": "Spreadsheet, filter, demo",
+          "change": "The CSV file keeps Not graded / Circulated coins (no more custom Other grade on import). Filter has a Not graded choice. Demo has 3 sample pocket-change coins.",
+          "affects": "CSV, Filter, demo"
         }
       ],
       "try": [
@@ -469,7 +483,7 @@
       "model": "Sonnet",
       "est": "4–6",
       "actual": "",
-      "status": "queued",
+      "status": "next",
       "why": "Upgrading a coin works end to end.",
       "items": [
         {
@@ -1068,6 +1082,13 @@
       "ver": "v0.84.0",
       "cost": "~1 weekly (est), ~42 min (Sonnet)",
       "change": "Take out of album is on a filled spot's menu. Add to want list on an empty spot adds to the album's own list in one tap. Deleting an album asks if its want-list coins should go too. A coin put in an album leaves its box slot, and 'Holder: Album' clears after it leaves. Album melt says 'Needs silver price' instead of $0.00. The album page shows how many spots are hidden, with Show."
+    },
+    {
+      "date": "11-18",
+      "name": "Step 6b: quick-add pocket change",
+      "ver": "v0.85.0",
+      "cost": "started at [11/46]; end reading pending (Sonnet), started 7:50pm",
+      "change": "Fill spots has a Circulated (not graded) choice on everyday clad, Jefferson and Lincoln spots, valued at face, no new saved field. New source Coin roll hunting; Pocket change, Coin roll hunting and Bank roll fill Price paid with face, Gift stays $0. Fill spots remembers your last source. Kennedy halves made only for collectors show an NIFC tag. Spreadsheet keeps Not graded coins, Filter has Not graded, demo has 3 pocket-change coins."
     }
   ]
 }

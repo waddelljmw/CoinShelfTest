@@ -77,8 +77,9 @@ function proofOnlySpot(a, s) {
 // Short grade for an album card: "VF-20", "PCGS MS-63", or "owned" when no grade was entered.
 function slotGrade(c) {
   const g = c.grade === "Other" ? c.customGrade : c.grade;
-  if (!g) return "owned";
-  return c.gradeMode === "cert" ? [c.service === "Other" ? c.customService : c.service, g].filter(Boolean).join(" ") : g;
+  const tag = nifcOf(c) ? " · NIFC" : "";
+  if (!g) return (c.noGrade ? noGradeWord(c) : "owned") + tag;
+  return (c.gradeMode === "cert" ? [c.service === "Other" ? c.customService : c.service, g].filter(Boolean).join(" ") : g) + tag;
 }
 // Years always stay in order; within a year, spots keep the order you gave them.
 function sortSlots(slots) {

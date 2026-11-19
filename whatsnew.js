@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.85.0": [
+    "Quick-add pocket change: on Fill spots, everyday coins (clad dimes, quarters and halves, Jefferson nickels from 1946, Lincoln cents from 1959) can be added as Circulated (not graded). No grade needed, valued at face. Silver, proofs, key dates and variety spots still ask for a grade.",
+    "New source Coin roll hunting. Pocket change, Coin roll hunting and Bank roll fill Price paid with face value; Gift stays $0. Fill spots remembers your last source and has one-tap source buttons.",
+    "Kennedy halves made only for collectors (1970-D, 1987-P, 1987-D, 2002 to 2020) now show an NIFC tag, which means not intended for circulation. Filter has a Not graded choice, and the CSV file now keeps Not graded / Circulated coins.",
+  ],
   "0.84.0": [
     "Albums are tidier: tap a filled spot and choose Take out of album (one tap, Undo). Tap an empty spot and Add to want list adds it to that album's own list right away. Deleting an album asks if its want-list coins should go too. A coin put in an album leaves its box slot, and no longer says Holder: Album after it leaves. Album melt says Needs silver price when no price is entered, and the album page shows how many spots are hidden, with a Show button.",
   ],

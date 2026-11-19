@@ -32,6 +32,13 @@ function openCoinForm(id) {
   if (!Array.isArray(draft.receiptPhotos)) draft.receiptPhotos = [];
   renderCoinForm();
 }
+// Price paid for a new coin from a free or face-value source: Gift is $0, Pocket change / Coin roll hunting / Bank roll are face (you paid face at the bank). Only fills a blank or an earlier auto-fill.
+function autoPaid(d) {
+  if (!d._isNew || !(d.paid === "" || d.paid == null || d.paid === d._paidAuto)) return;
+  const v = String(d.source || "").trim().toLowerCase();
+  const p = v === "gift" ? "0" : isFaceSource(d) && faceEach(d) != null ? moneyStr(faceEach(d)) : "";
+  if (p !== "") { d.paid = p; d._paidAuto = p; }
+}
 function sourceOptions() {
   const known = new Set(SOURCE_DEFAULTS.map((x) => x.toLowerCase()));
   return [...new Set([...SOURCE_DEFAULTS, ...allCoins().map((c) => (c.source || "").trim()).filter((x) => x && !known.has(x.toLowerCase()))])];
@@ -44,7 +51,7 @@ function applySourceKind(d, v) {
   if (isInherited(d) && !d.inhId && typeof inhDefaultId === "function") d.inhId = inhDefaultId(); // Inherited fills in the default inheritance
   // Paid with fills itself on a new coin (still editable): online platforms → Card, Coin Show → Cash.
   const auto = ["eBay", "Whatnot", "U.S. Mint"].includes(v) ? "Card" : v === "Coin Show" ? "Cash" : "";
-  if (d._isNew && (v === "Gift" || v === "Pocket change") && (d.paid === "" || d.paid == null || d.paid === d._paidAuto)) { d.paid = "0"; d._paidAuto = "0"; } // free coins fill Price paid with $0 (still editable)
+  autoPaid(d); // Gift fills $0; Pocket change, Coin roll hunting and Bank roll fill face value (still editable)
   if (d._isNew && auto && (!d.payMethod || d.payMethod === d._payAuto)) { d.payMethod = auto; d._payAuto = auto; }
 }
 // "Where from" chips right after Grade: the three most used, then Inherited, then More… (opens the full list under Purchase details).
@@ -489,6 +496,7 @@ function pickType(id) {
   const al = draft.albumId && getAlbum(draft.albumId);
   if (al && !albumHasType(al, t.id)) { draft.albumId = ""; delete draft.slotId; } // that album is for other types
   applyYearMetal(draft);
+  autoPaid(draft); // a face-value source fills Price paid once the coin type is known
   if (itemOf(draft) === "roll" && !draft._countEdited) draft.rollCount = ROLL_COUNTS[t.denom] || "";
   renderCoinForm();
 }

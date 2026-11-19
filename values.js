@@ -255,7 +255,7 @@ function missingOf(c) {
   const m = [];
   if (itemOf(c) === "coin" && !c.grade && !c.noGrade) m.push("grade");
   if (isInherited(c)) { const i = inheritanceOf(c); if (!(i && String(i.date || "").trim()) && !String(c.acquired || "").trim()) m.push("inherit date"); }
-  else if (costOf(c) == null && !["gift", "pocket change"].includes((c.source || "").trim().toLowerCase())) m.push("cost"); // free coins (Gift, Pocket change) cost $0, US or foreign alike
+  else if (costOf(c) == null && !["gift", "pocket change", "coin roll hunting", "bank roll"].includes((c.source || "").trim().toLowerCase())) m.push("cost"); // free coins (Gift, Pocket change) cost $0, US or foreign alike
   return m;
 }
 // Blank mint on a US coin from a year that also had D/S mints: could be Philadelphia or just never picked. Picking "P" once clears it. Coins in an album spot are skipped (the spot sets the mint).
@@ -347,11 +347,11 @@ function gradeText(c) {
   if (itemOf(c) === "bullion") return [shapeName(c.bShape), barWeightText(c), num(c.bPurity) ? String(num(c.bPurity)).replace(/^0/, "") : ""].filter(Boolean).join(" · ");
   if (itemOf(c) === "set") return holderText(c) || "Set";
   if (itemOf(c) === "roll") return ["Roll of " + rollCountOf(c), c.rollCond, c.bankWrap ? "bank wrap" : ""].filter(Boolean).join(" · ");
-  const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? "Not graded" : "");
+  const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? noGradeWord(c) : "");
   const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && bookFactRows(c.typeId, "fbl") ? " " + fbTag(c.typeId) : "")
-    + (hasProblems(c) ? " Details" : "") + (c.variety ? " · " + c.variety : "") + (c.knownVar ? " · " + c.knownVar : "");
+    + (nifcOf(c) ? " · NIFC" : "") + (hasProblems(c) ? " Details" : "") + (c.variety ? " · " + c.variety : "") + (c.knownVar ? " · " + c.knownVar : "");
   if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;
-  return (g ? "Raw " + g : "Raw") + extra;
+  return (g ? (c.noGrade && !c.grade ? g : "Raw " + g) : "Raw") + extra;
 }
 function autoLabel(c) {
   const date = c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : "";

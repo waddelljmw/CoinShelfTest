@@ -108,7 +108,7 @@ function coinToRow(c) {
     cid: c.cid || "", label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : itemOf(c) === "bullion" ? shapeName(c.bShape) : "Coin", bWeight: itemOf(c) === "bullion" ? c.bWeight || "" : "", bPurity: itemOf(c) === "bullion" ? c.bPurity || "" : "", bMaker: c.bMaker || "", bSerial: c.bSerial || "", stack: stackOf(c), kind: !c.typeId && itemOf(c) === "coin" && OTHER_KINDS.includes(c.family) ? c.family : "", group: String(c.group || "").trim(), caseName: c.caseName || "", box: c.boxId && typeof getBox === "function" && getBox(c.boxId) ? getBox(c.boxId).name : "", boxTray: c.boxId && c.boxTray ? c.boxTray : "", boxRow: c.boxId ? c.boxRow || "" : "", boxSlot: c.boxId ? c.boxSlot || "" : "", trackCarrier: c.trackCarrier || "", goneReason: c.status === "gone" && c.gone ? c.gone.reason || "" : "", goneDate: c.status === "gone" && c.gone ? c.gone.date || "" : "", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
     catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", valueFrom: valueFromText(c.valueFrom), fav: c.fav ? "Yes" : "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
-    grade: c.grade === "Other" ? c.customGrade : c.grade, service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
+    grade: (c.grade === "Other" ? c.customGrade : c.grade) || (c.noGrade ? (isFaceSource(c) ? "Circulated" : "Not graded") : ""), service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
     cert: c.cert, cac: cacOf(c), holder: holderOf(c), keptIn: keptName(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", noDate: c.noDate === "worn" ? "Too worn" : c.noDate === "none" ? "Never had a date" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
     redBook: rb ?? "", meltEach: m == null ? "" : m.toFixed(2), source: (c.source || "").trim(), acquired: c.acquired,
     album: a ? albumTitle(a) : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance, soldWhere: c.sold ? whereText(c.sold) : "", soldTo: s.to || "", shipCharged: s.shipCharged ?? "", soldFees: s.fees ?? "", soldTax: s.salesTax ?? "", soldPay: s.payMethod || "", bizGroup: isInherited(c) ? "" : isBiz(c) ? "Business" : "Personal", showSold: s.showId && typeof getShow === "function" && getShow(s.showId) ? getShow(s.showId).name : "", showBought: c.boughtShowId && typeof getShow === "function" && getShow(c.boughtShowId) ? getShow(c.boughtShowId).name : "", soldOrder: s.orderNo || "", soldTrack: s.trackNo || "", soldProfit: c.status === "sold" && !isInherited(c) && typeof saleProfit === "function" ? saleProfit(c) : "", askPrice: c.ask || "", inhFrom: isInherited(c) && typeof inheritanceOf === "function" && inheritanceOf(c) ? inhLabel(inheritanceOf(c)) : "", inhValue: isInherited(c) && typeof inhValueOf === "function" ? (inhValueOf(c) ?? "") : "",
@@ -217,7 +217,8 @@ function rowToCoin(get) {
   const t = matchType(typeText, yr.year, money2(get("oz")), get("metal"));
   const statusSold = /sold/i.test(get("status") || "") || money2(get("soldAmount")) !== "" || !!String(get("soldDate") || "").trim();
   const svc = parseService(get("service"));
-  const g = parseGrade(get("grade"));
+  const noG = /^(not graded|circulated(\s*\(not graded\))?)$/i.test(String(get("grade") || "").trim()); // these words are not a grade: they set the "can't grade" flag
+  const g = noG ? { grade: "" } : parseGrade(get("grade"));
   const certified = /cert|slab|yes|true|graded/i.test(get("gradeMode") || "") || !!svc.service || !!String(get("cert") || "").trim();
   const c = blankCoin();
   c.year = yr.year;
@@ -231,6 +232,7 @@ function rowToCoin(get) {
   c.gradeMode = certified ? "cert" : "raw";
   c.grade = g.grade === "Junk" && certified ? "" : g.grade;
   if (g.customGrade) c.customGrade = g.customGrade;
+  if (noG && itemOf(c) === "coin") c.noGrade = true;
   if (certified) { c.service = svc.service || "PCGS"; c.customService = svc.customService || ""; c.cert = String(get("cert") || "").trim(); }
   c.variety = String(get("variety") || "").trim();
   const cacT = String(get("cac") || "").trim();
