@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.99.0": [
+    "New Melt table: common silver coins (dimes, quarters, halves, dollars, war nickels) with what each is worth as metal at your silver price. Open it from Home's melt section or from Options > Spot prices.",
+  ],
   "0.98.0": [
     "Search any coin now says when you own it: \"You own 2\". Tap it to see where each one is kept and to open your coin.",
   ],

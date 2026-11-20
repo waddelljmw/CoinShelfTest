@@ -1,6 +1,6 @@
 // Navigation and pages: Home, Stacks, Value, Coins, coin page (split from app.js; plain script, shares the page's global names)
 /* ---------- navigation ---------- */
-const VIEWS = ["home", "value", "albums", "wants", "coins", "forsale", "stacks", "boxes", "shows", "reports", "guide", "options"];
+const VIEWS = ["home", "value", "albums", "wants", "coins", "forsale", "melt", "stacks", "boxes", "shows", "reports", "guide", "options"];
 function currentRoute() {
   const h = location.hash.replace(/^#/, "");
   if (VIEWS.includes(h)) return { view: h };
@@ -55,7 +55,7 @@ function render() {
   if (typeof applyShelfStyle === "function") applyShelfStyle();
   if (typeof applyTextSize === "function") applyTextSize();
   if (typeof syncShowsMenu === "function") syncShowsMenu();
-  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, shows: typeof viewShows === "function" ? viewShows : viewHome, show: typeof viewShow === "function" ? viewShow : viewHome, reports: typeof viewReports === "function" ? viewReports : viewHome, coin: viewCoin, guide: viewGuide, options: viewOptions }[r.view];
+  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, shows: typeof viewShows === "function" ? viewShows : viewHome, show: typeof viewShow === "function" ? viewShow : viewHome, reports: typeof viewReports === "function" ? viewReports : viewHome, coin: viewCoin, guide: viewGuide, options: viewOptions, melt: typeof viewMelt === "function" ? viewMelt : viewHome }[r.view];
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
   const keepSearch = active && active.id === "coinSearch" ? active.selectionStart : null;
@@ -138,7 +138,7 @@ function viewHome() {
     const mv = sum(cs, (c) => (meltEach(c) || 0) * qtyOf(c));
     return `<div class="rowline"><span>${m.label}<div class="small muted">${sum(cs, qtyOf)} coins · ${oz.toFixed(m.key === "copper" ? 2 : 3)} oz</div></span><span class="num">${spotPerOz(m.key) == null ? `<span class="muted small">no spot price</span>` : money(mv)}</span></div>`;
   }).join("");
-  if (metalRows && s.showMeltSec !== false) html += homeSection("melt", "Melt Value by Metal", `<div class="card">${metalRows}</div>`);
+  if (metalRows && s.showMeltSec !== false) html += homeSection("melt", "Melt Value by Metal", `<div class="card">${metalRows}<div class="rowline"><button class="link-btn" data-go="melt">Melt table for common silver coins ›</button></div></div>`);
 
   if (s.showSold) html += soldCard();
 
