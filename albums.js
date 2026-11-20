@@ -132,11 +132,12 @@ function albumStats(a) {
   const multi = albumTypes(a).length > 1 || isSetAlbum(a);
   // Does this coin fit this spot? Type sets match by type; date spots by date (and type, if the album has several).
   const pfOk = (c, s) => (s.pf ? isProofGrade(c.grade) : !(a.proofs && isProofGrade(c.grade)));
-  const sameDate = (c, s) => (s.set ? c.typeId === s.t : num(c.year) === s.y && normMint(c.mint) === s.m && (!multi || c.typeId === slotType(a, s)) && pfOk(c, s));
+  // loose = a coin put in this very spot stays there, even a proof in a regular spot (he knows what he holds).
+  const sameDate = (c, s, loose) => (s.set ? c.typeId === s.t : num(c.year) === s.y && normMint(c.mint) === s.m && (!multi || c.typeId === slotType(a, s)) && (pfOk(c, s) || (loose && !s.pf)));
   // 1) Coins added to a specific spot stay in that spot, whatever it's renamed or moved to.
   slots.forEach((s) => {
     if (!s.id) return;
-    const hit = coins.find((c) => !used.has(c.id) && c.slotId === s.id && sameDate(c, s));
+    const hit = coins.find((c) => !used.has(c.id) && c.slotId === s.id && sameDate(c, s, true));
     if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
   });
   // 2) Other coins: variety spots by matching variety, then plain spots by date.
