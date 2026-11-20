@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.98.0": [
+    "Search any coin now says when you own it: \"You own 2\". Tap it to see where each one is kept and to open your coin.",
+  ],
   "0.97.0": [
     "Options now says which kind of file each Load, Import and Restore button takes, and how much room the app and its photos use on your phone.",
     "Tapping an empty album spot while selecting coins now explains why it can't be selected.",
