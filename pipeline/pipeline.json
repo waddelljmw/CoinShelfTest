@@ -3,7 +3,7 @@
  "app": "v0.95.3",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 66,
+  "weekly_now": 68,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -932,7 +932,7 @@
    "name": "R7 fixes",
    "model": "Sonnet",
    "est": "~1",
-   "actual": "reading pending",
+   "actual": "~1 (67→68)",
    "status": "done",
    "chat": "New Sonnet chat",
    "why": "Three small problems the R7 review reproduced. First because two of them can quietly change totals once you start entering albums again.",
@@ -964,8 +964,8 @@
     "Fill spots on a cent album with Pocket change, then open Fill spots on another album: Where from is blank."
    ],
    "started": "Thu 11-19 9:22pm",
-   "ended": "Thu 11-19 9:50pm",
-   "minutes": 28,
+   "ended": "Thu 11-19 10:05pm",
+   "minutes": 43,
    "chats": 1
   },
   {
@@ -992,6 +992,123 @@
      "change": "Selling the same coin in two tabs warns instead of replacing.",
      "affects": "Mark as sold"
     }
+   ],
+   "chat": "New Sonnet chat",
+   "try": [
+    "Filter My Coins to one coin type: a choice shows the spots you are missing too.",
+    "Open the demo in two tabs and mark the same coin sold in both: the second asks first instead of replacing."
+   ]
+  },
+  {
+   "n": "16b",
+   "stage": "fill",
+   "name": "Fill-ins: buried box + covered button (R4-40, R6-13)",
+   "model": "Sonnet",
+   "est": "~1",
+   "actual": "",
+   "status": "queued",
+   "why": "Two small annoyances from the big review, no saved-data change.",
+   "items": [
+    {
+     "id": "R4-40",
+     "size": "S",
+     "what": "One 'how many coins' box",
+     "change": "The 'How many separate coins?' box is no longer two folds deep beside a second Quantity; one clear place on Add coin.",
+     "affects": "Add coin form"
+    },
+    {
+     "id": "R6-13",
+     "size": "S",
+     "what": "Round + button stops covering things",
+     "change": "Pages scroll clear of the round + button, also at large text.",
+     "affects": "Every long page"
+    }
+   ],
+   "try": [
+    "Add coin: one clear place to say how many coins.",
+    "Open a long list at Extra large text and scroll to the bottom: nothing is hidden under the + button."
+   ],
+   "chat": "New Sonnet chat"
+  },
+  {
+   "n": 18,
+   "stage": "fill",
+   "name": "Melt page for common coins (idea 113)",
+   "model": "Sonnet",
+   "est": "2–3",
+   "actual": "",
+   "status": "queued",
+   "why": "His own idea: a page like the melt sites he uses. Common coins with today's melt, based on the silver price on Home. No saved data.",
+   "items": [
+    {
+     "id": "113",
+     "size": "M",
+     "what": "Melt table",
+     "change": "A page listing common silver coins (years, silver %, melt today at your Home silver price), e.g. Mercury and Roosevelt 90% dimes, Washington 90% quarters, Franklin and Kennedy 90% and 40% halves, war nickels, Morgan and Peace dollars. Only coins whose silver content the app already knows; anything not known is left off, nothing guessed. Linked from Home's melt line.",
+     "affects": "Home, new page"
+    }
+   ],
+   "try": [
+    "Home: tap the melt line, the melt page opens.",
+    "Change the silver price in Options: the page numbers change.",
+    "Check one coin by hand: weight x silver % x price."
+   ],
+   "chat": "New Sonnet chat"
+  },
+  {
+   "n": 19,
+   "stage": "fill",
+   "name": "CSV round trip (R4-29, R5-8)",
+   "model": "Sonnet",
+   "est": "2–3",
+   "actual": "",
+   "status": "queued",
+   "why": "The spreadsheet export loses things when you import it again. Placed late on purpose: if it needs a new saved field it stops and asks, so nothing behind it waits.",
+   "items": [
+    {
+     "id": "R4-29",
+     "size": "M",
+     "what": "Nothing lost on re-import",
+     "change": "Export/import keeps Album, Business tag, Inherited from, and the value for melt coins.",
+     "affects": "Spreadsheet (CSV)"
+    },
+    {
+     "id": "R5-8",
+     "size": "M",
+     "what": "Coins go back to their spot",
+     "change": "The CSV also carries the album spot (date, mint, variety) so a coin returns to its own spot, e.g. 1880 VAM-6, not the plain 1880 spot.",
+     "affects": "CSV import, album grid"
+    }
+   ],
+   "note": "Uses fields coins already have. If any item would add a new saved field or conversion, STOP, post the question to Questions for you, and move on (4-box check first).",
+   "try": [
+    "In ?demo, export CSV, then import it into a fresh ?demo copy: album, Business and Inherited coins come back the same.",
+    "Check a variety spot coin lands in its spot."
+   ],
+   "chat": "New Sonnet chat"
+  },
+  {
+   "n": 20,
+   "stage": "fill",
+   "name": "Photo in the album spot (idea 106, part 1)",
+   "model": "Sonnet",
+   "est": "2",
+   "actual": "",
+   "status": "queued",
+   "why": "His own idea: use the coin's own photo on its album spot. Last in line; stops and asks if it needs a new saved field (part 2, picking obverse or reverse, is a saved field and stays in Later for Opus).",
+   "items": [
+    {
+     "id": "106 part 1",
+     "size": "M",
+     "what": "Coin photo shows in its spot",
+     "change": "If a coin in an album spot has a photo, the spot shows it. Uses the photos the coin already has.",
+     "affects": "Album spots, coin page"
+    }
+   ],
+   "note": "If it would add a saved field or change how photos are stored, STOP and post the question.",
+   "try": [
+    "In ?demo, open an album spot whose coin has a photo: the photo shows in the spot.",
+    "A coin with no photo looks the same as before."
    ],
    "chat": "New Sonnet chat"
   },
@@ -1128,7 +1245,7 @@
    "group": "Your call",
    "items": [
     {
-     "t": "Home shelf \"looks like a mess\" (idea 110): which screen? Also bookcase names written sideways (R6-10)",
+     "t": "Home shelf \"looks like a mess\" (idea 110): which screen? Sideways bookcase names (R6-10): he is fine with them 11-19; revisit if testers struggle",
      "size": "M"
     },
     {
@@ -1141,10 +1258,6 @@
    "group": "Later",
    "items": [
     {
-     "t": "Full melt table page (idea 113): the coin card's melt line covers buying for now",
-     "size": "M"
-    },
-    {
      "t": "Shopping view from albums (ideas 101/103): decide after using the coin card",
      "size": "M"
     },
@@ -1153,36 +1266,20 @@
      "size": "M"
     },
     {
-     "t": "CSV round trip and album spots in CSV (R4-29, R5-8)",
+     "t": "Bars beyond silver, e.g. fractional gold (R4-32): do before a wider audience (his call 11-19)",
      "size": "M"
-    },
-    {
-     "t": "Bars beyond silver (R4-32)",
-     "size": "M"
-    },
-    {
-     "t": "How many separate coins question (R4-40)",
-     "size": "S"
     },
     {
      "t": "Album by brand and name (idea 107)",
      "size": "M"
     },
     {
-     "t": "Melt table (idea 113)",
-     "size": "M"
-    },
-    {
-     "t": "Pick photo side (idea 106)",
+     "t": "Pick photo side, part 2 (idea 106): new saved field, Opus",
      "size": "M (part 2 L)"
     },
     {
      "t": "Dave pawn-shop sim run (idea 115)",
      "size": "M"
-    },
-    {
-     "t": "Round + button covering content (R6-13)",
-     "size": "S"
     }
    ]
   },
@@ -1236,9 +1333,16 @@
  "done": [
   {
    "date": "11-19",
+   "name": "Weekly check-in (top up the queue)",
+   "ver": "",
+   "cost": "~0–1",
+   "change": "R7 fixes cost fixed (~1). Queue was low (2 ready), so 4 Sonnet steps were pulled from Later: 16b, 18 melt page, 19 CSV round trip, 20 photo in the spot. Steps that may stop and ask are last."
+  },
+  {
+   "date": "11-19",
    "name": "R7 fixes (R7f)",
    "ver": "v0.95.3",
-   "cost": "reading pending",
+   "cost": "~1",
    "change": "Moving a junk silver coin keeps its silver stack. Fill spots no longer carries Pocket change or roll hunting into the next album, so blank prices stay blank. Tax CSV gain adds shipping the buyer paid. Spreadsheet section renamed to say CSV export and import. Options group headings are bigger and darker."
   },
   {
@@ -1524,7 +1628,7 @@
   ]
  },
  "checkin": {
-  "last": null,
+  "last": "2026-11-19 (Thu night, with an overnight run lined up)",
   "last_review": "2026-11-19 (R7 solo review, report 27)",
   "review_baseline": 21,
   "saved_data_ahead": false,
