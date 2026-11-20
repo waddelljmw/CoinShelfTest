@@ -52,7 +52,7 @@ const DEMO_WANTS = [["morgan-dollar", 1893, "S", "VF-20"], ["walking-liberty-hal
 const DEMO_GRADE_CYCLE = ["VF-30", "XF-45", "AU-55", "MS-60", "MS-63", "MS-64"];
 const DEMO_PAID_CYCLE = [38, 52, 75, 95, 140, 210];
 
-function demoDocs() {
+function demoDocs(big) {
   const docs = [];
   let n = 0;
   const day = (back) => { const d = new Date(); d.setDate(d.getDate() - back); return localDate(d); };
@@ -115,11 +115,52 @@ function demoDocs() {
     c.sold = { at: Date.now() - (10 + i * 12) * 86400000, date: day(atShow ? 21 : 10 + i * 12), amount: amt, fees: where === "eBay" ? 7 : where === "Whatnot" ? 6 : 0, shipping: where === "eBay" || where === "Whatnot" ? 5 : 0, whereType: where, whereDetail: where === "Coin show" ? show.name : "", where: where === "Coin show" ? "Coin show: " + show.name : where, ...(atShow ? { showId: show.id } : {}) };
     add(c);
   });
+  // ---- Demo expansion (step 17): made-up coins in memory only; nothing here is ever saved ----
+  // An inherited album: its coins say Inherited and use the sample inheritance in the settings below.
+  const ai = { kind: "album", id: "demoalbum3", brand: "Other", number: "", name: "Grandpa's Mercury Dimes 1916–1945", typeId: "mercury-dime", typeIds: ["mercury-dime"], layout: "dates", start: 1916, end: 1945, proofs: "", removed: [], inherited: true, createdAt: Date.now() - 200 * 86400000 };
+  ai.slots = buildAlbumSlots(ai.typeIds, "dates", ai.start, ai.end, "");
+  docs.push(["a_demoalbum3", ai]);
+  ai.slots.filter((s, i) => i % 2 === 0).forEach((s, i) => add(mk("mercury-dime", s.y, s.m, ["G-4", "VG-8", "F-12", "VF-20", "XF-40"][i % 5], null, { holder: "Album", albumId: ai.id, slotId: s.id, source: "Inherited", inhId: "demoinh1", origAlbum: true, paid: "" })));
+  // A Kennedy halves album 1964–2002 (three types in one album), partly filled with coins from rolls and pocket change.
+  const ak = { kind: "album", id: "demoalbum4", brand: "Other", number: "", name: "Kennedy Halves 1964–2002", typeId: "kennedy-90", typeIds: ["kennedy-90", "kennedy-40", "kennedy-clad"], layout: "dates", start: 1964, end: 2002, proofs: "", removed: [], keptBox: "demosafe", createdAt: Date.now() - 120 * 86400000 };
+  ak.slots = buildAlbumSlots(ak.typeIds, "dates", ak.start, ak.end, "");
+  docs.push(["a_demoalbum4", ak]);
+  ak.slots.filter((s, i) => i % 3 !== 2).forEach((s, i) => add(mk(slotType(ak, s), s.y, s.m, "", 0.5, { noGrade: true, holder: "Album", albumId: ak.id, slotId: s.id, source: i % 2 ? "Pocket change" : "Coin roll hunting" })));
+  // A pocket album (2 pages, 3 across, 3 down) kept in a fire safe: a container inside a container.
+  docs.push(["b_demosafe", { kind: "box", id: "demosafe", name: "Fire safe", rows: 1, perRow: 1, type: "storage", look: "plastic", color: "red", spots: false, inside: "Albums and the pocket album", createdAt: Date.now() - 150 * 86400000 }]);
+  docs.push(["b_demopocket", { kind: "box", id: "demopocket", name: "Eagles and commemoratives", type: "pocket", look: "black", color: "blue", spots: true, rows: 3, perRow: 3, trays: [{ rows: 3, perRow: 3 }, { rows: 3, perRow: 3 }], keptBox: "demosafe", createdAt: Date.now() - 90 * 86400000 }]);
+  [["silver-eagle", 2016, "W", "MS-69", 48], ["silver-eagle", 2017, "W", "MS-69", 47], ["silver-eagle", 2018, "W", "MS-70", 60], ["morgan-dollar", 1889, "S", "MS-63", 120], ["peace-dollar", 1925, "P", "MS-64", 75], ["franklin-half", 1952, "D", "MS-64", 52], ["kennedy-90", 1964, "D", "MS-65", 24]].forEach(([t, y, m, g, p], i) => {
+    add(mk(t, y, m, g, p, { holder: "Pocket page", boxId: "demopocket", boxTray: i < 5 ? "1" : "2", boxRow: String(Math.floor((i % 5) / 3) + 1), boxSlot: String((i % 5) % 3 + 1), source: "Coin Shop" }));
+  });
+  // A few key dates (low mintage, so the coin card shows the key-date chip).
+  [["lincoln-wheat", 1914, "D", "VG-8", 310], ["lincoln-wheat", 1931, "S", "F-12", 95], ["mercury-dime", 1916, "D", "G-4", 900], ["washington-silver", 1932, "D", "VF-20", 150], ["morgan-dollar", 1893, "S", "G-4", 650]].forEach(([t, y, m, g, p]) => add(mk(t, y, m, g, p, { source: "Coin Show" })));
+  // Foreign coins (no Red Book type): bullion-style world coins, kept loose.
+  [["Canada Silver Maple Leaf", "$5", 2015, "Canada", "MS-68", 34], ["Mexico Silver Libertad", "1 Onza", 2018, "Mexico", "MS-67", 36], ["UK Silver Britannia", "£2", 2020, "United Kingdom", "MS-69", 33]].forEach(([name, denom, year, country, grade, paid]) => {
+    n++;
+    const c = blankCoin();
+    Object.assign(c, { id: "demo" + n, typeName: name, family: "Foreign coin", denom, metal: "Silver", oz: "1", year, grade, paid: String(paid), source: "eBay", acquired: day(40 + n), createdAt: Date.now() - n * 3600000, holder: "Plastic flip", notes: country + " (made-up sample)" });
+    c.label = autoLabel(c);
+    c.photos = [{ url: demoPic(c, "front") }, { url: demoPic(c, "back") }];
+    add(c);
+  });
+  // Coins that still need info (for the Fix-up run): no grade, no cost, no where from, or no mint mark on a date that had D or S mints.
+  [["morgan-dollar", 1921, "", "MS-63", 80, ""], ["peace-dollar", 1926, "S", "", 60, "eBay"], ["walking-liberty-half", 1941, "", "XF-45", 40, "Coin Show"], ["mercury-dime", 1944, "D", "", null, "Coin Shop"], ["roosevelt-silver", 1955, "", "MS-64", 12, ""],
+    ["franklin-half", 1953, "S", "", null, ""], ["buffalo-nickel", 1929, "", "F-12", 5, "Coin Shop"], ["standing-liberty-quarter", 1927, "D", "", 30, ""], ["barber-quarter", 1912, "S", "VG-8", null, "Whatnot"], ["lincoln-wheat", 1944, "", "MS-63", 4, ""]].forEach(([t, y, m, g, p, src]) => add(mk(t, y, m, g, p, { source: src, acquired: "" })));
   // Want list.
   docs.push(["wl_" + DEFAULT_LIST_ID, { kind: "wantlist", id: DEFAULT_LIST_ID, name: "General", scope: "any", createdAt: 0 }]);
   DEMO_WANTS.forEach(([t, y, m, g], i) => { const w = newWant({ typeId: t, year: y, mint: m, grade: g, maxPrice: "" }); w.id = "demowant" + i; docs.push(["w_" + w.id, w]); });
+  // Optional big sample (about 1,000 more made-up coins) for speed tests: the link ?demo=big.
+  if (big) {
+    const pool = ["morgan-dollar", "peace-dollar", "walking-liberty-half", "franklin-half", "mercury-dime", "roosevelt-silver", "washington-silver", "buffalo-nickel", "lincoln-wheat", "barber-quarter", "standing-liberty-quarter"].filter((t) => EXACT_SLOTS[t] && EXACT_SLOTS[t].length);
+    const gr = ["G-4", "VG-8", "F-12", "VF-20", "XF-40", "AU-50", "MS-60", "MS-63", "MS-65"];
+    let seed = 20261119; const rnd = (k) => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed % k; };
+    for (let i = 0; i < 1000; i++) {
+      const t = pool[rnd(pool.length)], slots = EXACT_SLOTS[t], row = slots[rnd(slots.length)], ms = row[1].split(" ");
+      add(mk(t, row[0], ms[rnd(ms.length)], gr[rnd(gr.length)], 3 + rnd(120), { source: ["Coin Shop", "Coin Show", "eBay", "Gift", "Pocket change"][rnd(5)] }));
+    }
+  }
   // Settings: made-up metal prices, Seller Mode on, no backup reminder.
-  docs.push(["settings", { ...DEFAULT_SETTINGS, spot: { gold: 2700, silver: 32, platinum: 1000, copper: 4.2 }, spotUpdated: null, seller: { on: true, profile: { name: "Sample Coin Co.", ein: "", address: "", permit: "" } }, lastBackup: today(), soldAutoDone: true }]);
+  docs.push(["settings", { ...DEFAULT_SETTINGS, spot: { gold: 2700, silver: 32, platinum: 1000, copper: 4.2 }, spotUpdated: null, seller: { on: true, profile: { name: "Sample Coin Co.", ein: "", address: "", permit: "" } }, lastBackup: today(), soldAutoDone: true, inheritances: [{ id: "demoinh1", from: "Grandpa Joe (made up)", date: "2019", earlier: [], valueWhen: "" }], inhDefault: "demoinh1" }]);
   return docs;
 }
 

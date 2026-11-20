@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.95.1";
+const APP_VERSION = "0.95.2";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -105,8 +105,8 @@ function demoBanner(full) {
   $("#banner").innerHTML = `PRACTICE DEMO: these aren't your real coins. ${full ? "" : `<button class="link-btn" data-act="demoFull">See a full sample collection</button> `}<button class="link-btn" data-act="exitDemo">Leave demo</button>`;
   $("#banner").hidden = false;
 }
-function demoLoadFull() {
-  store.docs = new Map(demoDocs());
+function demoLoadFull(big) {
+  store.docs = new Map(demoDocs(big));
   store.docs.set("history", demoHistory());
   demoBanner(true);
 }
@@ -114,7 +114,8 @@ async function startDemo() {
   await new Promise((ok, no) => { const s = document.createElement("script"); s.src = "catalog/demo.js"; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
   store.mode = "demo";
   document.body.classList.add("demo");
-  if (/[?&]demo=full(&|$)/.test(location.search)) demoLoadFull();
+  if (/[?&]demo=big(&|$)/.test(location.search)) demoLoadFull(true); // about 1,000 more made-up coins, for speed tests
+  else if (/[?&]demo=full(&|$)/.test(location.search)) demoLoadFull();
   else { store.docs = new Map([["settings", { ...DEFAULT_SETTINGS, spot: { gold: 2700, silver: 32, platinum: 1000, copper: 4.2 }, spotUpdated: null, soldAutoDone: true }]]); demoBanner(false); }
   loadPriceBook();
   render();
