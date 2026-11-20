@@ -156,7 +156,7 @@ function optionsHtml() {
     <h2>Spot prices</h2>
     <div class="card"><div class="small muted">Spot price ${wi("spot")}: what a metal is trading for today.</div>
       ${SPOT_METALS.map((m) => `<label class="f"><span>${m.label} ($ per ${m.unit})</span><input type="number" inputmode="decimal" step="0.01" min="0" data-spot="${m.key}" value="${esc(s.spot[m.key] ?? "")}" placeholder="0.00"></label>`).join("")}
-      <div class="btn-row"><button class="btn" id="spotFetch" data-act="fetchSpot">Get live prices</button></div>
+      <div class="btn-row"><button class="btn" id="spotFetch" data-act="fetchSpot">Get live prices</button><button class="btn" data-go="melt">Melt table</button></div>
       <div class="hint">Filled in for you when the app opens, or tap the button. You can also type prices. <span id="spotStamp">${s.spotUpdated ? "Last updated " + esc(stampText(s.spotUpdated)) + "." : ""}</span> <a href="https://www.kitco.com/" target="_blank" rel="noopener">Look up current prices ↗</a></div>
     </div>
     <h2>Text size</h2>

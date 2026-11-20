@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-19",
- "app": "v0.95.3",
+ "updated": "2026-11-19 (overnight run)",
+ "app": "v0.101.0",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 68,
+  "weekly_now": 79,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -974,8 +974,8 @@
    "name": "Fill-ins left (R4-45, R4-14)",
    "model": "Sonnet",
    "est": "0–1 each",
-   "actual": "",
-   "status": "queued",
+   "actual": "~1 (est.; overnight run)",
+   "status": "done",
    "why": "Two small extras left on purpose: show missing coins when filtering (R4-45) and the two-tab sale guard (R4-14).",
    "items": [
     {
@@ -997,7 +997,11 @@
    "try": [
     "Filter My Coins to one coin type: a choice shows the spots you are missing too.",
     "Open the demo in two tabs and mark the same coin sold in both: the second asks first instead of replacing."
-   ]
+   ],
+   "started": "Thu 11-19 10:43pm",
+   "ended": "Thu 11-19 11:13pm",
+   "minutes": 30,
+   "chats": 1
   },
   {
    "n": "16b",
@@ -1005,8 +1009,8 @@
    "name": "Fill-ins: buried box + covered button (R4-40, R6-13)",
    "model": "Sonnet",
    "est": "~1",
-   "actual": "",
-   "status": "queued",
+   "actual": "~1 (est.)",
+   "status": "done",
    "why": "Two small annoyances from the big review, no saved-data change.",
    "items": [
     {
@@ -1028,7 +1032,11 @@
     "Add coin: one clear place to say how many coins.",
     "Open a long list at Extra large text and scroll to the bottom: nothing is hidden under the + button."
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "Thu 11-19 11:00pm",
+   "ended": "Thu 11-19 11:16pm",
+   "minutes": 17,
+   "chats": 1
   },
   {
    "n": "16c",
@@ -1036,8 +1044,8 @@
    "name": "Fill-ins: hints, selecting, pop-up time, phone space (119, 122, 123, 26)",
    "model": "Sonnet",
    "est": "~1",
-   "actual": "",
-   "status": "queued",
+   "actual": "~1 (est.)",
+   "status": "done",
    "why": "Four small polish items before testers. No saved-data change.",
    "items": [
     {
@@ -1075,7 +1083,11 @@
     "Add to want list: the message leaves by itself fast; an Undo message stays a little longer.",
     "Options: a line shows the space used."
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "Thu 11-19 11:07pm",
+   "ended": "Thu 11-19 11:17pm",
+   "minutes": 11,
+   "chats": 1
   },
   {
    "n": "16d",
@@ -1083,8 +1095,8 @@
    "name": "Tap your coin in search (121)",
    "model": "Sonnet",
    "est": "~1",
-   "actual": "",
-   "status": "queued",
+   "actual": "~1 (est.)",
+   "status": "done",
    "why": "In Search any coin, a coin you own should open and say where it is.",
    "items": [
     {
@@ -1099,7 +1111,11 @@
     "Home: search a coin you own: tap its row and it opens.",
     "The card says where your coin is kept."
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "Thu 11-19 11:17pm",
+   "ended": "Thu 11-19 11:19pm",
+   "minutes": 2,
+   "chats": 1
   },
   {
    "n": 18,
@@ -1107,8 +1123,8 @@
    "name": "Melt page for common coins (idea 113)",
    "model": "Sonnet",
    "est": "2–3",
-   "actual": "",
-   "status": "queued",
+   "actual": "~2 (est.)",
+   "status": "done",
    "why": "His own idea: a page like the melt sites he uses. Common coins with today's melt, based on the silver price on Home. No saved data.",
    "items": [
     {
@@ -1124,7 +1140,11 @@
     "Change the silver price in Options: the page numbers change.",
     "Check one coin by hand: weight x silver % x price."
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "Thu 11-19 11:18pm",
+   "ended": "Thu 11-19 11:21pm",
+   "minutes": 3,
+   "chats": 1
   },
   {
    "n": 19,
@@ -1132,8 +1152,8 @@
    "name": "CSV round trip (R4-29, R5-8)",
    "model": "Sonnet",
    "est": "2–3",
-   "actual": "",
-   "status": "queued",
+   "actual": "~2 (est.)",
+   "status": "done",
    "why": "The spreadsheet export loses things when you import it again. Placed late on purpose: if it needs a new saved field it stops and asks, so nothing behind it waits.",
    "items": [
     {
@@ -1156,7 +1176,11 @@
     "In ?demo, export CSV, then import it into a fresh ?demo copy: album, Business and Inherited coins come back the same.",
     "Check a variety spot coin lands in its spot."
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "Thu 11-19 11:21pm",
+   "ended": "Thu 11-19 11:24pm",
+   "minutes": 3,
+   "chats": 1
   },
   {
    "n": 20,
@@ -1164,8 +1188,8 @@
    "name": "Photo in the album spot (idea 106, part 1)",
    "model": "Sonnet",
    "est": "2",
-   "actual": "",
-   "status": "queued",
+   "actual": "~2 (est.)",
+   "status": "done",
    "why": "His own idea: use the coin's own photo on its album spot. Last in line; stops and asks if it needs a new saved field (part 2, picking obverse or reverse, is a saved field and stays in Later for Opus).",
    "items": [
     {
@@ -1181,7 +1205,34 @@
     "In ?demo, open an album spot whose coin has a photo: the photo shows in the spot.",
     "A coin with no photo looks the same as before."
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "Thu 11-19 11:24pm",
+   "ended": "Thu 11-19 11:27pm",
+   "minutes": 3,
+   "chats": 1
+  },
+  {
+   "n": "R8",
+   "stage": "now",
+   "name": "Solo Opus review (due: 8 steps since R7)",
+   "model": "Opus",
+   "est": "1–3",
+   "actual": "",
+   "status": "next",
+   "chat": "New Opus chat",
+   "why": "The review rule says one is due after 8–10 steps. Eight steps are done since R7 (16, 16b, 16c, 16d, 18, 19, 20 and R7 fixes). One solo Opus reviewer looks at what changed since R7, deep on the new CSV round trip, the two-tab sale guard, the + button, the melt table and album photos. No helper agents unless you ask.",
+   "items": [
+    {
+     "id": "review",
+     "size": "M",
+     "what": "Review the changes since R7",
+     "change": "No app change. A short report lists reproduced problems only; real ones go back in the queue before the fix check and testers.",
+     "affects": "Report only (reviews/)"
+    }
+   ],
+   "try": [
+    "Read the short report; nothing to tap."
+   ]
   },
   {
    "n": 4,
@@ -1611,6 +1662,55 @@
    "ver": "report 27",
    "cost": "~1 weekly (65→66), +10 session",
    "change": "Checked 18 steps of changes. Found 3 small problems (junk silver leaves its stack when moved, Fill spots can fill $1 costs, tax CSV gain misses shipping charged); queued as R7 fixes."
+  },
+  {
+   "date": "11-19",
+   "name": "Fill-ins left (R4-45, R4-14)",
+   "ver": "v0.96.0",
+   "cost": "~1 est., 30 min incl. a 14-min GitHub test wait (Sonnet)",
+   "change": "Missing album spots show under a filtered coin type; selling the same coin in a second tab warns instead of replacing."
+  },
+  {
+   "date": "11-19",
+   "name": "Fill-ins: buried box + covered button (R4-40, R6-13)",
+   "ver": "v0.96.1",
+   "cost": "~1 est., overlapped with step 16 tests (Sonnet)",
+   "change": "The How-many-coins box is out in the open on Add coin; the + button steps aside while you swipe down."
+  },
+  {
+   "date": "11-19",
+   "name": "Fill-ins: hints, selecting, pop-up time, phone space (119, 122, 123, 26)",
+   "ver": "v0.97.0",
+   "cost": "~1 est., overlapped with step 16 tests (Sonnet)",
+   "change": "File hints under Load/Import/Restore, empty spot explains itself while selecting, pop-ups leave faster, phone space note."
+  },
+  {
+   "date": "11-19",
+   "name": "Tap your coin in search (121)",
+   "ver": "v0.98.0",
+   "cost": "~1 est. (Sonnet)",
+   "change": "Search any coin says You own N and the card lists where each one is, tap to open it."
+  },
+  {
+   "date": "11-19",
+   "name": "Melt page for common coins (idea 113)",
+   "ver": "v0.99.0",
+   "cost": "~2 est. (Sonnet)",
+   "change": "New Melt table page: common silver coins with melt at your silver price, linked from Home and Options."
+  },
+  {
+   "date": "11-19",
+   "name": "CSV round trip (R4-29, R5-8)",
+   "ver": "v0.100.0",
+   "cost": "~2 est. (Sonnet)",
+   "change": "CSV round trip keeps Business tag, Inherited from and its value, album spot variety, melt-coin values; missing albums are named in the import message. No new saved fields."
+  },
+  {
+   "date": "11-19",
+   "name": "Photo in the album spot (idea 106, part 1)",
+   "ver": "v0.101.0",
+   "cost": "~2 est. (Sonnet)",
+   "change": "A coin with a photo shows its first photo in its album spot. No saved-data change."
   }
  ],
  "modes": [

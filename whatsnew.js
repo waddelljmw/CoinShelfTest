@@ -1,5 +1,17 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.101.0": [
+    "A coin that has a photo now shows it in its album spot.",
+  ],
+  "0.100.0": [
+    "Spreadsheet export and import now keep more: Business or Personal, Inherited from, the album spot variety, and the value of coins worth their melt. Coins whose album is not on the phone are listed in the import message.",
+  ],
+  "0.99.0": [
+    "New Melt table: common silver coins (dimes, quarters, halves, dollars, war nickels) with what each is worth as metal at your silver price. Open it from Home's melt section or from Options > Spot prices.",
+  ],
+  "0.98.0": [
+    "Search any coin now says when you own it: \"You own 2\". Tap it to see where each one is kept and to open your coin.",
+  ],
   "0.97.0": [
     "Options now says which kind of file each Load, Import and Restore button takes, and how much room the app and its photos use on your phone.",
     "Tapping an empty album spot while selecting coins now explains why it can't be selected.",

@@ -121,6 +121,10 @@ function lookupMatches(q) {
   });
   return out;
 }
+// 121: the coins you own for a looked-up date and mint (a blank mint means Philadelphia).
+const ownedForLookup = (r) => ownedCoins().filter((c) => c.typeId === r.typeId && num(c.year) === +r.year && normMint(c.mint) === normMint(r.mint));
+const ownedWhere = (c) => keptText(c) || "not in an album or box";
+const ownedLine = (list) => `You own ${sum(list, qtyOf)}`;
 const lookupLabel = (r) => { const t = TYPE_BY_ID[r.typeId]; return `${r.year}${r.mint ? "-" + r.mint : ""} ${t ? shortName(t) : ""} ${t ? t.denom : ""}`.replace(/\s+/g, " ").trim(); };
 // The small ⓘ beside a Key date tag; its words open only when tapped (WORDS.keydate in welcome.js).
 const keyInfoBtn = () => wi("keydate", true);
@@ -130,9 +134,9 @@ const KEY_CHIP = `<span class="chip" style="background:var(--warn,#f5d27a);color
 function lookupRowsHtml(q) {
   const rs = lookupMatches(q);
   if (!rs.length) return "";
-  return `<div class="card small" style="margin:0 0 10px"><div class="muted" style="margin-bottom:4px">Not owned? Tap to see it</div>${rs.map((r) => {
+  return `<div class="card small" style="margin:0 0 10px"><div class="muted" style="margin-bottom:4px">${rs.some((r) => ownedForLookup(r).length) ? "Tap one to see it" : "Not owned? Tap to see it"}</div>${rs.map((r) => {
     const f = { typeId: r.typeId, year: r.year, mint: r.mint, gradeMode: "raw", grade: "VF-20" }, mt = mintageInfo(f);
-    return `<div class="rowline" style="padding:4px 0">${keyDateInfo(f) ? KEY_CHIP + keyInfoBtn() + " " : ""}<button class="link-btn" style="text-align:left" data-act="lookupOpen" data-t="${esc(r.typeId)}" data-y="${r.year}" data-m="${esc(r.mint)}">${esc(lookupLabel(r))}${mt ? " · " + esc(mt.text) : ""} ›</button></div>`;
+    return `<div class="rowline" style="padding:4px 0">${keyDateInfo(f) ? KEY_CHIP + keyInfoBtn() + " " : ""}<button class="link-btn" style="text-align:left" data-act="lookupOpen" data-t="${esc(r.typeId)}" data-y="${r.year}" data-m="${esc(r.mint)}">${esc(lookupLabel(r))}${mt ? " · " + esc(mt.text) : ""}${ownedForLookup(r).length ? " · " + esc(ownedLine(ownedForLookup(r))) : ""} ›</button></div>`;
   }).join("")}</div>`;
 }
 const lookupFake = (el) => { const t = TYPE_BY_ID[el.dataset.t]; return { typeId: t.id, typeName: shortName(t), denom: t.denom, year: +el.dataset.y, mint: el.dataset.m || "", variety: "", gradeMode: "raw", grade: "VF-20" }; };
@@ -142,6 +146,7 @@ function lookupOpen(el) {
   const wanted = !!findWant(fake.typeId, fake.year, fake.mint, "", DEFAULT_LIST_ID, false);
   openSheet(`<div class="sheet-head"><h2>${esc(lookupLabel(fake))}</h2><button class="x" data-act="closeSheet" aria-label="Close">\u2715</button></div>
     <div class="small muted" style="margin:-4px 0 12px">${mt ? "Mintage " + esc(mt.text) + (mt.note ? " (" + esc(mt.note) + ")" : "") : "No mintage in the app for this one"}</div>
+    ${(() => { const mine = ownedForLookup(fake); return mine.length ? `<div class="card" style="margin:0 0 10px"><b>${esc(ownedLine(mine))}</b>${mine.slice(0, 6).map((c) => `<div class="rowline" style="padding:4px 0"><button class="link-btn" style="text-align:left" data-go="coin-${esc(c.id)}">${esc(gradeText(c))}${qtyOf(c) > 1 ? " ×" + qtyOf(c) : ""}: ${esc(ownedWhere(c))} ›</button></div>`).join("")}${mine.length > 6 ? `<div class="small muted">and ${mine.length - 6} more</div>` : ""}</div>` : ""; })()}
     ${coinCardHtml(fake, { lookup: true, info: true })}
     ${wanted ? `<div class="hint">\u2605 Already on your want list.</div>` : `<button class="btn block btn-want" data-act="lookupWant" data-t="${esc(fake.typeId)}" data-y="${fake.year}" data-m="${esc(fake.mint)}">\u2605 Add to want list</button>`}
     <div class="btn-row"><a class="btn" style="text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">Search eBay sold \u2197</a></div>`);

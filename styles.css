@@ -396,3 +396,4 @@ html[data-text] .chips { flex-wrap: wrap; overflow-x: visible; }
 html[data-text] .chip { white-space: normal; max-width: 100%; text-align: left; }
 
 .slot.dim { opacity: .55; } /* 122: an empty spot while selecting: tappable, explains itself */
+.slot-photo { display: block; width: 38px; height: 38px; object-fit: cover; border-radius: 50%; margin: 0 auto 3px; border: 1px solid var(--line); } /* 106: the coin's own photo in its album spot */
