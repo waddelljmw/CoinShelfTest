@@ -54,6 +54,8 @@ function boxText(c) {
   if (!b) return "";
   return hasSpots(b) && c.boxRow && c.boxSlot ? b.name + (trayCount(b) > 1 ? " · " + trayWord(b) + " " + trayNo(c) : "") + " · " + lineWord(b) + " " + c.boxRow + " · " + slotWord(b) + " " + c.boxSlot : b.name;
 }
+// Coins that could go in an empty spot of this box: single owned coins, not in an album, not already in this box.
+const boxHaveCoins = (b) => ownedCoins().filter((c) => itemOf(c) !== "bullion" && qtyOf(c) === 1 && !(c.albumId && getAlbum(c.albumId)) && c.boxId !== b.id && !(typeof caseOn === "function" && caseOn(b) && isInherited(c))).sort((x, y) => labelOf(x).localeCompare(labelOf(y)));
 const slotDate = (c) => (c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : (c.label || "Coin").slice(0, 8));
 
 // --- in the coin form (Holder section): the "Kept in" dropdown, and a row/slot when the box has numbered spots ---
@@ -352,7 +354,32 @@ Object.assign(actions, {
   boxNew: () => { boxReturn = null; boxForm(null); },
   boxBack: () => { const ret = boxReturn; boxReturn = null; if (!ret) return closeSheet(); if (ret.kind === "coin") return renderCoinForm(); if (ret.kind === "move") return actions.mvOpen(); backFromBox(ret, ""); },
   boxEdit: (el) => { const b = getBox(el.dataset.id); if (b) (b.type === "pocket" ? pocketForm : boxForm)(b); },
+  // R4-39: "+" on an empty slot offers a coin you already have, as well as a new one.
   boxAdd: (el) => {
+    const b = getBox(el.dataset.box);
+    const have = b ? boxHaveCoins(b) : [];
+    if (!have.length) return actions.boxAddNew(el);
+    const at = `data-box="${esc(el.dataset.box)}" data-row="${esc(el.dataset.row || "")}" data-slot="${esc(el.dataset.slot || "")}" data-tray="${esc(el.dataset.tray || "")}"`;
+    openSheet(`<div class="sheet-head"><h2>${esc(slotWord(b))} ${esc(el.dataset.slot || "")}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <button class="btn primary block" data-act="boxAddNew" ${at}>Add a new coin here</button>
+      <label class="f" style="margin-top:14px"><span>Or put a coin I already have here</span><select data-flt="boxHave"><option value="">Pick a coin…</option>${have.map((c) => `<option value="${esc(c.id)}">${esc(labelOf(c))}</option>`).join("")}</select></label>
+      <button class="btn block" data-act="boxHave" ${at} style="margin-top:8px">Put it here</button>
+      <div class="hint">Only single coins that are not in an album and not already in this box. It leaves where it was kept. One Undo.</div>`);
+  },
+  boxHave: (el) => {
+    const b = getBox(el.dataset.box), sel = document.querySelector('#sheet [data-flt="boxHave"]');
+    const c = sel && sel.value ? getCoin(sel.value) : null;
+    if (!b) return;
+    if (!c) { toast("Pick a coin first."); return; }
+    const tray = Math.round(+el.dataset.tray) || 1;
+    if (spotCoin(b.id, el.dataset.row, el.dataset.slot, c.id, tray)) { toast("That spot just got taken."); return; }
+    const before = { ...c }, next = { ...c };
+    applyKept(next, "b:" + b.id);
+    next.boxRow = String(el.dataset.row); next.boxSlot = String(el.dataset.slot); next.boxTray = trayCount(b) > 1 ? String(tray) : "";
+    saveCoin(next); closeSheet(); render();
+    toast("Put in " + b.name + ", " + lineWord(b).toLowerCase() + " " + el.dataset.row + ", " + slotWord(b).toLowerCase() + " " + el.dataset.slot + ".", { label: "Undo", fn: () => { saveCoin(before); render(); } });
+  },
+  boxAddNew: (el) => {
     openCoinForm(null);
     Object.assign(draft, { _what: "us", holder: "2x2 cardboard flip", boxId: el.dataset.box, boxRow: el.dataset.row || "", boxSlot: el.dataset.slot || "", boxTray: el.dataset.tray || "" });
     renderCoinForm();

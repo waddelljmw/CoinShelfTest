@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.93.0": [
+    "Tapping + on an empty box or pocket spot now also offers a coin you already have, not only a new coin. One Undo.",
+  ],
   "0.92.0": [
     "The Filter panel on My Coins can now filter by Where from (for example Inherited or Coin Show). It works together with the other filters and can be saved.",
   ],
