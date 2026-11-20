@@ -137,13 +137,15 @@ const actions = {
   optSec: (el) => { const o = { ...(settings().optOpen || {}) }; if (o[el.dataset.v]) delete o[el.dataset.v]; else o[el.dataset.v] = true; saveSettings({ optOpen: o }); },
   forSale: (el) => {
     const c = getCoin(el.dataset.id); if (!c) return;
-    if (settings().skipForSaleAsk) { putForSale(c.id, true); return; }
+    const askBiz = typeof sellerOn === "function" && sellerOn() && !isInherited(c); // Seller Mode: show Personal / Business here
+    if (settings().skipForSaleAsk && !(askBiz && !c.biz)) { putForSale(c.id, true); return; } // "don't ask" still asks for a Personal coin when selling
     openSheet(`<div class="sheet-head"><h2>Put it up for sale?</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
       <p>${esc(labelOf(c))} goes on your For sale list. You can take it off again any time.</p>
+      ${askBiz ? `<label class="f"><span>Personal or Business</span><select id="fsBiz"><option value="" ${c.biz ? "" : "selected"}>Personal (my collection)</option><option value="1" ${c.biz ? "selected" : ""}>Business stock (for sale)</option></select></label>` : ""}
       <label class="switch"><span>Don't ask again</span><input type="checkbox" id="fsNoAsk"></label>
       <div class="btn-row"><button class="btn primary" data-act="forSaleOk" data-id="${esc(c.id)}">Yes, for sale</button><button class="btn" data-act="closeSheet">Cancel</button></div>`);
   },
-  forSaleOk: (el) => { const no = $("#fsNoAsk"); if (no && no.checked) saveSettings({ skipForSaleAsk: true }, true); closeSheet(); putForSale(el.dataset.id, true); },
+  forSaleOk: (el) => { const no = $("#fsNoAsk"); if (no && no.checked) saveSettings({ skipForSaleAsk: true }, true); const b = $("#fsBiz"); closeSheet(); putForSale(el.dataset.id, true, b ? b.value === "1" : undefined); },
   sellLater: (el) => { const c = getCoin(el.dataset.id); if (!c) return; const on = !c.sellLater; saveCoin({ ...c, sellLater: on }); toast(on ? "Noted. It stays marked Inherited." : "Note removed."); go("coin-" + c.id); },
   notForSale: (el) => putForSale(el.dataset.id, false),
   homeTog: (el) => saveSettings({ [el.dataset.v]: el.checked }),
