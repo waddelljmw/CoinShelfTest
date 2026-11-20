@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-20 (step 21 done)",
+  "updated": "2026-11-20 (Shopping view talk-and-sketch step added to Later)",
   "app": "v0.102.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
@@ -1541,8 +1541,9 @@
       "group": "Later",
       "items": [
         {
-          "t": "Shopping view from albums (ideas 101/103): decide after using the coin card",
-          "size": "M"
+          "t": "Shopping view: talk and sketch (no code; waiting on you, no date). Ideas 101/103 + want-list note 11-20. We discuss and sketch the look first; building comes only after you approve",
+          "size": "S",
+          "waiting": "on you"
         },
         {
           "t": "Restore over newer data, deeper fix (R4-25)",
