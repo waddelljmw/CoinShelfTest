@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.92.0": [
+    "The Filter panel on My Coins can now filter by Where from (for example Inherited or Coin Show). It works together with the other filters and can be saved.",
+  ],
   "0.91.0": [
     "Options is tidier: six clear groups, most-used first (Prices and selling, Backup and your data, Reports and sharing, Look and Home, Adding coins, Demo and help). Every section still folds shut, and nothing you saved changes.",
   ],

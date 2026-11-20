@@ -1,5 +1,5 @@
 /* Step 4.3b: the Filter panel, saved filters, and Select / Move many for Your Coins.
-   listState.f holds the extra filters: group, stack, holder, kept ("none", "a:<albumId>", "b:<boxId>", "s:<stack>"),
+   listState.f holds the extra filters: group, stack, holder, src (where from), kept ("none", "a:<albumId>", "b:<boxId>", "s:<stack>"),
    yFrom, yTo, mint, gFrom, gTo, gCustom, vFrom, vTo, probs (a list of "details", "variety", "error", "cac").
    Saved filters live in settings.savedFilters = [{ id, name, s: { family, metal, cert, status, f } }]. Old settings without it work. */
 
@@ -30,6 +30,7 @@ function extraFilter(c) {
   if (f.biz === "personal" && c.biz) return false;
   if (f.item && itemOf(c) !== f.item) return false;
   if (f.holder && holderText(c) !== f.holder) return false;
+  if (f.src && (c.source || "").trim().toLowerCase() !== f.src.toLowerCase()) return false; // R4-37: where it came from
   if (f.kept && !fltKept(c, f.kept)) return false;
   const y = num(c.year), yF = fltNum(f.yFrom), yT = fltNum(f.yTo);
   if ((yF != null || yT != null) && y == null) return false;
@@ -68,6 +69,7 @@ function fltChips() {
   if (f.biz) add("biz", f.biz === "business" ? "Business stock" : "Personal");
   if (f.item) add("item", f.item === "roll" ? "Rolls only" : "Sets only");
   if (f.holder) add("holder", "Holder: " + f.holder);
+  if (f.src) add("src", "Where from: " + f.src);
   if (f.kept) add("kept", "Kept in: " + fltKeptName(f.kept));
   if (f.yFrom || f.yTo) add("year", "Year " + (f.yFrom || "…") + "–" + (f.yTo || "…"));
   if (f.mint) add("mint", "Mint: " + (f.mint === "P" ? "P / none" : f.mint));
@@ -136,6 +138,7 @@ function openFilterPanel() {
   const groups = groupsPresent(), stacks = stacksPresent();
   const customHolders = [...new Set(allCoins().filter((c) => holderOf(c) === "Other" && (c.packaging || "").trim()).map((c) => c.packaging.trim()))];
   const holders = [...new Set([...HOLDERS, ...customHolders])];
+  const srcs = [...new Set(allCoins().map((c) => (c.source || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   const customGrades = [...new Set(base.filter((c) => c.grade === "Other" && c.customGrade).map((c) => c.customGrade))];
   const saved = fltSaved();
   const field = (label, inner) => `<label class="f"><span>${label}</span>${inner}</label>`;
@@ -153,6 +156,7 @@ function openFilterPanel() {
     ${stacks.length ? field("Stack", sel("stack", "Any stack", stacks, f.stack || "")) : ""}
     ${sellerOn() ? field("Personal or Business", sel("biz", "Both", [["personal", "Personal"], ["business", "Business stock"]], f.biz || "")) : ""}
     ${field("Holder", sel("holder", "Any holder", holders, f.holder || ""))}
+    ${srcs.length ? field("Where from", sel("src", "Any source", srcs, f.src || "")) : ""}
     ${field("Kept in", sel("kept", "Anywhere", keptList, f.kept || ""))}
     <div class="grid2">${field("Year from", `<input type="number" inputmode="numeric" data-flt="yFrom" value="${esc(f.yFrom || "")}">`)}${field("Year to", `<input type="number" inputmode="numeric" data-flt="yTo" value="${esc(f.yTo || "")}">`)}</div>
     ${field("Mint mark", sel("mint", "Any", FLT_MINTS, f.mint || ""))}
@@ -174,7 +178,7 @@ function fltRead() {
   if (v("metal") !== undefined) listState.metal = v("metal");
   if (v("cert") !== undefined) listState.cert = v("cert");
   const f = {};
-  ["group", "stack", "biz", "holder", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "ng", "vFrom", "vTo", "inc", "fav"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
+  ["group", "stack", "biz", "holder", "src", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "ng", "vFrom", "vTo", "inc", "fav"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
   const probs = [...document.querySelectorAll("#sheet [data-flt-prob]:checked")].map((e) => e.dataset.fltProb);
   if (probs.length) f.probs = probs;
   listState.f = f;
