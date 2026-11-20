@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-20 (7:40am reading)",
+ "updated": "2026-11-20 (R8 review)",
  "app": "v0.101.0",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 72,
+  "weekly_now": 73,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1217,10 +1217,10 @@
    "name": "Solo Opus review (due: 8 steps since R7)",
    "model": "Opus",
    "est": "1–3",
-   "actual": "",
-   "status": "next",
+   "actual": "pending (next reading)",
+   "status": "done",
    "chat": "New Opus chat",
-   "why": "The review rule says one is due after 8–10 steps. Eight steps are done since R7 (16, 16b, 16c, 16d, 18, 19, 20 and R7 fixes). One solo Opus reviewer looks at what changed since R7, deep on the new CSV round trip, the two-tab sale guard, the + button, the melt table and album photos. No helper agents unless you ask.",
+   "why": "The review rule says one is due after 8–10 steps. Eight steps are done since R7 (16, 16b, 16c, 16d, 18, 19, 20 and R7 fixes). One solo Opus reviewer looks at what changed since R7, deep on the new CSV round trip, the two-tab sale guard, the + button, the melt table and album photos. No helper agents unless you ask. Done: 4 findings (report 28): CSV can freeze melt values (medium), Undo time push back, two small ones. Nothing fixed yet; you decide first.",
    "items": [
     {
      "id": "review",
@@ -1232,6 +1232,49 @@
    ],
    "try": [
     "Read the short report; nothing to tap."
+   ],
+   "started": "Fri 11-20 7:52am",
+   "ended": "Fri 11-20 7:58am",
+   "minutes": 6,
+   "chats": 1,
+   "report": "reviews/28-R8-solo-review-2026-11-20.md"
+  },
+  {
+   "n": "R8f",
+   "stage": "now",
+   "name": "R8 fixes (after your OK)",
+   "model": "Sonnet",
+   "est": "~1",
+   "actual": "",
+   "status": "next",
+   "chat": "New Sonnet chat",
+   "why": "Small problems R8 reproduced. Waits for your OK (you asked to hear what's wrong before fixing). Before the 15c fix check, because R8-1 hits testers most.",
+   "items": [
+    {
+     "id": "R8-1",
+     "size": "S",
+     "what": "CSV keeps melt coins following silver",
+     "change": "After export and import, a silver coin valued at melt keeps following the silver price instead of freezing at the old price.",
+     "affects": "Spreadsheet (CSV)"
+    },
+    {
+     "id": "R8-4",
+     "size": "S",
+     "what": "Two small import slips",
+     "change": "Undo import also removes Inherited-from names it made; wrong-type album message says the right thing.",
+     "affects": "Spreadsheet (CSV)"
+    },
+    {
+     "id": "R8-3 (your call)",
+     "size": "S",
+     "what": "Undo stays ~10 seconds",
+     "change": "Only if you agree: Undo messages stay about 10 seconds (plain messages stay fast).",
+     "affects": "All Undo messages"
+    }
+   ],
+   "try": [
+    "Open ?demo, Options > Spreadsheet, Export CSV: a silver coin with no Red Book value shows its melt in Value each.",
+    "Move a coin to another album: the Undo message stays long enough to tap (if R8-3 is approved)."
    ]
   },
   {
@@ -1711,6 +1754,13 @@
    "ver": "v0.101.0",
    "cost": "~3 weekly for all 7 steps together (reading 69 → 72)",
    "change": "A coin with a photo shows its first photo in its album spot. No saved-data change."
+  },
+  {
+   "date": "11-20",
+   "name": "R8 solo review",
+   "ver": "v0.101.0",
+   "cost": "pending",
+   "change": "Report 28: 4 findings, nothing fixed yet."
   }
  ],
  "modes": [
@@ -1800,8 +1850,8 @@
  },
  "checkin": {
   "last": "2026-11-19 (Thu night, with an overnight run lined up)",
-  "last_review": "2026-11-19 (R7 solo review, report 27)",
-  "review_baseline": 21,
+  "last_review": "2026-11-20 (R8 solo review, report 28)",
+  "review_baseline": 30,
   "saved_data_ahead": false,
   "note": "Review due when 8-10 steps are done since the last review, a change to how coins are saved is coming up, or before testers/buyers. Steps since review = done steps minus review_baseline."
  }
