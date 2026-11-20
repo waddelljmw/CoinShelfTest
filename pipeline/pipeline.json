@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-20 (major bug: new list from Add missing)",
-  "app": "v0.102.2",
+  "updated": "2026-11-20 (step 22 fill-ins)",
+  "app": "v0.103.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-    "weekly_now": 82,
+    "weekly_now": 83,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -1278,8 +1278,8 @@
       "name": "Fill-ins: no-year check, backup days, hide Share",
       "model": "Sonnet",
       "est": "~1",
-      "actual": "",
-      "status": "next",
+      "actual": "~1 (reading pending)",
+      "status": "done",
       "chat": "New Sonnet chat",
       "why": "Three small fixes before testers. No saved-data change. Uses the Fix-up and Options screens already there.",
       "items": [
@@ -1309,6 +1309,68 @@
         "In ?demo, add a coin with no year through a CSV or group; Fix-up lists it.",
         "Options: turn the Hide Share switch on; the Share buttons disappear, off brings them back.",
         "Pipeline page: tap I just backed up, it shows 0."
+      ],
+      "started": "6:14pm",
+      "ended": "18:16"
+    },
+    {
+      "n": 23,
+      "stage": "testers",
+      "name": "Fill-ins from your notes: album-spot grade choices, Edit spots, type search, page tidy",
+      "model": "Sonnet",
+      "est": "~2",
+      "actual": "",
+      "status": "next",
+      "chat": "New Sonnet chat",
+      "why": "Small fixes from your 11-20 testing notes. No saved-data change (if one turns out to need it, stop and ask).",
+      "items": [
+        {
+          "id": "notes 11-20",
+          "size": "S",
+          "what": "Circulated / AU / BU and Not graded where you can't miss them",
+          "change": "The add-coin form from an album spot gets the same grade choices as Add coin (Circulated, Uncirculated, AU, BU, Not graded), right by the Grade box, so no scrolling to find Not graded.",
+          "affects": "Album spot add form"
+        },
+        {
+          "id": "notes 11-20",
+          "size": "S",
+          "what": "Edit spots shows what's filled",
+          "change": "While hiding spots, filled spots look different from empty ones so you can tell them apart.",
+          "affects": "Album Edit spots"
+        },
+        {
+          "id": "notes 11-20",
+          "size": "S",
+          "what": "Type-ahead search for every coin type picker",
+          "change": "Any coin type field (want list items, filters) uses the same type-as-you-go search as Add coin, not the long scroll list.",
+          "affects": "Pickers"
+        },
+        {
+          "id": "notes 11-20",
+          "size": "S",
+          "what": "Add an album button on the want list page",
+          "change": "Check what it does; move or remove it if it doesn't belong there.",
+          "affects": "Want list page"
+        },
+        {
+          "id": "notes 11-20",
+          "size": "S",
+          "what": "Rename Fix-up to Needs attention",
+          "change": "Words on screen only: the Fix-up button, bar and Home line. Nothing saved changes.",
+          "affects": "Fix-up wording"
+        },
+        {
+          "id": "notes 11-20",
+          "size": "S",
+          "what": "Pipeline page: Test checklist helpers",
+          "change": "A 'where you are' line on each test step, reworded steps for blocks 1, 3 and 6 with exact taps, a Passed section with Reactivate, and an Edit button on your own notes until I've replied. Page only.",
+          "affects": "Pipeline page"
+        }
+      ],
+      "try": [
+        "Open an album spot, add a coin: Circulated and Not graded sit by Grade.",
+        "Album > Edit spots: filled spots look different from empty ones.",
+        "Wants: pick a coin type by typing, not scrolling."
       ]
     },
     {
@@ -1974,6 +2036,13 @@
       "ver": "v0.102.2",
       "cost": "~0-1 (reading pending)",
       "change": "Making a new list from the Add missing sheet now adds every missing coin to it right away (before, it made the list and reopened the sheet)."
+    },
+    {
+      "date": "11-20",
+      "name": "Fill-ins: no-year check, backup days, hide Share (22)",
+      "ver": "v0.103.0",
+      "cost": "~1 (reading pending)",
+      "change": "A single coin with no year and no Unreadable tick now shows in Fix-up ('Missing: year'). Options has a switch that hides Share the app and Share a snapshot. The pipeline page counts backup days by your local day."
     }
   ],
   "modes": [

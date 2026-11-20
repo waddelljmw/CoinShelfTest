@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.102.2";
+const APP_VERSION = "0.103.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -38,6 +38,7 @@ const DEFAULT_SETTINGS = {
   spot: { gold: null, silver: null, platinum: null, copper: null },
   spotUpdated: null,
   hideSpot: {},
+  hideShare: false, // idea 125: hides the Share the app and Share a snapshot buttons (for testers)
   hideValues: false, // Step 4.4: the eye button hides every dollar amount on Home and coin pages
   homeClosed: {}, // Home sections the user has folded shut
   hiddenGroups: [], // groups left out of the Home totals

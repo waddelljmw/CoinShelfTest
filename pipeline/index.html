@@ -89,7 +89,8 @@ const sizeSum=items=>{const c={};items.forEach(i=>{const k=i.size[0];c[k]=(c[k]|
 const hi=e=>{const m=String(e).match(/[\d.]+/g);return m?+m[m.length-1]:0};
 const num=e=>{const m=String(e||"").match(/[\d.]+/);return m?+m[0]:null};
 let D=null,DB=null,dict=null;const S={ticks:{},notes:[],qs:[],track:{}};
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}; // local day, not UTC (an evening tap used to get tomorrow's date)
+const dayNum=s=>{const[a,b,c]=s.split("-").map(Number);return Date.UTC(a,b-1,c)/864e5};
 const timeEst=s=>s.model==="Opus"?(/check|review/i.test(s.name)?"60+ min":"30–60 min"):(s.items.every(i=>i.size[0]==="S")?"20–45 min":"30–60 min");
 const byN=n=>D.steps.find(s=>String(s.n)===String(n));
 const ready=s=>{if(s.status==="done")return false;if(s.after&&today()<s.after)return false;if(s.needs&&byN(s.needs)&&byN(s.needs).status!=="done")return false;return true};
@@ -135,7 +136,7 @@ function renderTiles(){
  const dn=D.steps.filter(s=>s.status==="done");const pts=dn.map(s=>num(s.actual)).filter(x=>x!=null);
  const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):"–";
  const ch=dn.map(s=>s.chats||1);const t=S.track;
- const days=t.backupDate?Math.floor((Date.now()-new Date(t.backupDate+"T12:00:00").getTime())/864e5):null;
+ const days=t.backupDate?Math.round(dayNum(today())-dayNum(t.backupDate)):null;
  $("tiles").innerHTML=`<div class="tile"><span class="small">Bugs I find this week</span><input type="number" id="tb" value="${esc(t.bugs==null?"":t.bugs)}" placeholder="0"></div>
  <div class="tile"><span class="small">Weekly points per step</span><b>${avg(pts)}</b><span class="small">from ${pts.length} measured steps</span></div>
  <div class="tile"><span class="small">Chats per step</span><b>${avg(ch)}</b></div>
