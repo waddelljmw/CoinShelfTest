@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-20 (melt menu)",
+ "updated": "2026-11-20 (15c checks added)",
  "app": "v0.101.2",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
@@ -1348,7 +1348,7 @@
    "stage": "testers",
    "name": "Fix check before testers",
    "model": "Opus",
-   "est": "3–5",
+   "est": "4–6",
    "actual": "",
    "status": "next",
    "chat": "New Opus chat",
@@ -1366,6 +1366,27 @@
      "size": "S",
      "what": "Watch for a missed Undo",
      "change": "While re-running, note any Undo message that disappears before you can tap it (R8-3: it stays about 5 seconds now; left as is). If one is missed, it goes back in the queue.",
+     "affects": "Report only (reviews/)"
+    },
+    {
+     "id": "fresh-app",
+     "size": "S",
+     "what": "Fresh empty app pass",
+     "change": "Also walk the first-time collector path in an empty app (welcome card, guided first coin, first 10 coins) as a new user would.",
+     "affects": "Report only (reviews/)"
+    },
+    {
+     "id": "big-text",
+     "size": "S",
+     "what": "Big text and small taps pass",
+     "change": "Also repeat the older / low-vision check (R6): large text wrapping and tap sizes on the main pages.",
+     "affects": "Report only (reviews/)"
+    },
+    {
+     "id": "known-gaps",
+     "size": "S",
+     "what": "Note known gaps (don't fix)",
+     "change": "List as known gaps: two-tab sale guard misses sell-several, edit and move (R8-2); restore over newer data only partly fixed (R4-25); fractional gold bars not done (needed before a wider audience).",
      "affects": "Report only (reviews/)"
     }
    ],
