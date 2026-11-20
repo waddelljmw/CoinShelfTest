@@ -268,11 +268,14 @@ function checkMint(c) {
   return !!hit && hit[1].split(" ").some((m) => m !== "P");
 }
 // Everything the fix-up run looks for: what totals need (missingOf) plus where from and a mint to check.
+// A single coin with no year and no "Unreadable / too worn" or "Never had a date" tick. Groups (qty over 1) can hold mixed years, so they're skipped, same as when saving.
+const noYear = (c) => itemOf(c) === "coin" && num(c.year) == null && !c.noDate && (num(c.qty) || 1) <= 1;
 function needsOf(c) {
   if (!c || c.status !== "owned") return [];
   const m = missingOf(c);
   if (!String(c.source || "").trim()) m.push("where from");
   if (checkMint(c)) m.push("check mint");
+  if (noYear(c)) m.push("year"); // a single coin with no year and no "Unreadable" tick (R-note 11-20: can't tell where it goes in an album)
   return m;
 }
 // Plain wording for what a coin still needs: "Missing: grade, cost. Check the mint mark."

@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.103.0": [
+    "A coin with no year now shows up in Fix-up, so you can add the year or tick Unreadable. A new switch in Options hides the Share buttons.",
+  ],
   "0.102.0": [
     "With Seller Mode on, putting a coin For sale now asks Personal or Business right there, starting on what the coin already is. \"Don't ask again\" still asks for a Personal coin while Seller Mode is on, so nothing slips in as Personal by mistake.",
   ],

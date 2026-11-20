@@ -198,17 +198,18 @@ function optionsHtml() {
       <div class="hint" id="spaceMsg"></div></div>
 `}
     <h2>Share Coin Cabinet</h2>
-    <div class="card">Send someone the link so they can install Coin Cabinet. They get their own, separate collection: they can't see your coins, and you can't see theirs.
-      <div class="btn-row"><button class="btn" data-act="shareApp">Share the app</button></div></div>
+    <div class="card">${s.hideShare ? "" : `Send someone the link so they can install Coin Cabinet. They get their own, separate collection: they can't see your coins, and you can't see theirs.
+      <div class="btn-row"><button class="btn" data-act="shareApp">Share the app</button></div>`}
+      <label class="switch"><span>Hide the Share buttons<div class="small muted">Takes away Share the app and Share a snapshot, so testers don't pass the app around.</div></span><input type="checkbox" data-act="homeTog" data-v="hideShare" ${s.hideShare ? "checked" : ""}></label></div>
     ${store.mode === "demo" ? "" : `<h2>Try the demo</h2>
     <div class="card">Look around a made-up sample collection (about 120 coins, rolls, bars, albums and a coin show). It is kept apart from your real coins, and nothing you do there is saved.
       <div class="btn-row"><button class="btn" data-act="tryDemo">Try the demo</button></div></div>`}
     <h2>Guided first coin</h2>
     <div class="card">A one-minute walk-through of adding a coin, with small tips over the real form. Nothing is saved unless you save the coin.
       <div class="btn-row"><button class="btn" data-act="guideStart">Show me how</button></div></div>
-    <h2>Share a snapshot</h2>
+    ${s.hideShare ? "" : `    <h2>Share a snapshot</h2>
     <div class="card">Save a view-only copy of your collection as one file to send to friends. What you paid, sources, notes and buyers are left out unless you choose to include them. ${wi("snapshot")}
-      <div class="btn-row"><button class="btn" data-act="openSnapshot">Share a snapshot</button></div></div>
+      <div class="btn-row"><button class="btn" data-act="openSnapshot">Share a snapshot</button></div></div>`}
     <h2>Insurance report</h2>
     <div class="card">A dated, itemized list of every coin you own with values and totals, ready to print or save as a PDF for your insurance agent.
       <div class="btn-row"><button class="btn" data-act="openReport">Create insurance report</button></div></div>
