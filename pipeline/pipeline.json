@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-20 (Shopping view talk-and-sketch step added to Later)",
+  "updated": "2026-11-20 (check-in: step 22 fill-ins queued)",
   "app": "v0.102.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
@@ -1273,13 +1273,52 @@
       "minutes": 23
     },
     {
+      "n": 22,
+      "stage": "testers",
+      "name": "Fill-ins: no-year check, backup days, hide Share",
+      "model": "Sonnet",
+      "est": "~1",
+      "actual": "",
+      "status": "next",
+      "chat": "New Sonnet chat",
+      "why": "Three small fixes before testers. No saved-data change. Uses the Fix-up and Options screens already there.",
+      "items": [
+        {
+          "id": "new (11-20)",
+          "size": "S",
+          "what": "Fix-up also finds coins with no year",
+          "change": "A coin with no year and no Unreadable tick now shows up in Fix-up (the 'need info' line) so you can add the year or tick it. Saving new coins is unchanged: they already need a year.",
+          "affects": "Fix-up, Home need-info line"
+        },
+        {
+          "id": "new (11-20)",
+          "size": "S",
+          "what": "Days since backup counts right",
+          "change": "The pipeline page used the wrong time zone, so a backup tapped in the evening showed -1 day. It now counts your local days: 0 on the day, 1 the next day. Page only, not the app.",
+          "affects": "Pipeline page"
+        },
+        {
+          "id": "125",
+          "size": "S",
+          "what": "One switch to hide Share",
+          "change": "One setting in Options hides the Share the app and Share a snapshot buttons, so testers don't pass the app around.",
+          "affects": "Options"
+        }
+      ],
+      "try": [
+        "In ?demo, add a coin with no year through a CSV or group; Fix-up lists it.",
+        "Options: turn the Hide Share switch on; the Share buttons disappear, off brings them back.",
+        "Pipeline page: tap I just backed up, it shows 0."
+      ]
+    },
+    {
       "n": 4,
       "stage": "now",
       "name": "Fresh-start repo",
       "model": "Sonnet",
       "est": "1–2",
       "actual": "",
-      "status": "next",
+      "status": "queued",
       "when": "Sat 11-21",
       "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
       "items": [
@@ -1543,6 +1582,19 @@
         {
           "t": "Shopping view: talk and sketch (no code; waiting on you, no date). Ideas 101/103 + want-list note 11-20. We discuss and sketch the look first; building comes only after you approve",
           "size": "S",
+          "waiting": "on you"
+        },
+        {
+          "t": "Sales Reports All / Personal / Business switch (idea 127)",
+          "size": "M"
+        },
+        {
+          "t": "Mark as sold price buttons (idea 126): My cost +%, Melt +%, Melt only, My price",
+          "size": "M"
+        },
+        {
+          "t": "Move a sold coin between Personal and Business (idea 128): talk at planning first (the think-tank), then saved-data check; Opus",
+          "size": "M",
           "waiting": "on you"
         },
         {
@@ -1943,9 +1995,9 @@
     },
     {
       "what": "Opus review / fix check",
-      "points": "5-8",
-      "time": "60+ min",
-      "basis": "guess"
+      "points": "1-3 (solo)",
+      "time": "25-45 min",
+      "basis": "measured R7, R8, 15c (1, 1, 3)"
     },
     {
       "what": "Fantasy run",
@@ -2003,7 +2055,7 @@
     ]
   },
   "checkin": {
-    "last": "2026-11-19 (Thu night, with an overnight run lined up)",
+    "last": "2026-11-20 (Fri midday, early check-in)",
     "last_review": "2026-11-20 (R8 solo review, report 28)",
     "review_baseline": 30,
     "saved_data_ahead": false,
