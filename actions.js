@@ -500,13 +500,16 @@ Object.assign(actions, {
   },
 }); // "Discard this coin?" -> Discard
 
-// R6-13: the round + button steps aside while scrolling down so it never sits on a button you are reaching for.
+// R6-13: the round + button steps aside while you scroll down with your finger, so it never sits on a button you are reaching for. It comes back when you stop, scroll up or reach the bottom. Only a real swipe or wheel does this (not the page scrolling itself), so tests and screen readers never find it hidden.
 (function () {
-  let last = window.scrollY, t = null;
+  let last = window.scrollY, t = null, gesture = 0;
+  const mark = () => { gesture = Date.now(); };
+  window.addEventListener("touchmove", mark, { passive: true });
+  window.addEventListener("wheel", mark, { passive: true });
   window.addEventListener("scroll", () => {
     const fab = document.getElementById("fab"); if (!fab) return;
-    const y = window.scrollY, nearEnd = window.innerHeight + y >= document.documentElement.scrollHeight - 140;
-    if (y > last + 6 && y > 80 && !nearEnd) fab.classList.add("away"); else if (y < last - 6 || nearEnd || y <= 80) fab.classList.remove("away");
+    const y = window.scrollY, nearEnd = window.innerHeight + y >= document.documentElement.scrollHeight - 140, byHand = Date.now() - gesture < 400;
+    if (byHand && y > last + 6 && y > 80 && !nearEnd) fab.classList.add("away"); else if (y < last - 6 || nearEnd || y <= 80) fab.classList.remove("away");
     last = y; clearTimeout(t); t = setTimeout(() => fab.classList.remove("away"), 700);
   }, { passive: true });
 })();
