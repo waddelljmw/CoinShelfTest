@@ -1,9 +1,9 @@
 {
  "updated": "2026-11-19 (overnight run)",
- "app": "v0.100.0",
+ "app": "v0.101.0",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 77,
+  "weekly_now": 79,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1141,9 +1141,9 @@
     "Check one coin by hand: weight x silver % x price."
    ],
    "chat": "New Sonnet chat",
-   "started": "Thu 11-19 11:19pm",
-   "ended": "Thu 11-19 11:50pm",
-   "minutes": 31,
+   "started": "Thu 11-19 11:18pm",
+   "ended": "Thu 11-19 11:21pm",
+   "minutes": 3,
    "chats": 1
   },
   {
@@ -1177,9 +1177,9 @@
     "Check a variety spot coin lands in its spot."
    ],
    "chat": "New Sonnet chat",
-   "started": "Thu 11-19 11:50pm",
-   "ended": "Fri 11-20 12:10am",
-   "minutes": 20,
+   "started": "Thu 11-19 11:21pm",
+   "ended": "Thu 11-19 11:24pm",
+   "minutes": 3,
    "chats": 1
   },
   {
@@ -1188,8 +1188,8 @@
    "name": "Photo in the album spot (idea 106, part 1)",
    "model": "Sonnet",
    "est": "2",
-   "actual": "",
-   "status": "next",
+   "actual": "~2 (est.)",
+   "status": "done",
    "why": "His own idea: use the coin's own photo on its album spot. Last in line; stops and asks if it needs a new saved field (part 2, picking obverse or reverse, is a saved field and stays in Later for Opus).",
    "items": [
     {
@@ -1205,7 +1205,11 @@
     "In ?demo, open an album spot whose coin has a photo: the photo shows in the spot.",
     "A coin with no photo looks the same as before."
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "Thu 11-19 11:24pm",
+   "ended": "Thu 11-19 11:27pm",
+   "minutes": 3,
+   "chats": 1
   },
   {
    "n": 4,
@@ -1285,7 +1289,7 @@
    "model": "Opus",
    "est": "3–5",
    "actual": "",
-   "status": "queued",
+   "status": "next",
    "chat": "New Opus chat",
    "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
    "items": [
@@ -1677,6 +1681,13 @@
    "ver": "v0.100.0",
    "cost": "~2 est. (Sonnet)",
    "change": "CSV round trip keeps Business tag, Inherited from and its value, album spot variety, melt-coin values; missing albums are named in the import message. No new saved fields."
+  },
+  {
+   "date": "11-19",
+   "name": "Photo in the album spot (idea 106, part 1)",
+   "ver": "v0.101.0",
+   "cost": "~2 est. (Sonnet)",
+   "change": "A coin with a photo shows its first photo in its album spot. No saved-data change."
   }
  ],
  "modes": [

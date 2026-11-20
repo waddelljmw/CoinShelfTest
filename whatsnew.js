@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.101.0": [
+    "A coin that has a photo now shows it in its album spot.",
+  ],
   "0.100.0": [
     "Spreadsheet export and import now keep more: Business or Personal, Inherited from, the album spot variety, and the value of coins worth their melt. Coins whose album is not on the phone are listed in the import message.",
   ],

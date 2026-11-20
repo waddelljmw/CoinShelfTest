@@ -18,6 +18,8 @@ function uniqueAlbumName(a) {
 // Type-set spots ("set") hold one coin of a type, any date. "tx" marks a date spot shared by two of the album's types.
 // "pf" marks a proof spot (only a coin with a PR grade fills it).
 const slotKey = (s) => (s.set ? "set:" + s.t : s.y + "|" + s.m) + (s.v ? "|" + s.v : "") + (s.pf ? "|PF" : "") + (s.tx ? "#" + s.t : "");
+// Idea 106 part 1: a coin with a photo shows its first photo in its album spot (the photos the coin already has; nothing new is saved).
+const slotPhotoHtml = (c) => { const p = c && (c.photos || [])[0], src = p ? photoSrc(p) : ""; return src ? `<img class="slot-photo" src="${esc(src)}" alt="" loading="lazy">` : ""; };
 const slotLabel = (s) => (s.set ? (TYPE_BY_ID[s.t] ? shortName(TYPE_BY_ID[s.t]) : "Coin") : s.y + (s.m ? "-" + s.m : "") + (s.pf ? " Proof" : ""));
 // Years Red Book lists proofs for a type. US proofs moved from Philadelphia (no mint mark) to San Francisco in 1968.
 const proofYears = (typeId) => { const p = bookFactRows(typeId, "proof"); const priced = p ? p.map((k) => +k.split("|")[0].split("-")[0]) : []; return [...new Set([...priced, ...(PROOF_YEARS_NO_PRICES[typeId] || [])])].sort((x, y) => x - y); };
@@ -266,7 +268,7 @@ function viewAlbum(r) {
       const sw = spotWants(a, s);
       const tag = sw.length ? `<span class="g" style="color:var(--accent)">★ ${spotTag(sw)}</span>` : "";
       return hit
-        ? `<button class="slot have${listState.sel ? " sel" + (listState.sel.has(hit.id) ? " on" : "") : ""}" ${listState.sel ? `data-act="selToggle" data-id="${esc(hit.id)}" aria-pressed="${listState.sel.has(hit.id)}"` : `data-act="slotMenu" ${data} data-coin="${esc(hit.id)}"`}>${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${hit.origAlbum ? `<span class="g" style="color:var(--accent)">original</span>` : ""}${tag}</button>`
+        ? `<button class="slot have${listState.sel ? " sel" + (listState.sel.has(hit.id) ? " on" : "") : ""}" ${listState.sel ? `data-act="selToggle" data-id="${esc(hit.id)}" aria-pressed="${listState.sel.has(hit.id)}"` : `data-act="slotMenu" ${data} data-coin="${esc(hit.id)}"`}>${slotPhotoHtml(hit)}${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${hit.origAlbum ? `<span class="g" style="color:var(--accent)">original</span>` : ""}${tag}</button>`
         : `<button class="slot${listState.sel ? " dim" : ""}" data-act="${listState.sel ? "slotNoSel" : "slotMenu"}" ${data}${listState.sel ? ' aria-disabled="true"' : ""}>${esc(lab)}${vLine}${tag || `<span class="g">open</span>`}</button>`;
     }).join("")}</div>
     ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c))).join("")}</div>` : ""}
