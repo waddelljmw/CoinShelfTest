@@ -1269,8 +1269,8 @@
     "Open ?demo, Options > Spreadsheet, Export CSV: a silver coin with no Red Book value shows its melt in Value each."
    ],
    "started": "Fri 11-20 8:23am",
-   "ended": "Fri 11-20 8:3?am",
-   "minutes": 0
+   "ended": "Fri 11-20 8:46am",
+   "minutes": 23
   },
   {
    "n": 4,
@@ -1350,7 +1350,7 @@
    "model": "Opus",
    "est": "3–5",
    "actual": "",
-   "status": "queued",
+   "status": "next",
    "chat": "New Opus chat",
    "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
    "items": [
