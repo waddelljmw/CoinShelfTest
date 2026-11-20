@@ -3,7 +3,7 @@
  "app": "v0.95.2",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 64,
+  "weekly_now": 65,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -907,10 +907,10 @@
    "name": "Solo Opus review",
    "model": "Opus",
    "est": "1-3",
-   "actual": "",
-   "status": "queued",
+   "actual": "reading at next chat (start 41/65)",
+   "status": "done",
    "chat": "New Opus chat",
-   "why": "18 steps have landed since the last review (11-17). One Opus chat checks the changed files for real problems before more is built on top. Solo, 25-45 min, no helper agents.",
+   "why": "18 steps have landed since the last review (11-17). One Opus chat checks the changed files for real problems before more is built on top. Solo, 25-45 min, no helper agents. Done: 3 problems found (report 27), all small, queued as R7 fixes.",
    "items": [
     {
      "id": "review (11-19 check-in rule)",
@@ -919,6 +919,49 @@
      "change": "Reproduced problems only, under 600 words, nothing fixed in the same chat. Findings become queue items. Nothing you saved changes.",
      "affects": "Review report only"
     }
+   ],
+   "started": "Thu 11-19 8:18pm",
+   "ended": "Thu 11-19 8:50pm",
+   "minutes": 32,
+   "chats": 1,
+   "report": "reviews/27-R7-solo-review-2026-11-19.md"
+  },
+  {
+   "n": "R7f",
+   "stage": "now",
+   "name": "R7 fixes",
+   "model": "Sonnet",
+   "est": "~1",
+   "actual": "",
+   "status": "queued",
+   "chat": "New Sonnet chat",
+   "why": "Three small problems the R7 review reproduced. First because two of them can quietly change totals once you start entering albums again.",
+   "items": [
+    {
+     "id": "R7-1",
+     "size": "S",
+     "what": "Moving a junk silver coin keeps its silver stack",
+     "change": "Move to another album, the upgrade swap and putting a coin in a box slot no longer drop it out of My Silver Stack.",
+     "affects": "Albums, boxes, silver stack total"
+    },
+    {
+     "id": "R7-3",
+     "size": "S",
+     "what": "Fill spots doesn't fill $1 costs by surprise",
+     "change": "Pocket change (or roll hunting) from your last Fill isn't carried into the next album, so blank prices stay blank instead of face value.",
+     "affects": "Fill spots"
+    },
+    {
+     "id": "R7-2",
+     "size": "S",
+     "what": "Tax CSV gain counts shipping the buyer paid",
+     "change": "The tax file's gain matches the coin's profit.",
+     "affects": "Tax CSV (selling, 2027)"
+    }
+   ],
+   "try": [
+    "In ?demo, open a junk silver coin in an album, Move to another album: it still says My Silver Stack.",
+    "Fill spots on a cent album with Pocket change, then open Fill spots on another album: Where from is blank."
    ]
   },
   {
@@ -1375,6 +1418,13 @@
    "ver": "v0.91.2 to v0.95.2",
    "cost": "~3 weekly for the whole chat (19/61 to 40/64), about 41 min: process add-on + 6 fill-ins + demo (Sonnet)",
    "change": "Hide values hides melt everywhere; filter by Where from; + on an empty box or pocket slot offers a coin you have; move a coin between albums; pocket albums show value and grades; Undo on Fill spots gives ID numbers back. Demo sample now has an inherited album, a Kennedy album, a pocket album in a box, key dates, foreign coins and coins needing info, plus ?demo=big."
+  },
+  {
+   "date": "11-19",
+   "name": "R7 solo Opus review",
+   "ver": "report 27",
+   "cost": "reading at next chat",
+   "change": "Checked 18 steps of changes. Found 3 small problems (junk silver leaves its stack when moved, Fill spots can fill $1 costs, tax CSV gain misses shipping charged); queued as R7 fixes."
   }
  ],
  "modes": [
@@ -1464,8 +1514,8 @@
  },
  "checkin": {
   "last": null,
-  "last_review": "2026-11-17 (R1-R6 test-user reviews)",
-  "review_baseline": 0,
+  "last_review": "2026-11-19 (R7 solo review, report 27)",
+  "review_baseline": 21,
   "saved_data_ahead": false,
   "note": "Review due when 8-10 steps are done since the last review, a change to how coins are saved is coming up, or before testers/buyers. Steps since review = done steps minus review_baseline."
  }
