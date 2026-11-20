@@ -39,10 +39,19 @@ function savePocketForm(form) {
   if (!old) go("box-" + id);
 }
 // Albums page: a card for each pocket album.
+// R5-18: what a pocket album is worth and the grades inside (Business stock counted apart, as in albums).
+const pocketValue = (b) => sum(boxCoins(b).filter((c) => !c.biz), (c) => (bestEach(c) || 0) * qtyOf(c));
+function pocketGrades(b) {
+  const g = {};
+  boxCoins(b).forEach((c) => { const k = itemOf(c) !== "coin" ? gradeText(c) : c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? noGradeWord(c) : "No grade"); g[k] = (g[k] || 0) + qtyOf(c); });
+  const all = Object.entries(g).sort((x, y) => y[1] - x[1]);
+  return all.slice(0, 4).map(([k, n]) => (n > 1 ? n + "× " + k : k)).join(", ") + (all.length > 4 ? " + " + (all.length - 4) + " more" : "");
+}
+const pocketTotalsHtml = (b) => (boxCoins(b).length ? `<div class="card"><div class="rowline"><span class="muted small">Value</span><b>${money(pocketValue(b))}</b></div><div class="small" style="margin-top:4px"><span class="muted">Grades:</span> ${esc(pocketGrades(b))}</div></div>` : "");
 function pocketCards() {
   return pocketAlbums().map((b) => { const st = boxStats(b); return `<button class="card" style="display:block;width:100%;text-align:left" data-go="box-${esc(b.id)}">
     <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(b.name)}</b><span class="num">${st.filled}/${st.total}</span></div>
-    <div class="small muted">Pocket album · ${esc(pocketSub(b))}</div><div class="bar"><i style="width:${st.total ? (st.filled / st.total) * 100 : 0}%"></i></div></button>`; }).join("");
+    <div class="small muted">Pocket album · ${esc(pocketSub(b))}${st.filled ? " · Value " + money(pocketValue(b)) : ""}</div><div class="bar"><i style="width:${st.total ? (st.filled / st.total) * 100 : 0}%"></i></div></button>`; }).join("");
 }
 // Home shelf: a spine for a pocket album (its own spine color).
 function pocketSpine(b) {

@@ -218,6 +218,7 @@ function viewBox(r) {
   return `<button class="link-btn" data-go="${b.type === "pocket" ? "albums" : "boxes"}">← ${b.type === "pocket" ? "My Albums" : "Storage"}</button>
     <h1 style="margin-top:10px">${esc(b.name)}</h1>
     <div class="small muted" style="margin:-8px 0 12px">${boxKindText(b)} · ${esc(boxLookText(b))} · ${hasSpots(b) ? st.filled + " of " + st.total + (b.type === "pocket" ? " pockets" : " slots") + " filled · " + (tn > 1 ? tn + (b.type === "pocket" ? " pages" : " trays") : b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow) : st.filled + " item" + (st.filled === 1 ? "" : "s")}</div>
+    ${b.type === "pocket" && typeof pocketTotalsHtml === "function" ? pocketTotalsHtml(b) : ""}
     ${b.inside ? `<div class="card"><div class="muted small">What's inside</div><div style="white-space:pre-wrap">${esc(b.inside)}</div></div>` : ""}
     ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(b.id) : ""}
     ${typeof pageSelHtml === "function" ? pageSelHtml(inBox) : ""}
