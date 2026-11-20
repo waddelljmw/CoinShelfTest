@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.101.2": [
+    "The Melt Table is now in the menu, under Coin Value.",
+  ],
   "0.101.1": [
     "Spreadsheet import: silver coins valued at melt keep following the silver price, and Undo import also removes the inherited-from names it made.",
   ],
