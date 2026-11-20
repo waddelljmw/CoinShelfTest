@@ -482,6 +482,7 @@ function openSlotMenu(el) {
          ${ws.length ? "" : `<div class="hint">One tap: adds ${esc(label)} to "${esc(missingSuggest(a).name)}". You can set a target grade and price on the Want List later.</div>`}` : ""}
     <div class="btn-row">
       ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button><button class="btn" data-act="slotTakeOut" data-id="${esc(coin.id)}">Take out of album</button>` : ""}
+      ${coin && albumMoveTargets(coin, a).length ? `<button class="btn" data-act="slotMoveList" data-id="${esc(coin.id)}" data-album="${esc(a.id)}">Move to another album</button>` : ""}
       <a class="btn" style="text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>
     </div>`);
 }
@@ -567,6 +568,40 @@ function spotCandidates(a, s0) {
   const pfOk = (c) => (s0.pf ? isProofGrade(c.grade) : !(a.proofs && isProofGrade(c.grade)));
   return ownedCoins().filter((c) => !c.albumId && qtyOf(c) === 1 && c.typeId === tid && pfOk(c) && (s0.set || (num(c.year) === s0.y && normMint(c.mint) === s0.m)));
 }
+// R5-15: other albums that have an empty spot this coin fits (same rules as albumStats: type sets by type, date spots by date and mint, proofs only in proof spots).
+function albumMoveTargets(c, from) {
+  const out = [];
+  albums().filter((al) => !from || al.id !== from.id).forEach((al) => {
+    if (!albumHasType(al, c.typeId)) return;
+    const aa = withSlotIds(al), st = albumStats(al), multi = albumTypes(al).length > 1 || isSetAlbum(al);
+    const pfOk = (s) => (s.pf ? isProofGrade(c.grade) : !(al.proofs && isProofGrade(c.grade)));
+    const spot = (aa.slots || []).find((s) => !st.filled.has(slotKey(s)) && (s.set ? c.typeId === s.t : num(c.year) === s.y && normMint(c.mint) === s.m && (!multi || c.typeId === slotType(al, s)) && pfOk(s)) && !(s.v && !(varietyFits(c.variety, s.v) || varietyFits(c.spotVariety, s.v))));
+    if (spot) out.push({ album: aa, spot });
+  });
+  return out;
+}
+function slotMoveList(el) {
+  const c = getCoin(el.dataset.id);
+  if (!c) return;
+  const list = albumMoveTargets(c, getAlbum(el.dataset.album));
+  openSheet(`<div class="sheet-head"><h2>Move to which album?</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <div class="list">${list.map((t) => `<button class="coin-row" style="width:100%;text-align:left" data-act="slotMoveGo" data-id="${esc(c.id)}" data-album="${esc(t.album.id)}" data-sid="${esc(t.spot.id || "")}" data-key="${esc(slotKey(t.spot))}"><span class="coin-main"><span class="coin-label">${esc(albumTitle(t.album))}</span><span class="coin-sub">${esc(t.spot.set ? "Set spot" : t.spot.y + (t.spot.m ? "-" + t.spot.m : "") + (t.spot.v ? " · " + t.spot.v : ""))}</span></span></button>`).join("")}</div>
+    <div class="hint">Only albums with an empty spot for this coin. It leaves its old spot; nothing else about the coin changes. One Undo.</div>`);
+}
+function slotMoveGo(el) {
+  const c = getCoin(el.dataset.id), al = getAlbum(el.dataset.album);
+  if (!c || !al) return;
+  const aa = withSlotIds(al);
+  const spot = (el.dataset.sid && (aa.slots || []).find((x) => x.id === el.dataset.sid)) || (aa.slots || []).find((x) => slotKey(x) === el.dataset.key);
+  if (albumStats(al).filled.has(el.dataset.key)) { toast("That spot just got filled."); return; }
+  const before = { ...c }, next = { ...c };
+  applyKept(next, "a:" + al.id); // leaves the old album's spot
+  if (spot) next.slotId = spot.id;
+  saveCoin(next);
+  const gone = spot ? dropSpotWants(aa, [spot]) : [];
+  closeSheet(); render();
+  toast("Moved to " + albumTitle(al) + (gone.length ? " and crossed off its want list" : "") + ".", { label: "Undo", fn: () => { saveCoin(before); gone.forEach(saveWant); render(); } });
+}
 function slotUseList(el) {
   const a = getAlbum(el.dataset.album);
   if (!a) return;
@@ -647,6 +682,8 @@ Object.assign(actions, {
   slotHave,
   slotUseList,
   slotUse,
+  slotMoveList,
+  slotMoveGo,
   slotUnwant: (el) => { const w = getWant(el.dataset.id); if (w) { const c = coinForWant(w); remove("w_" + w.id); untickForWant(w); closeSheet(); toast("Removed from your want list.", { label: "Undo", fn: () => { saveWant(w); if (c && isUpgradeWant(w)) saveCoin(c); } }); } },
   wantWhere: (el) => {
     const w = getWant(el.dataset.id);
