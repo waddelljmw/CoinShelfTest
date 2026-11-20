@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-20 (15c checks added)",
+ "updated": "2026-11-20 (15c fix check done, 15d queued)",
  "app": "v0.101.2",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 74,
+  "weekly_now": 75,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1349,8 +1349,8 @@
    "name": "Fix check before testers",
    "model": "Opus",
    "est": "4–6",
-   "actual": "",
-   "status": "next",
+   "actual": "tbd (next reading; start 17/75)",
+   "status": "done",
    "chat": "New Opus chat",
    "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
    "items": [
@@ -1392,6 +1392,70 @@
    ],
    "try": [
     "Read the short report; nothing to tap."
+   ],
+   "started": "Fri 11-20 9:47am",
+   "ended": "Fri 11-20 10:13am",
+   "minutes": 26,
+   "report": "reviews/29-15c-fix-check-2026-11-20.md"
+  },
+  {
+   "n": "15d",
+   "stage": "testers",
+   "name": "Fix check fixes",
+   "model": "Sonnet",
+   "est": "~1",
+   "actual": "",
+   "status": "next",
+   "chat": "New Sonnet chat",
+   "why": "The 15c fix check found 2 half-done fixes and 4 small new problems. Fix them before the private tester copy.",
+   "items": [
+    {
+     "id": "r54",
+     "size": "S",
+     "what": "Variety back to Regular moves the coin",
+     "change": "Change a coin in the 1909-S VDB spot to Regular (no variety): it moves to the plain 1909-S spot (or asks), instead of staying in the VDB spot.",
+     "affects": "Album spots"
+    },
+    {
+     "id": "r65",
+     "size": "S",
+     "what": "No eBay links in the premium list",
+     "change": "Coin Value's 'Highest premium over melt' rows lose their small eBay link (it's on the coin page), so a slip can't leave the app.",
+     "affects": "Coin Value"
+    },
+    {
+     "id": "n1",
+     "size": "S",
+     "what": "No empty 'Same as last' chip",
+     "change": "Add coin only shows 'Same as last: Where from' when there is a Where from to repeat.",
+     "affects": "Add coin"
+    },
+    {
+     "id": "n2",
+     "size": "S",
+     "what": "Guide bubble closes",
+     "change": "The last guide tip ('This is your coin') goes away when you tap + for the next coin, instead of floating over the form.",
+     "affects": "Guided first coin"
+    },
+    {
+     "id": "n3",
+     "size": "S",
+     "what": "Messages don't block buttons",
+     "change": "A message or Undo pop-up no longer sits on top of a pop-up's buttons and eats your tap.",
+     "affects": "Every pop-up"
+    },
+    {
+     "id": "n4",
+     "size": "S",
+     "what": "Import preview doesn't show face value",
+     "change": "On a new phone with no metal prices, the import preview shows a dash for silver and gold coins instead of $1.00 for a Morgan.",
+     "affects": "Spreadsheet import"
+    }
+   ],
+   "try": [
+    "In ?demo, Add coin twice without picking Where from: no empty 'Same as last' chip.",
+    "Lincoln album: put a coin in 1909-S VDB, Edit, Variety Regular, Save: it moves to the plain 1909-S spot.",
+    "Coin Value: the premium list has no eBay links."
    ]
   },
   {
@@ -1798,6 +1862,13 @@
    "ver": "v0.101.2",
    "cost": "<1",
    "change": "Melt Table is now a menu item under Coin Value (also still on Home and in Options)."
+  },
+  {
+   "date": "11-20",
+   "name": "Fix check before testers (15c)",
+   "ver": "report 29",
+   "cost": "tbd",
+   "change": "50 fixes confirmed by a simulated tester; 2 half-done and 4 small new findings queued as 15d; known gaps listed."
   }
  ],
  "modes": [
