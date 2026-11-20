@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-20 (check-in: step 22 fill-ins queued)",
-  "app": "v0.102.0",
+  "updated": "2026-11-20 (major bug: new list from Add missing)",
+  "app": "v0.102.2",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-    "weekly_now": 80,
+    "weekly_now": 82,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -1967,6 +1967,13 @@
       "ver": "v0.102.0",
       "cost": "tbd",
       "change": "With Seller Mode on, the For sale question shows a Personal / Business switch starting on what the coin already is. 'Don't ask again' still asks for a Personal coin in Seller Mode. Inherited coins and Seller Mode off: no switch. No new saved field."
+    },
+    {
+      "date": "11-20",
+      "name": "Bug: Add missing to a new list added no coins",
+      "ver": "v0.102.2",
+      "cost": "~0-1 (reading pending)",
+      "change": "Making a new list from the Add missing sheet now adds every missing coin to it right away (before, it made the list and reopened the sheet)."
     }
   ],
   "modes": [

@@ -204,7 +204,13 @@ function saveNewList(form) {
     return;
   }
   if (ret && ret.kind === "missing") { renderMissingPicker(wl.id); return; }
-  if (ret && ret.kind === "quick") { openMissingQuick(ret.albumId); return; }
+  if (ret && ret.kind === "quick") {
+    // Made from the "Add missing to…" sheet: add the missing coins to the new list right away.
+    const qa = getAlbum(ret.albumId);
+    if (qa && albumTypes(qa).every((id) => listAccepts(wl, id))) { addMissingTo(qa, wl.id); return; }
+    openMissingQuick(ret.albumId);
+    return;
+  }
   if (ret && ret.kind === "slot") { openSlotWantPicker(ret.el, wl.id); return; }
   closeSheet();
   go("wants");
