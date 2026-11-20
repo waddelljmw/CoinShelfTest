@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-20 (R8 review)",
- "app": "v0.101.0",
+ "updated": "2026-11-20 (R8 fixes)",
+ "app": "v0.101.1",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 73,
+  "weekly_now": 74,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1217,7 +1217,7 @@
    "name": "Solo Opus review (due: 8 steps since R7)",
    "model": "Opus",
    "est": "1–3",
-   "actual": "pending (next reading)",
+   "actual": "1 (73 → 74)",
    "status": "done",
    "chat": "New Opus chat",
    "why": "The review rule says one is due after 8–10 steps. Eight steps are done since R7 (16, 16b, 16c, 16d, 18, 19, 20 and R7 fixes). One solo Opus reviewer looks at what changed since R7, deep on the new CSV round trip, the two-tab sale guard, the + button, the melt table and album photos. No helper agents unless you ask. Done: 4 findings (report 28): CSV can freeze melt values (medium), Undo time push back, two small ones. Nothing fixed yet; you decide first.",
@@ -1242,13 +1242,13 @@
   {
    "n": "R8f",
    "stage": "now",
-   "name": "R8 fixes (after your OK)",
+   "name": "R8 fixes",
    "model": "Sonnet",
    "est": "~1",
-   "actual": "",
-   "status": "next",
+   "actual": "~1 (11-20 reading 10/74)",
+   "status": "done",
    "chat": "New Sonnet chat",
-   "why": "Small problems R8 reproduced. Waits for your OK (you asked to hear what's wrong before fixing). Before the 15c fix check, because R8-1 hits testers most.",
+   "why": "Small problems R8 reproduced (R8-3, Undo time, left as is by your call; it moved to 15c as a \"watch for missed Undo\" line).",
    "items": [
     {
      "id": "R8-1",
@@ -1263,19 +1263,14 @@
      "what": "Two small import slips",
      "change": "Undo import also removes Inherited-from names it made; wrong-type album message says the right thing.",
      "affects": "Spreadsheet (CSV)"
-    },
-    {
-     "id": "R8-3 (your call)",
-     "size": "S",
-     "what": "Undo stays ~10 seconds",
-     "change": "Only if you agree: Undo messages stay about 10 seconds (plain messages stay fast).",
-     "affects": "All Undo messages"
     }
    ],
    "try": [
-    "Open ?demo, Options > Spreadsheet, Export CSV: a silver coin with no Red Book value shows its melt in Value each.",
-    "Move a coin to another album: the Undo message stays long enough to tap (if R8-3 is approved)."
-   ]
+    "Open ?demo, Options > Spreadsheet, Export CSV: a silver coin with no Red Book value shows its melt in Value each."
+   ],
+   "started": "Fri 11-20 8:23am",
+   "ended": "Fri 11-20 8:3?am",
+   "minutes": 0
   },
   {
    "n": 4,
@@ -1364,6 +1359,13 @@
      "size": "M",
      "what": "Re-run the fixed findings",
      "change": "No app change. A report lists each fix as confirmed, half-done or broken; anything not confirmed goes back in the queue before testers.",
+     "affects": "Report only (reviews/)"
+    },
+    {
+     "id": "watch-undo",
+     "size": "S",
+     "what": "Watch for a missed Undo",
+     "change": "While re-running, note any Undo message that disappears before you can tap it (R8-3: it stays about 5 seconds now; left as is). If one is missed, it goes back in the queue.",
      "affects": "Report only (reviews/)"
     }
    ],
@@ -1761,6 +1763,13 @@
    "ver": "v0.101.0",
    "cost": "pending",
    "change": "Report 28: 4 findings, nothing fixed yet."
+  },
+  {
+   "date": "11-20",
+   "name": "R8 fixes",
+   "ver": "v0.101.1",
+   "cost": "~1",
+   "change": "CSV keeps melt coins following silver; Undo import removes Inherited-from names it made; clearer wrong-type album message. R8-3 (Undo time) left as is, moved to 15c."
   }
  ],
  "modes": [

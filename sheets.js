@@ -108,7 +108,7 @@ function coinToRow(c) {
   const rb = bookPrice(c);
   return {
     cid: c.cid || "", label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : itemOf(c) === "bullion" ? shapeName(c.bShape) : "Coin", bWeight: itemOf(c) === "bullion" ? c.bWeight || "" : "", bPurity: itemOf(c) === "bullion" ? c.bPurity || "" : "", bMaker: c.bMaker || "", bSerial: c.bSerial || "", stack: stackOf(c), kind: !c.typeId && itemOf(c) === "coin" && OTHER_KINDS.includes(c.family) ? c.family : "", group: String(c.group || "").trim(), caseName: c.caseName || "", box: c.boxId && typeof getBox === "function" && getBox(c.boxId) ? getBox(c.boxId).name : "", boxTray: c.boxId && c.boxTray ? c.boxTray : "", boxRow: c.boxId ? c.boxRow || "" : "", boxSlot: c.boxId ? c.boxSlot || "" : "", trackCarrier: c.trackCarrier || "", goneReason: c.status === "gone" && c.gone ? c.gone.reason || "" : "", goneDate: c.status === "gone" && c.gone ? c.gone.date || "" : "", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
-    catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", valueFrom: valueFromText(c.valueFrom), fav: c.fav ? "Yes" : "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
+    catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", valueFrom: meltValued(c) ? "Melt" : valueFromText(c.valueFrom), fav: c.fav ? "Yes" : "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: (c.grade === "Other" ? c.customGrade : c.grade) || (c.noGrade ? (isFaceSource(c) ? "Circulated" : "Not graded") : ""), service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
     cert: c.cert, cac: cacOf(c), holder: holderOf(c), keptIn: keptName(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", noDate: c.noDate === "worn" ? "Too worn" : c.noDate === "none" ? "Never had a date" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: meltValued(c) ? meltEach(c).toFixed(2) : c.value, // R4-29: a coin worth its melt shows that number in Value each (re-import sees it is melt and keeps it live)
@@ -312,7 +312,8 @@ function rowToCoin(get) {
   if (c._albumName && txt("spotVar")) c.spotVariety = txt("spotVar"); // R5-8
   if (/^business/i.test(txt("bizGroup"))) c.biz = true; // R4-29
   // R4-29: a Value each that is only the melt value goes back to being worked out from melt (so it follows the silver price).
-  if (num(c.value) != null && !txt("valueFrom") && (isJunk(c) || (meltEach(c) != null && Math.abs(num(c.value) - meltEach(c)) < 0.005))) c.value = "";
+  // R8-1: the export marks a melt coin with Value from = "Melt", so it follows the silver price even if the price moved since the export.
+  if (num(c.value) != null && (txt("valueFrom").toLowerCase() === "melt" || (!txt("valueFrom") && (isJunk(c) || (meltEach(c) != null && Math.abs(num(c.value) - meltEach(c)) < 0.005))))) c.value = "";
   // R4-29: "Inherited from" and "Value when inherited" (only for coins whose Where from is Inherited).
   if (isInherited(c)) {
     const who = txt("inhFrom");
@@ -421,11 +422,12 @@ function renderImport() {
     <div class="btn-row"><button class="btn primary" data-act="doImport" ${nNew ? "" : "disabled"}>Import ${nNew} row${nNew === 1 ? "" : "s"} (${coinsN} coin${coinsN === 1 ? "" : "s"})</button><button class="btn" data-act="closeSheet">Cancel</button></div>`}`);
 }
 // The inheritance with this "From, date" label (as the export writes it); one is made if it isn't there yet, using the label as the "from" words.
-function inhIdForName(name) {
+function inhIdForName(name, made) {
   const hit = inheritances().find((i) => squash(inhLabel(i)) === squash(name));
   if (hit) return hit.id;
   const rec = { id: uid(), from: name, date: "", valueWhen: "", earlier: [] };
   saveSettings({ inheritances: [...inheritances(), rec], inhDefault: inhDefaultId() || rec.id });
+  if (made) made.push({ id: rec.id, wasDefault: inhDefaultId() === rec.id });
   return rec.id;
 }
 async function doImport() {
@@ -437,15 +439,16 @@ async function doImport() {
   closeSheet();
   toast("Importing " + chosen.length + " rows…");
   const ids = [];
-  let noSpot = 0, idClash = 0, noAlbum = 0;
+  let noSpot = 0, idClash = 0, noAlbum = 0, noAlbumType = 0;
+  const inhMade = []; // R8-4: inheritances this import created, so Undo can take them back
   const seenId = new Set(); // keep the first coin with an ID, report the rest
   for (const c of chosen) {
     const an = c._albumName; delete c._albumName;
     const inhName = c._inhName; delete c._inhName;
-    if (inhName) c.inhId = inhIdForName(inhName);
+    if (inhName) c.inhId = inhIdForName(inhName, inhMade);
     // Only into an album made for this coin's type.
     if (an && albumByName.has(squash(an)) && albumHasType(getAlbum(albumByName.get(squash(an))), c.typeId)) c.albumId = albumByName.get(squash(an));
-    else if (an) { noAlbum++; delete c.spotVariety; } // R4-29: the album isn't here (or is for another coin type), so the coin comes in without one
+    else if (an) { if (albumByName.has(squash(an))) noAlbumType++; else noAlbum++; delete c.spotVariety; } // R4-29: the album isn't here (or is for another coin type), so the coin comes in without one
     // Into a 2x2 storage box by name, only if that spot is free.
     const bn = c._boxName; delete c._boxName;
     const bx = bn && typeof allBoxes === "function" && allBoxes().find((b) => squash(b.name) === squash(bn));
@@ -461,11 +464,11 @@ async function doImport() {
     if (c.typeId) touchType(c.typeId);
     await saveCoin(c); // one at a time so large files don't overwhelm saving
   }
-  saveSettings({ lastImport: { batch, count: ids.length, ids, at: today() } });
+  saveSettings({ lastImport: { batch, count: ids.length, ids, at: today(), inhMade } });
   const anySold = chosen.some((c) => c.status === "sold");
   if (anySold && !settings().soldAutoDone) saveSettings({ showSold: true, soldAutoDone: true });
   go("coins");
-  toast("Imported " + ids.length + " rows." + (dropped ? " Skipped " + dropped + " with a year that doesn't fit." : "") + (idClash ? " " + idClash + " ID" + (idClash === 1 ? " was" : "s were") + " already used, so " + (idClash === 1 ? "that coin " : "those coins ") + (idStyle() === "off" ? "have no ID." : "got a new one.") : "") + (noSpot ? " " + noSpot + " couldn't go in their box spot (taken or missing), so they're not in a box." : "") + (noAlbum ? " " + noAlbum + " named an album that isn't here (make the album first, same name), so " + (noAlbum === 1 ? "it is" : "they are") + " not in an album." : ""), { label: "Undo", fn: () => undoImport(true) });
+  toast("Imported " + ids.length + " rows." + (dropped ? " Skipped " + dropped + " with a year that doesn't fit." : "") + (idClash ? " " + idClash + " ID" + (idClash === 1 ? " was" : "s were") + " already used, so " + (idClash === 1 ? "that coin " : "those coins ") + (idStyle() === "off" ? "have no ID." : "got a new one.") : "") + (noSpot ? " " + noSpot + " couldn't go in their box spot (taken or missing), so they're not in a box." : "") + (noAlbum ? " " + noAlbum + " named an album that isn't here (make the album first, same name), so " + (noAlbum === 1 ? "it is" : "they are") + " not in an album." : "") + (noAlbumType ? " " + noAlbumType + " named an album made for other coin types, so " + (noAlbumType === 1 ? "it is" : "they are") + " not in an album." : ""), { label: "Undo", fn: () => undoImport(true) });
 }
 // Imported rows you haven't changed since. Edited coins leave the batch (see saveCoin).
 const importLeft = (li) => li.ids.map(getCoin).filter((c) => c && c.importBatch === li.batch && c.status !== "deleted");
@@ -476,6 +479,12 @@ async function undoImport(skipConfirm) {
   const doIt = async () => {
     // Moved to Recently deleted (restorable), not erased.
     for (const c of left) await put("c_" + c.id, { ...c, status: "deleted", prevStatus: c.status, deletedAt: Date.now() });
+    // R8-4: take back inheritances this import made, unless a coin that stays still uses one.
+    const gone = (li.inhMade || []).filter((m) => !allCoins().some((c) => c.inhId === m.id && !left.some((l) => l.id === c.id)));
+    if (gone.length) {
+      const ids = gone.map((m) => m.id), keep = inheritances().filter((i) => !ids.includes(i.id));
+      saveSettings({ inheritances: keep, ...(ids.includes(settings().inhDefault) ? { inhDefault: keep[0] ? keep[0].id : "" } : {}) });
+    }
     saveSettings({ lastImport: null });
     const kept = li.count - left.length;
     toast("Moved " + left.length + " imported row" + (left.length === 1 ? "" : "s") + " to Recently deleted." + (kept ? " " + kept + " you'd changed were kept." : ""));
