@@ -13,8 +13,8 @@ const { chromium } = require("./_compat");
   // + button hides while scrolling down, returns at the bottom
   await p.evaluate(() => { go("coins"); for (let i = 0; i < 40; i++) saveCoin({ ...blankCoin(), id: "x" + i, typeId: "morgan-dollar", typeName: "Morgan Dollar", family: "Dollars", year: 1880 + (i % 9), grade: "VF-20" }); go("coins"); });
   await p.waitForTimeout(300);
-  await p.evaluate(() => window.scrollTo(0, 600)); await p.waitForTimeout(120);
-  await p.evaluate(() => window.scrollTo(0, 1200)); await p.waitForTimeout(120);
+  await p.mouse.move(200, 400); await p.mouse.wheel(0, 500); await p.waitForTimeout(120);
+  await p.mouse.wheel(0, 500); await p.waitForTimeout(120);
   ok("+ steps aside while scrolling down", await p.evaluate(() => document.getElementById("fab").classList.contains("away")));
   await p.waitForTimeout(900);
   ok("+ comes back when scrolling stops", await p.evaluate(() => !document.getElementById("fab").classList.contains("away")));
