@@ -413,7 +413,8 @@ function renderImport() {
       const ia = c._albumName && albums().find((a) => squash(albumTitle(a)) === squash(c._albumName));
       if (ia && !albumHasType(ia, c.typeId)) flags.push("album " + albumTitle(ia) + " is for other coin types, so it won't go in it");
       else if (c._albumName && !ia) flags.push("album " + c._albumName + " isn't here yet");
-      const v = bestEach(c);
+      let v = bestEach(c);
+      if (v != null && num(c.value) == null && meltEach(c) == null && TYPE_BY_ID[c.typeId] && /silver|gold|platinum|palladium/i.test(TYPE_BY_ID[c.typeId].metal || "")) v = null; // no metal prices yet: a dash, not face value
       return `<label class="coin-row" style="cursor:pointer"><input type="checkbox" data-impskip="${i}" ${imp.skip.has(i) ? "" : "checked"} style="width:20px;height:20px;accent-color:var(--accent)">
         <span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span>
         <span class="coin-sub">${qtyOf(c) > 1 ? `<span class="qty">×${qtyOf(c)}</span> ` : ""}${esc(gradeText(c))}${c.status === "sold" ? " · Sold" : ""}</span>${flags.length ? `<span class="small" style="display:block;color:var(--bad)">${esc(flags.join(", "))}</span>` : ""}</span>

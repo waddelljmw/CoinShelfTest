@@ -32,7 +32,7 @@ ul{margin:6px 0 0;padding-left:20px}li{margin:3px 0;font-size:15px}
 pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;margin:8px 0}
 .copy{font:inherit;font-weight:700;padding:12px 16px;border-radius:12px;border:0;background:var(--gold);color:#fff;min-height:48px;width:100%}
 .big{font-size:20px;font-weight:800}
-.tabs{display:flex;gap:6px;margin:24px 0 8px;position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:2}
+.tabs{display:flex;gap:6px;margin:8px 0;position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:2}
 .tabs button{flex:1;font:inherit;font-weight:700;min-height:46px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
 .tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .size{font-size:13px;font-weight:700;margin-top:4px}
@@ -55,6 +55,8 @@ textarea{min-height:84px}.btn{font:inherit;font-weight:700;padding:10px 14px;bor
 </style></head><body><main>
 <div class="sub" id="upd"></div>
 <h1>Coin Cabinet pipeline</h1>
+<div class="tabs"><button data-t="h" class="on">Now</button><button data-t="q">Queue</button><button data-t="d">Done</button><button data-t="w">Waiting</button><button data-t="t">Test</button><button data-t="n">Notes</button></div>
+<div id="tab-h">
 <div class="card q" id="qbox"></div>
 <div class="card" id="qlow" style="border:3px solid var(--test)" hidden></div>
 <div class="card" id="startnext" style="border:3px solid var(--gold)"></div>
@@ -69,8 +71,9 @@ textarea{min-height:84px}.btn{font:inherit;font-weight:700;padding:10px 14px;bor
 <div class="meter" id="meter"></div>
 <div class="legend"><span style="--c:#2f5d8a">Used</span><span style="--c:#d9822b88">Planned "Now" steps (high estimate)</span><span style="--c:#5b4b8a88">Fantasy reserve</span></div>
 <div class="card sub" id="rule"></div>
-<div class="tabs"><button data-t="q" class="on">Queue</button><button data-t="d">Done</button><button data-t="w">Waiting</button><button data-t="t">Test</button><button data-t="n">Notes</button></div>
-<div id="tab-q"><div id="steps"></div></div>
+
+</div>
+<div id="tab-q" hidden><div id="steps"></div></div>
 <div id="tab-d" hidden><div id="done"></div></div>
 <div id="tab-w" hidden><div id="waiting"></div></div>
 <div id="tab-t" hidden><div id="test"></div></div>
@@ -205,7 +208,7 @@ function renderStatic(){
  $("done").innerHTML=D.done.map(x=>`<div class="card"><div class="st-top"><div><span class="chip done">✓ ${esc(x.date)}</span><b>${esc(x.name)}</b></div><div class="st-cost">${x.ver?esc(x.ver)+"<br>":""}real <b>${esc(x.cost)}</b> wk pts</div></div><div class="why">${esc(x.change)}</div></div>`).join("");
  const ct=D.cost_table.map(r=>`<tr><td>${esc(r.what)}</td><td>${esc(r.points)}</td><td>${esc(r.time)}</td><td>${r.basis==="guess"?'<span class="chip guess">guess</span>':esc(r.basis)}</td></tr>`).join("");
  $("note").innerHTML=`<b>Sizes:</b> <span class="chip S">S</span>small fix · <span class="chip M">M</span>a feature · <span class="chip L">L</span>big, or changes how coins are saved (asks you first).<br><b>Cost table</b> (weekly points, time):<table style="width:100%;font-size:13px;margin-top:4px"><tr><th align=left>Work</th><th align=left>Pts</th><th align=left>Time</th><th></th></tr>${ct}</table><br>${esc(D.cost_note)}`;
- document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["q","d","w","t","n"].forEach(t=>$("tab-"+t).hidden=t!==b.dataset.t)});
+ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["h","q","d","w","t","n"].forEach(t=>$("tab-"+t).hidden=t!==b.dataset.t)});
  renderWaiting();
 }
 async function startDb(){

@@ -36,7 +36,7 @@ const http = require("http"), fs = require("fs"), path = require("path");
   ok("a test tick is saved", await p.evaluate(() => [...window.__docs].some(([k, v]) => k.startsWith("ticks/") && v.done)));
   await p.click('[data-t="n"]'); await p.fill("#nt", "buy a loupe"); await p.check("#nb"); await p.click("#ns"); await p.waitForTimeout(150);
   ok("note saved and listed with blocks chip", /buy a loupe/.test(await p.textContent("#notes")) && /blocks entering coins/.test(await p.textContent("#notes")));
-  await p.click(".dot >> nth=0"); await p.waitForTimeout(100);
+  await p.click("[data-t=h]"); await p.click(".dot >> nth=0"); await p.waitForTimeout(100);
   ok("tapping a bubble shows the Queue", !(await p.$eval("#tab-q", (e) => e.hidden)));
   ok("no page errors", errors.length === 0);
   if (process.env.SHOT) { await p.evaluate(() => scrollTo(0, 0)); await p.screenshot({ path: process.env.SHOT }); await p.click('[data-t="t"]'); await p.screenshot({ path: process.env.SHOT.replace(".png", "-t.png") }); }

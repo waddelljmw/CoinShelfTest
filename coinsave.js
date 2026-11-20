@@ -104,8 +104,9 @@ async function saveDraft() {
     // Changed the variety of a coin in a variety spot: it moves to the matching spot (or back to the plain one).
     if (sl && prev && !sl.set && String(prev.variety || "") !== String(c.variety || "")) {
       if (c.variety) delete c.spotVariety;
-      if (sl.v && c.variety && !varietyFits(c.variety, sl.v)) {
-        const other = (al.slots || []).find((x) => x.id && !x.set && x.y === sl.y && normMint(x.m) === normMint(sl.m) && x.v && !x.pf === !sl.pf && varietyFits(c.variety, x.v));
+      if (sl.v && (!c.variety || !varietyFits(c.variety, sl.v))) {
+        // Back to Regular (no variety) goes to the plain spot of the same date and mint.
+        const other = (al.slots || []).find((x) => x.id && !x.set && x.y === sl.y && normMint(x.m) === normMint(sl.m) && !x.pf === !sl.pf && (c.variety ? x.v && varietyFits(c.variety, x.v) : !x.v));
         if (other) c.slotId = other.id; else delete c.slotId;
       }
     }
