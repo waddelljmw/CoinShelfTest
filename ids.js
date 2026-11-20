@@ -72,6 +72,15 @@ function ensureIds() {
     saveSettings({ idNext: next }, true);
   } finally { idBusy = false; }
 }
+// R5-20: Undo on Fill spots gives the numbers back, so there are no gaps. Only when nothing newer has taken a number after them.
+function idGiveBack(list) {
+  const by = {};
+  list.forEach((c) => { if (!c || !c.cid) return; const pl = idPlan(c), n = idNumOf(pl, c.cid); if (n == null) return; const e = by[pl.key] || (by[pl.key] = { min: n, max: n }); e.min = Math.min(e.min, n); e.max = Math.max(e.max, n); });
+  const next = { ...(settings().idNext || {}) };
+  let changed = false;
+  Object.entries(by).forEach(([k, e]) => { if ((next[k] || 1) === e.max + 1) { next[k] = e.min; changed = true; } });
+  if (changed) saveSettings({ idNext: next }, true);
+}
 // After a label is typed by hand: if it fits the current style, move the counter past it so it's never handed out again.
 function idBump(v) {
   const next = { ...(settings().idNext || {}) };
