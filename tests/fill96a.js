@@ -29,7 +29,9 @@ const { chromium } = require("./_compat");
   ok("total mode: row prices go away", (await p.locator("#fillRows .fill-paid").count()) === 0 && await p.isVisible("#fillTotal"));
   ok("total mode keeps the ticks and grades", (await p.locator("#fillRows .fill-on:checked").count()) === n - 2 && (await p.locator("#fillRows .fill-grade").nth(2).inputValue()) === "VF-20");
   await p.fill("#fillTotal", "10.01");
+  const idBefore = await p.evaluate(() => JSON.stringify(settings().idNext || {}));
   await p.click("[data-act=fillGo]"); await p.click("[data-act=fillGo]"); await p.waitForTimeout(400);
+  ok("Fill spots used up ID numbers", (await p.evaluate(() => JSON.stringify(settings().idNext || {}))) !== idBefore);
   let cs = await p.evaluate(() => allCoins().filter((c) => c.status === "owned").map((c) => ({ id: c.id, y: c.year, m: c.mint, g: c.grade, paid: c.paid, a: c.albumId, s: c.slotId, cid: c.cid, acq: c.acquired, src: c.source, label: c.label, h: c.holder })));
   ok("one coin per ticked spot", cs.length === n - 2);
   ok("each has own ID and spot", new Set(cs.map((c) => c.cid)).size === cs.length && cs.every((c) => c.cid && c.s && c.a));
@@ -43,6 +45,7 @@ const { chromium } = require("./_compat");
   ok("album shows the coins in their spots " + stat, stat[0] === n - 2);
   // Undo removes the whole batch
   await p.evaluate(() => { document.querySelector("#toast button, .toast button, [data-act=toastUndo]").click(); }); await p.waitForTimeout(200);
+  ok("R5-20: Undo gives the ID numbers back (no gaps)", await p.evaluate((b0) => { const a = JSON.parse(b0), n = settings().idNext || {}; return Object.keys(n).every((k) => (n[k] || 1) === (a[k] || 1)); }, idBefore));
   ok("Undo removes the whole batch", (await p.evaluate(() => allCoins().filter((c) => c.status === "owned").length)) === 0);
   // Fill spots on the existing album: only the empty spots, price on each row by default
   await p.evaluate((id) => go("album-" + id), cs[0].a); await p.waitForTimeout(200);

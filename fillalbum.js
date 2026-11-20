@@ -146,7 +146,7 @@ function fillSave() {
   closeSheet();
   go("album-" + a.id);
   toast((ids.length ? "Added " + ids.length + " coin" + (ids.length === 1 ? "" : "s") : "Placed") + (undo.length ? (ids.length ? " and placed " : " ") + undo.length + " you already had" : "") + " in " + albumTitle(a) + (gone.length ? "; " + gone.length + " crossed off its want list" : "") + ".", {
-    label: "Undo", fn: () => { ids.forEach((id) => remove("c_" + id)); undo.forEach((c) => saveCoin(c)); gone.forEach(saveWant); toast("Undone."); render(); },
+    label: "Undo", fn: () => { const added = ids.map((id) => getCoin(id)).filter(Boolean); ids.forEach((id) => remove("c_" + id)); if (typeof idGiveBack === "function") idGiveBack(added); undo.forEach((c) => saveCoin(c)); gone.forEach(saveWant); toast("Undone."); render(); },
   });
 }
 Object.assign(actions, {
