@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.94.0": [
+    "A coin in an album spot now has Move to another album: pick an album that has an empty spot for it. The old spot opens up, and one Undo puts it back.",
+  ],
   "0.93.0": [
     "Tapping + on an empty box or pocket spot now also offers a coin you already have, not only a new coin. One Undo.",
   ],
