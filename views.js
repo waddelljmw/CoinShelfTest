@@ -275,7 +275,7 @@ function viewCoins() {
       <select data-list="sort" aria-label="Sort by">${[["year", "Year"], ["value", "Value"], ["melt", "Melt value"], ["acquired", "Date acquired"], ["type", "Coin type"]].map(([k, l]) => `<option value="${k}" ${listState.sort === k ? "selected" : ""}>Sort: ${l}</option>`).join("")}</select>
       <button class="btn" data-act="dir" style="flex:0 0 auto">${listState.dir === "asc" ? "↑ Low to high" : "↓ High to low"}</button>
     </div>
-    ${list.length ? `<div class="list">${list.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c, { miss: true }))).join("")}</div>${typeof selFootHtml === "function" ? selFootHtml() : ""}` : `<div class="card empty">${listState.q.trim() ? "Not in your coins." : base.length ? "No coins match these filters." : listState.status === "sold" ? "No sold coins yet." : "No coins yet. Tap <b>+</b> to add one."}</div>`}`;
+    ${list.length ? `<div class="list">${list.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c, { miss: true }))).join("")}</div>${typeof selFootHtml === "function" ? selFootHtml() : ""}` : `<div class="card empty">${listState.q.trim() ? "Not in your coins." : base.length ? "No coins match these filters." : listState.status === "sold" ? "No sold coins yet." : "No coins yet. Tap <b>+</b> to add one."}</div>`}${typeof missingSpotsHtml === "function" ? missingSpotsHtml() : ""}`;
 }
 
 // One small line under the search box: count, value and melt of the coins found.

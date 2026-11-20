@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.96.0": [
+    "In My Coins, pick one coin type and a card under the list shows the album spots you are still missing for it.",
+    "If you mark the same coin sold in two tabs, the second tab now warns you instead of replacing the first sale.",
+  ],
   "0.95.0": [
     "Pocket albums now show what they are worth and which grades are inside, on the album page and on its card in My Albums. Hide values hides the amount.",
   ],

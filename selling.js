@@ -183,6 +183,18 @@ document.addEventListener("change", (e) => {
 function doSell(form) {
   const c = getCoin(form.dataset.id);
   if (!c) return;
+  // R4-14: another tab may have sold (or split) this coin since this page loaded. Look at the saved copy first and warn instead of replacing it.
+  if (!form.dataset.edit && !form.dataset.fresh && store.mode === "local" && typeof localDb !== "undefined" && localDb) {
+    idb("docs", "readonly", (st) => st.get("c_" + c.id)).then((d) => {
+      if (d && (d.status !== "owned" || qtyOf(d) !== qtyOf(c))) {
+        store.docs.set("c_" + c.id, d);
+        closeSheet();
+        toast("This coin was already sold or changed in another tab. It's updated here, so check it before selling again.");
+        render();
+      } else { form.dataset.fresh = "1"; doSell(form); }
+    }).catch(() => { form.dataset.fresh = "1"; doSell(form); });
+    return;
+  }
   const fd = new FormData(form);
   const q = qtyOf(c);
   const n = Math.min(q, Math.max(1, num(fd.get("n")) || q));

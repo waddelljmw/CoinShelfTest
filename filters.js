@@ -58,6 +58,28 @@ function extraFilter(c) {
   return true;
 }
 
+
+// R4-45 (idea 102): with one coin type chosen, list the album spots still empty for it, so "what am I missing?" is answered right under the coins you have.
+function missingSpotsHtml() {
+  if (listState.status !== "owned" || !listState.family || listState.q.trim()) return "";
+  const groups = [];
+  albums().forEach((a) => {
+    const st = albumStats(a);
+    const gaps = st.slots.filter((s) => !st.filled.has(slotKey(s)) && (TYPE_BY_ID[slotType(a, s)] || {}).family === listState.family);
+    if (gaps.length) groups.push({ a, gaps });
+  });
+  const total = groups.reduce((n, g) => n + g.gaps.length, 0);
+  if (!total) return "";
+  const MAX = 40;
+  let left = MAX;
+  const rows = groups.map((g) => {
+    const shown = g.gaps.slice(0, Math.max(left, 0)); left -= shown.length;
+    if (!shown.length) return "";
+    return `<div style="margin-top:6px"><button class="link-btn" data-go="album-${esc(g.a.id)}">${esc(albumTitle(g.a))}</button> <span class="small muted">(${g.gaps.length} missing)</span><div class="small">${shown.map((s) => esc(slotLabel(s) + (s.v ? " " + s.v : ""))).join(", ")}${g.gaps.length > shown.length ? ", …" : ""}</div></div>`;
+  }).join("");
+  return `<div class="card" style="margin-top:10px"><b>Missing from your albums: ${total}</b><div class="small muted">Empty ${esc(listState.family)} spots. Tap an album to open it.</div>${rows}</div>`;
+}
+
 // The chips above the list: one per filter in use.
 function fltChips() {
   const f = listState.f || {}, out = [];
