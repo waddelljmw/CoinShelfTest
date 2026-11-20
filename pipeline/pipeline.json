@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-19",
- "app": "v0.91.1",
+ "app": "v0.95.2",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
   "weekly_now": 57,
@@ -805,14 +805,14 @@
    "chats": 1
   },
   {
-   "n": 16,
+   "n": "16a",
    "stage": "fill",
-   "name": "Fill-ins (leftover usage)",
+   "name": "Fill-ins: hide melt, where-from filter, box slot, move album, pocket value, ID Undo",
    "model": "Sonnet",
-   "est": "0–1 each",
-   "actual": "",
-   "status": "next",
-   "why": "Small extras that use up the end of the week, one chat, in order.",
+   "est": "0-1 each",
+   "actual": "end reading pending",
+   "status": "done",
+   "why": "Six small extras, one PR each (v0.91.2 to v0.95.1).",
    "items": [
     {
      "id": "R4-27",
@@ -836,13 +836,6 @@
      "affects": "Boxes, pockets"
     },
     {
-     "id": "R4-45 (idea 102)",
-     "size": "S",
-     "what": "Show missing when filtering",
-     "change": "Filtered lists can include coins you're missing.",
-     "affects": "My Coins"
-    },
-    {
      "id": "R5-15",
      "size": "S",
      "what": "Move between albums",
@@ -862,16 +855,21 @@
      "what": "No ID gaps after Undo",
      "change": "Undo on Fill spots gives the coin ID numbers back.",
      "affects": "Coin IDs"
-    },
-    {
-     "id": "R4-14",
-     "size": "S",
-     "what": "Two-tab sale guard",
-     "change": "Selling the same coin in two tabs warns instead of replacing.",
-     "affects": "Mark as sold"
     }
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "try": [
+    "Tap the eye (Hide values), then open My Coins, a coin page and an album: no dollar amounts or melt show anywhere. Tap it again to bring them back.",
+    "My Coins > Filter > Where from > Inherited: only inherited coins are listed.",
+    "Open the pocket album Eagles and commemoratives and tap + on an empty pocket: it offers a coin you already have, or a new one.",
+    "Pocket album page: it shows the total value and the grades inside (its card in My Albums shows the value).",
+    "Make a second Morgan album (New album). Tap a filled Morgan spot in the first album: Move to another album shows; pick the second album and the coin moves. Undo puts it back.",
+    "New album, Fill spots, tick 3, Save, tap Undo, then add a coin: its ID number carries on from before, with no gap."
+   ],
+   "started": "Thu 11-19 7:30pm",
+   "ended": "Thu 11-19 7:44pm",
+   "minutes": 14,
+   "chats": 1
   },
   {
    "n": 17,
@@ -879,22 +877,29 @@
    "name": "Demo expansion",
    "model": "Sonnet",
    "est": "1-2",
-   "actual": "",
-   "status": "queued",
+   "actual": "end reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
-   "why": "A fuller made-up sample collection in ?demo so testers (and you) can try every feature without touching real coins.",
+   "why": "A fuller made-up sample collection in ?demo=full so you can try every feature without touching real coins. Done in v0.95.2. ?demo=big adds about 1,000 more coins for speed tests.",
    "items": [
     {
      "id": "demo (11-19 review)",
      "size": "M",
-     "what": "Bigger sample collection in ?demo",
-     "change": "The made-up sample collection covers more of the app (albums, boxes, selling, want lists). Exact list to be confirmed with you at the start of the chat. Made-up coins only; nothing you saved changes.",
+     "what": "Bigger sample collection in ?demo=full, plus ?demo=big",
+     "change": "Adds an inherited Mercury dime album, a Kennedy halves 1964-2002 three-type album partly filled from roll hunting and pocket change, a pocket album kept in a Fire safe box, 5 key dates, 3 foreign coins and 10 coins that need info for the Fix-up run. ?demo=big adds about 1,000 more coins for speed tests. Made-up coins only, nothing saved.",
      "affects": "?demo sample only"
     }
    ],
    "try": [
-    "Open the ?demo link and tap See a full sample collection: albums, boxes and a sale are there to tap."
-   ]
+    "Open the full sample (...CoinShelfTest/?demo=full): My Albums shows Grandpa's Mercury Dimes (inherited) and Kennedy Halves 1964-2002.",
+    "Open the pocket album Eagles and commemoratives: it says Kept in Fire safe.",
+    "Tap the Fix-up button: it walks through about 10 sample coins that need info.",
+    "Open ...CoinShelfTest/?demo=big: My Coins scrolls, searches and filters quickly with about 1,200 coins."
+   ],
+   "started": "Thu 11-19 7:44pm",
+   "ended": "Thu 11-19 7:48pm",
+   "minutes": 4,
+   "chats": 1
   },
   {
    "n": "R7",
@@ -915,6 +920,33 @@
      "affects": "Review report only"
     }
    ]
+  },
+  {
+   "n": 16,
+   "stage": "fill",
+   "name": "Fill-ins left (R4-45, R4-14)",
+   "model": "Sonnet",
+   "est": "0–1 each",
+   "actual": "",
+   "status": "queued",
+   "why": "Two small extras left on purpose: show missing coins when filtering (R4-45) and the two-tab sale guard (R4-14).",
+   "items": [
+    {
+     "id": "R4-45 (idea 102)",
+     "size": "S",
+     "what": "Show missing when filtering",
+     "change": "Filtered lists can include coins you're missing.",
+     "affects": "My Coins"
+    },
+    {
+     "id": "R4-14",
+     "size": "S",
+     "what": "Two-tab sale guard",
+     "change": "Selling the same coin in two tabs warns instead of replacing.",
+     "affects": "Mark as sold"
+    }
+   ],
+   "chat": "New Sonnet chat"
   },
   {
    "n": 4,
@@ -1336,6 +1368,13 @@
    "ver": "no app change",
    "cost": "~0.5 (Sonnet)",
    "change": "New Weekly check-in rules in CLAUDE.md (last week's cost, queue top-up, one process change, test-block days, review due?) and an early-planning rule for Monday/Tuesday. The pipeline page now shows a Queue low warning (fewer than 3 ready-to-build steps) and a Weekly check-in card. A solo Opus review (R7) is queued because 18 steps have landed since the last one."
+  },
+  {
+   "date": "11-19",
+   "name": "Fill-ins (6) + demo expansion",
+   "ver": "v0.91.2 to v0.95.2",
+   "cost": "end reading pending (Sonnet)",
+   "change": "Hide values hides melt everywhere; filter by Where from; + on an empty box or pocket slot offers a coin you have; move a coin between albums; pocket albums show value and grades; Undo on Fill spots gives ID numbers back. Demo sample now has an inherited album, a Kennedy album, a pocket album in a box, key dates, foreign coins and coins needing info, plus ?demo=big."
   }
  ],
  "modes": [
