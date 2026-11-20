@@ -86,6 +86,7 @@ function guideSync() { // follow the person: finished choices move on, saving mo
   const onCoin = location.hash.startsWith("#coin-");
   // The guide is for a first coin: it ends if the form is closed before saving, or a bar, roll, set or other item is picked.
   if (!onCoin && ($("#sheet").hidden || (draft && (draft.item || (draft._what && draft._what !== "us"))))) { guide = null; guideBubble(); return; }
+  if (onCoin && guide.step > SAVE_STEP && !$("#sheet").hidden) { guide = null; guideBubble(); return; } // the last tip goes away when the next coin's form opens
   if (onCoin && guide.step < SAVE_STEP + 1) guide.step = SAVE_STEP + 1;
   else if (!onCoin && guide.step > SAVE_STEP) guide = null;
   else if (!onCoin) { let s = GUIDE_STEPS[guide.step]; while (s && s.done && s.done() && guide.step < SAVE_STEP) s = GUIDE_STEPS[++guide.step]; }

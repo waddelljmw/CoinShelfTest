@@ -71,7 +71,7 @@ function sourceChips(d) {
   if (cur && cur !== "Other" && !names.includes(cur)) names.push(cur); // a chosen source stays visible
   // Nothing is carried over silently: what was filled in from the last coin shows as "Same as last: X ✕", one tap to clear.
   const cs = [];
-  if (d._isNew && d._carry && d._carry.s && d.source === (settings().lastSource || "")) cs.push(["source", "Where from: " + d.source]);
+  if (d._isNew && d._carry && d._carry.s && d.source && d.source === (settings().lastSource || "")) cs.push(["source", "Where from: " + d.source]);
   if (d._isNew && d._carry && !d.holder && !d.albumId && d.gradeMode !== "cert" && normHolder(d._lastHolder)) cs.push(["holder", "Holder: " + normHolder(d._lastHolder)]);
   const carry = cs.length ? `<div class="f"><span class="muted small">Same as your last coin (tap to clear)</span><div class="chips wrap">${cs.map(([k, t]) => `<button type="button" class="chip on" data-act="carryClear" data-k="${k}" aria-label="Clear ${esc(t)}">Same as last: ${esc(t)} ✕</button>`).join("")}</div></div>` : "";
   return carry + `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">${d._srcMore ? "Fewer" : "More…"}</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}</div>`;

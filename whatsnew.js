@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.101.3": [
+    "Changing a coin's variety back to Regular moves it out of the variety spot to the plain spot. The premium list no longer has eBay links. No empty \"Same as last\" chip. The guide tip closes when you start the next coin. Messages move to the top while a pop-up is open, so they never cover its buttons. Spreadsheet import shows a dash, not face value, for silver and gold coins until metal prices are loaded.",
+  ],
   "0.101.2": [
     "The Melt Table is now in the menu, under Coin Value.",
   ],

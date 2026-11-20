@@ -37,6 +37,12 @@ const { chromium } = require("./_compat");
   const at8 = await p.evaluate(([k, id]) => { const c = albumStats(getAlbum("m1")).filled.get(k); return c && c.id === id; }, [k8, id7]);
   chk("variety edit moved coin to 8TF spot", at8);
   chk("7TF spot empty again", !(await filledName("m1", k7)));
+  // 15d r54: variety back to Regular (none) moves the VDB coin to the plain 1909-S spot
+  { const vdb = await p.evaluate((k) => albumStats(getAlbum("l1")).filled.get(k).id, vk);
+    await p.evaluate((id) => { openCoinForm(id); draft.variety = ""; }, vdb);
+    await p.evaluate(() => saveDraft()); await p.waitForTimeout(250);
+    const r = await p.evaluate(([k, id]) => { const st = albumStats(getAlbum("l1")); const c = st.filled.get(k); const cc = getCoin(id); const sl = getAlbum("l1").slots.find((x) => x.id === cc.slotId); return [!!(c && c.id === id), sl && !sl.v]; }, [vk, vdb]);
+    chk("15d variety back to Regular leaves the VDB spot for a plain spot", !r[0] && r[1] !== false, r); }
   // R5-2: 1895 proof only
   await p.evaluate(() => go("album-m1")); await p.waitForTimeout(150);
   await p.click(".slot:has-text('1895') >> nth=0");

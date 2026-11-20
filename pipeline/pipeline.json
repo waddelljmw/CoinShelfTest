@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-20 (15c fix check done, 15d queued)",
- "app": "v0.101.2",
+ "updated": "2026-11-20 (15d fix check fixes done)",
+ "app": "v0.101.3",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 75,
+  "weekly_now": 78,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1279,7 +1279,7 @@
    "model": "Sonnet",
    "est": "1–2",
    "actual": "",
-   "status": "queued",
+   "status": "next",
    "when": "Sat 11-21",
    "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
    "items": [
@@ -1349,7 +1349,7 @@
    "name": "Fix check before testers",
    "model": "Opus",
    "est": "4–6",
-   "actual": "tbd (next reading; start 17/75)",
+   "actual": "~3 (17/75 to 39/78)",
    "status": "done",
    "chat": "New Opus chat",
    "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
@@ -1404,8 +1404,8 @@
    "name": "Fix check fixes",
    "model": "Sonnet",
    "est": "~1",
-   "actual": "",
-   "status": "next",
+   "actual": "tbd (next reading)",
+   "status": "done",
    "chat": "New Sonnet chat",
    "why": "The 15c fix check found 2 half-done fixes and 4 small new problems. Fix them before the private tester copy.",
    "items": [
@@ -1456,7 +1456,10 @@
     "In ?demo, Add coin twice without picking Where from: no empty 'Same as last' chip.",
     "Lincoln album: put a coin in 1909-S VDB, Edit, Variety Regular, Save: it moves to the plain 1909-S spot.",
     "Coin Value: the premium list has no eBay links."
-   ]
+   ],
+   "started": "Fri 11-20 10:36am",
+   "ended": "Fri 11-20 ~10:55am",
+   "minutes": 19
   },
   {
    "n": "4b",
@@ -1869,6 +1872,13 @@
    "ver": "report 29",
    "cost": "tbd",
    "change": "50 fixes confirmed by a simulated tester; 2 half-done and 4 small new findings queued as 15d; known gaps listed."
+  },
+  {
+   "date": "11-20",
+   "name": "Fix check fixes (15d)",
+   "ver": "v0.101.3",
+   "cost": "tbd",
+   "change": "Variety back to Regular moves the coin; no eBay links in premium list; no empty Same as last chip; guide tip closes; messages sit at the top over pop-ups; import preview dashes for silver/gold with no prices. Page: tabs now at the top (new Now tab)."
   }
  ],
  "modes": [
