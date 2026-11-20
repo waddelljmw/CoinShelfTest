@@ -99,7 +99,7 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // Incomplete mark and filter
   ok("Incomplete: coin with no grade or no cost", await ev(() => {
-    const full = { ...blankCoin(), status: "owned", grade: "MS-63", paid: "5", source: "Coin Shop" };
+    const full = { ...blankCoin(), status: "owned", year: "1921", grade: "MS-63", paid: "5", source: "Coin Shop" };
     return isIncomplete({ ...full, grade: "" }) && isIncomplete({ ...full, paid: "" }) && !isIncomplete(full)
       && isIncomplete({ ...full, paid: "", source: "Inherited", grade: "MS-63" }) // 9.3b: inherited coins need the date inherited instead of a cost
       && !isIncomplete({ ...full, paid: "", source: "Inherited", grade: "MS-63", acquired: "2023-01-01" });
