@@ -48,6 +48,7 @@ function openBackupSheet() {
     <div class="card"><b>Restore from a backup</b>
       <p class="small">Adds everything from a backup file to this ${inClaude ? "Claude version" : "device"}. Nothing here is deleted. If a coin is in both, the backup's copy replaces this one.</p>
       <label class="btn block file-btn" style="display:block;text-align:center">Choose backup file<input type="file" accept=".json,application/json" id="restoreFile"></label>
+      <div class="hint">Takes a Coin Cabinet backup file (.json). For a spreadsheet use Import CSV in Options.</div>
       <div class="hint" id="restoreMsg"></div></div>`);
 }
 

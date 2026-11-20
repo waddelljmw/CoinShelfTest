@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.97.0": [
+    "Options now says which kind of file each Load, Import and Restore button takes, and how much room the app and its photos use on your phone.",
+    "Tapping an empty album spot while selecting coins now explains why it can't be selected.",
+    "Pop-up messages leave faster: about 1.5 seconds, and Undo messages about 5.",
+  ],
   "0.96.0": [
     "In My Coins, pick one coin type and a card under the list shows the album spots you are still missing for it.",
     "If you mark the same coin sold in two tabs, the second tab now warns you instead of replacing the first sale.",

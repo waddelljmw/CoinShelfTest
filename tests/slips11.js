@@ -17,12 +17,12 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
     return off && hasUndo && getCoin("u1").stage === "forsale";
   }));
 
-  ok("messages stay ~6 seconds and Undo ~15 seconds", await ev(() => {
+  ok("messages stay ~1.5 seconds and Undo ~5 (123)", await ev(() => {
     const real = window.setTimeout, seen = [];
     window.setTimeout = (f, ms) => { seen.push(ms); return real(f, ms); };
     toast("hi"); toast("hi", { label: "Undo", fn() {} });
     window.setTimeout = real;
-    return seen.includes(6000) && seen.includes(15000);
+    return seen.includes(1500) && seen.includes(5000);
   }));
 
   console.log("errors", JSON.stringify(errors));

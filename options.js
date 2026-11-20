@@ -100,8 +100,8 @@ function redBookHtml() {
     <div class="card"><div class="small" id="bookStatus" style="margin-bottom:8px"><b>${esc(bookStatusLine())}</b></div>${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof", sms: "SMS" }[k] || k)).join(" · ")}</span></div>`).join("")}
       <label class="f"><span>${name} edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
       <div class="hint">A coin with no value typed in uses its ${name} ${wi("redbook")} value. Coins below the lowest listed grade use melt.</div>
-      ${store.mode === "snapshot" ? "" : `<div class="btn-row" style="margin-top:8px"><label class="btn file-btn" style="display:inline-block;text-align:center">Load a price file<input type="file" accept=".json,application/json" id="priceFile"></label><button class="btn" data-act="savePriceFile">Save price file</button></div>
-      <div class="btn-row" style="margin-top:8px"><label class="btn file-btn" style="display:inline-block;text-align:center">Load your own values<input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" id="ownValuesFile"></label><button class="btn" data-act="ovHelp">How it works</button></div>
+      ${store.mode === "snapshot" ? "" : `<div class="btn-row" style="margin-top:8px"><label class="btn file-btn" style="display:inline-block;text-align:center">Load a price file<input type="file" accept=".json,application/json" id="priceFile"></label><button class="btn" data-act="savePriceFile">Save price file</button></div><div class="hint">Load takes a price file (.json) you saved here with Save price file. Not a backup, not a spreadsheet.</div>
+      <div class="btn-row" style="margin-top:8px"><label class="btn file-btn" style="display:inline-block;text-align:center">Load your own values<input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" id="ownValuesFile"></label><button class="btn" data-act="ovHelp">How it works</button></div><div class="hint">Takes a spreadsheet saved as CSV (.csv) with your own values, not a backup.</div>
       <div class="hint" id="priceMsg">${Object.keys(PRICE_BOOK.series || {}).length ? "Keep a saved price file somewhere safe, like Google Drive." : "No prices yet. Tap Load a price file and pick the file you saved from this app. Typed values and melt still work."}</div>`}</div>`;
 }
 // Options: every section folds shut (closed by default, remembered). Splits the page at each heading.
@@ -135,7 +135,18 @@ function viewOptions() {
     mine.forEach((x) => used.add(x));
     return mine.length ? `<h3 class="optgroup">${name}</h3>` + mine.map((x) => x.html).join("") : "";
   }).join("");
-  return head + (lvl ? lvl.html : "") + grouped + secs.filter((x) => !used.has(x)).map((x) => x.html).join("") + foot;
+  const out = head + (lvl ? lvl.html : "") + grouped + secs.filter((x) => !used.has(x)).map((x) => x.html).join("") + foot;
+  fillSpaceNote();
+  return out;
+}
+// 26: how much room the app and its photos use on this phone. A note only; the browser's own estimate, so "about".
+const bytesText = (n) => (n >= 1e9 ? (n / 1e9).toFixed(1) + " GB" : n >= 1e6 ? Math.round(n / 1e6) + " MB" : Math.max(1, Math.round(n / 1e3)) + " KB");
+function fillSpaceNote() {
+  setTimeout(async () => {
+    const el = document.getElementById("spaceMsg");
+    if (!el || !navigator.storage || !navigator.storage.estimate) return;
+    try { const e = await navigator.storage.estimate(); if (e && e.usage != null) el.textContent = "Room used on this device by the app and its photos: about " + bytesText(e.usage) + "."; } catch (err) { /* no estimate here */ }
+  }, 0);
 }
 function optionsHtml() {
   const s = settings();
@@ -177,12 +188,14 @@ function optionsHtml() {
     ${store.mode === "snapshot" || typeof idStyleOptionsHtml !== "function" ? "" : idStyleOptionsHtml()}
     ${store.mode === "demo" ? "" : `    <h2 data-key="spreadsheet">Spreadsheet (CSV): export and import</h2>
     <div class="card">Save all your coins as a spreadsheet file (CSV), or bring coins in from your own spreadsheet. Save it as a CSV first.
-      <div class="btn-row"><button class="btn" data-act="export">Export CSV</button><button class="btn" data-act="openImport">Import CSV</button></div>
+      <div class="btn-row"><button class="btn" data-act="export">Export CSV</button><button class="btn" data-act="openImport">Import CSV</button></div><div class="hint">Import takes a spreadsheet saved as CSV (.csv). A backup file goes under Backup and restore.</div>
       ${s.lastImport && s.lastImport.ids ? `<div class="hint" style="margin-top:8px">Last import: ${s.lastImport.count} row${s.lastImport.count === 1 ? "" : "s"} on ${esc(s.lastImport.at)}. <button class="link-btn" data-act="undoImport">Remove them</button></div>` : ""}</div>
     <h2>Backup and restore</h2>
     <div class="card">${store.mode === "db" ? "Save everything, photos included, in one file. This is also how you move your coins into the Coin Cabinet app on your phone." : "Save everything, photos included, in one file, or bring coins in from a backup."}
       ${settings().lastBackup ? `<div class="small muted" style="margin-top:6px">Last backup: ${esc(settings().lastBackup)}</div>` : ""}
-      <div class="btn-row"><button class="btn" data-act="openBackup">Backup and restore</button></div></div>
+      <div class="btn-row"><button class="btn" data-act="openBackup">Backup and restore</button></div>
+      <div class="hint">Restore takes a Coin Cabinet backup file (.json), not a spreadsheet or a price file.</div>
+      <div class="hint" id="spaceMsg"></div></div>
 `}
     <h2>Share Coin Cabinet</h2>
     <div class="card">Send someone the link so they can install Coin Cabinet. They get their own, separate collection: they can't see your coins, and you can't see theirs.
