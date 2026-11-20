@@ -175,8 +175,8 @@ function optionsHtml() {
       <label class="switch"><span>Don't ask before putting a coin up for sale</span><input type="checkbox" data-act="homeTog" data-v="skipForSaleAsk" ${s.skipForSaleAsk ? "checked" : ""}></label>
     </div>
     ${store.mode === "snapshot" || typeof idStyleOptionsHtml !== "function" ? "" : idStyleOptionsHtml()}
-    ${store.mode === "demo" ? "" : `    <h2>Spreadsheet</h2>
-    <div class="card">Save all your coins as a spreadsheet file (CSV), or add coins from one.
+    ${store.mode === "demo" ? "" : `    <h2 data-key="spreadsheet">Spreadsheet (CSV): export and import</h2>
+    <div class="card">Save all your coins as a spreadsheet file (CSV), or bring coins in from your own spreadsheet. Save it as a CSV first.
       <div class="btn-row"><button class="btn" data-act="export">Export CSV</button><button class="btn" data-act="openImport">Import CSV</button></div>
       ${s.lastImport && s.lastImport.ids ? `<div class="hint" style="margin-top:8px">Last import: ${s.lastImport.count} row${s.lastImport.count === 1 ? "" : "s"} on ${esc(s.lastImport.at)}. <button class="link-btn" data-act="undoImport">Remove them</button></div>` : ""}</div>
     <h2>Backup and restore</h2>

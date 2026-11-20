@@ -150,7 +150,7 @@ function taxData(year) {
     .sort((a, b) => String(a.sold.date).localeCompare(String(b.sold.date)))
     .map((c) => {
       const s = c.sold, cost = taxCost(c), price = num(s.amount) || 0, fees = num(s.fees) || 0, ship = (num(s.shipping) || 0) + (num(s.insurance) || 0), bought = taxBought(c), soldOn = String(s.date || "").slice(0, 10);
-      return [bought, soldOn, labelOf(c), qtyOf(c), cost, price, fees, cost == null ? "" : r2(price - fees - ship - cost), isInherited(c) ? "Yes" : heldOverYear(bought, soldOn), isInherited(c) ? "Yes" : "No", isInherited(c) ? "Inherited" : isBiz(c) ? "Business" : "Personal", ship];
+      return [bought, soldOn, labelOf(c), qtyOf(c), cost, price, fees, cost == null ? "" : r2(price + (num(s.shipCharged) || 0) - fees - ship - cost), isInherited(c) ? "Yes" : heldOverYear(bought, soldOn), isInherited(c) ? "Yes" : "No", isInherited(c) ? "Inherited" : isBiz(c) ? "Business" : "Personal", ship];
     });
   // Refunded sales: no sale any more, but the fees and shipping you paid are still costs.
   refundRecs().filter((x) => String(x.date || "").slice(0, 4) === String(year) && refundCost(x) > 0).forEach((x) => {

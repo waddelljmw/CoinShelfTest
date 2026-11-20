@@ -337,7 +337,7 @@ function swapGo(el) {
   const ups = spotWants(a, s).filter(isUpgradeWant);
   const nn = { ...n, ...(s.id ? { slotId: s.id } : {}) };
   const oo = { ...o, upgrade: false };
-  applyKept(oo, to === "box" && boxId ? "b:" + boxId : "");
+  applyKept(oo, to === "box" && boxId ? "b:" + boxId : "", true);
   if (to === "forsale" && !isInherited(o)) oo.stage = "forsale";
   saveCoin(nn); saveCoin(oo);
   ups.forEach((w) => remove("w_" + w.id));
@@ -595,7 +595,7 @@ function slotMoveGo(el) {
   const spot = (el.dataset.sid && (aa.slots || []).find((x) => x.id === el.dataset.sid)) || (aa.slots || []).find((x) => slotKey(x) === el.dataset.key);
   if (albumStats(al).filled.has(el.dataset.key)) { toast("That spot just got filled."); return; }
   const before = { ...c }, next = { ...c };
-  applyKept(next, "a:" + al.id); // leaves the old album's spot
+  applyKept(next, "a:" + al.id, true); // leaves the old album's spot
   if (spot) next.slotId = spot.id;
   saveCoin(next);
   const gone = spot ? dropSpotWants(aa, [spot]) : [];
@@ -621,7 +621,7 @@ function slotUse(el) {
   const spot = (s0.id && (aa.slots || []).find((x) => x.id === s0.id)) || (aa.slots || []).find((x) => slotKey(x) === slotKey(s0));
   const before = { ...c };
   const next = { ...c };
-  applyKept(next, "a:" + a.id); // also leaves its box slot, so a coin is in one place at a time
+  applyKept(next, "a:" + a.id, true); // also leaves its box slot, so a coin is in one place at a time
   if (spot) next.slotId = spot.id;
   saveCoin(next);
   const gone = spot ? dropSpotWants(aa, [spot]) : [];

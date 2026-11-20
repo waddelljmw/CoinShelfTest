@@ -74,7 +74,7 @@ const PAGE = "file://" + path.resolve(__dirname, "../index.html");
   await p.click("[data-act=fillGo]"); await p.click("[data-act=fillGo]"); await p.waitForTimeout(400);
   const fc = await ev(() => allCoins().filter((c) => c.albumId === "AU")[0]);
   ok("Fill spots saves Circulated as noGrade, face paid, Coin roll hunting", fc && fc.noGrade === true && fc.grade === "" && fc.paid === "0.25" && fc.source === "Coin roll hunting");
-  ok("last source is remembered", await ev(() => settings().lastFillSource === "Coin roll hunting"));
+  ok("a face-value source is NOT carried to the next Fill spots (R7-3)", await ev(() => !settings().lastFillSource));
 
   // CSV round trip
   const csv = await ev((ids) => {

@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-19",
- "app": "v0.95.2",
+ "app": "v0.95.3",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
   "weekly_now": 66,
@@ -932,8 +932,8 @@
    "name": "R7 fixes",
    "model": "Sonnet",
    "est": "~1",
-   "actual": "",
-   "status": "queued",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "why": "Three small problems the R7 review reproduced. First because two of them can quietly change totals once you start entering albums again.",
    "items": [
@@ -962,7 +962,11 @@
    "try": [
     "In ?demo, open a junk silver coin in an album, Move to another album: it still says My Silver Stack.",
     "Fill spots on a cent album with Pocket change, then open Fill spots on another album: Where from is blank."
-   ]
+   ],
+   "started": "Thu 11-19 9:22pm",
+   "ended": "Thu 11-19 9:50pm",
+   "minutes": 28,
+   "chats": 1
   },
   {
    "n": 16,
@@ -1230,6 +1234,13 @@
  ],
  "prompt_template": "Let's start the coin work. Pipeline step {n}: {name}. Mode: {mode}. Usage: [{usage}]",
  "done": [
+  {
+   "date": "11-19",
+   "name": "R7 fixes (R7f)",
+   "ver": "v0.95.3",
+   "cost": "reading pending",
+   "change": "Moving a junk silver coin keeps its silver stack. Fill spots no longer carries Pocket change or roll hunting into the next album, so blank prices stay blank. Tax CSV gain adds shipping the buyer paid. Spreadsheet section renamed to say CSV export and import. Options group headings are bigger and darker."
+  },
   {
    "date": "11-17",
    "name": "Big review R1–R6 (reports only)",
