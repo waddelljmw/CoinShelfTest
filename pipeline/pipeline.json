@@ -1031,6 +1031,77 @@
    "chat": "New Sonnet chat"
   },
   {
+   "n": "16c",
+   "stage": "fill",
+   "name": "Fill-ins: hints, selecting, pop-up time, phone space (119, 122, 123, 26)",
+   "model": "Sonnet",
+   "est": "~1",
+   "actual": "",
+   "status": "queued",
+   "why": "Four small polish items before testers. No saved-data change.",
+   "items": [
+    {
+     "id": "119",
+     "size": "S",
+     "what": "Say which file each button takes",
+     "change": "A short note under each Load / Restore / Import button: a spreadsheet (.csv), a Coin Cabinet backup, or a price file.",
+     "affects": "Options"
+    },
+    {
+     "id": "122",
+     "size": "S",
+     "what": "Empty spot while selecting",
+     "change": "Tapping an empty album spot while selecting coins says why it can't be selected, instead of looking like a bug.",
+     "affects": "Album page"
+    },
+    {
+     "id": "123 (rest)",
+     "size": "S",
+     "what": "Pop-ups go away faster",
+     "change": "Plain messages leave on their own after about 1.5 seconds and Undo messages after about 5. Tap or swipe to close stays; Undo keeps working.",
+     "affects": "All pop-up messages"
+    },
+    {
+     "id": "26",
+     "size": "S",
+     "what": "Phone space note",
+     "change": "Options shows how much room the app and its photos use on the phone. A note only, no new setting.",
+     "affects": "Options"
+    }
+   ],
+   "try": [
+    "Options: each Load / Restore / Import button has a one-line file hint.",
+    "In ?demo, select coins on an album and tap an empty spot: it explains.",
+    "Add to want list: the message leaves by itself fast; an Undo message stays a little longer.",
+    "Options: a line shows the space used."
+   ],
+   "chat": "New Sonnet chat"
+  },
+  {
+   "n": "16d",
+   "stage": "fill",
+   "name": "Tap your coin in search (121)",
+   "model": "Sonnet",
+   "est": "~1",
+   "actual": "",
+   "status": "queued",
+   "why": "In Search any coin, a coin you own should open and say where it is.",
+   "items": [
+    {
+     "id": "121",
+     "size": "S",
+     "what": "Owned coin opens, shows where",
+     "change": "A row for a coin you own opens your coin, and the card says where it is, e.g. \"You own 2: F-12 (Washington album)\". Uses what the app already knows.",
+     "affects": "Search any coin, coin card"
+    }
+   ],
+   "try": [
+    "Home: search a coin you own: tap its row and it opens.",
+    "The card says where your coin is kept."
+   ],
+   "chat": "New Sonnet chat"
+  },
+  {
    "n": 18,
    "stage": "fill",
    "name": "Melt page for common coins (idea 113)",
@@ -1336,7 +1407,7 @@
    "name": "Weekly check-in (top up the queue)",
    "ver": "",
    "cost": "~0–1",
-   "change": "R7 fixes cost fixed (~1). Queue was low (2 ready), so 4 Sonnet steps were pulled from Later: 16b, 18 melt page, 19 CSV round trip, 20 photo in the spot. Steps that may stop and ask are last."
+   "change": "R7 fixes cost fixed (~1). Queue was low (2 ready), so 6 Sonnet steps were pulled from Later: 16b, 16c, 16d, 18 melt page, 19 CSV round trip, 20 photo in the spot (19 and 20 last). Steps that may stop and ask are last."
   },
   {
    "date": "11-19",
