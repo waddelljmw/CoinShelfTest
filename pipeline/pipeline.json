@@ -3,13 +3,13 @@
  "app": "v0.95.2",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 57,
+  "weekly_now": 64,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
   "rule": "Build up to 85% until Sunday's fantasy run, then use it up to 95% (until the Tue 1pm ET reset). Fantasy runs: Thu ~7pm and Sun 12:30pm ET, ~1-2 points each, always kept in reserve."
  },
- "cost_note": "Estimates come from your measured usage log. Each finished step records its real cost and clock times (started, ended, minutes), and estimates are adjusted. Sonnet steps have measured about 1 weekly point each, 20-45 minutes.",
+ "cost_note": "Estimates come from your measured usage log. Each finished step records its real cost and clock times (started, ended, minutes), and estimates are adjusted. Sonnet steps have measured about 1 weekly point each, 20-45 minutes. 11-19 evening: a chat with 9 small items (7 PRs) cost ~3 weekly points and ~41 minutes, so small fill-ins run well under the older guesses.",
  "steps": [
   {
    "n": 1,
@@ -810,7 +810,7 @@
    "name": "Fill-ins: hide melt, where-from filter, box slot, move album, pocket value, ID Undo",
    "model": "Sonnet",
    "est": "0-1 each",
-   "actual": "end reading pending",
+   "actual": "~3 (with step 17 and the process add-on, one chat)",
    "status": "done",
    "why": "Six small extras, one PR each (v0.91.2 to v0.95.1).",
    "items": [
@@ -866,9 +866,9 @@
     "Make a second Morgan album (New album). Tap a filled Morgan spot in the first album: Move to another album shows; pick the second album and the coin moves. Undo puts it back.",
     "New album, Fill spots, tick 3, Save, tap Undo, then add a coin: its ID number carries on from before, with no gap."
    ],
-   "started": "Thu 11-19 7:30pm",
-   "ended": "Thu 11-19 7:44pm",
-   "minutes": 14,
+   "started": "Thu 11-19 7:27pm",
+   "ended": "Thu 11-19 8:08pm",
+   "minutes": 41,
    "chats": 1
   },
   {
@@ -877,7 +877,7 @@
    "name": "Demo expansion",
    "model": "Sonnet",
    "est": "1-2",
-   "actual": "end reading pending",
+   "actual": "counted in 16a",
    "status": "done",
    "chat": "New Sonnet chat",
    "why": "A fuller made-up sample collection in ?demo=full so you can try every feature without touching real coins. Done in v0.95.2. ?demo=big adds about 1,000 more coins for speed tests.",
@@ -898,7 +898,7 @@
    ],
    "started": "Thu 11-19 7:44pm",
    "ended": "Thu 11-19 7:48pm",
-   "minutes": 4,
+   "minutes": null,
    "chats": 1
   },
   {
@@ -1366,14 +1366,14 @@
    "date": "11-19",
    "name": "Process add-on: weekly check-in",
    "ver": "no app change",
-   "cost": "~0.5 (Sonnet)",
+   "cost": "~3 weekly for the whole chat (19/61 to 40/64), about 41 min: process add-on + 6 fill-ins + demo (Sonnet)",
    "change": "New Weekly check-in rules in CLAUDE.md (last week's cost, queue top-up, one process change, test-block days, review due?) and an early-planning rule for Monday/Tuesday. The pipeline page now shows a Queue low warning (fewer than 3 ready-to-build steps) and a Weekly check-in card. A solo Opus review (R7) is queued because 18 steps have landed since the last one."
   },
   {
    "date": "11-19",
    "name": "Fill-ins (6) + demo expansion",
    "ver": "v0.91.2 to v0.95.2",
-   "cost": "end reading pending (Sonnet)",
+   "cost": "~3 weekly for the whole chat (19/61 to 40/64), about 41 min: process add-on + 6 fill-ins + demo (Sonnet)",
    "change": "Hide values hides melt everywhere; filter by Where from; + on an empty box or pocket slot offers a coin you have; move a coin between albums; pocket albums show value and grades; Undo on Fill spots gives ID numbers back. Demo sample now has an inherited album, a Kennedy album, a pocket album in a box, key dates, foreign coins and coins needing info, plus ?demo=big."
   }
  ],
