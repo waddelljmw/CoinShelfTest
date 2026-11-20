@@ -59,7 +59,7 @@ function render() {
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
   const keepSearch = active && active.id === "coinSearch" ? active.selectionStart : null;
-  HIDE_NOW = !!settings().hideValues && (r.view === "home" || r.view === "coin");
+  HIDE_NOW = !!settings().hideValues && !["options", "guide", "reports"].includes(r.view); // R4-27: every page that shows amounts, melt included
   try { main.innerHTML = fn(r); } finally { HIDE_NOW = false; }
   if (keepSearch != null) { const s = $("#coinSearch"); if (s) { s.focus(); s.setSelectionRange(keepSearch, keepSearch); } }
   else if (focusCoinSearch) { const s = $("#coinSearch"); if (s) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); focusCoinSearch = false; } }
@@ -83,7 +83,7 @@ function coinRow(c, opts = {}) {
       <span class="coin-label">${esc(labelOf(c))}</span>
       <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}${opts.miss && isIncomplete(c) ? `<span class="miss-tag">${needsText(c)}</span>` : ""}${opts.miss && c.status === "owned" && whereText2(c) ? `<span class="small muted where-line" style="display:block">\u{1F4CD} ${esc(whereText2(c))}</span>` : ""}${typeof sellerOn === "function" && sellerOn() && c.biz ? `<span class="sold-tag st-biz">Business</span>` : ""}</span>
     </span>
-    <span class="coin-val">${c.status === "sold" ? money(num(c.sold && c.sold.amount)) : money(v == null ? null : v * q)}${m != null && c.status !== "sold" ? `<div class="melt">melt ${q === 1 ? moneyOpen(m) : money(m * q)}</div>` : ""}</span>
+    <span class="coin-val">${c.status === "sold" ? money(num(c.sold && c.sold.amount)) : money(v == null ? null : v * q)}${m != null && c.status !== "sold" ? `<div class="melt">melt ${money(m * q)}</div>` : ""}</span>
   </button>`;
 }
 
@@ -377,7 +377,7 @@ function viewCoin(r) {
       ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, " + bookName() + ")" : "Value each (" + bookName() + ")") : valueSource(c) === "face" ? (meltKey(c) && num(c.oz) && spotPerOz(meltKey(c)) == null ? "Value each (face value, no " + meltKey(c) + " price yet)" : "Value each (face value)") : "Value" + eachWord(c) + (valueFromText(c.valueFrom) ? " (" + valueFromText(c.valueFrom) + ")" : ""), money(v))}
       ${noBookNote(c) ? `<div class="small muted" style="margin:2px 0 6px">${esc(noBookNote(c))}</div>` : ""}
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row(bookName(), money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
-      ${row("Melt" + eachWord(c) + wi("melt"), m == null ? (meltKey(c) ? "Enter spot price" : null) : moneyOpen(m))}
+      ${row("Melt" + eachWord(c) + wi("melt"), m == null ? (meltKey(c) ? "Enter spot price" : null) : money(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
       ${row("Metal", esc([c.metal, num(c.oz) ? num(c.oz) + " oz" + (itemOf(c) === "roll" ? " per coin" : itemOf(c) === "set" ? " in the set" : itemOf(c) === "bullion" ? " pure" : "") : ""].filter(Boolean).join(" · ")))}
     </div>

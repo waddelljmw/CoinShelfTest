@@ -66,6 +66,8 @@ function ownGradesText(c) {
   const n = order.reduce((s, k) => s + g[k], 0);
   return n ? `You own ${n}: ${order.map((k) => (g[k] > 1 ? `${g[k]}× ${k}` : k)).join(", ")}` : "";
 }
+// R4-27: the coin card opens in a pop-up (outside the page draw), so it checks "hide values" itself.
+const hvMoney = (n) => (settings().hideValues && n != null ? HIDDEN_TEXT : money(n));
 // c = the coin (or pretend coin for an empty spot). opts.spot: an empty spot (adds metal, melt and price-list value);
 // opts.skipId: the coin page's own id; opts.inAlbum: the spot's coin is already in this album.
 function coinCardHtml(c, opts) {
@@ -77,11 +79,11 @@ function coinCardHtml(c, opts) {
   if (nifcOf(c)) lines.push(`<div>${NIFC_CHIP} not intended for circulation <span class="muted">(the U.S. Mint sold these only to collectors)</span></div>`);
   if ((opts.spot || opts.lookup) && t && t.oz) {
     const melt = meltEach({ metal: t.metal, oz: t.oz });
-    lines.push(`<div>${esc(t.metal)}: ${Math.round(t.oz * 1000) / 1000} oz${melt != null ? ` · melt today ${money(melt)}` : ""}</div>`);
+    lines.push(`<div>${esc(t.metal)}: ${Math.round(t.oz * 1000) / 1000} oz${melt != null ? ` · melt today ${hvMoney(melt)}` : ""}</div>`);
   }
   if ((opts.spot || opts.lookup) && typeof PRICE_BOOK !== "undefined" && PRICE_BOOK.series && PRICE_BOOK.series[c.typeId]) {
     const r = bookLookup({ ...c, grade: c.grade || "VF-20" });
-    if (r && r.price != null) lines.push(`<div>${esc(bookName())} ${esc(r.grade)}: ${money(r.price)}</div>`);
+    if (r && r.price != null) lines.push(`<div>${esc(bookName())} ${esc(r.grade)}: ${hvMoney(r.price)}</div>`);
   }
   const vs = knownVarieties(c);
   if (vs.length) lines.push(`<div>Varieties to look for: ${esc(vs.join(", "))}</div>`);
