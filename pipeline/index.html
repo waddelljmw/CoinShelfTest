@@ -56,11 +56,13 @@ textarea{min-height:84px}.btn{font:inherit;font-weight:700;padding:10px 14px;bor
 <div class="sub" id="upd"></div>
 <h1>Coin Cabinet pipeline</h1>
 <div class="card q" id="qbox"></div>
+<div class="card" id="qlow" style="border:3px solid var(--test)" hidden></div>
 <div class="card" id="startnext" style="border:3px solid var(--gold)"></div>
 <h2>Where we are</h2>
 <div class="sub">Tap a bubble to jump to its card. Faded dashed = waiting.</div>
 <div class="road" id="road"></div>
 <div class="card here" id="here"></div>
+<h2>Weekly check-in</h2><div class="card" id="checkin"></div>
 <h2>Tracking</h2><div class="tiles" id="tiles"></div>
 <h2>This week's usage</h2>
 <div class="sub" id="wk"></div>
@@ -174,7 +176,22 @@ function renderWaiting(){
  h+=D.parked.map(g=>`<div class="card"><b>${esc(g.group)}</b><ul>${g.items.map(x=>`<li><span class="chip ${x.size[0]}">${esc(x.size)}</span>${esc(x.t)}</li>`).join("")}</ul></div>`).join("");
  $("waiting").innerHTML=h;
 }
-function renderAll(){if(!D)return;renderQ();renderStart();renderRoad();renderTiles();renderTest();renderNotes()}
+function renderCheckin(){
+ const rd=D.steps.filter(ready);const low=rd.length<3;
+ $("qlow").hidden=!low;
+ if(low)$("qlow").innerHTML=`<b>⚠️ Queue low: ${rd.length} ready-to-build step${rd.length===1?"":"s"} left (want at least 3).</b><div class="sub">The next chat pulls from Later and says which, or posts to Questions for you.</div>`;
+ const c=D.checkin||{};const done=D.steps.filter(s=>s.status==="done").length-(c.review_baseline||0);
+ const nxt=(()=>{const d=new Date();const add=((2-d.getDay())+7)%7||7;const tu=new Date(d.getFullYear(),d.getMonth(),d.getDate()+add);const mo=new Date(tu.getFullYear(),tu.getMonth(),tu.getDate()-1);const f=x=>(x.getMonth()+1)+"-"+x.getDate();return{mo:f(mo),tu:f(tu)}})();
+ const w=D.week.weekly_now;const early=w<=90?"✅ weekly is "+w+"%: fine to run it early":w<=93?"⚠️ weekly is "+w+"%: borderline":"⏸ weekly is "+w+"%: skip the early check-in";
+ const due=done>=8||!!c.saved_data_ahead;
+ const why=done>=8?`${done} steps done since the last review`:c.saved_data_ahead?"a change to how coins are saved is coming":"";
+ const rv=D.steps.find(s=>s.n==="R7"&&s.status!=="done");
+ $("checkin").innerHTML=`<div class="big">${due?"🔴 Review due":"🟢 No review due yet"}</div><div class="sub">${due?esc(why)+(rv?`. Queued as step ${esc(rv.n)} (Opus, solo, about ${esc(rv.est)} weekly points).`:". Not queued yet: the next check-in queues it."):`${done} of 8–10 steps since the last review (${esc(c.last_review||"none")}).`}</div>
+ <div style="margin-top:8px"><b>Suggested:</b> Mon ${nxt.mo} evening or Tue ${nxt.tu} morning, before the 1pm reset, after Sunday's fantasy run.</div>
+ <div class="sub">${early}. Skip if above about 93%; then fill-ins up to ${D.week.fill_cap}%.</div>
+ <div class="sub">Last check-in: ${esc(c.last||"not run yet")} · Sonnet, about 15 min.</div>`;
+}
+function renderAll(){if(!D)return;renderCheckin();renderQ();renderStart();renderRoad();renderTiles();renderTest();renderNotes()}
 function renderStatic(){
  $("upd").textContent="Updated "+D.updated+" · app "+D.app;
  const w=D.week;const nowHi=D.steps.filter(s=>s.stage==="now"&&s.status!=="done").reduce((a,s)=>a+hi(s.est),0);

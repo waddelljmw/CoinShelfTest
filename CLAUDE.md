@@ -46,6 +46,17 @@ Read this, `pipeline/pipeline.json`, and from `PLAN.md` only the "Next session s
 - **Cost table (guesses until measured):** Sonnet step ~1 weekly point, 20–45 min · Sonnet bigger M step 1–3, 30–60 min · Opus plan or build 2–3, 30–60 min · Opus review or fix check 5–8, 60+ min · a fantasy run 1–2.
 - Plan only when the queue runs low or notes pile up, not on a fixed day. Always keep more lined up than a week can use, plus small fill-ins.
 
+## Weekly check-in (Sonnet, ~15 min, ~0-1 weekly point)
+Replaces fixed-day planning. Run it as a short chat when the page's **Weekly check-in** card suggests it (after Sunday's fantasy run: Monday evening or Tuesday morning before the 1pm reset).
+1. **Last week:** each step done since the last check-in, estimate vs real cost. Fix later `est` values that disagree.
+2. **Queue order check:** anything urgent to jump? Anything blocked?
+3. **Top up:** at least a few days of ready-to-build work lined up, questions already answered (pull from Later, or post to Questions for you). The page shows **Queue low** when fewer than 3 ready-to-build steps remain; the next chat then pulls from Later and says which, or posts to Questions for you.
+4. **One process change to try** (a line, with the reason). Keep it only if it saved usage or time.
+5. **Suggest days** for test blocks and the use day around his real schedule (visitors, travel); tentative, never a fixed day.
+6. **Review due?** An Opus review is due when 8-10 steps are done since the last one, a change to how coins are saved is coming up, or before testers/buyers. If due, queue a **solo Opus review** (~1-3 weekly, 25-45 min, no helper agents unless he asks) in `pipeline.json`. Full Opus planning only when the queue is low, notes pile up, or tester feedback arrives.
+- **Early planning rule:** after Sunday's fantasy run, on Monday evening or Tuesday morning before the 1pm reset: if weekly is about **90% or lower**, run the check-in (or planning, or a due review) early, then fill-ins up to **95%**. Skip if above about **93%**.
+- After a check-in set `checkin.last` in `pipeline.json` and republish; after a review set `checkin.review_baseline` to the number of done steps at that time.
+
 ## Planning (when the queue is low or notes pile up)
 Start from the existing queue, never blank: (1) check the queue; (2) sort the page's unsorted notes and new findings into it and mark each note **sorted** with where it went; (3) talk it through with him, push back where you disagree; (4) re-order, urgent can jump; (5) top up past one week plus fill-ins; (6) lock: `PLAN.md`, `pipeline.json` + republish, next prompt. No build plan before his OK. Minutes go to `reviews/NN-planning-minutes-DATE.md`; PLAN.md keeps only decisions.
 
