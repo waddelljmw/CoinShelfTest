@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.95.0": [
+    "Pocket albums now show what they are worth and which grades are inside, on the album page and on its card in My Albums. Hide values hides the amount.",
+  ],
   "0.94.0": [
     "A coin in an album spot now has Move to another album: pick an album that has an empty spot for it. The old spot opens up, and one Undo puts it back.",
   ],
