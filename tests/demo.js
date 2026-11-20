@@ -63,7 +63,7 @@ const srv = http.createServer((q, r) => {
       history: Object.keys(store.docs.get("history").days).length, seller: sellerOn(), filledCoin: coins.filter((c) => /Filled in from photos/.test(c.notes || "")).length,
       pics: coins.filter((c) => (c.photos || []).length === 2 && c.photos[0].url.startsWith("data:image/svg")).length, real: coins.some((c) => c.id === "real1") };
   });
-  ok("about 100 to 125 coins (" + info.n + ")", info.n >= 100 && info.n <= 125);
+  ok("about 100 to 260 coins (" + info.n + ")", info.n >= 100 && info.n <= 260); // Step 17: the sample grew (inherited album, Kennedy album, pocket album, key dates, foreign coins)
   ok("every year is real (" + info.badYear.join(", ") + ")", info.badYear.length === 0);
   ok("every date and mint is in the app's coin data (" + info.badDate.join(", ") + ")", info.badDate.length === 0);
   ok("1910 Indian Head $2.50 gold coin", info.gold);

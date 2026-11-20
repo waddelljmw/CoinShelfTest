@@ -23,7 +23,7 @@ function openReportForm() {
   const metals = [...new Set(owned.map((c) => c.metal).filter(Boolean))].sort();
   openSheet(`<div class="sheet-head"><h2>Insurance report</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <p>A dated, itemized list of your coins with values and totals, to keep for your records or send to your insurance agent. Sold coins aren't included.</p>
-    ${priceStatusLine(true)}${lowTotalNote(true)}${valueGapCoins().length ? `<p class="small" style="color:#a85d00"><b>Estimate*</b> ${NEED_NOTE} <button class="link-btn" data-act="needInfo">See them</button></p>` : ""}
+    ${priceStatusLine(true)}${lowTotalNote(true)}${valueGapCoins().length ? `<p class="small" style="color:var(--accent-text)"><b>Estimate*</b> ${NEED_NOTE} <button class="link-btn" data-act="needInfo">See them</button></p>` : ""}
     <div class="card" style="margin-top:12px"><div class="small muted" style="margin-bottom:6px">Quick setup</div>
       <div class="btn-row"><button type="button" class="btn" data-act="repPreset" data-v="insurance">Insurance</button><button type="button" class="btn" data-act="repPreset" data-v="inventory">Full inventory</button></div>
       <div class="hint">Insurance leaves out Business stock and coins on the way. Full inventory has everything, with what you paid and where it's kept.</div>
