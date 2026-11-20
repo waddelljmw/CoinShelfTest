@@ -196,8 +196,9 @@ function renderCoinForm() {
 
     ${sec("notes", "Notes", `<label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>`, d.notes)}
 
+    ${typeof manyField === "function" ? manyField(d) : ""}
     <details data-sec="more" ${(draft._open && draft._open.more) ? "open" : ""}><summary>More details</summary>
-    ${sec("value", "Quantity, value and metal", `${typeof manyField === "function" ? manyField(d) : ""}<div class="grid2">
+    ${sec("value", "Quantity, value and metal", `<div class="grid2">
       <label class="f"><span>Quantity</span><input type="number" inputmode="numeric" min="1" data-f="qty" value="${esc(d.qty)}"></label>
       <label class="f"><span>Value${eachWord(d)}</span><input type="number" inputmode="decimal" step="0.01" data-f="value" value="${esc(isJunk(d) ? "" : d.value)}" placeholder="${isJunk(d) ? "melt" : "$"}" ${isJunk(d) ? "disabled" : ""}></label>
       <label class="f" id="vfRow" ${num(d.value) == null || isJunk(d) ? "hidden" : ""}><span>Value from</span><select data-f="valueFrom"><option value="">Not said</option>${VALUE_FROM.map(([k, w]) => `<option value="${k}" ${d.valueFrom === k ? "selected" : ""}>${esc(w)}</option>`).join("")}</select></label>
