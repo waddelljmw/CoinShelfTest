@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.95.3";
+const APP_VERSION = "0.96.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 
@@ -205,8 +205,16 @@ async function claudeExtras() {
   } catch (e) { sampleApi = null; }
 }
 
+// R4-14: tabs of the app on one device tell each other when a coin is saved, so a stale tab can warn before it sells a coin another tab already sold.
+const otherTabCoins = new Map();
+let tabChannel = null;
+try {
+  tabChannel = typeof BroadcastChannel === "function" ? new BroadcastChannel("coin-cabinet-coins") : null;
+  if (tabChannel) tabChannel.onmessage = (e) => { const m = e.data; if (m && typeof m.k === "string") otherTabCoins.set(m.k, { status: m.status, qty: m.qty }); };
+} catch (err) { tabChannel = null; }
 function put(key, obj, quiet) {
   const body = JSON.parse(JSON.stringify(obj));
+  if (tabChannel && key.startsWith("c_")) { try { tabChannel.postMessage({ k: key, status: body.status, qty: body.qty }); } catch (err) { /* not important */ } }
   if (key.startsWith("c_") && typeof caseOnPut === "function") caseOnPut(store.docs.get(key), body); // dealer case: remember the old place
   store.docs.set(key, body);
   if (key === "pricebook" && usableBook(body)) PRICE_BOOK = { ...emptyBook(), ...body }; // first copy, restore, or (later) a loaded price file
