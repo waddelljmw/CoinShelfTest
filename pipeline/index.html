@@ -185,7 +185,7 @@ function renderCheckin(){
  const w=D.week.weekly_now;const early=w<=90?"✅ weekly is "+w+"%: fine to run it early":w<=93?"⚠️ weekly is "+w+"%: borderline":"⏸ weekly is "+w+"%: skip the early check-in";
  const due=done>=8||!!c.saved_data_ahead;
  const why=done>=8?`${done} steps done since the last review`:c.saved_data_ahead?"a change to how coins are saved is coming":"";
- const rv=D.steps.find(s=>s.n==="R7"&&s.status!=="done");
+ const rv=D.steps.find(s=>/^R\d+$/.test(String(s.n))&&s.status!=="done");
  $("checkin").innerHTML=`<div class="big">${due?"🔴 Review due":"🟢 No review due yet"}</div><div class="sub">${due?esc(why)+(rv?`. Queued as step ${esc(rv.n)} (Opus, solo, about ${esc(rv.est)} weekly points).`:". Not queued yet: the next check-in queues it."):`${done} of 8–10 steps since the last review (${esc(c.last_review||"none")}).`}</div>
  <div style="margin-top:8px"><b>Suggested:</b> Mon ${nxt.mo} evening or Tue ${nxt.tu} morning, before the 1pm reset, after Sunday's fantasy run.</div>
  <div class="sub">${early}. Skip if above about 93%; then fill-ins up to ${D.week.fill_cap}%.</div>

@@ -19,9 +19,9 @@ const http = require("http"), fs = require("fs"), path = require("path");
   await p.goto("http://127.0.0.1:" + port + "/"); await p.waitForTimeout(500);
   const ok = (name, cond) => console.log((cond ? "PASS " : "FAIL ") + name);
   ok("empty Questions box says nothing waiting", /Nothing waiting on you/.test(await p.textContent("#qbox")));
-  ok("YOU ARE HERE is the next ready step (16 fill-ins)", /YOU ARE HERE: step 16/.test(await p.textContent("#here")));
+  { const pj = JSON.parse(fs.readFileSync(path.join(root, "pipeline.json"), "utf8")); const exp = (pj.steps.find((s) => s.status === "next") || {}).n; ok("YOU ARE HERE is the next ready step (step " + exp + ")", new RegExp("YOU ARE HERE: step " + exp + "\\b").test(await p.textContent("#here"))); }
   ok("waiting steps are faded in the road", (await p.$$(".dot.wait")).length >= 3);
-  ok("Weekly check-in card shows no review due after R7 and suggested days", /No review due yet/.test(await p.textContent("#checkin")) && /Suggested: Mon/.test(await p.textContent("#checkin")) );
+  { const pj = JSON.parse(fs.readFileSync(path.join(root, "pipeline.json"), "utf8")); const n = pj.steps.filter((s) => s.status === "done").length - (pj.checkin.review_baseline || 0); const txt = await p.textContent("#checkin"); ok("Weekly check-in card matches the review rule (" + n + " steps since review) and shows suggested days", (n >= 8 ? /Review due/.test(txt) : /No review due yet/.test(txt)) && /Suggested: Mon/.test(txt)); }
   ok("Queue low warning matches the ready count (shows only when fewer than 3 are ready)", (await p.$eval("#qlow", (e) => e.hidden)) === (await p.evaluate(() => D.steps.filter(ready).length >= 3)));
   await p.evaluate(() => { D.steps.filter((s) => s.status !== "done" && s.n !== 16).forEach((s) => { s.status = "done"; }); renderAll(); });
   ok("Queue low warning shows when fewer than 3 steps are ready", !(await p.$eval("#qlow", (e) => e.hidden)) && /Queue low/.test(await p.textContent("#qlow")));

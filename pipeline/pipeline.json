@@ -1212,6 +1212,29 @@
    "chats": 1
   },
   {
+   "n": "R8",
+   "stage": "now",
+   "name": "Solo Opus review (due: 8 steps since R7)",
+   "model": "Opus",
+   "est": "1–3",
+   "actual": "",
+   "status": "next",
+   "chat": "New Opus chat",
+   "why": "The review rule says one is due after 8–10 steps. Eight steps are done since R7 (16, 16b, 16c, 16d, 18, 19, 20 and R7 fixes). One solo Opus reviewer looks at what changed since R7, deep on the new CSV round trip, the two-tab sale guard, the + button, the melt table and album photos. No helper agents unless you ask.",
+   "items": [
+    {
+     "id": "review",
+     "size": "M",
+     "what": "Review the changes since R7",
+     "change": "No app change. A short report lists reproduced problems only; real ones go back in the queue before the fix check and testers.",
+     "affects": "Report only (reviews/)"
+    }
+   ],
+   "try": [
+    "Read the short report; nothing to tap."
+   ]
+  },
+  {
    "n": 4,
    "stage": "now",
    "name": "Fresh-start repo",
@@ -1289,7 +1312,7 @@
    "model": "Opus",
    "est": "3–5",
    "actual": "",
-   "status": "next",
+   "status": "queued",
    "chat": "New Opus chat",
    "why": "A simulated tester re-runs every finding we fixed and confirms each is really gone and nothing else broke, before real testers see the app.",
    "items": [
