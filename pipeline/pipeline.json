@@ -1279,7 +1279,7 @@
       "model": "Sonnet",
       "est": "1–2",
       "actual": "",
-      "status": "queued",
+      "status": "next",
       "when": "Sat 11-21",
       "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
       "items": [
