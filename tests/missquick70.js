@@ -19,6 +19,12 @@ const { chromium } = require("./_compat");
   // doing it again adds nothing new (already on the list)
   await p.evaluate(() => openMissingQuick("T")); await p.locator("[data-act=missQuickAdd].primary").first().click(); await p.waitForTimeout(200);
   ok("second time skips coins already on the list", await p.evaluate(() => wants().filter((w) => w.albumId === "T").length) === n1);
+  // Bug fix (11-20): "+ New list…" from the quick sheet must add the missing coins to the new list, not just make it
+  await p.evaluate(() => { wants().forEach((w) => remove("w_" + w.id)); openMissingQuick("T"); }); await p.waitForTimeout(200);
+  await p.click("[data-act=wlNewQuick]"); await p.waitForTimeout(200);
+  await p.fill("#wlForm input[name=name]", "Brand new list"); await p.click("#wlForm button[type=submit]"); await p.waitForTimeout(300);
+  const n2 = await p.evaluate(() => { const l = wantLists().find((x) => x.name === "Brand new list"); return l ? wants().filter((w) => w.listId === l.id && w.albumId === "T").length : -1; });
+  ok("new list made from the quick sheet gets every missing coin (" + n2 + ")", n2 === total);
   // Show missing still opens the checkbox picker
   await p.evaluate(() => openMissing("T")); await p.waitForTimeout(200);
   ok("Show missing still works", await p.locator(".sheet-head h2:has-text('Missing (')").count() > 0);
