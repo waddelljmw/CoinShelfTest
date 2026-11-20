@@ -11,11 +11,11 @@ function manyCount(d) {
 }
 const manyOn = (d) => manyCount(d) > 1;
 
-// The "How many?" box in Quantity, value and metal.
+// The "How many?" box: out in the open on Add coin (R4-40), above the folded Quantity section.
 function manyField(d) {
   if (!canMany(d)) return "";
   const n = manyCount(d);
-  return `<label class="f"><span>How many separate coins?</span><input type="number" inputmode="numeric" min="1" max="${MANY_MAX}" data-f="_many" data-rerender value="${esc(n)}"></label>
+  return `<label class="f"><span>How many separate coins? <span class="muted small">(Quantity below is for one entry that stands for several)</span></span><input type="number" inputmode="numeric" min="1" max="${MANY_MAX}" data-f="_many" data-rerender value="${esc(n)}"></label>
     <div class="hint">${n > 1 ? "Each of the " + n + " coins is saved on its own, with its own ID, so Quantity stays 1. They all share this form and photo." : "Have lots of the same coin? Enter how many and they are all added at once (up to " + MANY_MAX + ")."}</div>`;
 }
 // Price: per coin or one total for the group.

@@ -498,3 +498,14 @@ Object.assign(actions, {
     renderCoinForm(); $(".sheet").scrollTop = y;
   },
 }); // "Discard this coin?" -> Discard
+
+// R6-13: the round + button steps aside while scrolling down so it never sits on a button you are reaching for.
+(function () {
+  let last = window.scrollY, t = null;
+  window.addEventListener("scroll", () => {
+    const fab = document.getElementById("fab"); if (!fab) return;
+    const y = window.scrollY, nearEnd = window.innerHeight + y >= document.documentElement.scrollHeight - 140;
+    if (y > last + 6 && y > 80 && !nearEnd) fab.classList.add("away"); else if (y < last - 6 || nearEnd || y <= 80) fab.classList.remove("away");
+    last = y; clearTimeout(t); t = setTimeout(() => fab.classList.remove("away"), 700);
+  }, { passive: true });
+})();
