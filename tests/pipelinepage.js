@@ -19,7 +19,7 @@ const http = require("http"), fs = require("fs"), path = require("path");
   await p.goto("http://127.0.0.1:" + port + "/"); await p.waitForTimeout(500);
   const ok = (name, cond) => console.log((cond ? "PASS " : "FAIL ") + name);
   ok("empty Questions box says nothing waiting", /Nothing waiting on you/.test(await p.textContent("#qbox")));
-  ok("YOU ARE HERE is step 16", /YOU ARE HERE: step 16/.test(await p.textContent("#here")));
+  ok("YOU ARE HERE is the next ready step (R7 review)", /YOU ARE HERE: step R7/.test(await p.textContent("#here")));
   ok("waiting steps are faded in the road", (await p.$$(".dot.wait")).length >= 3);
   ok("Weekly check-in card shows review due and suggested days", /Review due/.test(await p.textContent("#checkin")) && /Suggested: Mon/.test(await p.textContent("#checkin")) && /Solo|Opus/.test(await p.textContent("#checkin")));
   ok("no Queue low warning while 3+ steps are ready", await p.$eval("#qlow", (e) => e.hidden));
