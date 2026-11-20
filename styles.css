@@ -344,7 +344,7 @@ details.more > summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
 .sheet .sh-getp { font: inherit; font-size: 12px; min-height: 40px; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--chip); color: var(--ink); cursor: pointer; }
 .sheet .sh-upd { color: var(--muted); opacity: 1; }
 .sheet .sh-upd.warn { color: var(--accent-text); }
-.optgroup { margin: 18px 2px 4px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted, #8a8178); }
+.optgroup { margin: 24px 2px 6px; padding-top: 8px; border-top: 2px solid var(--muted); font-size: 15px; font-weight: 700; color: var(--ink); }
 
 /* Session 27: the Save / Create buttons stay on screen at the bottom of a pop-up form */
 .sheet form > .btn-row:last-child { position: sticky; bottom: -28px; background: var(--bg); padding: 10px 0 12px; margin-bottom: -12px; z-index: 2; border-top: 1px solid #e3dccf; }

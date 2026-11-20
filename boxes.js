@@ -68,10 +68,11 @@ function keptValue(d) {
   if (d._newStack) return "s:__new";
   return "";
 }
-function applyKept(d, v) {
+function applyKept(d, v, keepStack) { // keepStack: a move changes where the coin sits, not its silver stack
+
   const was = keptValue(d);
   if (v === was) return;
-  if (itemOf(d) !== "bullion") d.stack = ""; // bullion always belongs to a stack
+  if (itemOf(d) !== "bullion" && !keepStack) d.stack = ""; // bullion always belongs to a stack
   if (d.albumId) delete d.slotId;
   delete d._newStack;
   d.albumId = ""; d.boxId = ""; d.boxRow = ""; d.boxSlot = ""; d.boxTray = ""; delete d._boxFor;
@@ -375,7 +376,7 @@ Object.assign(actions, {
     const tray = Math.round(+el.dataset.tray) || 1;
     if (spotCoin(b.id, el.dataset.row, el.dataset.slot, c.id, tray)) { toast("That spot just got taken."); return; }
     const before = { ...c }, next = { ...c };
-    applyKept(next, "b:" + b.id);
+    applyKept(next, "b:" + b.id, true);
     next.boxRow = String(el.dataset.row); next.boxSlot = String(el.dataset.slot); next.boxTray = trayCount(b) > 1 ? String(tray) : "";
     saveCoin(next); closeSheet(); render();
     toast("Put in " + b.name + ", " + lineWord(b).toLowerCase() + " " + el.dataset.row + ", " + slotWord(b).toLowerCase() + " " + el.dataset.slot + ".", { label: "Undo", fn: () => { saveCoin(before); render(); } });

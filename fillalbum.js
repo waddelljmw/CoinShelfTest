@@ -56,7 +56,7 @@ function openFillAlbum(albumId, fresh) {
     ${mode === "total" ? `<label class="f"><span>Total paid for all the coins</span><input type="number" id="fillTotal" inputmode="decimal" min="0" step="0.01" placeholder="Split evenly across the ticked coins"></label>` : ""}
     <div class="grid2">
       <label class="f"><span>Date acquired</span><input type="date" id="fillDate"></label>
-      <label class="f"><span>Where from</span><input type="text" id="fillSource" list="fillSourceList" value="${esc(a.inherited ? "Inherited" : settings().lastFillSource || "")}" placeholder="optional"></label>
+      <label class="f"><span>Where from</span><input type="text" id="fillSource" list="fillSourceList" value="${esc(a.inherited ? "Inherited" : settings().lastFillSource && !isFaceSource({ source: settings().lastFillSource }) ? settings().lastFillSource : "")}" placeholder="optional"></label>
     </div>
     <div class="chips" style="margin:0 0 6px">${["Pocket change", "Coin roll hunting", "Bank roll"].map((x) => `<button type="button" class="chip" data-act="fillSrc" data-v="${x}">${x}</button>`).join("")}</div>
     <datalist id="fillSourceList">${sourceOptions().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
@@ -140,7 +140,7 @@ function fillSave() {
     saveCoin(c); ids.push(c.id);
   });
   if (typeof ensureIds === "function") ensureIds();
-  if (k.source.trim() && k.source.trim() !== "Inherited" && settings().lastFillSource !== k.source.trim()) saveSettings({ lastFillSource: k.source.trim() }, true); // quick-add remembers your last source
+  if (k.source.trim() && k.source.trim() !== "Inherited" && !isFaceSource({ source: k.source.trim() }) && settings().lastFillSource !== k.source.trim()) saveSettings({ lastFillSource: k.source.trim() }, true); // quick-add remembers your last source
   albumTypes(a).forEach(touchType);
   const gone = typeof dropSpotWants === "function" ? dropSpotWants(a, on.map((r) => spots[r.i])) : [];
   closeSheet();
