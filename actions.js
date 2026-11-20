@@ -1,13 +1,14 @@
 // Toast, click actions, event listeners, app start (split from app.js; plain script, shares the page's global names)
 /* ---------- toast ---------- */
 let toastTimer = null;
+const toastMs = (msg, undo) => Math.min(undo ? 9000 : 6000, (undo ? 5000 : 1500) + Math.max(0, String(msg).length - 40) * 50);
 function toast(msg, action) {
   const t = $("#toast");
   t.innerHTML = `<span>${esc(msg)}</span>${action ? `<button data-act="toastAction">${esc(action.label)}</button>` : ""}`;
   t.hidden = false;
   t._action = action ? action.fn : null;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.hidden = true; }, action ? 15000 : 6000); // messages ~6 seconds, Undo ~15 seconds (R6-7)
+  toastTimer = setTimeout(() => { t.hidden = true; }, toastMs(msg, !!action)); // 123: plain messages ~1.5 seconds, Undo ~5; a long message gets a little longer so it can be read
 }
 
 // Tap the message, or swipe it sideways or down, to close it (the Undo button still works). It never blocks what's under it for long.

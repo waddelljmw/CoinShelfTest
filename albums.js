@@ -267,7 +267,7 @@ function viewAlbum(r) {
       const tag = sw.length ? `<span class="g" style="color:var(--accent)">★ ${spotTag(sw)}</span>` : "";
       return hit
         ? `<button class="slot have${listState.sel ? " sel" + (listState.sel.has(hit.id) ? " on" : "") : ""}" ${listState.sel ? `data-act="selToggle" data-id="${esc(hit.id)}" aria-pressed="${listState.sel.has(hit.id)}"` : `data-act="slotMenu" ${data} data-coin="${esc(hit.id)}"`}>${esc(lab)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${hit.origAlbum ? `<span class="g" style="color:var(--accent)">original</span>` : ""}${tag}</button>`
-        : `<button class="slot" data-act="slotMenu" ${data}${listState.sel ? " disabled" : ""}>${esc(lab)}${vLine}${tag || `<span class="g">open</span>`}</button>`;
+        : `<button class="slot${listState.sel ? " dim" : ""}" data-act="${listState.sel ? "slotNoSel" : "slotMenu"}" ${data}${listState.sel ? ' aria-disabled="true"' : ""}>${esc(lab)}${vLine}${tag || `<span class="g">open</span>`}</button>`;
     }).join("")}</div>
     ${extras.length ? `<h2>Also in this album</h2><div class="list">${extras.map((c) => (listState.sel && typeof selRow === "function" ? selRow(c) : coinRow(c))).join("")}</div>` : ""}
     ${selFootHtmlSafe()}

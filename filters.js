@@ -387,6 +387,7 @@ Object.assign(actions, {
   fixupStop: () => { fixup.on = false; closeSheet(); },
   needInfo: () => { Object.assign(listState, { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", f: { inc: "home" } }); go("coins"); },
   selStart: () => { listState.sel = new Set(); render(); },
+  slotNoSel: () => toast("That spot is empty, so there is nothing to select. Tap Done selecting to add a coin to it."), // 122
   selDone: () => { listState.sel = null; render(); },
   selToggle: (el) => { const id = el.dataset.id; if (listState.sel.has(id)) listState.sel.delete(id); else listState.sel.add(id); render(); },
   selAll: () => { (listState._shown || []).forEach((c) => listState.sel.add(c.id)); render(); },

@@ -394,3 +394,5 @@ html[data-text] .stat .v, html[data-text] .num { overflow-wrap: anywhere; }
 html[data-text] .rowline, html[data-text] .switch { flex-wrap: wrap; }
 html[data-text] .chips { flex-wrap: wrap; overflow-x: visible; }
 html[data-text] .chip { white-space: normal; max-width: 100%; text-align: left; }
+
+.slot.dim { opacity: .55; } /* 122: an empty spot while selecting: tappable, explains itself */

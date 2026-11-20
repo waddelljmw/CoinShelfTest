@@ -351,6 +351,7 @@ function openImport() {
       <div class="muted" style="margin-top:4px">Year and Coin type are needed. Also: Mint, Grade, Qty, Paid each, Value each, Source, Date acquired, Notes, Album, Grading service, Cert number, Variety. A file from <b>Export</b> works as is. Other column names can be matched on the next step.</div>
     </div>
     <label class="btn primary block file-btn" style="display:block;text-align:center">Choose CSV file<input type="file" id="importFile" accept=".csv,.tsv,.txt,text/csv,text/plain"></label>
+    <div class="hint">Takes a spreadsheet saved as CSV (.csv). A Coin Cabinet backup goes under Backup and restore.</div>
     <div class="hint" id="importMsg"></div>`);
 }
 function loadImportText(text, fileName) {
