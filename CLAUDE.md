@@ -11,7 +11,7 @@ Read this, `pipeline/pipeline.json`, and from `PLAN.md` only the "Next session s
 - Teach briefly as we go. If a rename only changes internal names, say it isn't needed and skip it.
 
 ## Chat start (every chat, same order)
-1. Open repo `waddelljmw/CoinShelfTest`. Read this file, `pipeline.json`, PLAN.md line + box. If Notion is on, remind him to turn it off.
+1. Open repo `waddelljmw/CoinShelfTest`. Read this file, `pipeline.json`, PLAN.md line + box. Notion: only say it's on if Notion *tools* are actually callable this chat. Notion skills in the skill list don't count (they show even when his tools are all set to Never, which is off). Don't remind him otherwise.
 2. **Usage:** his reading comes in the start prompt `[session/weekly]`; ask only if missing. It is the **only** reading this chat and it closes the previous chat in `claude-usage-tracking`. Clock times come from the repo (`git log`, `date`), never from him.
 3. **Read the page data** (artifact `d51312cb-ee58-4793-9a5f-4e44aea565bb`; `db_list` collections `ticks`, `notes`, `questions`, `track`): test ticks, new notes, his answers in **Questions for you** and under notes.
 4. **Write a short reply under each new note** (where it went in the queue, or one question). Handle notes ticked "blocks entering coins" **first**. Clear answered questions (`status: "cleared"`).
