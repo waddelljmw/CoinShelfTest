@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-20 (R8 fixes)",
- "app": "v0.101.1",
+ "updated": "2026-11-20 (melt menu)",
+ "app": "v0.101.2",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
   "weekly_now": 74,
@@ -1770,6 +1770,13 @@
    "ver": "v0.101.1",
    "cost": "~1",
    "change": "CSV keeps melt coins following silver; Undo import removes Inherited-from names it made; clearer wrong-type album message. R8-3 (Undo time) left as is, moved to 15c."
+  },
+  {
+   "date": "11-20",
+   "name": "Melt Table in the menu",
+   "ver": "v0.101.2",
+   "cost": "<1",
+   "change": "Melt Table is now a menu item under Coin Value (also still on Home and in Options)."
   }
  ],
  "modes": [
