@@ -49,7 +49,7 @@ const { chromium } = require("./_compat");
   await p.evaluate(() => { go("album-pf"); }); await p.waitForTimeout(150);
   await p.click('.slot:has-text("1977-D")'); await p.click("[data-act=slotHave]"); await p.waitForTimeout(100);
   await p.check("[data-act=toggleProof]"); await p.waitForTimeout(60); await p.selectOption("[data-f=grade]", "PR-65"); await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(150);
-  ok("#5b proof grade blocked in a regular spot", await p.evaluate(() => !!draft && /regular coin/.test(document.querySelector("#toast").textContent)));
+  ok("#5b proof coin may be added to a regular spot (v0.102.1)", await p.evaluate(() => { const c = allCoins().find((x) => String(x.year) === "1977" && x.grade === "PR-65"); return !!c && !/regular coin/.test(document.querySelector("#toast").textContent); }));
   await p.evaluate(() => closeSheet());
   // 6: proof want says proof
   await p.evaluate(() => { ensureDefaultList(); put("w_pw", { kind: "want", id: "pw", typeId: "washington-clad", typeName: "Washington Quarter", year: 1971, mint: "S", pf: true, listId: DEFAULT_LIST_ID, createdAt: 1 }); go("wants"); openWantForm("pw"); });
