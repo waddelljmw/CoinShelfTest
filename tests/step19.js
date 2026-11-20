@@ -1,0 +1,53 @@
+const { chromium } = require("./_compat");
+(async () => {
+  const b = await chromium.launch();
+  const url = "file://" + require("path").resolve(__dirname, "../index.html");
+  const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
+  const errors = [];
+  const A = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage(); A.on("pageerror", (e) => errors.push(e.message));
+  await A.goto(url); await A.waitForTimeout(500);
+  const csv = await A.evaluate(() => {
+    saveSettings({ spot: { ...settings().spot, silver: 40 } });
+    const a = { kind: "album", id: "a1", brand: "Whitman", number: "9128", name: "", typeId: "morgan-dollar", start: 1878, end: 1881, removed: [], createdAt: 1 };
+    a.slots = buildSlots(a.typeId, 1878, 1881); put("a_a1", a); withSlotIds(a);
+    const mk = (o) => saveCoin({ ...blankCoin(), ...o });
+    mk({ id: "v1", typeId: "morgan-dollar", typeName: "Morgan Dollar", family: "Morgan dollar", denom: "$1", year: 1880, mint: "", grade: "XF-40", albumId: "a1", spotVariety: "VAM-6 8/7", metal: "Silver", oz: "0.77344" });
+    mk({ id: "bz", typeId: "washington-silver", typeName: "Washington Quarter", family: "Washington quarter", denom: "25C", year: 1950, grade: "VF-20", biz: true, metal: "Silver", oz: "0.18084", paid: "5" });
+    saveSettings({ inheritances: [{ id: "i1", from: "Grandpa Joe", date: "1975", valueWhen: "", earlier: [] }], inhDefault: "i1" });
+    mk({ id: "in", typeId: "mercury-dime", typeName: "Mercury Dime", family: "Mercury dime", denom: "10C", year: 1941, grade: "VF-20", source: "Inherited", inhId: "i1", inhValue: "12", metal: "Silver", oz: "0.07234" });
+    mk({ id: "jk", typeId: "roosevelt-silver", typeName: "Roosevelt Dime (silver)", family: "Roosevelt dime", denom: "10C", year: 1960, grade: "Junk", gradeMode: "raw", metal: "Silver", oz: "0.07234", qty: 10, paid: "3" });
+    return toCsv();
+  });
+  ok("export has Album spot variety", /Album spot variety/.test(csv.split("\n")[0]));
+  const junkRow = csv.split("\n").find((l) => /Roosevelt/.test(l));
+  ok("melt coin row carries a Value each (0.07234 x 40 = 2.89)", /2\.89/.test(junkRow));
+  const B = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage(); B.on("pageerror", (e) => errors.push(e.message));
+  await B.goto(url); await B.waitForTimeout(500);
+  const r = await B.evaluate(async (csv) => {
+    saveSettings({ spot: { ...settings().spot, silver: 40 } });
+    const a = { kind: "album", id: "b1", brand: "Whitman", number: "9128", name: "", typeId: "morgan-dollar", start: 1878, end: 1881, removed: [], createdAt: 1 };
+    a.slots = buildSlots(a.typeId, 1878, 1881); put("a_b1", a); withSlotIds(a);
+    loadImportText(csv, "x.csv");
+    await doImport();
+    await new Promise((x) => setTimeout(x, 300));
+    const all = allCoins();
+    const f = (y) => all.find((c) => c.year == y);
+    const jk = f(1960), v = f(1880), bz = f(1950), inh = f(1941);
+    return { vAlbum: v.albumId, vSpot: v.spotVariety, biz: !!bz.biz, inhName: inhLabel(inheritanceOf(inh)), inhVal: inhValueOf(inh), jkValue: jk.value, jkBest: bestEach(jk), inhCount: inheritances().length };
+  }, csv);
+  console.log(JSON.stringify(r));
+  ok("coin is back in its album", r.vAlbum === "b1");
+  ok("album spot variety kept", r.vSpot === "VAM-6 8/7");
+  ok("Business tag kept", r.biz === true);
+  ok("Inherited from kept", /Grandpa Joe/.test(r.inhName));
+  ok("Value when inherited kept", r.inhVal === 12);
+  ok("melt coin stays melt-valued (not frozen)", r.jkValue === "" && Math.abs(r.jkBest - 2.8936) < 0.01);
+  // missing album: reported
+  const C = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage(); C.on("pageerror", (e) => errors.push(e.message));
+  await C.goto(url); await C.waitForTimeout(500);
+  const msg = await C.evaluate(async (csv) => { loadImportText(csv, "x.csv"); const html = document.getElementById("sheet") ? document.getElementById("sheet").innerText : ""; await doImport(); await new Promise((x) => setTimeout(x, 200)); return { html, toast: document.getElementById("toast").innerText, albumLess: allCoins().filter((c) => !c.albumId).length }; }, csv);
+  ok("preview says the album isn't here yet", /isn't here yet/.test(msg.html));
+  ok("import message names missing albums", /named an album that isn't here/.test(msg.toast));
+  ok("no page errors", errors.length === 0);
+  await b.close();
+})();

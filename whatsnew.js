@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.100.0": [
+    "Spreadsheet export and import now keep more: Business or Personal, Inherited from, the album spot variety, and the value of coins worth their melt. Coins whose album is not on the phone are listed in the import message.",
+  ],
   "0.99.0": [
     "New Melt table: common silver coins (dimes, quarters, halves, dollars, war nickels) with what each is worth as metal at your silver price. Open it from Home's melt section or from Options > Spot prices.",
   ],

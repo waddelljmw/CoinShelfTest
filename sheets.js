@@ -68,6 +68,7 @@ const SHEET_COLS = [
   { key: "receiptNo", head: "Receipt number", names: ["receiptnumber", "receipt", "invoice", "invoicenumber", "ordernumber"] },
   { key: "acquired", head: "Date acquired", names: ["dateacquired", "acquired", "purchasedate", "datepurchased", "dateadded", "bought"] },
   { key: "album", head: "Album", names: ["album", "folder", "binder"] },
+  { key: "spotVar", head: "Album spot variety", names: ["albumspotvariety", "spotvariety"] }, // R5-8: which variety spot the coin sits in (its date and mint are the Year and Mint columns)
   { key: "notes", head: "Notes", names: ["notes", "note", "comments", "comment", "memo"] },
   { key: "goneReason", head: "Gone reason", names: ["gonereason"] },
   { key: "goneDate", head: "Gone date", names: ["gonedate"] },
@@ -82,11 +83,11 @@ const SHEET_COLS = [
   { key: "soldTrack", head: "Sold tracking number", names: ["soldtrackingnumber"], exportOnly: true },
   { key: "soldProfit", head: "Profit", names: ["profit"], exportOnly: true },
   { key: "askPrice", head: "Asking price", names: ["askingprice"], exportOnly: true },
-  { key: "bizGroup", head: "Business / Personal", names: ["businesspersonal"], exportOnly: true },
+  { key: "bizGroup", head: "Business / Personal", names: ["businesspersonal"] },
   { key: "showSold", head: "Show", names: ["show"], exportOnly: true },
   { key: "showBought", head: "Bought at show", names: ["boughtatshow"], exportOnly: true },
-  { key: "inhFrom", head: "Inherited from", names: ["inheritedfrom"], exportOnly: true },
-  { key: "inhValue", head: "Value when inherited", names: ["valuewheninherited"], exportOnly: true },
+  { key: "inhFrom", head: "Inherited from", names: ["inheritedfrom"] },
+  { key: "inhValue", head: "Value when inherited", names: ["valuewheninherited"] },
   { key: "insurance", head: "Insurance", names: ["insurance", "insurancecost"] },
   { key: "soldWhere", head: "Sold where", names: ["soldwhere", "wheresold", "soldon", "soldvia", "platform", "venue"] },
   { key: "soldTo", head: "Sold to", names: ["soldto", "buyer", "buyername", "customer", "purchaser"] },
@@ -99,6 +100,7 @@ function csvCell(v) {
   const s = String(v ?? "");
   return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
+const meltValued = (c) => num(c.value) == null && meltEach(c) != null && bestEach(c) === meltEach(c);
 function coinToRow(c) {
   const a = c.albumId ? getAlbum(c.albumId) : null;
   const s = c.sold || {};
@@ -109,9 +111,9 @@ function coinToRow(c) {
     catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", valueFrom: valueFromText(c.valueFrom), fav: c.fav ? "Yes" : "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: (c.grade === "Other" ? c.customGrade : c.grade) || (c.noGrade ? (isFaceSource(c) ? "Circulated" : "Not graded") : ""), service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
-    cert: c.cert, cac: cacOf(c), holder: holderOf(c), keptIn: keptName(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", noDate: c.noDate === "worn" ? "Too worn" : c.noDate === "none" ? "Never had a date" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: c.value,
+    cert: c.cert, cac: cacOf(c), holder: holderOf(c), keptIn: keptName(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", noDate: c.noDate === "worn" ? "Too worn" : c.noDate === "none" ? "Never had a date" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: meltValued(c) ? meltEach(c).toFixed(2) : c.value, // R4-29: a coin worth its melt shows that number in Value each (re-import sees it is melt and keeps it live)
     redBook: rb ?? "", meltEach: m == null ? "" : m.toFixed(2), source: (c.source || "").trim(), acquired: c.acquired,
-    album: a ? albumTitle(a) : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance, soldWhere: c.sold ? whereText(c.sold) : "", soldTo: s.to || "", shipCharged: s.shipCharged ?? "", soldFees: s.fees ?? "", soldTax: s.salesTax ?? "", soldPay: s.payMethod || "", bizGroup: isInherited(c) ? "" : isBiz(c) ? "Business" : "Personal", showSold: s.showId && typeof getShow === "function" && getShow(s.showId) ? getShow(s.showId).name : "", showBought: c.boughtShowId && typeof getShow === "function" && getShow(c.boughtShowId) ? getShow(c.boughtShowId).name : "", soldOrder: s.orderNo || "", soldTrack: s.trackNo || "", soldProfit: c.status === "sold" && !isInherited(c) && typeof saleProfit === "function" ? saleProfit(c) : "", askPrice: c.ask || "", inhFrom: isInherited(c) && typeof inheritanceOf === "function" && inheritanceOf(c) ? inhLabel(inheritanceOf(c)) : "", inhValue: isInherited(c) && typeof inhValueOf === "function" ? (inhValueOf(c) ?? "") : "",
+    album: a ? albumTitle(a) : "", spotVar: a ? c.spotVariety || "" : "", notes: c.notes, soldDate: s.date, soldAmount: s.amount, shipping: s.shipping, insurance: s.insurance, soldWhere: c.sold ? whereText(c.sold) : "", soldTo: s.to || "", shipCharged: s.shipCharged ?? "", soldFees: s.fees ?? "", soldTax: s.salesTax ?? "", soldPay: s.payMethod || "", bizGroup: isInherited(c) ? "" : isBiz(c) ? "Business" : "Personal", showSold: s.showId && typeof getShow === "function" && getShow(s.showId) ? getShow(s.showId).name : "", showBought: c.boughtShowId && typeof getShow === "function" && getShow(c.boughtShowId) ? getShow(c.boughtShowId).name : "", soldOrder: s.orderNo || "", soldTrack: s.trackNo || "", soldProfit: c.status === "sold" && !isInherited(c) && typeof saleProfit === "function" ? saleProfit(c) : "", askPrice: c.ask || "", inhFrom: isInherited(c) && typeof inheritanceOf === "function" && inheritanceOf(c) ? inhLabel(inheritanceOf(c)) : "", inhValue: isInherited(c) && typeof inhValueOf === "function" ? (inhValueOf(c) ?? "") : "",
   };
 }
 // Everyday columns come first; the rest follow in the usual order. Columns that are empty for every coin are left out.
@@ -307,6 +309,17 @@ function rowToCoin(get) {
     c.sold.to = String(get("soldTo") || "").trim();
   }
   c._albumName = String(get("album") || "").trim();
+  if (c._albumName && txt("spotVar")) c.spotVariety = txt("spotVar"); // R5-8
+  if (/^business/i.test(txt("bizGroup"))) c.biz = true; // R4-29
+  // R4-29: a Value each that is only the melt value goes back to being worked out from melt (so it follows the silver price).
+  if (num(c.value) != null && !txt("valueFrom") && (isJunk(c) || (meltEach(c) != null && Math.abs(num(c.value) - meltEach(c)) < 0.005))) c.value = "";
+  // R4-29: "Inherited from" and "Value when inherited" (only for coins whose Where from is Inherited).
+  if (isInherited(c)) {
+    const who = txt("inhFrom");
+    if (who) { c._inhName = who; }
+    const iv = money2(get("inhValue"));
+    if (iv !== "") c.inhValue = String(iv);
+  }
   return { coin: c, typeMatched: !!t, typeText };
 }
 // "Coin show: FUN Show" → Coin show + detail; "ebay live" → eBay Live; anything else → Other.
@@ -398,6 +411,7 @@ function renderImport() {
       if (isDuplicate(c)) flags.push("looks like one you have");
       const ia = c._albumName && albums().find((a) => squash(albumTitle(a)) === squash(c._albumName));
       if (ia && !albumHasType(ia, c.typeId)) flags.push("album " + albumTitle(ia) + " is for other coin types, so it won't go in it");
+      else if (c._albumName && !ia) flags.push("album " + c._albumName + " isn't here yet");
       const v = bestEach(c);
       return `<label class="coin-row" style="cursor:pointer"><input type="checkbox" data-impskip="${i}" ${imp.skip.has(i) ? "" : "checked"} style="width:20px;height:20px;accent-color:var(--accent)">
         <span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span>
@@ -405,6 +419,14 @@ function renderImport() {
         <span class="coin-val">${money(v == null ? null : v * qtyOf(c))}</span></label>`;
     }).join("")}</div>
     <div class="btn-row"><button class="btn primary" data-act="doImport" ${nNew ? "" : "disabled"}>Import ${nNew} row${nNew === 1 ? "" : "s"} (${coinsN} coin${coinsN === 1 ? "" : "s"})</button><button class="btn" data-act="closeSheet">Cancel</button></div>`}`);
+}
+// The inheritance with this "From, date" label (as the export writes it); one is made if it isn't there yet, using the label as the "from" words.
+function inhIdForName(name) {
+  const hit = inheritances().find((i) => squash(inhLabel(i)) === squash(name));
+  if (hit) return hit.id;
+  const rec = { id: uid(), from: name, date: "", valueWhen: "", earlier: [] };
+  saveSettings({ inheritances: [...inheritances(), rec], inhDefault: inhDefaultId() || rec.id });
+  return rec.id;
 }
 async function doImport() {
   const parsed = importCoins();
@@ -415,12 +437,15 @@ async function doImport() {
   closeSheet();
   toast("Importing " + chosen.length + " rows…");
   const ids = [];
-  let noSpot = 0, idClash = 0;
+  let noSpot = 0, idClash = 0, noAlbum = 0;
   const seenId = new Set(); // keep the first coin with an ID, report the rest
   for (const c of chosen) {
     const an = c._albumName; delete c._albumName;
+    const inhName = c._inhName; delete c._inhName;
+    if (inhName) c.inhId = inhIdForName(inhName);
     // Only into an album made for this coin's type.
     if (an && albumByName.has(squash(an)) && albumHasType(getAlbum(albumByName.get(squash(an))), c.typeId)) c.albumId = albumByName.get(squash(an));
+    else if (an) { noAlbum++; delete c.spotVariety; } // R4-29: the album isn't here (or is for another coin type), so the coin comes in without one
     // Into a 2x2 storage box by name, only if that spot is free.
     const bn = c._boxName; delete c._boxName;
     const bx = bn && typeof allBoxes === "function" && allBoxes().find((b) => squash(b.name) === squash(bn));
@@ -440,7 +465,7 @@ async function doImport() {
   const anySold = chosen.some((c) => c.status === "sold");
   if (anySold && !settings().soldAutoDone) saveSettings({ showSold: true, soldAutoDone: true });
   go("coins");
-  toast("Imported " + ids.length + " rows." + (dropped ? " Skipped " + dropped + " with a year that doesn't fit." : "") + (idClash ? " " + idClash + " ID" + (idClash === 1 ? " was" : "s were") + " already used, so " + (idClash === 1 ? "that coin " : "those coins ") + (idStyle() === "off" ? "have no ID." : "got a new one.") : "") + (noSpot ? " " + noSpot + " couldn't go in their box spot (taken or missing), so they're not in a box." : ""), { label: "Undo", fn: () => undoImport(true) });
+  toast("Imported " + ids.length + " rows." + (dropped ? " Skipped " + dropped + " with a year that doesn't fit." : "") + (idClash ? " " + idClash + " ID" + (idClash === 1 ? " was" : "s were") + " already used, so " + (idClash === 1 ? "that coin " : "those coins ") + (idStyle() === "off" ? "have no ID." : "got a new one.") : "") + (noSpot ? " " + noSpot + " couldn't go in their box spot (taken or missing), so they're not in a box." : "") + (noAlbum ? " " + noAlbum + " named an album that isn't here (make the album first, same name), so " + (noAlbum === 1 ? "it is" : "they are") + " not in an album." : ""), { label: "Undo", fn: () => undoImport(true) });
 }
 // Imported rows you haven't changed since. Edited coins leave the batch (see saveCoin).
 const importLeft = (li) => li.ids.map(getCoin).filter((c) => c && c.importBatch === li.batch && c.status !== "deleted");

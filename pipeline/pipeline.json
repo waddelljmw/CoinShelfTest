@@ -1,9 +1,9 @@
 {
  "updated": "2026-11-19 (overnight run)",
- "app": "v0.98.0",
+ "app": "v0.100.0",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-  "weekly_now": 73,
+  "weekly_now": 77,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1123,8 +1123,8 @@
    "name": "Melt page for common coins (idea 113)",
    "model": "Sonnet",
    "est": "2–3",
-   "actual": "",
-   "status": "next",
+   "actual": "~2 (est.)",
+   "status": "done",
    "why": "His own idea: a page like the melt sites he uses. Common coins with today's melt, based on the silver price on Home. No saved data.",
    "items": [
     {
@@ -1140,7 +1140,11 @@
     "Change the silver price in Options: the page numbers change.",
     "Check one coin by hand: weight x silver % x price."
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "Thu 11-19 11:19pm",
+   "ended": "Thu 11-19 11:50pm",
+   "minutes": 31,
+   "chats": 1
   },
   {
    "n": 19,
@@ -1148,8 +1152,8 @@
    "name": "CSV round trip (R4-29, R5-8)",
    "model": "Sonnet",
    "est": "2–3",
-   "actual": "",
-   "status": "queued",
+   "actual": "~2 (est.)",
+   "status": "done",
    "why": "The spreadsheet export loses things when you import it again. Placed late on purpose: if it needs a new saved field it stops and asks, so nothing behind it waits.",
    "items": [
     {
@@ -1172,7 +1176,11 @@
     "In ?demo, export CSV, then import it into a fresh ?demo copy: album, Business and Inherited coins come back the same.",
     "Check a variety spot coin lands in its spot."
    ],
-   "chat": "New Sonnet chat"
+   "chat": "New Sonnet chat",
+   "started": "Thu 11-19 11:50pm",
+   "ended": "Fri 11-20 12:10am",
+   "minutes": 20,
+   "chats": 1
   },
   {
    "n": 20,
@@ -1181,7 +1189,7 @@
    "model": "Sonnet",
    "est": "2",
    "actual": "",
-   "status": "queued",
+   "status": "next",
    "why": "His own idea: use the coin's own photo on its album spot. Last in line; stops and asks if it needs a new saved field (part 2, picking obverse or reverse, is a saved field and stays in Later for Opus).",
    "items": [
     {
@@ -1655,6 +1663,20 @@
    "ver": "v0.98.0",
    "cost": "~1 est. (Sonnet)",
    "change": "Search any coin says You own N and the card lists where each one is, tap to open it."
+  },
+  {
+   "date": "11-19",
+   "name": "Melt page for common coins (idea 113)",
+   "ver": "v0.99.0",
+   "cost": "~2 est. (Sonnet)",
+   "change": "New Melt table page: common silver coins with melt at your silver price, linked from Home and Options."
+  },
+  {
+   "date": "11-19",
+   "name": "CSV round trip (R4-29, R5-8)",
+   "ver": "v0.100.0",
+   "cost": "~2 est. (Sonnet)",
+   "change": "CSV round trip keeps Business tag, Inherited from and its value, album spot variety, melt-coin values; missing albums are named in the import message. No new saved fields."
   }
  ],
  "modes": [
