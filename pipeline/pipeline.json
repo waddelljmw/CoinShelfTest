@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-20 (15d fix check fixes done)",
+ "updated": "2026-11-20 (step 21 added: Personal/Business on For sale)",
  "app": "v0.101.3",
  "week": {
   "label": "Tue 11-17 1pm → Tue 11-24 1pm",
@@ -1279,7 +1279,7 @@
    "model": "Sonnet",
    "est": "1–2",
    "actual": "",
-   "status": "next",
+   "status": "queued",
    "when": "Sat 11-21",
    "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
    "items": [
@@ -1460,6 +1460,31 @@
    "started": "Fri 11-20 10:36am",
    "ended": "Fri 11-20 ~10:55am",
    "minutes": 19
+  },
+  {
+   "n": 21,
+   "stage": "testers",
+   "name": "Personal or Business on For sale (130)",
+   "model": "Sonnet",
+   "est": "~1",
+   "actual": "",
+   "status": "next",
+   "chat": "New Sonnet chat",
+   "why": "Sellers will be testers. When a coin goes For sale, they should see Personal or Business right there so Business totals and tax reports stay right.",
+   "items": [
+    {
+     "id": "130",
+     "size": "S",
+     "what": "Personal / Business switch where a coin goes For sale",
+     "change": "With Seller Mode on, the For sale screen shows a small Personal / Business switch, starting on what the coin already is. Uses the existing Business setting, no new saved field. Hidden when Seller Mode is off or the coin is inherited.",
+     "affects": "For sale screen, Seller Mode"
+    }
+   ],
+   "try": [
+    "In ?demo, turn on Seller Mode, put a coin For sale: a Personal / Business switch shows.",
+    "Choose Business, save: the coin shows in Business stock.",
+    "Seller Mode off: no switch."
+   ]
   },
   {
    "n": "4b",
