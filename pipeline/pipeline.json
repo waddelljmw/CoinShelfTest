@@ -1279,7 +1279,7 @@
    "model": "Sonnet",
    "est": "1–2",
    "actual": "",
-   "status": "queued",
+   "status": "next",
    "when": "Sat 11-21",
    "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
    "items": [
@@ -1311,7 +1311,7 @@
    "model": "Opus",
    "est": "3-5",
    "actual": "",
-   "status": "next",
+   "status": "queued",
    "chat": "New Opus chat",
    "when": "after step 4",
    "why": "Tell \"no mint mark\", \"P\" and \"can't tell\" apart and add a Skip in Fix-up tick, without breaking your 500+ saved coins. One Opus chat plans it, then builds it.",
