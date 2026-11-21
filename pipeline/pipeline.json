@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-20 (step 22 fill-ins)",
+  "updated": "2026-11-20 (Share check added to 4b and the pre-tester checks)",
   "app": "v0.103.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
@@ -1616,6 +1616,13 @@
           "what": "Tester copy behind sign-in",
           "change": "Tester copy on Cloudflare Pages (free) behind Cloudflare Access (free up to 50 users): testers sign in with an email code; you can remove anyone. Shows \"Tester copy for [name]\". Code made private only once your own app no longer depends on the public GitHub site (making it private now would take your phone app offline).",
           "affects": "Where testers open the app; your own app is not moved without a backup and your OK"
+        },
+        {
+          "id": "note 11-20",
+          "size": "S",
+          "what": "Share buttons off, no switch, in the tester copy",
+          "change": "The tester copy has Share the app and Share a snapshot hidden from the start, and the Hide Share switch is taken out of Options so testers can't turn Share back on. Your own copy keeps Share.",
+          "affects": "Tester copy, Options"
         }
       ],
       "try": [
@@ -2128,7 +2135,8 @@
       "Backup made in the last 7 days and a restore tried",
       "Fresh-start repo done (step 4)",
       "Private tester copy works and refuses a stranger (step 4b)",
-      "Welcome PDF and survey link ready"
+      "Welcome PDF and survey link ready",
+      "Share buttons hidden and the Hide Share switch removed in the tester copy (step 4b)"
     ]
   },
   "checkin": {
