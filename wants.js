@@ -106,14 +106,14 @@ const getAlbumWant = (id) => store.docs.get("aw_" + id);
 const awLabel = (x) => [x.brand, x.number && "No. " + x.number, x.name].filter(Boolean).join(" ") || "Album";
 function albumWishHtml() {
   const list = albumWants();
-  return `<h2 style="margin-top:22px">Albums you want</h2>
+  return `<h2 style="margin-top:22px;padding-top:14px;border-top:1px solid var(--line)">Albums you want to buy</h2>
     ${list.length ? `<div class="list">${list.map((x) => `<div class="coin-row" style="display:block">
       <span class="coin-main"><span class="coin-label">${esc(awLabel(x))}</span>${x.notes ? `<span class="coin-sub" style="white-space:normal">${esc(x.notes)}</span>` : ""}</span>
       <div style="display:flex;gap:14px;margin-top:8px;font-size:14px">
         <button class="link-btn" data-act="awGot" data-id="${esc(x.id)}">Got it</button>
         <button class="link-btn" data-act="awEdit" data-id="${esc(x.id)}">Edit</button>
-        <button class="link-btn" style="color:var(--bad)" data-act="awRemove" data-id="${esc(x.id)}">Remove</button></div></div>`).join("")}</div>` : `<div class="small muted" style="margin:4px 2px 8px">Albums you'd like to buy (brand, number, name) go here.</div>`}
-    <button class="btn block" data-act="awNew">+ Add an album you want</button>`;
+        <button class="link-btn" style="color:var(--bad)" data-act="awRemove" data-id="${esc(x.id)}">Remove</button></div></div>`).join("")}</div>` : `<div class="small muted" style="margin:4px 2px 8px">This is a shopping list for physical albums (brand, number, name). It is separate from the coins above.</div>`}
+    <button class="btn block" data-act="awNew">+ Add an album to buy</button>`;
 }
 function openAlbumWantForm(id) {
   const x = id ? getAlbumWant(id) : null;
@@ -181,7 +181,7 @@ function renderWlScopeFields() {
   const tpl = $("#wlTypeOpts");
   const typeOpts = tpl ? tpl.innerHTML : "";
   if (sel.value === "any") { box.innerHTML = ""; return; }
-  box.innerHTML = `<label class="f"><span>Coin type</span><select name="typeId" required>${typeOpts}</select></label>`
+  box.innerHTML = `<div class="f"><span>Coin type</span>${typeSelect("typeId", "")}</div>`
     + (sel.value === "type-grade" ? `<label class="f"><span>Grade</span><select name="grade" required><option value="">Choose…</option>${GRADES.filter((g) => g !== "Junk").map((g) => `<option>${g}</option>`).join("")}</select></label>` : "");
 }
 function saveNewList(form) {
@@ -257,7 +257,7 @@ function openWantForm(id, prefill) {
   <form id="wantForm" data-id="${esc(id || "")}">
     ${w && w.pf ? `<div class="banner" style="margin:0 0 8px">This want is for a <b>proof</b> coin.</div>` : ""}
     <label class="f"><span>List</span><select name="listId" id="wantListPick" data-prev="${esc(curList.id)}">${lists.map((l) => `<option value="${esc(l.id)}" ${(d.listId || curList.id) === l.id ? "selected" : ""}>${esc(l.name)}</option>`).join("")}<option value="__new">+ New list…</option></select></label>
-    <label class="f"><span>Coin type</span><select name="typeId" required ${lockType ? "disabled" : ""}>${opts}</select></label>
+    <div class="f"><span>Coin type</span>${lockType ? `<input type="text" disabled value="${esc(TYPE_BY_ID[d.typeId] ? TYPE_BY_ID[d.typeId].name : "")}">` : typeSelect("typeId", d.typeId)}</div>
     ${lockType ? `<input type="hidden" name="typeId" value="${esc(d.typeId)}"><div class="hint">${w ? "The coin type can't change once it's on your want list. Remove it and add a new one if it's wrong." : "This list is for " + esc(TYPE_BY_ID[d.typeId] ? TYPE_BY_ID[d.typeId].name : "one coin type") + (lockGrade ? " in " + esc(d.grade) : "") + " only."}</div>` : ""}
     <div class="grid2">
       <label class="f"><span>Year</span><input type="number" inputmode="numeric" name="year" value="${esc(d.year || "")}" placeholder="Any"></label>

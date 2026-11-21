@@ -147,28 +147,35 @@ function renderTiles(){
  $("tbk").onclick=()=>save(()=>DB.doc("track/main").set({...S.track,backupDate:today()}));
 }
 function renderTest(){
- const items=[];D.steps.filter(s=>s.status==="done"&&s.try).forEach(s=>s.try.forEach((x,i)=>items.push({id:`s${s.n}-${i}`,step:s,t:x})));
+ const items=[];const TH=D.test_help||{};D.steps.filter(s=>s.status==="done"&&s.try).forEach(s=>s.try.forEach((x,i)=>{const id=`s${s.n}-${i}`,hp=TH[id]||{};const aff=((s.items||[])[0]||{}).affects;items.push({id,step:s,t:hp.text||x,where:hp.where||aff||""})}));
  const done=items.filter(i=>S.ticks[i.id]).length;
  let h=`<div class="card"><b>Test checklist</b> <span class="small">${done} of ${items.length} ticked</span><div class="bar"><i style="width:${items.length?100*done/items.length:0}%"></i></div><div class="sub">Do one block when you have 10–15 minutes. Use the safe test app: <a href="https://waddelljmw.github.io/CoinShelfTest/?demo">?demo link</a> (nothing is saved).</div></div>`;
- for(let b=0;b*5<items.length;b++){const g=items.slice(b*5,b*5+5);const gd=g.filter(i=>S.ticks[i.id]).length;
-  h+=`<details class="step"${gd<g.length&&!document.querySelector("#test details[open]")&&b===0?" open":""}><summary><div class="st-top"><div class="st-name">Block ${b+1} · about ${Math.round(g.length*2.5)} min</div><div class="st-cost"><b>${gd}/${g.length}</b></div></div></summary><div style="padding:0 14px 8px">`+
-  g.map(i=>`<label class="chk${S.ticks[i.id]?" d":""}"><input type="checkbox" data-id="${i.id}"${S.ticks[i.id]?" checked":""}><span><span class="small">Step ${esc(i.step.n)}: ${esc(i.step.name)}</span><br>${esc(i.t)}</span></label>`).join("")+`</div></details>`}
+ const blk=[];for(let b=0;b*5<items.length;b++)blk.push({b,g:items.slice(b*5,b*5+5)});
+ const isP=x=>x.g.every(i=>S.ticks[i.id]);const act=blk.filter(x=>!isP(x)),pas=blk.filter(isP);
+ const row=i=>`<label class="chk${S.ticks[i.id]?" d":""}"><input type="checkbox" data-id="${i.id}"${S.ticks[i.id]?" checked":""}><span><span class="small">Step ${esc(i.step.n)}: ${esc(i.step.name)}</span>${i.where?`<br><span class="small">📍 Where: ${esc(i.where)}</span>`:""}<br>${esc(i.t)}</span></label>`;
+ act.forEach((x,k)=>{const gd=x.g.filter(i=>S.ticks[i.id]).length;
+  h+=`<details class="step"${k===0&&!document.querySelector("#test details[open]")?" open":""}><summary><div class="st-top"><div class="st-name">Block ${x.b+1} · about ${Math.round(x.g.length*2.5)} min</div><div class="st-cost"><b>${gd}/${x.g.length}</b></div></div></summary><div style="padding:0 14px 8px">`+x.g.map(row).join("")+`</div></details>`});
+ if(pas.length){h+=`<h2>Passed (${pas.length})</h2>`+pas.map(x=>`<details class="step"><summary><div class="st-top"><div class="st-name">Block ${x.b+1} ✓ passed</div><div class="st-cost"><button class="btn alt" data-react="${x.b}">Reactivate</button></div></div></summary><div style="padding:0 14px 8px">`+x.g.map(row).join("")+`</div></details>`).join("")}
  const g=D.green_light;
  h+=`<h2>Tester green light</h2><div class="card"><div class="small">${esc(g.note)}</div>`+g.checks.map((c,i)=>`<label class="chk${S.ticks["g"+i]?" d":""}"><input type="checkbox" data-id="g${i}"${S.ticks["g"+i]?" checked":""}><span>${i+1}. ${esc(c)}</span></label>`).join("")+`<div class="big" style="margin-top:8px">${g.checks.every((c,i)=>S.ticks["g"+i])?"🟢 Ready for testers":"🔴 Not yet: "+g.checks.filter((c,i)=>!S.ticks["g"+i]).length+" left"}</div></div>`;
  const open=[...document.querySelectorAll("#test details")].map(d=>d.open);
  $("test").innerHTML=h;$("test").querySelectorAll("details").forEach((d,i)=>{if(open[i]!==undefined)d.open=open[i]});
  $("test").querySelectorAll("input[data-id]").forEach(c=>c.onchange=()=>tickSet(c.dataset.id,c.checked));
+ $("test").querySelectorAll("[data-react]").forEach(bt=>bt.onclick=e=>{e.preventDefault();e.stopPropagation();const b=+bt.dataset.react;items.slice(b*5,b*5+5).forEach(i=>tickSet(i.id,false))});
 }
 function renderNotes(){
  const sorted=n=>n.sorted===true;const list=[...S.notes].sort((a,b)=>(sorted(a)-sorted(b))||((b.at||0)-(a.at||0)));
  let h=`<div class="card"><b>Notes inbox</b><div class="sub">Type or dictate an idea. Claude reads new notes at the start of each coin chat and replies under each.</div><textarea id="nt" placeholder="Your note"></textarea><label class="chk" style="border:0"><input type="checkbox" id="nb"><span>This blocks entering coins</span></label><div class="row"><button class="btn alt" id="mic" ${dict?"":"hidden"}>🎤 Dictate</button><button class="btn" id="ns">Save note</button></div></div>`;
  if(!list.length)h+=`<div class="sub">No notes yet.</div>`;
- list.forEach(n=>{h+=`<div class="card"><div>${n.blocks?'<span class="chip now">blocks entering coins</span>':""}${sorted(n)?'<span class="chip done">sorted</span>':'<span class="chip queued">unsorted</span>'}</div><div style="margin:6px 0">${esc(n.text)}</div>`+
+ list.forEach(n=>{h+=`<div class="card"><div>${n.blocks?'<span class="chip now">blocks entering coins</span>':""}${sorted(n)?'<span class="chip done">sorted</span>':'<span class="chip queued">unsorted</span>'}</div>${S.ed===n.id?`<textarea id="ne-${n.id}" style="min-height:56px">${esc(n.text)}</textarea><div class="row"><button class="btn" data-nes="${n.id}">Save</button><button class="btn alt" data-nec="1">Cancel</button></div>`:`<div style="margin:6px 0">${esc(n.text)}</div>${n.reply?"":`<button class="btn alt" data-ne="${n.id}">Edit</button>`}`}`+
   (n.reply?`<div class="reply"><b>Claude:</b> ${esc(n.reply)}${n.sortedTo?`<div class="small">Went to: ${esc(n.sortedTo)}</div>`:""}</div>`:`<div class="small">Claude hasn't read this yet.</div>`)+
   (n.answer?`<div class="reply">You: ${esc(n.answer)}</div>`:"")+
   `<textarea id="na-${n.id}" placeholder="Reply to Claude" style="min-height:56px"></textarea><div class="row"><button class="btn alt" data-na="${n.id}">Send reply</button></div></div>`});
  const keep=$("nt")?$("nt").value:"";$("notes").innerHTML=h;$("nt").value=keep;
  $("ns").onclick=async()=>{const v=$("nt").value.trim();if(!v)return;if(await save(()=>DB.collection("notes").add({text:v,blocks:$("nb").checked,at:Date.now(),sorted:false}))){$("nt").value="";$("nb").checked=false}};
+ $("notes").querySelectorAll("[data-ne]").forEach(b=>b.onclick=()=>{S.ed=b.dataset.ne;renderNotes()});
+ $("notes").querySelectorAll("[data-nec]").forEach(b=>b.onclick=()=>{S.ed=null;renderNotes()});
+ $("notes").querySelectorAll("[data-nes]").forEach(b=>b.onclick=async()=>{const v=$("ne-"+b.dataset.nes).value.trim();if(v&&await save(()=>DB.doc("notes/"+b.dataset.nes).update({text:v,editedAt:Date.now()}))){S.ed=null;renderNotes()}});
  $("notes").querySelectorAll("[data-na]").forEach(b=>b.onclick=async()=>{const v=$("na-"+b.dataset.na).value.trim();if(v)await save(()=>DB.doc("notes/"+b.dataset.na).update({answer:v,answeredAt:Date.now()}))});
  if(dict&&$("mic"))$("mic").onclick=()=>{dict.start().catch(()=>{})};
 }

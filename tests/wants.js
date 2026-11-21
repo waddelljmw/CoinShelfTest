@@ -9,7 +9,7 @@ const { chromium } = require("./_compat");
   console.log("empty:", (await p.textContent(".card.empty")).trim());
   // add by hand
   await p.click("[data-act=wantNew]");
-  await p.selectOption("#wantForm [name=typeId]", "morgan-dollar"); await p.fill("#wantForm [name=year]", "1893"); await p.selectOption("#wantForm [name=mint]", "CC");
+  await p.evaluate(() => { document.querySelector("#wantForm [name=typeId]").value = "morgan-dollar"; }); await p.fill("#wantForm [name=year]", "1893"); await p.selectOption("#wantForm [name=mint]", "CC");
   await p.selectOption("#wantForm [name=grade]", "VF-20"); await p.fill("#wantForm [name=maxPrice]", "900"); await p.fill("#wantForm [name=notes]", "original surfaces");
   await p.click("#wantForm button[type=submit]"); await p.waitForTimeout(200);
   console.log("row:", (await p.textContent(".coin-row")).replace(/\s+/g, " ").trim());

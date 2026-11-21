@@ -100,7 +100,7 @@ function fltChips() {
   else if (f.gFrom || f.gTo) add("grade", "Grade " + (f.gFrom || "any") + " to " + (f.gTo || "any"));
   if (f.vFrom || f.vTo) add("value", "Value " + (f.vFrom ? "$" + f.vFrom : "…") + "–" + (f.vTo ? "$" + f.vTo : "…"));
   if (f.fav) add("fav", "Favorites only");
-  if (f.inc) add("inc", f.inc === "home" ? "Needs info (in Home totals)" : "Needs info");
+  if (f.inc) add("inc", f.inc === "home" ? "Needs attention (in Home totals)" : "Needs attention");
   if ((f.probs || []).length) add("probs", FLT_PROBS.filter(([k]) => f.probs.includes(k)).map(([, l]) => l).join(" or "));
   return out;
 }
@@ -187,7 +187,7 @@ function openFilterPanel() {
     ${customGrades.length ? field("Custom grade", sel("gCustom", "Any", customGrades, f.gCustom || "")) : ""}
     <div class="grid2">${field("Value from ($)", `<input type="number" inputmode="decimal" data-flt="vFrom" value="${esc(f.vFrom || "")}">`)}${field("Value to ($)", `<input type="number" inputmode="decimal" data-flt="vTo" value="${esc(f.vTo || "")}">`)}</div>
     ${field("Favorites", sel("fav", "All coins", [["1", "Favorites only"]], f.fav || ""))}
-    ${field("Missing information", sel("inc", "Any", [["1", "Needs info (grade, cost, where from or mint)"]], f.inc || ""))}
+    ${field("Missing information", sel("inc", "Any", [["1", "Needs attention (grade, cost, where from or mint)"]], f.inc || ""))}
     <div class="f"><span>Problems and errors <span class="muted small">(any of the ticked)</span></span>${FLT_PROBS.map(([k, l]) => `<label class="chk"><input type="checkbox" data-flt-prob="${k}" ${(f.probs || []).includes(k) ? "checked" : ""}> ${l}</label>`).join("")}</div>
     <div class="btn-row" style="margin-top:10px"><button class="btn primary" data-act="fltApply">Show results</button><button class="btn" data-act="fltClear">Clear all</button></div>
     <div class="card" style="margin-top:12px"><b>Save this filter</b><div class="rowline" style="gap:8px"><input type="text" data-flt-name placeholder="e.g. Inherited silver" maxlength="40"><button class="btn" data-act="fltSave">Save</button></div></div>`);
@@ -461,12 +461,12 @@ const fixup = { on: false, skip: [] };
 const fixupQueue = () => (listState._shown && listState.f && listState.f.inc ? listState._shown : needInfoCoins()).map((c) => getCoin(c.id)).filter((c) => c && needsOf(c).length && !fixup.skip.includes(c.id));
 function fixupNext() {
   const q = fixupQueue();
-  if (!q.length) { fixup.on = false; toast("Fix-up done. Nothing left that needs info."); render(); return; }
+  if (!q.length) { fixup.on = false; toast("All caught up. Nothing left that needs attention."); render(); return; }
   openCoinForm(q[0].id);
 }
 // Small bar at the top of the edit form while a run is going.
 function fixupBar(d) {
   if (!fixup.on || d._isNew) return "";
   const left = fixupQueue().length;
-  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b style="color:#2a2418">Fix-up: ${left} ${left === 1 ? "coin" : "coins"} left</b><div class="small" style="color:#4a4130">${esc(needsText(d) || "Nothing missing")}.${needsOf(d).includes("check mint") ? " If the mint is Philadelphia, pick P." : ""} Save moves to the next coin.</div><div class="row" style="gap:8px;margin-top:6px"><button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div></div>`;
+  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b style="color:#2a2418">Needs attention: ${left} ${left === 1 ? "coin" : "coins"} left</b><div class="small" style="color:#4a4130">${esc(needsText(d) || "Nothing missing")}.${needsOf(d).includes("check mint") ? " If the mint is Philadelphia, pick P." : ""} Save moves to the next coin.</div><div class="row" style="gap:8px;margin-top:6px"><button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div></div>`;
 }

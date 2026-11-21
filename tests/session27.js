@@ -22,7 +22,7 @@ let fails = 0; const ok = (n, c) => { console.log((c ? "PASS " : "FAIL ") + n); 
   // new album: gray name, search box, inherited
   await p.evaluate(() => openNewAlbum()); await p.waitForTimeout(100);
   await p.fill("#albumTypeFind", "Franklin Half Dollar"); await p.dispatchEvent("#albumTypeFind", "change");
-  ok("search picks the coin type", await p.evaluate(() => document.querySelector("#albumTypes select").value.startsWith("franklin")));
+  ok("search picks the coin type", await p.evaluate(() => document.querySelector("#albumTypes input[type=hidden]").value.startsWith("franklin")));
   ok("name stays empty with a gray suggestion", await p.evaluate(() => { const n = document.querySelector("#albumForm [name=name]"); return n.value === "" && /Franklin/.test(n.placeholder); }));
   await p.check("#albumForm [name=inherited]");
   await p.click("#albumForm button[type=submit]"); await p.waitForTimeout(200);

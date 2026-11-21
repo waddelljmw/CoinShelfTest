@@ -42,7 +42,7 @@ function openNewAlbum() {
 }
 // One coin-type picker per type in the album, with "+ Add another coin type".
 function albumTypeRow(id, i) {
-  return `<div class="type-row"><select name="typeId" data-albumtype>${typeOptions(id)}</select>${i ? `<button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button>` : ""}</div>`;
+  return `<div class="type-row">${typeSelect("typeId", id, "data-albumtype")}${i ? `<button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button>` : ""}</div>`;
 }
 function albumTypeRows(ids, hidden) {
   return `<div class="f" id="albumTypesBlock" ${hidden ? "hidden" : ""}><span>Coin types in this album</span><div id="albumTypes">${ids.map(albumTypeRow).join("")}</div>

@@ -33,11 +33,11 @@ const { chromium } = require("./_compat");
   });
   await p.waitForTimeout(250);
   let t = await p.textContent("body");
-  ok("Home amber line", /1 coin needs info, totals may be off/.test(t));
+  ok("Home amber line", /1 coin needs attention, totals may be off/.test(t));
   ok("Collection value says estimate*", /Collection value estimate\*/.test(t));
   await p.click(".need-line"); await p.waitForTimeout(250);
   t = await p.textContent("body");
-  ok("opens My Coins filtered", /Needs info/.test(t) && /Missing: cost/.test(t));
+  ok("opens My Coins filtered", /Needs attention/.test(t) && /Missing: cost/.test(t));
   ok("only the incomplete coin is listed", (await p.$$(".coin-row")).length === 1);
   // coin page banner
   await p.evaluate(() => go("coin-a1")); await p.waitForTimeout(200);

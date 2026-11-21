@@ -171,10 +171,10 @@ function renderCoinForm() {
         <label class="f"><span>Catalog number (optional)</span><input type="text" data-f="catNo" value="${esc(d.catNo || "")}" placeholder="From the label, e.g. 7172" maxlength="20"></label></div>
         <div class="hint">The ${d.service === "NGC" ? "NGC" : "PCGS"} coin number printed on the slab's label. Later it opens this exact coin in PCGS Photograde.</div>` : ""}
       <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
+      ${!d.grade ? (quickCoinOk(d) ? `<label class="switch"><span>Circulated (not graded)<div class="small muted">An everyday coin from pocket change or a roll. No grade needed; valued at face. Fills Where from with Pocket change if it is blank.</div></span><input type="checkbox" data-act="circTick" ${d.noGrade ? "checked" : ""}></label>` : `<label class="switch"><span>Can't grade this one<div class="small muted">For common worn coins. They stop showing under Needs info.</div></span><input type="checkbox" data-fcheck="noGrade" ${d.noGrade ? "checked" : ""}></label>`) : ""}
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
       <div class="hint">Not sure of the grade? Compare your coin with photos: <a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
-      ${!d.grade ? (quickCoinOk(d) ? `<label class="switch"><span>Circulated (not graded)<div class="small muted">An everyday coin from pocket change or a roll. No grade needed; valued at face. Fills Where from with Pocket change if it is blank.</div></span><input type="checkbox" data-act="circTick" ${d.noGrade ? "checked" : ""}></label>` : `<label class="switch"><span>Can't grade this one<div class="small muted">For common worn coins. They stop showing under Needs info.</div></span><input type="checkbox" data-fcheck="noGrade" ${d.noGrade ? "checked" : ""}></label>`) : ""}
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
       ${it === "coin" && (d.typeName || d.year) ? `<div class="hint"><a id="ebayLink" href="${esc(ebayUrl(d))}" target="_blank" rel="noopener">Check eBay sold ↗</a></div>` : ""}
@@ -556,6 +556,22 @@ function typeMatches(q) {
   const all = COIN_TYPES.filter((t) => (y == null || typeMadeIn(t, y)) && words.every((w) => (t.name + " " + t.family + " " + t.denom + " " + nickWords(t.id)).toLowerCase().includes(w)));
   const { recent, rest } = typesRecentFirst(all);
   return { recent, rest: rest.slice(0, q ? 20 : 12) };
+}
+// Type-as-you-go coin type picker for plain forms (want list, album types): a hidden input carries the id, so FormData still reads name=typeId.
+function typeSelect(name, sel, extra) {
+  const t = TYPE_BY_ID[sel];
+  return `<div class="typeahead tsel"><input type="hidden" name="${name}" value="${esc(sel || "")}" ${extra || ""}><input type="search" class="tsel-q" placeholder="Search by name, e.g. Morgan" value="${esc(t ? t.name : "")}" autocomplete="off" aria-label="Coin type"><div class="ta-list" hidden></div></div>`;
+}
+function tselShow(q) {
+  const box = q.parentNode.querySelector(".ta-list");
+  const words = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const all = COIN_TYPES.filter((t) => words.every((w) => (t.name + " " + t.family + " " + t.denom + " " + nickWords(t.id)).toLowerCase().includes(w)));
+  const { recent, rest } = typesRecentFirst(all);
+  const btn = (t) => `<button type="button" data-act="tselPick" data-id="${t.id}">${esc(t.name)}<small>${esc(t.denom)} · ${t.start}–${t.end} · ${esc(t.metal)}</small></button>`;
+  const head = (x) => `<div class="ta-head">${x}</div>`;
+  const shown = rest.slice(0, words.length ? 20 : 12);
+  box.innerHTML = recent.length || shown.length ? (recent.length ? head("Recent") + recent.map(btn).join("") + (shown.length ? head("All types") : "") : "") + shown.map(btn).join("") : `<div class="hint" style="padding:10px">No coin type matches. Try fewer letters.</div>`;
+  box.hidden = false;
 }
 function showTypeList(q) {
   const box = $("#typeList");

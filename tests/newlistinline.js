@@ -7,7 +7,7 @@ const { chromium } = require("./_compat");
   // From the Add-to-want-list form
   await p.click("#menuBtn"); await p.click("#menu [data-go=wants]");
   await p.click("[data-act=wantNew]");
-  await p.selectOption("[name=typeId]", "morgan-dollar");
+  await p.evaluate(() => { document.querySelector("[name=typeId]").value = "morgan-dollar"; });
   await p.fill("[name=year]", "1884"); await p.selectOption("[name=mint]", "CC");
   await p.fill("[name=grade]", "").catch(() => {});
   await p.selectOption("[name=grade]", "AU-50");

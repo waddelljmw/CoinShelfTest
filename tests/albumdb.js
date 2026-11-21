@@ -23,7 +23,7 @@ const { chromium } = require("./_compat");
   // New album form: type Whitman 9122
   await p.evaluate(() => go("albums")); await p.waitForTimeout(100); await p.click("[data-act=newAlbum]");
   await p.selectOption("#albumForm [name=brand]", "Whitman"); await p.fill("#albumForm [name=number]", "9122"); await p.waitForTimeout(100);
-  const f = await p.evaluate(() => ({ name: document.querySelector("#albumForm [name=name]").placeholder, types: [...document.querySelectorAll("#albumTypes select")].map((s) => s.value), start: document.querySelector("#albumStart").value, end: document.querySelector("#albumEnd").value, proofs: document.querySelector("#albumForm [name=proofs]").value, hint: document.querySelector("#albumLookupHint").textContent }));
+  const f = await p.evaluate(() => ({ name: document.querySelector("#albumForm [name=name]").placeholder, types: [...document.querySelectorAll("#albumTypes input[type=hidden]")].map((s) => s.value), start: document.querySelector("#albumStart").value, end: document.querySelector("#albumEnd").value, proofs: document.querySelector("#albumForm [name=proofs]").value, hint: document.querySelector("#albumLookupHint").textContent }));
   ok("9122 fills name, both types, 1932–1990, S proofs", f.name === "Washington Quarters 1932–1990" && f.types.join() === "washington-silver,washington-clad" && f.start === "1932" && f.end === "1990" && f.proofs === "s");
   console.log(f.hint.replace(/\s+/g, " ").trim());
   await p.click("#albumForm button[type=submit]"); await p.waitForTimeout(200);
@@ -43,7 +43,7 @@ const { chromium } = require("./_compat");
   await p.selectOption("#albumForm [name=brand]", "Dansco"); await p.fill("#albumForm [name=number]", "7104"); await p.waitForTimeout(80);
   ok("Dansco 7104 runs to date", await p.evaluate(() => document.querySelector("#albumStart").value === "2010" && +document.querySelector("#albumEnd").value >= 2026));
   await p.fill("#albumForm [name=number]", "7100"); await p.waitForTimeout(80);
-  ok("Dansco 7100 has 4 Lincoln types", await p.evaluate(() => document.querySelectorAll("#albumTypes select").length === 4));
+  ok("Dansco 7100 has 4 Lincoln types", await p.evaluate(() => document.querySelectorAll("#albumTypes input[type=hidden]").length === 4));
   // proofs available (Kennedy has Red Book proof dates since 0.57.0) -> proof spots are switched on
   await p.fill("#albumForm [name=number]", "8166"); await p.waitForTimeout(80);
   const k = await p.evaluate(() => ({ pf: document.querySelector("#albumForm [name=proofs]").value, hint: document.querySelector("#albumLookupHint").textContent }));
@@ -56,8 +56,8 @@ const { chromium } = require("./_compat");
   // Edit album on an existing album: lookup is offered, not forced
   await p.evaluate(() => { const a = { kind: "album", id: "old", brand: "Whitman", number: "", name: "Mine", typeId: "washington-silver", start: 1932, end: 1964, removed: [], createdAt: 1 }; a.slots = buildSlots("washington-silver", 1932, 1964); put("a_old", a); go("album-old"); });
   await p.waitForTimeout(100); await p.click("[data-act=editAlbum]"); await p.fill("#editAlbumForm [name=number]", "9122"); await p.waitForTimeout(80);
-  ok("edit form shows Use these coin types button, doesn't change anything", (await p.$("[data-act=albumApplyDb]")) !== null && await p.evaluate(() => document.querySelectorAll("#albumTypes select").length === 1));
-  await p.click("[data-act=albumApplyDb]"); console.log("after apply:", await p.evaluate(() => JSON.stringify({ n: document.querySelectorAll("#albumTypes select").length, end: document.querySelector("#editAlbumForm [name=end]").value, toast: document.querySelector("#toast").textContent }))); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); console.log("toast:", await p.textContent("#toast"));
+  ok("edit form shows Use these coin types button, doesn't change anything", (await p.$("[data-act=albumApplyDb]")) !== null && await p.evaluate(() => document.querySelectorAll("#albumTypes input[type=hidden]").length === 1));
+  await p.click("[data-act=albumApplyDb]"); console.log("after apply:", await p.evaluate(() => JSON.stringify({ n: document.querySelectorAll("#albumTypes input[type=hidden]").length, end: document.querySelector("#editAlbumForm [name=end]").value, toast: document.querySelector("#toast").textContent }))); await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); console.log("toast:", await p.textContent("#toast"));
   console.log(await p.evaluate(() => JSON.stringify((({ typeIds, end, name, number, proofs }) => ({ typeIds, end, name, number, proofs }))(getAlbum("old"))))); ok("applied: both types and 1932–1990, name kept", await p.evaluate(() => { const a = getAlbum("old"); return a.typeIds.length === 2 && a.end === 1990 && a.name === "Mine" && a.number === "9122"; }));
   // album created from the Add coin form uses the lookup
   await p.evaluate(() => closeSheet()); await p.click("#fab"); await p.fill("#typeSearch", "morgan"); await p.click("#typeList button[data-act=pickType] >> nth=0");
