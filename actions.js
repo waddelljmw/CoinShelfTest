@@ -267,7 +267,7 @@ const actions = {
     if (!draft._proof && draft._preProof && (!draft.grade || isProofGrade(draft.grade))) draft.grade = draft._preProof.grade; // switching back: put the old grade back
     else if (isProofGrade(draft.grade) !== draft._proof) draft.grade = "";
     if (!draft._proof && draft._preProof && !draft.mint && mintChoices(t, false).includes(draft._preProof.mint)) draft.mint = draft._preProof.mint; // switching back: put the old mint back
-    else if (draft.mint && !mintChoices(t, draft._proof).includes(draft.mint)) draft.mint = "";
+    else if (draft.mint && !mintChoices(t, draft._proof).includes(draft.mint)) toast("No " + (draft.year || "") + " proofs were struck at the " + draft.mint + " mint. The mint stays; turn Proof off if this coin isn't a proof."); // never wipe the mint silently
     if (!draft._proof) delete draft._preProof;
     const y = $(".sheet").scrollTop;
     renderCoinForm();
