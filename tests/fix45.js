@@ -24,7 +24,7 @@ const { chromium } = require("./_compat");
   ok("saved to new list with edits", w.grade === "MS-65" && w.notes === "typed then cancel" && w.listName === "Key dates");
   // --- Fix 5: scoped list locks type and grade
   await p.click("[data-act=wantNew]"); await p.selectOption("#wantListPick", "pms63"); await p.waitForTimeout(100);
-  ok("type locked to Peace", (await p.isDisabled("select[name=typeId]")) && (await val("select[name=typeId]")) === "peace-dollar");
+  ok("type locked to Peace", (await p.isDisabled("#wantForm input[type=text][disabled]")) && (await val("input[name=typeId]")) === "peace-dollar");
   ok("grade locked to MS-63", (await p.isDisabled("select[name=grade]")) && (await val("select[name=grade]")) === "MS-63");
   // tamper with the DOM: force Morgan anyway → save still forces Peace
   await p.evaluate(() => { document.querySelectorAll("[name=typeId]").forEach((e) => { e.disabled = false; e.value = "morgan-dollar"; }); });

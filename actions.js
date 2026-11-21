@@ -166,7 +166,13 @@ const actions = {
   albumAddType: () => {
     const box = $("#albumTypes");
     if (!box) return;
-    box.insertAdjacentHTML("beforeend", `<div class="type-row"><select name="typeId" data-albumtype><option value="">Choose a coin type…</option>${typeOptions("")}</select><button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button></div>`);
+    box.insertAdjacentHTML("beforeend", `<div class="type-row">${typeSelect("typeId", "", "data-albumtype")}<button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button></div>`);
+  },
+  tselPick: (el) => {
+    const w = el.closest(".tsel"), h = w.querySelector("input[type=hidden]"), q = w.querySelector(".tsel-q"), t = TYPE_BY_ID[el.dataset.id];
+    if (!t) return;
+    h.value = t.id; q.value = t.name; w.querySelector(".ta-list").hidden = true;
+    h.dispatchEvent(new Event("change", { bubbles: true }));
   },
   albumDelType: (el) => { const r = el.closest(".type-row"); if (r) r.remove(); albumYearsFromTypes(); },
   editAlbum: (el) => openEditAlbum(el.dataset.id),
@@ -413,7 +419,9 @@ document.addEventListener("input", (e) => {
   refreshFormHints();
 });
 document.addEventListener("input", (e) => { if (e.target.id === "albumTypeFind") albumTypeSearch(e.target, false); });
-document.addEventListener("focusin", (e) => { if (e.target.id === "typeSearch") showTypeList(e.target.value); });
+document.addEventListener("focusin", (e) => { if (e.target.id === "typeSearch") showTypeList(e.target.value); if (e.target.classList && e.target.classList.contains("tsel-q")) tselShow(e.target); });
+document.addEventListener("input", (e) => { const q = e.target; if (q.classList && q.classList.contains("tsel-q")) { const h = q.parentNode.querySelector("input[type=hidden]"); if (h && h.value) { h.value = ""; h.dispatchEvent(new Event("change", { bubbles: true })); } tselShow(q); } });
+document.addEventListener("click", (e) => { document.querySelectorAll(".tsel .ta-list:not([hidden])").forEach((b) => { if (!b.parentNode.contains(e.target)) b.hidden = true; }); });
 document.addEventListener("change", (e) => {
   const el = e.target;
   if (el.dataset.list) { listState[el.dataset.list] = el.value; render(); return; }

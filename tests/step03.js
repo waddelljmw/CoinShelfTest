@@ -33,7 +33,7 @@ const { chromium } = require("./_compat");
   ok("old coin saves other edits, year untouched", await p.evaluate(() => getCoin("old").notes === "edited" && getCoin("old").year === 1950));
   // Want form
   await p.evaluate(() => { go("wants"); openWantForm(null); }); await p.waitForTimeout(100);
-  await p.selectOption("#wantForm select[name=typeId]", "silver-eagle"); await p.fill("#wantForm [name=year]", String(Y + 6)); await p.click("#wantForm button[type=submit]"); await p.waitForTimeout(150);
+  await p.evaluate(() => { document.querySelector("#wantForm input[name=typeId]").value = "silver-eagle"; }); await p.fill("#wantForm [name=year]", String(Y + 6)); await p.click("#wantForm button[type=submit]"); await p.waitForTimeout(150);
   ok("want +6 blocked", await p.evaluate(() => wants().length === 0));
   await p.fill("#wantForm [name=year]", String(Y + 5)); await p.click("#wantForm button[type=submit]"); await p.waitForTimeout(150);
   ok("want +5 saved", await p.evaluate(() => wants().length === 1));

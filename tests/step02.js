@@ -51,7 +51,7 @@ const { chromium } = require("./_compat");
     go("wants"); openWantForm("m1");
   });
   await p.waitForTimeout(150);
-  const wf = await p.evaluate(() => ({ lists: [...document.querySelectorAll("#wantListPick option")].map((o) => o.value), typeDisabled: document.querySelector("#wantForm select[name=typeId]").disabled }));
+  const wf = await p.evaluate(() => ({ lists: [...document.querySelectorAll("#wantListPick option")].map((o) => o.value), typeDisabled: !document.querySelector("#wantForm .tsel") }));
   ok("Peace-only list not offered for a Morgan want", !wf.lists.includes("peace") && wf.lists.includes("cust"));
   ok("want type locked", wf.typeDisabled);
   await p.selectOption("#wantListPick", "cust"); await p.waitForTimeout(100); await p.click("#wantForm button[type=submit]"); await p.waitForTimeout(150);
@@ -62,7 +62,7 @@ const { chromium } = require("./_compat");
   // new list scoped to Peace from the edit form
   await p.evaluate(() => { closeSheet(); openWantForm("m1"); }); await p.selectOption("#wantListPick", "__new"); await p.waitForTimeout(100);
   await p.fill("#wlForm [name=name]", "Peace 2"); await p.selectOption("#wlScope", "type"); await p.waitForTimeout(100);
-  await p.selectOption("#wlForm [name=typeId]", "peace-dollar"); await p.click("#wlForm button[type=submit]"); await p.waitForTimeout(200);
+  await p.evaluate(() => { document.querySelector("#wlForm [name=typeId]").value = "peace-dollar"; }); await p.click("#wlForm button[type=submit]"); await p.waitForTimeout(200);
   ok("new Peace list from Morgan want keeps it Morgan on its list", await p.evaluate(() => getWant("m1").typeId === "morgan-dollar" && document.querySelector("#wantListPick").value === "cust"));
   ok("no page errors", errors.length === 0); if (errors.length) console.log(errors);
   await b.close();

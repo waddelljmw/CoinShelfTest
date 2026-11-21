@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.104.0": [
+    "Adding a coin: Circulated (not graded) and Can't grade this one now sit right above the Grade box. Edit spots shows which spots are filled. Coin type fields in want lists and albums search as you type. The Fix-up list is now called Needs attention.",
+  ],
   "0.103.0": [
     "A coin with no year now shows up in Fix-up, so you can add the year or tick Unreadable. A new switch in Options hides the Share buttons.",
   ],

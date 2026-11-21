@@ -289,7 +289,7 @@ const NEED_NOTE = "Some coins are missing a grade, a cost or the date inherited,
 // The amber line under the Home totals; opens My Coins filtered to coins that need info.
 function needInfoLine() {
   const n = needInfoCoins().length;
-  return n ? `<button class="need-line" data-act="needInfo">${n} coin${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} info${valueGapCoins().length ? ", totals may be off" : ""} \u203A</button>` : "";
+  return n ? `<button class="need-line" data-act="needInfo">${n} coin${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} attention${valueGapCoins().length ? ", totals may be off" : ""} \u203A</button>` : "";
 }
 const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 

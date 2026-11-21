@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-20 (Share check added to 4b and the pre-tester checks)",
-  "app": "v0.103.0",
+  "updated": "2026-11-20 (step 23 done)",
+  "app": "v0.104.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-    "weekly_now": 83,
+    "weekly_now": 84,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -1320,8 +1320,8 @@
       "name": "Fill-ins from your notes: album-spot grade choices, Edit spots, type search, page tidy",
       "model": "Sonnet",
       "est": "~2",
-      "actual": "",
-      "status": "next",
+      "actual": "~1 (reading pending)",
+      "status": "done",
       "chat": "New Sonnet chat",
       "why": "Small fixes from your 11-20 testing notes. No saved-data change (if one turns out to need it, stop and ask).",
       "items": [
@@ -1372,7 +1372,10 @@
         "Open an album spot, add a coin: Circulated and Not graded sit by Grade.",
         "Album > Edit spots: filled spots look different from empty ones.",
         "Wants: pick a coin type by typing, not scrolling."
-      ]
+      ],
+      "started": "8:39pm",
+      "ended": "9:08pm",
+      "minutes": 29
     },
     {
       "n": 4,
@@ -1381,7 +1384,7 @@
       "model": "Sonnet",
       "est": "1–2",
       "actual": "",
-      "status": "queued",
+      "status": "next",
       "when": "Sat 11-21",
       "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
       "items": [
@@ -2051,6 +2054,13 @@
       "ver": "v0.103.0",
       "cost": "~1 (reading pending)",
       "change": "A single coin with no year and no Unreadable tick now shows in Fix-up ('Missing: year'). Options has a switch that hides Share the app and Share a snapshot. The pipeline page counts backup days by your local day."
+    },
+    {
+      "date": "11-20",
+      "name": "Fill-ins from your notes (23)",
+      "ver": "v0.104.0",
+      "cost": "~1 (reading pending)",
+      "change": "Circulated (not graded) and Can't grade this one sit right above the Grade box. Edit spots shows which spots are filled (green, with the grade). Coin type fields in want lists and album types search as you type. Fix-up is now called Needs attention. Want list page: the album shopping list is clearly separate. Pipeline page: where-you-are lines, exact taps for blocks 1, 3 and 6, a Passed section with Reactivate, and Edit on your own notes until Claude replies."
     }
   ],
   "modes": [
@@ -2145,5 +2155,19 @@
     "review_baseline": 30,
     "saved_data_ahead": false,
     "note": "Review due when 8-10 steps are done since the last review, a change to how coins are saved is coming up, or before testers/buyers. Steps since review = done steps minus review_baseline."
+  },
+  "test_help": {
+    "s1-3": {
+      "where": "Albums > open an album that has empty spots",
+      "text": "On the album page tap Fill spots. Every row starts ticked, so tap Untick all, then tick 2 spots. Tap Save coins: the button changes to \"Add 2 coins? Tap again\". Tap it again to save, or Cancel."
+    },
+    "s3a-2": {
+      "where": "Home > Search any coin (type the name), then open each result",
+      "text": "Look up these six: 1909-S VDB cent, 1914-D cent, 1916-D Mercury dime, 1932-D quarter, 1932-S quarter, 1893-S Morgan dollar. Check each shows Key date and matches your Red Book. Send any that differ in one message."
+    },
+    "s6b-2": {
+      "where": "My Coins > Select",
+      "text": "Tap Select, tick 3 coins whose Where from is Pocket change, tap Set purchase info…, pick Where from: Coin roll hunting, then confirm. Open one of them: Price paid shows its face value."
+    }
   }
 }
