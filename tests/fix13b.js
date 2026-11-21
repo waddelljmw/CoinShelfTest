@@ -12,20 +12,20 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   // 1. New album: search box at the top, nothing pre-filled, Create off until a type is picked
   await ev(() => openNewAlbum()); await p.waitForTimeout(100);
   ok("search box is the first field", await ev(() => document.querySelector("#albumForm").firstElementChild.querySelector("#albumTypeFind") !== null));
-  ok("no coin type pre-filled, no dropdown", await ev(() => document.querySelectorAll("#albumTypes select").length === 0 && document.querySelector("#albumStart").value === ""));
+  ok("no coin type pre-filled, no dropdown", await ev(() => document.querySelectorAll("#albumTypes input[type=hidden]").length === 0 && document.querySelector("#albumStart").value === ""));
   ok("Create is off", await ev(() => document.querySelector("#albumCreate").disabled));
   await p.fill("#albumTypeFind", "Kennedy"); await p.dispatchEvent("#albumTypeFind", "change");
   ok("'Kennedy' alone picks nothing and says several match", await ev(() => document.querySelector("#albumCreate").disabled && /match/.test(document.querySelector("#albumTypeHint").textContent)));
   await p.fill("#albumTypeFind", "Kennedy 1964-2002");
-  ok("Kennedy + years picks all three types and fills the years", await ev(() => [...document.querySelectorAll("#albumTypes select")].map((s) => s.value).join() === "kennedy-90,kennedy-40,kennedy-clad" && document.querySelector("#albumStart").value === "1964" && document.querySelector("#albumEnd").value === "2002"));
+  ok("Kennedy + years picks all three types and fills the years", await ev(() => [...document.querySelectorAll("#albumTypes input[type=hidden]")].map((s) => s.value).join() === "kennedy-90,kennedy-40,kennedy-clad" && document.querySelector("#albumStart").value === "1964" && document.querySelector("#albumEnd").value === "2002"));
   ok("Create turns on", await ev(() => !document.querySelector("#albumCreate").disabled));
   await p.click("#albumCreate"); await p.waitForTimeout(200);
   ok("album saved with the three types and years", await ev(() => { const a = albums()[0]; return a && albumTypes(a).join() === "kennedy-90,kennedy-40,kennedy-clad" && a.start === 1964 && a.end === 2002 && a.slots.length > 50; }));
   await ev(() => openNewAlbum()); await p.waitForTimeout(100);
   await p.fill("#albumTypeFind", "Franklin Half Dollar"); await p.dispatchEvent("#albumTypeFind", "change");
-  ok("a single name picks one type", await ev(() => document.querySelectorAll("#albumTypes select").length === 1 && !document.querySelector("#albumCreate").disabled));
+  ok("a single name picks one type", await ev(() => document.querySelectorAll("#albumTypes input[type=hidden]").length === 1 && !document.querySelector("#albumCreate").disabled));
   await p.selectOption("#albumForm [name=brand]", "Whitman"); await p.fill("#albumForm [name=number]", "9122"); await p.waitForTimeout(100);
-  ok("an album number still fills the types and turns Create on", await ev(() => document.querySelectorAll("#albumTypes select").length >= 1 && !document.querySelector("#albumCreate").disabled));
+  ok("an album number still fills the types and turns Create on", await ev(() => document.querySelectorAll("#albumTypes input[type=hidden]").length >= 1 && !document.querySelector("#albumCreate").disabled));
   await ev(() => closeSheet());
 
   // 2. Mark as sold: picking a show fills the show name, also when Where was already Coin show

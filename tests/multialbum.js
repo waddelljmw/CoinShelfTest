@@ -15,7 +15,7 @@ const { chromium } = require("./_compat");
   await p.waitForTimeout(200);
   const before = await p.evaluate(() => albumStats(getAlbum("w9122")).total);
   await p.click("[data-act=editAlbum]"); await p.click("[data-act=albumAddType]");
-  await p.selectOption("#albumTypes select >> nth=1", "washington-clad");
+  await p.evaluate(() => { const h = document.querySelectorAll("#albumTypes input[type=hidden]")[1]; h.value = "washington-clad"; h.dispatchEvent(new Event("change", { bubbles: true })); });
   await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); if (await p.$("#albumLoseNote")) { await p.click("#editAlbumForm button[type=submit]"); await p.waitForTimeout(200); } // asks first when coins would lose a spot
   const r = await p.evaluate(() => { const a = getAlbum("w9122"); const st = albumStats(a); return { types: albumTypes(a), total: st.total, has1965: a.slots.some((s) => s.y === 1965), has1991: a.slots.some((s) => s.y > 1990), has1933: a.slots.some((s) => s.y === 1933), owned: st.owned, sub: document.querySelector("h1 + .small").textContent }; });
   ok("clad type added to album", r.types.join() === "washington-silver,washington-clad");
@@ -41,7 +41,7 @@ const { chromium } = require("./_compat");
   await p.fill("#albumForm [name=name]", "US Type Set");
   const types = ["morgan-dollar", "barber-dime", "roosevelt-silver", "indian-cent", "ike-clad", "lincoln-wheat"];
   await p.evaluate((id) => { const el = document.querySelector("#albumTypeFind"); el.value = TYPE_BY_ID[id].name; albumTypeSearch(el, true); }, types[0]);
-  for (let i = 1; i < types.length; i++) { await p.click("[data-act=albumAddType]"); await p.selectOption(`#albumTypes select >> nth=${i}`, types[i]); }
+  for (let i = 1; i < types.length; i++) { await p.click("[data-act=albumAddType]"); await p.evaluate(([i, v]) => { const h = document.querySelectorAll("#albumTypes input[type=hidden]")[i]; h.value = v; h.dispatchEvent(new Event("change", { bubbles: true })); }, [i, types[i]]); }
   await p.click("#albumForm button[type=submit]"); await p.waitForTimeout(200);
   const set = await p.evaluate(() => { const a = albums().find((x) => x.name === "US Type Set"); return { id: a.id, n: a.slots.length, set: a.layout, labels: [...document.querySelectorAll(".slot")].map((e) => e.textContent.trim().slice(0, 18)) }; });
   ok("type set has one spot per type", set.set === "set" && set.n === 6);
