@@ -20,7 +20,10 @@ const http = require("http"), fs = require("fs"), path = require("path");
   const ok = (name, cond) => console.log((cond ? "PASS " : "FAIL ") + name);
   ok("empty Questions box says nothing waiting", /Nothing waiting on you/.test(await p.textContent("#qbox")));
   { const pj = JSON.parse(fs.readFileSync(path.join(root, "pipeline.json"), "utf8")); const exp = (pj.steps.find((s) => s.status === "next") || {}).n; const hereTxt = await p.textContent("#here"); const nextS = pj.steps.find((s) => s.status === "next"); const today = new Date().toISOString().slice(0, 10); const nextWaits = nextS && nextS.after && today < nextS.after; ok(nextWaits ? "all remaining steps waiting (next is step " + exp + ", waits for " + nextS.after + ")" : "YOU ARE HERE is the next ready step (step " + exp + ")", nextWaits ? /All remaining steps are waiting/.test(hereTxt) : new RegExp("YOU ARE HERE: step " + exp + "\\b").test(hereTxt)); }
-  ok("waiting steps are faded in the road", (await p.$$(".dot.wait")).length >= 3);
+  { // Waiting steps are whatever the page itself calls waiting today (a step's date can pass while the test runs, e.g. step 4 on Sat 11-21).
+    const waitN = await p.evaluate(() => D.steps.filter((s) => waiting(s)).length);
+    ok("waiting steps are faded in the road", (await p.$$(".dot.wait")).length === waitN);
+  }
   { const pj = JSON.parse(fs.readFileSync(path.join(root, "pipeline.json"), "utf8")); const n = pj.steps.filter((s) => s.status === "done").length - (pj.checkin.review_baseline || 0); const txt = await p.textContent("#checkin"); ok("Weekly check-in card matches the review rule (" + n + " steps since review) and shows suggested days", (n >= 8 ? /Review due/.test(txt) : /No review due yet/.test(txt)) && /Suggested: Mon/.test(txt)); }
   ok("Queue low warning matches the ready count (shows only when fewer than 3 are ready)", (await p.$eval("#qlow", (e) => e.hidden)) === (await p.evaluate(() => D.steps.filter(ready).length >= 3)));
   await p.evaluate(() => { D.steps.filter((s) => s.status !== "done" && s.n !== 16).forEach((s) => { s.status = "done"; }); renderAll(); });
