@@ -1,0 +1,14 @@
+name: Merge gate
+# Blocks merging while the PR has the "waits for review" label (a build step whose review session comes later).
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+jobs:
+  merge-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for the waits-for-review label
+        run: |
+          if [ "${{ contains(github.event.pull_request.labels.*.name, 'waits for review') }}" = "true" ]; then
+            echo "This PR waits for its review session. Remove the 'waits for review' label after the review to allow merging."; exit 1
+          fi

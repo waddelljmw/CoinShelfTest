@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin Cabinet pipeline</title>
+<style>
+:root{--ink:#1f1b16;--muted:#6b6258;--bg:#f7f3ec;--card:#fff;--line:#e4dccf;--gold:#9a6b14;--now:#b3261e;--test:#d9822b;--fill:#6b7f99;--ok:#2e7d4f}
+@media (prefers-color-scheme:dark){:root{--ink:#ece6dc;--muted:#a89f93;--bg:#1b1916;--card:#26231f;--line:#3a352e;--gold:#d6a446}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 system-ui,-apple-system,sans-serif}
+main{max-width:820px;margin:auto;padding:16px 14px 60px}h1{font-size:25px;margin:2px 0}h2{font-size:20px;margin:24px 0 8px}
+.sub{color:var(--muted);font-size:15px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.here{border:3px solid var(--now)}.you{color:var(--now);font-weight:800}
+.chip{display:inline-block;font-size:12px;font-weight:800;padding:3px 8px;border-radius:99px;color:#fff;margin-right:4px;vertical-align:middle}
+.S{background:#3b7a57}.M{background:#d9822b}.L{background:#7a1f1f}.now{background:var(--now)}.testers{background:var(--test)}.fill{background:var(--fill)}
+.done{background:var(--ok)}.queued{background:#8a8a8a}.next{background:var(--now)}.building{background:#2f5d8a}
+.meter{position:relative;height:30px;background:var(--line);border-radius:8px;margin:28px 0 30px}
+.meter .used{position:absolute;left:0;top:0;bottom:0;background:#2f5d8a;border-radius:8px 0 0 8px}
+.meter .plan{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(45deg,#d9822b88,#d9822b88 6px,transparent 6px,transparent 12px)}
+.meter .res{position:absolute;top:0;bottom:0;background:#5b4b8a88}
+.mark{position:absolute;top:-22px;font-size:12px;font-weight:700;transform:translateX(-50%);white-space:nowrap}
+.mark::after{content:"";position:absolute;left:50%;top:18px;height:34px;border-left:2px dashed var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:13px}.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px;background:var(--c)}
+.road{display:flex;flex-wrap:wrap;gap:6px}.dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;border:3px solid transparent}
+.dot.cur{border-color:var(--ink);transform:scale(1.15)}
+details.step{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:10px 0}
+details.step>summary{list-style:none;padding:12px 14px;cursor:pointer;min-height:56px}
+details.step>summary::-webkit-details-marker{display:none}
+.st-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.st-name{font-weight:800;font-size:18px}
+.st-cost{text-align:right;font-size:13px;color:var(--muted);white-space:nowrap}.st-cost b{font-size:16px;color:var(--ink)}
+.why{font-size:15px;margin-top:4px}
+.item{border-top:1px solid var(--line);padding:10px 14px}.item .w{font-weight:700}.item .c{font-size:15px;margin:3px 0}.item .a{font-size:13px;color:var(--muted)}
+.item .id{font-size:12px;color:var(--muted)}
+ul{margin:6px 0 0;padding-left:20px}li{margin:3px 0;font-size:15px}
+pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;margin:8px 0}
+.copy{font:inherit;font-weight:700;padding:12px 16px;border-radius:12px;border:0;background:var(--gold);color:#fff;min-height:48px;width:100%}
+.big{font-size:20px;font-weight:800}
+.tabs{display:flex;gap:6px;margin:8px 0;position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:2}
+.tabs button{flex:1;font:inherit;font-weight:700;min-height:46px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.size{font-size:13px;font-weight:700;margin-top:4px}
+.tryb{background:#eef6f0}@media (prefers-color-scheme:dark){.tryb{background:#1f3326}}
+
+.q{border:3px solid var(--now)}.q.empty{border-color:var(--ok)}.q h2{margin:0 0 6px;font-size:19px}
+textarea,input[type=text],input[type=number]{font:inherit;width:100%;padding:10px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);min-height:48px}
+textarea{min-height:84px}.btn{font:inherit;font-weight:700;padding:10px 14px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);min-height:48px}
+.btn.alt{background:var(--card);color:var(--ink);border:2px solid var(--line)}.btn.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center}.row>*{flex:1 1 auto}
+.chk{display:flex;gap:12px;align-items:flex-start;padding:10px 0;min-height:48px;border-top:1px solid var(--line)}.chk input{width:28px;height:28px;flex:0 0 28px;margin:0}
+.chk.d span{text-decoration:line-through;color:var(--muted)}
+.road{gap:10px;padding-top:34px}.road .wrap{position:relative}.dot{cursor:pointer}.dot.wait{opacity:.45;border-style:dashed;border-color:var(--muted)}
+.arrow{position:absolute;left:50%;top:-34px;transform:translateX(-50%);font-size:26px;line-height:1;color:var(--now);font-weight:900}
+.hereBig{font-size:22px}.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+.tile b{font-size:24px;display:block}.small{font-size:13px;color:var(--muted)}.pill{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:99px;border:2px solid var(--now);color:var(--now);margin-left:4px}
+.reply{background:var(--bg);border-left:4px solid var(--gold);padding:8px 10px;border-radius:8px;margin:6px 0;font-size:15px}
+.tabs button{font-size:14px;padding:0 2px}.guess{background:#c0392b;color:#fff}
+.bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--ok)}
+</style></head><body><main>
+<div class="sub" id="upd"></div>
+<h1>Coin Cabinet pipeline</h1>
+<div class="tabs"><button data-t="h" class="on">Now</button><button data-t="q">Queue</button><button data-t="d">Done</button><button data-t="w">Waiting</button><button data-t="t">Test</button><button data-t="n">Notes</button></div>
+<div id="tab-h">
+<div class="card q" id="qbox"></div>
+<div class="card" id="qlow" style="border:3px solid var(--test)" hidden></div>
+<div class="card" id="startnext" style="border:3px solid var(--gold)"></div>
+<h2>Where we are</h2>
+<div class="sub">Tap a bubble to jump to its card. Faded dashed = waiting.</div>
+<div class="road" id="road"></div>
+<div class="card here" id="here"></div>
+<h2>Weekly check-in</h2><div class="card" id="checkin"></div>
+<h2>Tracking</h2><div class="tiles" id="tiles"></div>
+<h2>This week's usage</h2>
+<div class="sub" id="wk"></div>
+<div class="meter" id="meter"></div>
+<div class="legend"><span style="--c:#2f5d8a">Used</span><span style="--c:#d9822b88">Planned "Now" steps (high estimate)</span><span style="--c:#5b4b8a88">Fantasy reserve</span></div>
+<div class="card sub" id="rule"></div>
+
+</div>
+<div id="tab-q" hidden><div id="steps"></div></div>
+<div id="tab-d" hidden><div id="done"></div></div>
+<div id="tab-w" hidden><div id="waiting"></div></div>
+<div id="tab-t" hidden><div id="test"></div></div>
+<div id="tab-n" hidden><div id="notes"></div></div>
+<div class="card sub" id="note"></div>
+</main>
+<script>
+const STAGE={now:"Now",testers:"Before testers",fill:"Fill-in"};
+const ST={done:"✓ Done",next:"▶ Next",building:"Building",queued:"Waiting",partial:"◐ Part done"};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=id=>document.getElementById(id);
+const sizeSum=items=>{const c={};items.forEach(i=>{const k=i.size[0];c[k]=(c[k]||0)+1});return ["L","M","S"].filter(k=>c[k]).map(k=>`${c[k]} <span class="chip ${k}">${k}</span>`).join(" + ")};
+const hi=e=>{const m=String(e).match(/[\d.]+/g);return m?+m[m.length-1]:0};
+const num=e=>{const m=String(e||"").match(/[\d.]+/);return m?+m[0]:null};
+let D=null,DB=null,dict=null;const S={ticks:{},notes:[],qs:[],track:{}};
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}; // local day, not UTC (an evening tap used to get tomorrow's date)
+const dayNum=s=>{const[a,b,c]=s.split("-").map(Number);return Date.UTC(a,b-1,c)/864e5};
+const timeEst=s=>s.model==="Opus"?(/check|review/i.test(s.name)?"60+ min":"30–60 min"):(s.items.every(i=>i.size[0]==="S")?"20–45 min":"30–60 min");
+const byN=n=>D.steps.find(s=>String(s.n)===String(n));
+const ready=s=>{if(s.status==="done")return false;if(s.after&&today()<s.after)return false;if(s.needs&&byN(s.needs)&&byN(s.needs).status!=="done")return false;return true};
+const waiting=s=>s.status!=="done"&&!ready(s);
+async function save(fn){if(!DB){alert("Saving isn't available in this view.");return false}try{await fn();return true}catch(e){alert("Couldn't save that. Try again.");return false}}
+const tickSet=(id,v)=>save(()=>DB.doc("ticks/"+id).set({done:v,at:Date.now()}));
+function renderQ(){
+ const open=S.qs.filter(q=>q.status!=="cleared");const wait=open.filter(q=>!q.answer);
+ $("qbox").className="card q"+(wait.length?"":" empty");
+ let h=`<h2>Questions for you${wait.length?` <span class="pill">${wait.length}</span>`:""}</h2>`;
+ if(!open.length)h+=`<div class="big">✅ Nothing waiting on you</div>`;
+ open.forEach(q=>{h+=`<div class="item" style="padding:8px 0"><div><b>${esc(q.q)}</b></div><div class="small">asked ${esc(q.asked||"")}</div>`+
+  (q.answer?`<div class="reply">Your answer: ${esc(q.answer)} <span class="small">(Claude clears it at the next chat)</span></div>`:
+  `<textarea id="qa-${q.id}" placeholder="Your answer"></textarea><div class="row"><button class="btn" data-qa="${q.id}">Send answer</button></div>`)+`</div>`});
+ $("qbox").innerHTML=h;
+ $("qbox").querySelectorAll("[data-qa]").forEach(b=>b.onclick=async()=>{const v=$("qa-"+b.dataset.qa).value.trim();if(!v)return;b.disabled=true;if(!await save(()=>DB.doc("questions/"+b.dataset.qa).update({answer:v,answeredAt:Date.now()})))b.disabled=false});
+}
+let mode="1 step",pct=null,usage="";
+function suggest(n){const r=D.steps.filter(ready).slice(0,n);const t=r.reduce((a,s)=>a+hi(s.est),0);return Math.min(D.week.build_cap,Math.round(D.week.weekly_now+t))}
+function renderStart(){
+ const cur=D.steps.find(ready);if(!cur){$("startnext").innerHTML="<b>Nothing ready: everything left is waiting.</b>";return}
+ const sk=suggest(3),so=suggest(6);
+ const mtxt=mode==="1 step"?"1 step":(mode.startsWith("keep")?`keep going to ${pct||sk}%`:`overnight to ${pct||so}%`);
+ const pr=D.prompt_template.replace("{n}",cur.n).replace("{name}",cur.name).replace("{mode}",mtxt).replace("{usage}",usage||"__/__");
+ $("startnext").innerHTML=`<div class="sub">START NEXT</div><div class="big">${esc(cur.chat)}</div><div class="sub">Step ${cur.n}: ${esc(cur.name)} · about ${esc(cur.est)} weekly points · ${timeEst(cur)} <span class="chip guess">guess</span></div><div style="margin-top:6px">${esc(cur.why)}</div>
+ <div class="row"><button class="btn ${mode==="1 step"?"on":"alt"}" data-m="1 step">1 step</button><button class="btn ${mode.startsWith("keep")?"on":"alt"}" data-m="keep">Keep going</button><button class="btn ${mode.startsWith("over")?"on":"alt"}" data-m="over">Overnight</button></div>
+ ${mode==="1 step"?"":`<div class="row"><label class="small">Stop at % (suggested ${mode.startsWith("keep")?sk:so}%, a guess from the estimates; never past ${D.week.build_cap}%)</label><input type="number" id="pct" value="${pct||(mode.startsWith("keep")?sk:so)}"></div>`}
+ <div class="row"><label class="small">Your usage reading [session/weekly]</label><input type="text" id="use" placeholder="18/57" value="${esc(usage)}"></div>
+ <pre id="np">${esc(pr)}</pre><button class="copy" id="cp">Copy prompt</button>`;
+ $("startnext").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{mode=b.dataset.m==="1 step"?"1 step":(b.dataset.m==="keep"?"keep going to __%":"overnight to __%");pct=null;renderStart()});
+ if($("pct"))$("pct").oninput=e=>{pct=Math.min(D.week.build_cap,+e.target.value||0);$("np").textContent=D.prompt_template.replace("{n}",cur.n).replace("{name}",cur.name).replace("{mode}",mode.startsWith("keep")?`keep going to ${pct}%`:`overnight to ${pct}%`).replace("{usage}",usage||"__/__")};
+ $("use").oninput=e=>{usage=e.target.value;$("np").textContent=$("np").textContent.replace(/Usage: \[.*\]/,"Usage: ["+(usage||"__/__")+"]")};
+ $("cp").onclick=async function(){try{await navigator.clipboard.writeText($("np").textContent);this.textContent="Copied ✓"}catch(e){this.textContent="Select the text above"}};
+}
+function goStep(n){document.querySelector('[data-t="q"]').click();const el=$("step-"+n);if(el){el.open=true;el.scrollIntoView({behavior:"smooth",block:"start"})}}
+function renderRoad(){
+ const cur=D.steps.find(ready);
+ $("road").innerHTML=D.steps.map(s=>`<div class="wrap">${s===cur?'<div class="arrow">▼</div>':""}<div class="dot ${s.status==="done"?"done":s.stage}${s===cur?" cur":""}${waiting(s)?" wait":""}" data-n="${esc(s.n)}" title="${esc(s.name)}">${s.status==="done"?"✓":s.n}</div></div>`).join("");
+ $("road").querySelectorAll(".dot").forEach(b=>b.onclick=()=>goStep(b.dataset.n));
+ $("here").innerHTML=cur?`<div class="you hereBig">▲ YOU ARE HERE: step ${cur.n}, ${esc(cur.name)}</div><div class="why">${esc(cur.why)}</div><div class="sub">${esc(cur.model)} · about ${esc(cur.est)} weekly points · ${timeEst(cur)}</div>`:`<div class="you">All remaining steps are waiting.</div>`;
+}
+function renderTiles(){
+ const dn=D.steps.filter(s=>s.status==="done");const pts=dn.map(s=>num(s.actual)).filter(x=>x!=null);
+ const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):"–";
+ const ch=dn.map(s=>s.chats||1);const t=S.track;
+ const days=t.backupDate?Math.round(dayNum(today())-dayNum(t.backupDate)):null;
+ $("tiles").innerHTML=`<div class="tile"><span class="small">Bugs I find this week</span><input type="number" id="tb" value="${esc(t.bugs==null?"":t.bugs)}" placeholder="0"></div>
+ <div class="tile"><span class="small">Weekly points per step</span><b>${avg(pts)}</b><span class="small">from ${pts.length} measured steps</span></div>
+ <div class="tile"><span class="small">Chats per step</span><b>${avg(ch)}</b></div>
+ <div class="tile"><span class="small">Phone minutes this step</span><input type="number" id="tp" value="${esc(t.phone==null?"":t.phone)}" placeholder="min"></div>
+ <div class="tile" style="grid-column:span 2"><span class="small">Days since backup</span><b>${days==null?"no date yet":days+(days>7?" ⚠️ over 7":"")}</b><button class="btn alt" id="tbk">I just backed up</button></div>`;
+ const w=(k,el)=>{el.onchange=()=>save(()=>DB.doc("track/main").set({...S.track,[k]:+el.value}))};
+ w("bugs",$("tb"));w("phone",$("tp"));
+ $("tbk").onclick=()=>save(()=>DB.doc("track/main").set({...S.track,backupDate:today()}));
+}
+function renderTest(){
+ const items=[];const TH=D.test_help||{};D.steps.filter(s=>s.status==="done"&&s.try).forEach(s=>s.try.forEach((x,i)=>{const id=`s${s.n}-${i}`,hp=TH[id]||{};const aff=((s.items||[])[0]||{}).affects;items.push({id,step:s,t:hp.text||x,where:hp.where||aff||""})}));
+ const done=items.filter(i=>S.ticks[i.id]).length;
+ let h=`<div class="card"><b>Test checklist</b> <span class="small">${done} of ${items.length} ticked</span><div class="bar"><i style="width:${items.length?100*done/items.length:0}%"></i></div><div class="sub">Do one block when you have 10–15 minutes. Use the safe test app: <a href="https://waddelljmw.github.io/CoinShelfTest/?demo">?demo link</a> (nothing is saved).</div></div>`;
+ const blk=[];for(let b=0;b*5<items.length;b++)blk.push({b,g:items.slice(b*5,b*5+5)});
+ const isP=x=>x.g.every(i=>S.ticks[i.id]);const act=blk.filter(x=>!isP(x)),pas=blk.filter(isP);
+ const row=i=>`<label class="chk${S.ticks[i.id]?" d":""}"><input type="checkbox" data-id="${i.id}"${S.ticks[i.id]?" checked":""}><span><span class="small">Step ${esc(i.step.n)}: ${esc(i.step.name)}</span>${i.where?`<br><span class="small">📍 Where: ${esc(i.where)}</span>`:""}<br>${esc(i.t)}</span></label>`;
+ act.forEach((x,k)=>{const gd=x.g.filter(i=>S.ticks[i.id]).length;
+  h+=`<details class="step"${k===0&&!document.querySelector("#test details[open]")?" open":""}><summary><div class="st-top"><div class="st-name">Block ${x.b+1} · about ${Math.round(x.g.length*2.5)} min</div><div class="st-cost"><b>${gd}/${x.g.length}</b></div></div></summary><div style="padding:0 14px 8px">`+x.g.map(row).join("")+`</div></details>`});
+ if(pas.length){h+=`<h2>Passed (${pas.length})</h2>`+pas.map(x=>`<details class="step"><summary><div class="st-top"><div class="st-name">Block ${x.b+1} ✓ passed</div><div class="st-cost"><button class="btn alt" data-react="${x.b}">Reactivate</button></div></div></summary><div style="padding:0 14px 8px">`+x.g.map(row).join("")+`</div></details>`).join("")}
+ const g=D.green_light;
+ h+=`<h2>Tester green light</h2><div class="card"><div class="small">${esc(g.note)}</div>`+g.checks.map((c,i)=>`<label class="chk${S.ticks["g"+i]?" d":""}"><input type="checkbox" data-id="g${i}"${S.ticks["g"+i]?" checked":""}><span>${i+1}. ${esc(c)}</span></label>`).join("")+`<div class="big" style="margin-top:8px">${g.checks.every((c,i)=>S.ticks["g"+i])?"🟢 Ready for testers":"🔴 Not yet: "+g.checks.filter((c,i)=>!S.ticks["g"+i]).length+" left"}</div></div>`;
+ const open=[...document.querySelectorAll("#test details")].map(d=>d.open);
+ $("test").innerHTML=h;$("test").querySelectorAll("details").forEach((d,i)=>{if(open[i]!==undefined)d.open=open[i]});
+ $("test").querySelectorAll("input[data-id]").forEach(c=>c.onchange=()=>tickSet(c.dataset.id,c.checked));
+ $("test").querySelectorAll("[data-react]").forEach(bt=>bt.onclick=e=>{e.preventDefault();e.stopPropagation();const b=+bt.dataset.react;items.slice(b*5,b*5+5).forEach(i=>tickSet(i.id,false))});
+}
+function renderNotes(){
+ const sorted=n=>n.sorted===true;const list=[...S.notes].sort((a,b)=>(sorted(a)-sorted(b))||((b.at||0)-(a.at||0)));
+ let h=`<div class="card"><b>Notes inbox</b><div class="sub">Type or dictate an idea. Claude reads new notes at the start of each coin chat and replies under each.</div><textarea id="nt" placeholder="Your note"></textarea><label class="chk" style="border:0"><input type="checkbox" id="nb"><span>This blocks entering coins</span></label><div class="row"><button class="btn alt" id="mic" ${dict?"":"hidden"}>🎤 Dictate</button><button class="btn" id="ns">Save note</button></div></div>`;
+ if(!list.length)h+=`<div class="sub">No notes yet.</div>`;
+ list.forEach(n=>{h+=`<div class="card"><div>${n.blocks?'<span class="chip now">blocks entering coins</span>':""}${sorted(n)?'<span class="chip done">sorted</span>':'<span class="chip queued">unsorted</span>'}</div>${S.ed===n.id?`<textarea id="ne-${n.id}" style="min-height:56px">${esc(n.text)}</textarea><div class="row"><button class="btn" data-nes="${n.id}">Save</button><button class="btn alt" data-nec="1">Cancel</button></div>`:`<div style="margin:6px 0">${esc(n.text)}</div>${n.reply?"":`<button class="btn alt" data-ne="${n.id}">Edit</button>`}`}`+
+  (n.reply?`<div class="reply"><b>Claude:</b> ${esc(n.reply)}${n.sortedTo?`<div class="small">Went to: ${esc(n.sortedTo)}</div>`:""}</div>`:`<div class="small">Claude hasn't read this yet.</div>`)+
+  (n.answer?`<div class="reply">You: ${esc(n.answer)}</div>`:"")+
+  `<textarea id="na-${n.id}" placeholder="Reply to Claude" style="min-height:56px"></textarea><div class="row"><button class="btn alt" data-na="${n.id}">Send reply</button></div></div>`});
+ const keep=$("nt")?$("nt").value:"";$("notes").innerHTML=h;$("nt").value=keep;
+ $("ns").onclick=async()=>{const v=$("nt").value.trim();if(!v)return;if(await save(()=>DB.collection("notes").add({text:v,blocks:$("nb").checked,at:Date.now(),sorted:false}))){$("nt").value="";$("nb").checked=false}};
+ $("notes").querySelectorAll("[data-ne]").forEach(b=>b.onclick=()=>{S.ed=b.dataset.ne;renderNotes()});
+ $("notes").querySelectorAll("[data-nec]").forEach(b=>b.onclick=()=>{S.ed=null;renderNotes()});
+ $("notes").querySelectorAll("[data-nes]").forEach(b=>b.onclick=async()=>{const v=$("ne-"+b.dataset.nes).value.trim();if(v&&await save(()=>DB.doc("notes/"+b.dataset.nes).update({text:v,editedAt:Date.now()}))){S.ed=null;renderNotes()}});
+ $("notes").querySelectorAll("[data-na]").forEach(b=>b.onclick=async()=>{const v=$("na-"+b.dataset.na).value.trim();if(v)await save(()=>DB.doc("notes/"+b.dataset.na).update({answer:v,answeredAt:Date.now()}))});
+ if(dict&&$("mic"))$("mic").onclick=()=>{dict.start().catch(()=>{})};
+}
+function renderWaiting(){
+ let h="";const ws=D.steps.filter(waiting);
+ h+=`<div class="card"><b>Waiting lane</b><div class="sub">Things that can't start yet, and what they wait for.</div></div>`;
+ ws.forEach(s=>{h+=`<div class="card"><span class="chip ${s.stage}">${STAGE[s.stage]}</span><b>${esc(s.n)}. ${esc(s.name)}</b><div class="sub">⏳ ${esc(s.when||"waiting")}${s.after?" ("+esc(s.after)+")":""} · ${esc(s.model)} · about ${esc(s.est)} points</div><div class="why">${esc(s.why)}</div></div>`});
+ (D.waiting||[]).forEach(w=>{h+=`<div class="card"><b>${esc(w.t)}</b><div class="sub">⏳ ${esc(w.when)}</div><div class="why">${esc(w.what)}</div></div>`});
+ h+=D.parked.map(g=>`<div class="card"><b>${esc(g.group)}</b><ul>${g.items.map(x=>`<li><span class="chip ${x.size[0]}">${esc(x.size)}</span>${esc(x.t)}</li>`).join("")}</ul></div>`).join("");
+ $("waiting").innerHTML=h;
+}
+function renderCheckin(){
+ const rd=D.steps.filter(ready);const low=rd.length<3;
+ $("qlow").hidden=!low;
+ if(low)$("qlow").innerHTML=`<b>⚠️ Queue low: ${rd.length} ready-to-build step${rd.length===1?"":"s"} left (want at least 3).</b><div class="sub">The next chat pulls from Later and says which, or posts to Questions for you.</div>`;
+ const c=D.checkin||{};const done=D.steps.filter(s=>s.status==="done").length-(c.review_baseline||0);
+ const nxt=(()=>{const d=new Date();const add=((2-d.getDay())+7)%7||7;const tu=new Date(d.getFullYear(),d.getMonth(),d.getDate()+add);const mo=new Date(tu.getFullYear(),tu.getMonth(),tu.getDate()-1);const f=x=>(x.getMonth()+1)+"-"+x.getDate();return{mo:f(mo),tu:f(tu)}})();
+ const w=D.week.weekly_now;const early=w<=90?"✅ weekly is "+w+"%: fine to run it early":w<=93?"⚠️ weekly is "+w+"%: borderline":"⏸ weekly is "+w+"%: skip the early check-in";
+ const due=done>=8||!!c.saved_data_ahead;
+ const why=done>=8?`${done} steps done since the last review`:c.saved_data_ahead?"a change to how coins are saved is coming":"";
+ const rv=D.steps.find(s=>/^R\d+$/.test(String(s.n))&&s.status!=="done");
+ $("checkin").innerHTML=`<div class="big">${due?"🔴 Review due":"🟢 No review due yet"}</div><div class="sub">${due?esc(why)+(rv?`. Queued as step ${esc(rv.n)} (Opus, solo, about ${esc(rv.est)} weekly points).`:". Not queued yet: the next check-in queues it."):`${done} of 8–10 steps since the last review (${esc(c.last_review||"none")}).`}</div>
+ <div style="margin-top:8px"><b>Suggested:</b> Mon ${nxt.mo} evening or Tue ${nxt.tu} morning, before the 1pm reset, after Sunday's fantasy run.</div>
+ <div class="sub">${early}. Skip if above about 93%; then fill-ins up to ${D.week.fill_cap}%.</div>
+ <div class="sub">Last check-in: ${esc(c.last||"not run yet")} · Sonnet, about 15 min.</div>`;
+}
+function renderAll(){if(!D)return;renderCheckin();renderQ();renderStart();renderRoad();renderTiles();renderTest();renderNotes()}
+function renderStatic(){
+ $("upd").textContent="Updated "+D.updated+" · app "+D.app;
+ const w=D.week;const nowHi=D.steps.filter(s=>s.stage==="now"&&s.status!=="done").reduce((a,s)=>a+hi(s.est),0);
+ $("wk").textContent=`${w.label}: ${w.weekly_now}% used.`;
+ const pl=Math.min(nowHi,100-w.weekly_now);
+ $("meter").innerHTML=`<div class="used" style="width:${w.weekly_now}%"></div><div class="plan" style="left:${w.weekly_now}%;width:${pl}%"></div><div class="res" style="left:${w.fill_cap-w.fantasy_reserve}%;width:${w.fantasy_reserve}%"></div><div class="mark" style="left:${w.weekly_now}%">now ${w.weekly_now}%</div><div class="mark" style="left:${w.build_cap}%">build stop ${w.build_cap}%</div><div class="mark" style="left:${w.fill_cap}%;top:36px">${w.fill_cap}%</div>`;
+ $("rule").textContent=w.rule;
+ $("steps").innerHTML=D.steps.map(s=>`<details class="step" id="step-${esc(s.n)}"${ready(s)&&s===D.steps.find(ready)?" open":""}><summary><div class="st-top"><div><span class="chip ${s.stage}">${STAGE[s.stage]}</span><span class="chip ${s.status}">${ST[s.status]||s.status}</span>${waiting(s)?'<span class="chip queued">⏳ '+esc(s.when||"waiting")+'</span>':""}<div class="st-name">${s.n}. ${esc(s.name)}</div><div class="size">Size: ${sizeSum(s.items)}</div></div><div class="st-cost">est <b>${esc(s.est)}</b> pts<br>${s.status==="done"?"real <b>"+esc(s.actual||"?")+"</b>":timeEst(s)}<br>${esc(s.model)}</div></div><div class="why">${esc(s.why)}</div></summary>`+
+  s.items.map(i=>`<div class="item"><span class="chip ${i.size}">${i.size}</span><span class="w">${esc(i.what)}</span> <span class="id">${esc(i.id)}</span><div class="c">${esc(i.change)}</div><div class="a">Affects: ${esc(i.affects)}</div></div>`).join("")+
+  (s.try?`<div class="item tryb"><b>🧪 Try it after it merges</b> <span class="sub">(safe test app: <a href="https://waddelljmw.github.io/CoinShelfTest/?demo">?demo</a>)</span><ul>${s.try.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`:"")+`</details>`).join("");
+ $("done").innerHTML=D.done.map(x=>`<div class="card"><div class="st-top"><div><span class="chip done">✓ ${esc(x.date)}</span><b>${esc(x.name)}</b></div><div class="st-cost">${x.ver?esc(x.ver)+"<br>":""}real <b>${esc(x.cost)}</b> wk pts</div></div><div class="why">${esc(x.change)}</div></div>`).join("");
+ const ct=D.cost_table.map(r=>`<tr><td>${esc(r.what)}</td><td>${esc(r.points)}</td><td>${esc(r.time)}</td><td>${r.basis==="guess"?'<span class="chip guess">guess</span>':esc(r.basis)}</td></tr>`).join("");
+ $("note").innerHTML=`<b>Sizes:</b> <span class="chip S">S</span>small fix · <span class="chip M">M</span>a feature · <span class="chip L">L</span>big, or changes how coins are saved (asks you first).<br><b>Cost table</b> (weekly points, time):<table style="width:100%;font-size:13px;margin-top:4px"><tr><th align=left>Work</th><th align=left>Pts</th><th align=left>Time</th><th></th></tr>${ct}</table><br>${esc(D.cost_note)}`;
+ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["h","q","d","w","t","n"].forEach(t=>$("tab-"+t).hidden=t!==b.dataset.t)});
+ renderWaiting();
+}
+async function startDb(){
+ try{DB=await claude.use("db")}catch(e){DB=null}
+ try{dict=await claude.use("dictation")}catch(e){dict=null}
+ if(!DB){$("qbox").insertAdjacentHTML("beforeend",'<div class="small">Saving is off in this view; ticks, notes and answers will not be kept.</div>');return}
+ const timer=setTimeout(()=>$("qbox").insertAdjacentHTML("beforeend",'<div class="small">Saved data can\'t be reached yet; what you see may be out of date.</div>'),10000);
+ const sub=(name,fn)=>DB.collection(name).onSnapshot(s=>{clearTimeout(timer);fn(s.docs.map(d=>({id:d.id,...d.data()})));renderAll()},e=>{clearTimeout(timer)});
+ sub("ticks",a=>{S.ticks={};a.forEach(x=>{if(x.done)S.ticks[x.id]=true})});
+ sub("notes",a=>{S.notes=a});
+ sub("questions",a=>{S.qs=a});
+ sub("track",a=>{const m=a.find(x=>x.id==="main");S.track=m?(({id,...r})=>r)(m):{}});
+ if(dict){dict.onPartial(()=>{});dict.onFinal(({text})=>{const t=$("nt");if(t)t.value=(t.value?t.value+" ":"")+text})}
+}
+fetch("pipeline.json").then(r=>r.json()).then(d=>{D=d;renderStatic();renderAll();startDb()}).catch(e=>{$("steps").textContent="Couldn't load the pipeline data."});
+</script></body></html>

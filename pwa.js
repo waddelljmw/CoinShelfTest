@@ -1,0 +1,57 @@
+// Installing Coin Cabinet on the phone and keeping it up to date (only when it runs on its own website).
+"use strict";
+
+let swReg = null;
+// Wait for any version that is still downloading, then give back the newest one that is ready.
+async function newestWaiting(fallback) {
+  if (swReg) {
+    try { await swReg.update(); } catch (e) { /* offline: use what we have */ }
+    const inst = swReg.installing;
+    if (inst && inst.state !== "installed") await new Promise((res) => { const f = () => { if (inst.state === "installed" || inst.state === "redundant") { inst.removeEventListener("statechange", f); res(); } }; inst.addEventListener("statechange", f); setTimeout(res, 8000); });
+    if (swReg.waiting) return swReg.waiting;
+  }
+  return fallback;
+}
+function showUpdateBar(worker) {
+  if (document.getElementById("updateBar")) return;
+  const last = settings().lastBackup;
+  const days = last ? Math.floor((Date.now() - new Date(last + "T12:00:00").getTime()) / 86400000) : Infinity;
+  const bar = document.createElement("div");
+  bar.id = "updateBar";
+  bar.className = "update-bar";
+  bar.innerHTML = `<span>A new version of Coin Cabinet is ready.${allCoins().length && days > 7 ? ` <button class="link-btn" data-act="openBackup">Save a backup first</button>` : ""}</span>
+    <button class="btn primary" id="updateNow">Update now</button>`;
+  document.body.appendChild(bar);
+  bar.querySelector("#updateNow").addEventListener("click", () => {
+    // Don't throw away a coin (or anything else) you're in the middle of typing.
+    if (draft || !$("#sheet").hidden) { toast("Finish or close what you're working on first, then tap Update now."); return; }
+    bar.querySelector("#updateNow").disabled = true;
+    newestWaiting(worker).then((w) => w.postMessage("update-now"));
+  });
+}
+
+function initPwa() {
+  if (!("serviceWorker" in navigator) || window.claude || window.COIN_SNAPSHOT) return;
+  if (!/^https:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
+  let reloading = false;
+  const hadController = !!navigator.serviceWorker.controller;
+  // When the new version takes over, reload once so the page uses it.
+  // Another window that's in the middle of something waits until it's closed.
+  const reloadWhenFree = () => {
+    if (reloading) return;
+    if (draft || !$("#sheet").hidden) { setTimeout(reloadWhenFree, 2000); return; }
+    reloading = true;
+    location.reload();
+  };
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadController) reloadWhenFree(); });
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((reg) => {
+    swReg = reg;
+    const watch = (w) => w && w.addEventListener("statechange", () => { if (w.state === "installed" && navigator.serviceWorker.controller) showUpdateBar(w); });
+    if (reg.waiting && navigator.serviceWorker.controller) showUpdateBar(reg.waiting);
+    watch(reg.installing);
+    reg.addEventListener("updatefound", () => watch(reg.installing));
+    // Check for a new version when the app is opened again.
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
+  }).catch(() => { /* works fine without; just no offline copy */ });
+}
+initPwa();
