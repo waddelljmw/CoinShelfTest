@@ -1418,9 +1418,9 @@
       "model": "Opus",
       "est": "3-5",
       "actual": "",
-      "status": "queued",
+      "status": "next",
       "chat": "New Opus chat",
-      "when": "after step 4",
+      "when": "ready now",
       "why": "Tell \"no mint mark\", \"P\" and \"can't tell\" apart and add a Skip in Fix-up tick, without breaking your 500+ saved coins. One Opus chat plans it, then builds it.",
       "items": [
         {
