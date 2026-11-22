@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin Cabinet</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#9a6b1f">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+</head>
+<body>
+<header class="topbar">
+  <button class="brand" data-go="home" aria-label="Home">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span>Coin Cabinet</span>
+  </button>
+  <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+<nav class="menu" id="menu" hidden>
+  <button data-go="home">My Cabinet</button>
+  <button data-go="coins">My Coins</button>
+  <button class="menu-sub" data-go="albums">My Albums</button>
+  <button class="menu-sub" data-go="boxes">Storage</button>
+  <button data-go="wants">Want List</button>
+  <button data-go="stacks" id="menuStacks" hidden>My Stacks</button>
+  <button data-go="value">Coin Value</button>
+  <button class="menu-sub" data-act="openReport">Insurance Report</button>
+  <button class="menu-sub" data-go="melt">Melt Table</button>
+  <button data-go="guide">PCGS Photograde</button>
+  <div class="menu-head" id="menuBiz" hidden>My Business</div>
+  <button class="menu-sub" data-go="shows" id="menuShows" hidden>Shows</button>
+  <button class="menu-sub" data-go="reports" id="menuReports" hidden>Sales Reports</button>
+  <button data-go="options">Options</button>
+</nav>
+<div id="banner" class="banner" hidden></div>
+<main id="view" aria-live="polite"><div class="empty">Opening Coin Cabinet… the first time can take a few seconds.</div></main>
+<button class="fab" id="fab" aria-label="Add coin">+</button>
+<div id="sheet" class="sheet-wrap" hidden></div>
+<div id="toast" class="toast" hidden></div>
+<script src="catalog/data.js"></script>
+<script src="catalog/bookfacts.js"></script>
+<script src="catalog/mintages.js"></script>
+<script src="catalog/albums.js"></script>
+<script src="catalog/varieties.js"></script>
+<script src="catalog/idcodes.js"></script>
+<script src="app.js"></script>
+<script src="values.js"></script>
+<script src="views.js"></script>
+<script src="albums.js"></script>
+<script src="options.js"></script>
+<script src="coinform.js"></script>
+<script src="coinsave.js"></script>
+<script src="editforms.js"></script>
+<script src="actions.js"></script>
+<script src="ids.js"></script>
+<script src="sheets.js"></script>
+<script src="selling.js"></script>
+<script src="order.js"></script>
+<script src="seller.js"></script>
+<script src="photofill.js"></script>
+<script src="history.js"></script>
+<script src="wants.js"></script>
+<script src="boxes.js"></script>
+<script src="pockets.js"></script>
+<script src="dealer.js"></script>
+<script src="pricing.js"></script>
+<script src="salesreport.js"></script>
+<script src="many.js"></script>
+<script src="fillalbum.js"></script>
+<script src="filters.js"></script>
+<script src="inherit.js"></script>
+<script src="shelf.js"></script>
+<script src="report.js"></script>
+<script src="snapshot.js"></script>
+<script src="albumdb.js"></script>
+<script src="local.js"></script>
+<script src="backup.js"></script>
+<script src="pricefile.js"></script>
+<script src="ownvalues.js"></script>
+<script src="coincard.js"></script>
+<script src="meltpage.js"></script>
+<script src="whatsnew.js"></script>
+<script src="welcome.js"></script>
+<script src="levels.js"></script>
+<script src="pwa.js"></script>
+</body>
+</html>

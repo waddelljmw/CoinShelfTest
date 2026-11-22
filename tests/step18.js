@@ -1,0 +1,24 @@
+const { chromium } = require("./_compat");
+(async () => {
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+  const errors = []; p.on("pageerror", (e) => errors.push(e.message));
+  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(400);
+  const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
+  await p.evaluate(() => { saveSettings({ spot: { ...settings().spot, silver: 40 } }); saveCoin({ ...blankCoin(), id: "m1", typeId: "mercury-dime", typeName: "Mercury Dime", year: 1941, grade: "VF-20", metal: "Silver", oz: 0.07234 }); go("home"); });
+  await p.waitForTimeout(300);
+  ok("Home melt section links to the table", !!(await p.$("#view [data-go=melt]")));
+  await p.click("#view [data-go=melt]"); await p.waitForTimeout(300);
+  const t = await p.textContent("#view");
+  ok("page opens", /Melt table/.test(t));
+  ok("Mercury dime melt = 0.07234 x 40 = $2.89", /Mercury Dime[\s\S]*?\$2\.89/.test(t));
+  ok("Kennedy 40% half = 0.14792 x 40 = $5.92", /Kennedy Half Dollar \(40% silver\)[\s\S]*?\$5\.92/.test(t));
+  ok("Morgan = 0.77344 x 40 = $30.94", /Morgan Dollar[\s\S]*?\$30\.94/.test(t));
+  ok("war nickel 35%", /35% silver/.test(t));
+  ok("unknown-weight coins left off (Seated dime)", !/Seated Liberty Dime/.test(t));
+  await p.evaluate(() => { saveSettings({ spot: { ...settings().spot, silver: 50 } }); render(); }); await p.waitForTimeout(150);
+  ok("changing the silver price changes the numbers", /Mercury Dime[\s\S]*?\$3\.62/.test(await p.textContent("#view")));
+  await p.evaluate(() => go("options")); await p.waitForTimeout(300);
+  ok("Options has a Melt table button", !!(await p.$("#view [data-go=melt]")));
+  ok("no page errors", errors.length === 0);
+  await b.close();
+})();

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,Roboto,Helvetica,Arial,sans-serif}
+.top{display:flex;justify-content:space-between;align-items:center;padding:10px 14px}
+.brand{display:flex;gap:8px;align-items:center;font-weight:700;font-size:18px}
+.mark{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f4d58d,#b8862b 60%,#7a5310)}
+.menu{width:40px;height:40px;border-radius:11px;display:grid;place-content:center;gap:4px}.menu i{display:block;width:18px;height:2px;background:currentColor}
+.cab{margin:4px 10px 20px;padding:10px 10px 4px;border-radius:10px}
+.shelf{position:relative;padding:12px 8px 0;min-height:118px;display:flex;align-items:flex-end;gap:6px;flex-wrap:nowrap}
+.board{height:14px;margin:0 -10px 10px;border-radius:2px}
+.lab{font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin:0 4px 2px;opacity:.75}
+.plaques{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}
+.pl{border-radius:6px;padding:6px 8px;text-align:center}.pl .k{font-size:10px;text-transform:uppercase;letter-spacing:.06em}.pl .v{font-size:17px;font-weight:700}
+.pl.big{grid-column:1/-1}.pl.big .v{font-size:26px}
+.spot{display:flex;gap:6px;width:100%;margin-top:6px}.spot div{flex:1;font-size:11px;text-align:center;border-radius:5px;padding:3px}
+.spine{width:33px;height:112px;border-radius:3px 3px 1px 1px;position:relative;display:flex;align-items:center;justify-content:center}
+.spine span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;font-weight:600;white-space:nowrap;letter-spacing:.02em}
+.spine.tall{height:118px}.spine.short{height:104px}
+.spine::before,.spine::after{content:"";position:absolute;left:3px;right:3px;height:2px}.spine::before{top:5px}.spine::after{bottom:5px}
+.tag{font-size:9px;position:absolute;bottom:-1px;left:50%;transform:translateX(-50%)}
+.group{display:flex;flex-direction:column;align-items:center;gap:3px}
+.cap{font-size:10px;text-align:center;line-height:1.15;max-width:90px}
+.bars{display:flex;flex-direction:column-reverse;align-items:center}
+.bar{width:64px;height:13px;border-radius:2px;margin-top:-1px}.bar.s{width:46px;height:10px}.bar.b{width:78px;height:17px}
+.coins{display:flex;flex-direction:column-reverse;align-items:center}
+.coin{width:52px;height:9px;border-radius:50%;margin-top:-4px}
+.box{width:72px;height:48px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;position:relative}
+.box::before{content:"";position:absolute;top:6px;left:6px;right:6px;height:3px;border-radius:2px}
+.set{width:44px;height:58px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;text-align:center;transform:rotate(-6deg)}
+.roll{width:16px;height:64px;border-radius:7px}
+.ok{position:absolute;top:-6px;right:-6px;width:14px;height:14px;border-radius:50%;font-size:9px;display:grid;place-content:center}
+.foot{font-size:12px;text-align:center;padding:0 16px 16px;opacity:.7}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 12px}.chips span{font-size:12px;padding:4px 10px;border-radius:999px}
+
+/* A: warm wood bookcase */
+.A{background:#efe7da;color:#2a1f14}
+.A .menu{background:#fff;border:1px solid #ddd}
+.A .cab{background:linear-gradient(#5a3a1e,#4a2f17);box-shadow:inset 0 0 0 6px #6e4824,inset 0 0 18px rgba(0,0,0,.6)}
+.A .shelf{background:linear-gradient(#2e1e0f,#3d2814 70%)}
+.A .board{background:linear-gradient(#a8743d,#7a5127 60%,#5c3b1b);box-shadow:0 3px 4px rgba(0,0,0,.5)}
+.A .lab,.A .cap{color:#f2e3c8}
+.A .pl{background:linear-gradient(#e9c97a,#c9a04a 55%,#a77d2c);color:#3a2706;box-shadow:inset 0 0 0 1px #f7e2a8,0 2px 3px rgba(0,0,0,.4)}
+.A .spot div{background:rgba(0,0,0,.35);color:#f2e3c8}
+.A .s1{background:linear-gradient(90deg,#1e3a5f,#2c5185 50%,#1e3a5f);color:#e8d29a}.A .s1::before,.A .s1::after{background:#c9a04a}
+.A .s2{background:linear-gradient(90deg,#5c1a1a,#842626 50%,#5c1a1a);color:#e8d29a}.A .s2::before,.A .s2::after{background:#c9a04a}
+.A .s3{background:linear-gradient(90deg,#1f4a2e,#2e6b43 50%,#1f4a2e);color:#e8d29a}.A .s3::before,.A .s3::after{background:#c9a04a}
+.A .bar{background:linear-gradient(#f2f2f2,#b9bcc0 60%,#8d9196);box-shadow:0 1px 0 #666}
+.A .coin{background:linear-gradient(#f4d58d,#b8862b);box-shadow:0 1px 0 #6b4a12}.A .coin.ag{background:linear-gradient(#f2f2f2,#9da1a6);box-shadow:0 1px 0 #555}
+.A .box{background:linear-gradient(#262626,#111);color:#ddd}.A .box::before{background:#444}
+.A .set{background:linear-gradient(135deg,#dfe6ee,#9fb0c2);color:#223;box-shadow:0 2px 3px rgba(0,0,0,.5)}
+.A .roll{background:linear-gradient(90deg,#9c6b30,#d6a45c 50%,#9c6b30)}
+.A .ok{background:#2f7d4f;color:#fff}
+.A .chips span{background:#fff;border:1px solid #d9cdb8}.A .chips .on{background:#9a6b1f;color:#fff;border-color:#9a6b1f}
+
+/* B: clean modern shelf */
+.B{background:#f6f3ee;color:#1f1c18}
+.B .menu{background:#fff;border:1px solid #e4ddd2}
+.B .cab{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.06);border-radius:16px}
+.B .board{background:#e4ddd2;height:6px;margin:0 -2px 12px;border-radius:3px}
+.B .lab{color:#6f675d}.B .cap{color:#6f675d}
+.B .pl{background:#f3e7d1;color:#5a3d0e}.B .pl.big{background:#9a6b1f;color:#fff}
+.B .spot div{background:#efe9df;color:#6f675d}
+.B .spine{border-radius:6px}.B .spine::before,.B .spine::after{display:none}
+.B .s1{background:#3f6b9a;color:#fff}.B .s2{background:#b3523f;color:#fff}.B .s3{background:#4e8a63;color:#fff}
+.B .bar{background:#c9cdd2;border:1px solid #aab0b6}
+.B .coin{background:#d9a94e;border:1px solid #b08330}.B .coin.ag{background:#cfd3d7;border-color:#a9afb5}
+.B .box{background:#3a3631;color:#fff;border-radius:8px}.B .box::before{background:#57514a}
+.B .set{background:#e8eef4;border:1px solid #c5d0db;color:#334;border-radius:6px}
+.B .roll{background:#d0a15a}
+.B .ok{background:#2f7d4f;color:#fff}
+.B .chips span{background:#efe9df}.B .chips .on{background:#9a6b1f;color:#fff}
+
+/* C: dark display case */
+.C{background:#141210;color:#f1ece4}
+.C .menu{background:#211e1a;border:1px solid #36312a;color:#f1ece4}
+.C .cab{background:radial-gradient(ellipse at 50% 0,#3a2a3f 0,#1d1620 70%);border:2px solid #4a3c2a;box-shadow:inset 0 0 30px rgba(0,0,0,.8)}
+.C .shelf{background:radial-gradient(ellipse at 50% 0,rgba(255,240,200,.16),transparent 70%)}
+.C .board{background:linear-gradient(rgba(220,240,255,.35),rgba(220,240,255,.08));height:6px;box-shadow:0 6px 10px rgba(0,0,0,.6)}
+.C .lab,.C .cap{color:#d9c9a8}
+.C .pl{background:#1a1510;border:1px solid #d9a94e;color:#f3d892}.C .pl .k{color:#bfa36a}
+.C .spot div{background:#221c16;color:#bfa36a;border:1px solid #3a3022}
+.C .s1{background:linear-gradient(90deg,#14243a,#22406a 50%,#14243a);color:#f3d892}.C .s1::before,.C .s1::after{background:#d9a94e}
+.C .s2{background:linear-gradient(90deg,#3e1010,#6a1e1e 50%,#3e1010);color:#f3d892}.C .s2::before,.C .s2::after{background:#d9a94e}
+.C .s3{background:linear-gradient(90deg,#10301d,#1e5434 50%,#10301d);color:#f3d892}.C .s3::before,.C .s3::after{background:#d9a94e}
+.C .bar{background:linear-gradient(#fff,#b9bcc0 60%,#7d8186);box-shadow:0 0 6px rgba(255,255,255,.25)}
+.C .coin{background:linear-gradient(#f4d58d,#b8862b)}.C .coin.ag{background:linear-gradient(#fff,#9da1a6)}
+.C .box{background:#0b0b0b;color:#ccc;border:1px solid #333}.C .box::before{background:#333}
+.C .set{background:linear-gradient(135deg,#2a3440,#151b22);color:#cfd8e2;border:1px solid #4d5a68}
+.C .roll{background:linear-gradient(90deg,#7d5524,#d6a45c 50%,#7d5524)}
+.C .ok{background:#5fbf85;color:#000}
+.C .chips span{background:#2c2822;color:#a79e91}.C .chips .on{background:#d9a94e;color:#1b1508}
+
+/* D: inside a safe */
+.D{background:#1c1e21;color:#e6e8ea}
+.D .menu{background:#2a2d31;border:1px solid #3d4146;color:#e6e8ea}
+.D .cab{position:relative;background:linear-gradient(#3a3e44,#2b2e33);border:10px solid #55595f;border-radius:14px;padding:12px 12px 4px;
+  box-shadow:inset 0 0 0 2px #1a1c1f,inset 0 8px 24px rgba(0,0,0,.7),0 0 0 2px #2a2d31,0 6px 16px rgba(0,0,0,.6);
+  border-image:linear-gradient(135deg,#8a8f96,#4a4e54 40%,#6d7279 60%,#3c4045) 1}
+.D .cab::before{display:none;content:"";position:absolute;inset:-10px;pointer-events:none;
+  background:radial-gradient(circle,#b9bdc2 0 3px,#5a5e64 4px,transparent 5px) 0 0/100% 100%;
+  -webkit-mask:none}
+.D .bolts{position:absolute;top:0;bottom:0;width:10px;display:flex;flex-direction:column;justify-content:space-around}
+.D .bolts.l{left:-10px}.D .bolts.r{right:-10px}
+.D .bolts i{width:7px;height:7px;margin:0 auto;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e3e6ea,#7b8087 70%);box-shadow:0 1px 1px #000}
+.D .shelf{background:linear-gradient(#25282c,#30343a)}
+.D .board{background:linear-gradient(#a7acb3,#6b7077 50%,#4b4f55);height:10px;box-shadow:0 3px 5px rgba(0,0,0,.7)}
+.D .lab,.D .cap{color:#b9c0c8}
+.D .pl{background:linear-gradient(#1b1d20,#121315);border:1px solid #6b7077;color:#7ee0a0;font-family:"Courier New",monospace}.D .pl .k{color:#9aa3ad;font-family:-apple-system,Roboto,sans-serif}
+.D .spot div{background:#1b1d20;color:#9aa3ad;border:1px solid #444a51}
+.D .s1{background:linear-gradient(90deg,#1e3a5f,#2c5185 50%,#1e3a5f);color:#e8d29a}.D .s1::before,.D .s1::after{background:#c9a04a}
+.D .s2{background:linear-gradient(90deg,#5c1a1a,#842626 50%,#5c1a1a);color:#e8d29a}.D .s2::before,.D .s2::after{background:#c9a04a}
+.D .s3{background:linear-gradient(90deg,#1f4a2e,#2e6b43 50%,#1f4a2e);color:#e8d29a}.D .s3::before,.D .s3::after{background:#c9a04a}
+.D .bar{background:linear-gradient(#f2f2f2,#b9bcc0 60%,#8d9196);box-shadow:0 1px 0 #444}
+.D .coin{background:linear-gradient(#f4d58d,#b8862b)}.D .coin.ag{background:linear-gradient(#f2f2f2,#9da1a6)}
+.D .box{background:linear-gradient(#1a1a1a,#0c0c0c);color:#ddd;border:1px solid #444}.D .box::before{background:#444}
+.D .set{background:linear-gradient(135deg,#dfe6ee,#9fb0c2);color:#223}
+.D .roll{background:linear-gradient(90deg,#9c6b30,#d6a45c 50%,#9c6b30)}
+.D .ok{background:#2f9d5f;color:#fff}
+.D .chips span{background:#2a2d31;color:#9aa3ad;border:1px solid #3d4146}.D .chips .on{background:#c9a04a;color:#1b1508;border-color:#c9a04a}
+.D .door{display:flex;align-items:center;justify-content:space-between;margin:0 10px 8px;padding:8px 12px;border-radius:10px;
+  background:linear-gradient(135deg,#5d6268,#3c4045);box-shadow:inset 0 1px 0 #8a8f96,0 2px 6px rgba(0,0,0,.5);font-size:12px;color:#d6dade;letter-spacing:.08em;text-transform:uppercase}
+.D .dial{width:34px;height:34px;border-radius:50%;background:repeating-conic-gradient(#2a2d31 0 4deg,#bfc4ca 4deg 8deg);display:grid;place-content:center}
+.D .dial::after{content:"";width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e3e6ea,#6b7077 75%)}
+.D .handle{width:46px;height:8px;border-radius:4px;background:linear-gradient(#e3e6ea,#7b8087)}
+
+.A.night{background:#161412;color:#f1ece4}
+.A.night .menu{background:#211e1a;border-color:#36312a;color:#f1ece4}
+.A.night .chips span{background:#2c2822;border-color:#36312a;color:#a79e91}.A.night .chips .on{background:#d9a94e;color:#1b1508;border-color:#d9a94e}
+.A.night .foot{color:#a79e91}
+</style></head><body>
+<div id="root"></div>
+<script>
+const v=(new URLSearchParams(location.search).get("v")||"A");
+document.body.className=v+(new URLSearchParams(location.search).get("night")?" night":"");
+const names={A:"Wood bookcase",B:"Clean and simple",C:"Lit display case",D:"Inside a safe"};
+const sp=(c,t,h)=>`<div class="spine ${c} ${h||""}"><span>${t}</span></div>`;
+document.getElementById("root").innerHTML=`
+<div class="top"><div class="brand"><div class="mark"></div>Your cabinet</div><div class="menu"><i></i><i></i><i></i></div></div>
+<div class="chips"><span class="on">My collection</span><span class="on">Inherited</span><span class="on">My Silver Stack</span></div>
+${v==="D"?`<div class="door"><div class="dial"></div>Coin vault · open<div class="handle"></div></div>`:""}<div class="cab">${v==="D"?`<div class="bolts l">${"<i></i>".repeat(6)}</div><div class="bolts r">${"<i></i>".repeat(6)}</div>`:""}
+  <div class="lab">Top shelf · totals</div>
+  <div class="shelf" style="min-height:0;padding-bottom:8px;flex-direction:column">
+    <div class="plaques">
+      <div class="pl big"><div class="k">Collection value</div><div class="v">$8,412.50</div></div>
+      <div class="pl"><div class="k">Melt value</div><div class="v">$3,105.20</div></div>
+      <div class="pl"><div class="k">Coins</div><div class="v">642</div></div>
+    </div>
+    <div class="spot"><div>Silver $31.40</div><div>Gold $2,680</div><div>Updated 9:40</div></div>
+  </div>
+  <div class="board"></div>
+
+  <div class="lab">Albums</div>
+  <div class="shelf">
+    ${sp("s1","Morgan 1878–1891","tall")}${sp("s1","Morgan 1891–1904","tall")}${sp("s1","Morgan 1921–2021","tall")}
+    ${sp("s2","Washington 1932–90")}${sp("s3","Lincoln 1909–2012","short")}${sp("s2","Kennedy 1964–","short")}
+    <div style="position:relative">${sp("s3","Franklin 1948–63","short")}<div class="ok">✓</div></div>
+    ${sp("s1","US Type Set")}
+  </div>
+  <div class="board"></div>
+
+  <div class="lab">Stacks and coins</div>
+  <div class="shelf" style="justify-content:space-around">
+    <div class="group"><div class="bars"><div class="bar b"></div><div class="bar"></div><div class="bar"></div><div class="bar s"></div></div><div class="cap">My Silver Stack<br>14.6 oz</div></div>
+    <div class="group"><div class="coins">${'<div class="coin ag"></div>'.repeat(6)}${'<div class="coin"></div>'.repeat(3)}</div><div class="cap">My Coins<br>518</div></div>
+    <div class="group"><div style="display:flex;gap:4px;align-items:flex-end"><div class="roll"></div><div class="roll" style="height:56px"></div><div class="roll" style="height:70px"></div></div><div class="cap">Rolls<br>3</div></div>
+  </div>
+  <div class="board"></div>
+
+  <div class="lab">Boxes and sets</div>
+  <div class="shelf" style="justify-content:space-around">
+    <div class="group"><div class="box">Black box 1</div><div class="cap">2x2 box · 87/100</div></div>
+    <div class="group"><div class="box">Black box 2</div><div class="cap">2x2 box · 40/100</div></div>
+    <div class="group"><div style="display:flex"><div class="set">1964 Proof</div><div class="set" style="transform:rotate(4deg);margin-left:4px">1976 Mint</div></div><div class="cap">Sets · 12</div></div>
+  </div>
+  <div class="board"></div>
+</div>
+<div class="foot">Option ${v} · ${names[v]} · tap anything to open it</div>`;
+</script></body></html>
