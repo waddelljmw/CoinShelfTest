@@ -1,11 +1,14 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.106.0": [
+    "Needs Attention: a coin kept in an album now shows the album's name on its card; tap it to open the album. \"Needs Attention\" is written with a capital A everywhere.",
+  ],
   "0.105.0": [
-    "Mint mark: new coins start at Pick a mint when more than one mint made that year (years only Philadelphia made fill in by themselves). Pick No mint mark, P only if the coin shows a P, or the new Can't tell. Any answer clears Needs attention. Your saved coins aren't changed.",
-    "Home: the coins-need-attention line is now a gold Fix them button that starts the Needs attention run.",
+    "Mint mark: new coins start at Pick a mint when more than one mint made that year (years only Philadelphia made fill in by themselves). Pick No mint mark, P only if the coin shows a P, or the new Can't tell. Any answer clears Needs Attention. Your saved coins aren't changed.",
+    "Home: the coins-need-attention line is now a gold Fix them button that starts the Needs Attention run.",
   ],
   "0.104.0": [
-    "Adding a coin: Circulated (not graded) and Can't grade this one now sit right above the Grade box. Edit spots shows which spots are filled. Coin type fields in want lists and albums search as you type. The Fix-up list is now called Needs attention.",
+    "Adding a coin: Circulated (not graded) and Can't grade this one now sit right above the Grade box. Edit spots shows which spots are filled. Coin type fields in want lists and albums search as you type. The Fix-up list is now called Needs Attention.",
   ],
   "0.103.0": [
     "A coin with no year now shows up in Fix-up, so you can add the year or tick Unreadable. A new switch in Options hides the Share buttons.",
