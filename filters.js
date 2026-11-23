@@ -4,7 +4,7 @@
    Saved filters live in settings.savedFilters = [{ id, name, s: { family, metal, cert, status, f } }]. Old settings without it work. */
 
 const FLT_PROBS = [["details", "Details coins"], ["variety", "Known varieties"], ["error", "Mint errors"], ["cac", "CAC sticker"]];
-const FLT_MINTS = [["P", "P or no mint mark"], ["D", "D"], ["S", "S"], ["W", "W"], ["CC", "CC"], ["O", "O"]];
+const FLT_MINTS = [["P", "P or no mint mark"], ["D", "D"], ["S", "S"], ["W", "W"], ["CC", "CC"], ["O", "O"], ["?", "Can't tell"]];
 const fltProb = (c, k) => (k === "details" ? listOf(c.problems).length > 0 : k === "variety" ? !!c.knownVar : k === "error" ? listOf(c.mintErrors).length > 0 : k === "cac" ? !!cacOf(c) : false);
 const fltSaved = () => settings().savedFilters || [];
 const fltNum = (v) => (v === "" || v == null || isNaN(+v) ? null : +v);
@@ -94,7 +94,7 @@ function fltChips() {
   if (f.src) add("src", "Where from: " + f.src);
   if (f.kept) add("kept", "Kept in: " + fltKeptName(f.kept));
   if (f.yFrom || f.yTo) add("year", "Year " + (f.yFrom || "…") + "–" + (f.yTo || "…"));
-  if (f.mint) add("mint", "Mint: " + (f.mint === "P" ? "P / none" : f.mint));
+  if (f.mint) add("mint", "Mint: " + (f.mint === "P" ? "P / none" : f.mint === CANT_TELL ? "Can't tell" : f.mint));
   if (f.ng) add("ng", "Not graded");
   if (f.gCustom) add("grade", "Grade: " + f.gCustom);
   else if (f.gFrom || f.gTo) add("grade", "Grade " + (f.gFrom || "any") + " to " + (f.gTo || "any"));
@@ -385,6 +385,7 @@ Object.assign(actions, {
   fixupStart: () => { fixup.on = true; fixup.skip = []; fixupNext(); },
   fixupSkip: () => { if (draft && draft.id) fixup.skip.push(draft.id); closeSheet(); fixupNext(); },
   fixupStop: () => { fixup.on = false; closeSheet(); },
+  needFix: () => { actions.needInfo(); actions.fixupStart(); }, // 4c: the Home button goes straight into the Needs attention run
   needInfo: () => { Object.assign(listState, { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", f: { inc: "home" } }); go("coins"); },
   selStart: () => { listState.sel = new Set(); render(); },
   slotNoSel: () => toast("That spot is empty, so there is nothing to select. Tap Done selecting to add a coin to it."), // 122
@@ -468,5 +469,5 @@ function fixupNext() {
 function fixupBar(d) {
   if (!fixup.on || d._isNew) return "";
   const left = fixupQueue().length;
-  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b style="color:#2a2418">Needs attention: ${left} ${left === 1 ? "coin" : "coins"} left</b><div class="small" style="color:#4a4130">${esc(needsText(d) || "Nothing missing")}.${needsOf(d).includes("check mint") ? " If the mint is Philadelphia, pick P." : ""} Save moves to the next coin.</div><div class="row" style="gap:8px;margin-top:6px"><button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div></div>`;
+  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b style="color:#2a2418">Needs attention: ${left} ${left === 1 ? "coin" : "coins"} left</b><div class="small" style="color:#4a4130">${esc(needsText(d) || "Nothing missing")}.${needsOf(d).includes("check mint") ? " Pick the mint: No mint mark, P only if the coin shows a P, or Can't tell." : ""} Save moves to the next coin.</div><div class="row" style="gap:8px;margin-top:6px"><button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div></div>`;
 }

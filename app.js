@@ -20,9 +20,14 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.104.1";
+const APP_VERSION = "0.105.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
+// Step 4c: mint "?" = "Can't tell". It finds no album spot, filter or mintage, but values use the plain-date (no mint mark) price.
+// A blank mint means "No mint mark" (Philadelphia); mintOk: true marks one the user picked on purpose, so it isn't flagged.
+const CANT_TELL = "?";
+const valueMint = (m) => (m === CANT_TELL ? "" : normMint(m));
+const dateText = (c) => (c.year ? String(c.year) + (c.mint === CANT_TELL ? " (mint?)" : c.mint ? "-" + c.mint : "") : "");
 
 /* ---------- storage ---------- */
 // Each person's coins live in their own private area: data/users/<id>/<key>.

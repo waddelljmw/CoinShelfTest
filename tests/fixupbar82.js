@@ -13,8 +13,8 @@ const ok = (name, v) => { console.log((v ? "PASS " : "FAIL ") + name); if (!v) p
   });
   ok("bar words are dark on the light box", /<b style="color:#2a2418">/.test(r.cent) && /color:#4a4130/.test(r.cent));
   ok("buttons keep their own text color (card sets none)", !/background:#fff7e0;color/.test(r.cent));
-  ok("1864 cent: no 'pick P' line", !/pick P/.test(r.cent));
-  ok("1916 dime (D and S existed): mint line shown", /Check the mint mark/.test(r.dime) && /pick P/.test(r.dime));
+  ok("1864 cent: no pick-the-mint line", !/Pick the mint/.test(r.cent));
+  ok("1916 dime (D and S existed): mint line shown", /Check the mint mark/.test(r.dime) && /Pick the mint: No mint mark/.test(r.dime));
   ok("no page errors", errors.length === 0);
   await b.close();
 })();

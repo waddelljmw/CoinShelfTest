@@ -400,6 +400,7 @@ document.addEventListener("input", (e) => {
   const f = el.dataset.f;
   if (!f) return;
   draft[f] = el.value;
+  if (f === "mint") setMintPick(draft, el.value);
   if (f === "label") { draft.labelEdited = true; return; }
   if (f === "source") { const h = $("#inhHint"); if (h) h.hidden = !isInherited(draft); return; }
   if (f === "year" && TYPE_BY_ID[draft.typeId] && TYPE_BY_ID[draft.typeId].metalByYear) {
@@ -458,6 +459,7 @@ document.addEventListener("change", (e) => {
   }
   if (el.dataset.f) {
     draft[el.dataset.f] = el.value;
+    if (el.dataset.f === "mint") setMintPick(draft, el.value);
     if (el.dataset.f === "metal" && !MELT_OF_METAL[el.value]) draft.oz = "";
     if (el.dataset.f === "_sourceKind") {
       applySourceKind(draft, el.value);
