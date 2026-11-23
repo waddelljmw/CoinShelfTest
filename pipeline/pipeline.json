@@ -1634,6 +1634,30 @@
         "Try an email that isn't on the list: it is refused."
       ],
       "needs": "4"
+    },
+    {
+      "n": "24p",
+      "stage": "now",
+      "name": "Described as label: plan (97)",
+      "model": "Opus",
+      "est": "1-2",
+      "actual": "",
+      "status": "next",
+      "chat": "New Opus chat",
+      "when": "start Tue 11-24 morning (he asked to hold until then)",
+      "why": "He is editing coin info now and wants a label for what the flip or seller says (Circulated, AU, UNC, BU), kept apart from his own grade.",
+      "items": [
+        {
+          "id": "97",
+          "size": "M",
+          "what": "Plan the Described as label (planning only, no build)",
+          "change": "Decide the label list (plus type-your-own), where it shows (coin page, CSV, filter), and how it is saved without touching existing coins. Display only: it never sets a grade or a value. NEW SAVED FIELD, so 4-box check and ask him first. Also decide the '+' grade question (recommendation: no). Then add the Sonnet build step.",
+          "affects": "Nothing until he agrees"
+        }
+      ],
+      "try": [
+        "Planning only: read the plan and say yes or change it."
+      ]
     }
   ],
   "parked": [
