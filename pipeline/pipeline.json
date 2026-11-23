@@ -1651,7 +1651,7 @@
           "id": "97",
           "size": "M",
           "what": "Plan the Described as label (planning only, no build)",
-          "change": "Decide the label list (plus type-your-own), where it shows (coin page, CSV, filter), and how it is saved without touching existing coins. Display only: it never sets a grade or a value. NEW SAVED FIELD, so 4-box check and ask him first. Also decide the '+' grade question (recommendation: no). Then add the Sonnet build step.",
+          "change": "Decide the label list (plus type-your-own), where it shows (coin page, CSV, filter), and how it is saved without touching existing coins. Display only: it never sets a grade or a value. NEW SAVED FIELD, so 4-box check and ask him first. His call 11-23: YES to an optional '+' on a certified numeric grade (he owns an MS-64+ coin). Plan it as display-only: value uses the base grade (MS-64) since price tables have no '+' rows; no new Grade list entries. Then add the Sonnet build step.",
           "affects": "Nothing until he agrees"
         }
       ],
