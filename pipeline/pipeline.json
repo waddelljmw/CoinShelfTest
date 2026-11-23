@@ -1,6 +1,6 @@
 {
-  "updated": "2026-11-22 (step 4c done)",
-  "app": "v0.105.0",
+  "updated": "2026-11-22 (idea 134 built)",
+  "app": "v0.106.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
     "weekly_now": 91,
@@ -117,7 +117,7 @@
       ],
       "chat": "New Sonnet chat",
       "try": [
-        "Tap the fix-up button: it opens the first coin missing info; Save jumps to the next one.",
+        "Tap Fix them on Home: the Needs Attention run opens the first coin missing info; Save jumps to the next one.",
         "Search \"1921 morgan\" and \"silver\": coins show up.",
         "Add a coin with Price open, then add another: Price is still open.",
         "Fill spots on a date you already own loose: it offers to use that coin."
@@ -893,7 +893,7 @@
       "try": [
         "Open the full sample (...CoinShelfTest/?demo=full): My Albums shows Grandpa's Mercury Dimes (inherited) and Kennedy Halves 1964-2002.",
         "Open the pocket album Eagles and commemoratives: it says Kept in Fire safe.",
-        "Tap the Fix-up button: it walks through about 10 sample coins that need info.",
+        "Tap Fix them on Home: Needs Attention walks through about 10 sample coins that need info.",
         "Open ...CoinShelfTest/?demo=big: My Coins scrolls, searches and filters quickly with about 1,200 coins."
       ],
       "started": "Thu 11-19 7:44pm",
@@ -1306,7 +1306,7 @@
         }
       ],
       "try": [
-        "In ?demo, add a coin with no year through a CSV or group; Fix-up lists it.",
+        "In ?demo, add a coin with no year through a CSV or group; Needs Attention lists it.",
         "Options: turn the Hide Share switch on; the Share buttons disappear, off brings them back.",
         "Pipeline page: tap I just backed up, it shows 0."
       ],
@@ -1417,7 +1417,7 @@
       "name": "Mint \"Can't tell\" + Home Fix them button",
       "model": "Opus",
       "est": "3-5",
-      "actual": "reading pending",
+      "actual": "~2",
       "status": "done",
       "chat": "New Opus chat",
       "when": "ready now",
@@ -1439,7 +1439,10 @@
         }
       ],
       "try": [
-        "After it merges: open Fix-up and pick a mint for a coin; Can't tell and Skip are there."
+        "Tap Fix them on Home.",
+        "The mint starts at Pick a mint.",
+        "Pick Can't tell and save.",
+        "That coin no longer needs attention."
       ],
       "needs": "4",
       "started": "2026-11-22 20:06",
@@ -2075,8 +2078,15 @@
       "date": "11-22",
       "name": "Mint Can't tell + Fix them (4c)",
       "ver": "v0.105.0",
-      "cost": "reading pending",
+      "cost": "~2",
       "change": "New coins start at Pick a mint in years more than one mint made; pick No mint mark, P (only if it shows a P) or the new Can't tell. Old coins unchanged. Home's need-attention line is a gold Fix them button that starts the Needs attention run."
+    },
+    {
+      "date": "11-22",
+      "name": "Album name on Needs Attention (idea 134)",
+      "ver": "v0.106.0",
+      "cost": "reading pending",
+      "change": "A coin that sits in an album now shows the album's name on its Needs Attention card; tap the name to open the album. \"Needs Attention\" is written with a capital A everywhere on screen."
     }
   ],
   "modes": [

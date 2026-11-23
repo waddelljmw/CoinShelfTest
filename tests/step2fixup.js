@@ -39,7 +39,7 @@ const { chromium } = require("./_compat");
     const first = draft && draft.id;
     draft.paid = "1"; draft.source = "Coin Shop"; draft.mint = "P"; await saveDraft();
     await new Promise((r) => setTimeout(r, 200)); const second = draft && draft.id;
-    return { btn, first, second, on: fixup.on, bar: /Needs attention:/.test(document.body.textContent) };
+    return { btn, first, second, on: fixup.on, bar: /Needs Attention:/.test(document.body.textContent) };
   });
   ok("fix-up button shows on Needs info list", run.btn);
   ok("run opens a coin, Save goes to a different one", run.first && run.second && run.first !== run.second && run.on && run.bar);

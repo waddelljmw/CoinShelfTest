@@ -1,5 +1,5 @@
 // Step 4c: mint "Can't tell", "Pick a mint" for new coins in years with more than one mint, No mint mark picked on purpose (mintOk),
-// old blank coins unchanged, and the Home "Fix them" button starting the Needs attention run.
+// old blank coins unchanged, and the Home "Fix them" button starting the Needs Attention run.
 const { chromium } = require("./_compat");
 const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
 (async () => {
@@ -44,11 +44,11 @@ const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
   ok("old coin keeps a plain blank mint", await ev(() => { const c = getCoin("old1"); return c.mint === "" && !("mintOk" in c); }));
   const rows = await ev(() => { const a = parseMint("Can't tell"), n = parseMint("None"); return { a, n }; });
   ok("CSV reads Can't tell and None", rows.a === "?" && rows.n === "");
-  // Home button starts the Needs attention run.
+  // Home button starts the Needs Attention run.
   await ev(() => go("home")); await p.waitForTimeout(250);
   ok("Home shows the Fix them button", /Fix them/.test(await p.textContent(".need-line")));
   await p.click(".need-line"); await p.waitForTimeout(300);
-  ok("tapping it opens a coin in the Needs attention run", await ev(() => fixup.on && !!document.querySelector("#coinForm")) && /Pick the mint: No mint mark/.test(await p.textContent("#sheet")));
+  ok("tapping it opens a coin in the Needs Attention run", await ev(() => fixup.on && !!document.querySelector("#coinForm")) && /Pick the mint: No mint mark/.test(await p.textContent("#sheet")));
   // 4-box check: backup and restore into a fresh copy keeps every mint answer, the coin count and the totals.
   const measure = (pg) => pg.evaluate(() => { const o = countedCoins(); return JSON.stringify({ n: allCoins().filter((c) => c.status !== "deleted").length, q: sum(o, qtyOf), t: Math.round(sum(o, (c) => (bestEach(c) || 0) * qtyOf(c)) * 1e4), mints: allCoins().map((c) => c.id + ":" + c.mint + ":" + (c.mintOk ? 1 : 0)).sort().join(","), need: needInfoCoins().length }); });
   await ev(() => actions.fixupStop());

@@ -1,4 +1,4 @@
-// Step 23: circulated switch above Grade; filled spots look different in Edit spots; type-ahead pickers; Needs attention wording.
+// Step 23: circulated switch above Grade; filled spots look different in Edit spots; type-ahead pickers; Needs Attention wording.
 const { chromium } = require("./_compat");
 const ok = (name, v, x) => console.log((v ? "ok   " : "FAIL ") + name + (x !== undefined && !v ? " " + JSON.stringify(x) : ""));
 (async () => {
@@ -25,7 +25,7 @@ const ok = (name, v, x) => console.log((v ? "ok   " : "FAIL ") + name + (x !== u
   ok("new album sheet opens", alb);
   // 5. wording
   const t = await p.evaluate(() => needInfoLine.toString() + fixupBar.toString());
-  ok("Needs attention wording", /attention/.test(t) && !/Fix-up:/.test(t));
+  ok("Needs Attention wording", /attention/.test(t) && !/Fix-up:/.test(t));
   console.log("errors", JSON.stringify(errors));
   await b.close();
 })();
