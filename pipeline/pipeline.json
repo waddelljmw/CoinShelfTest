@@ -1,6 +1,6 @@
 {
   "updated": "2026-11-22 (idea 134 built)",
-  "app": "v0.106.0",
+  "app": "v0.106.1",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
     "weekly_now": 91,
@@ -2087,6 +2087,13 @@
       "ver": "v0.106.0",
       "cost": "reading pending",
       "change": "A coin that sits in an album now shows the album's name on its Needs Attention card; tap the name to open the album. \"Needs Attention\" is written with a capital A everywhere on screen."
+    },
+    {
+      "date": "11-22",
+      "name": "Needs Attention run only from Fix them (bug fix)",
+      "ver": "v0.106.1",
+      "cost": "reading pending",
+      "change": "Editing a coin you opened yourself (for example inside an album) no longer jumps to the Needs Attention list after Save. The run only keeps going when you started it with Fix them."
     }
   ],
   "modes": [

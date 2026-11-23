@@ -20,6 +20,7 @@ function restoreDraft() {
 }
 let carryOpen = {}; // sections left open on the last new coin; the next new coin opens them too
 function openCoinForm(id) {
+  if (typeof fixup !== "undefined" && fixup.on && !fixup.opening) fixup.on = false; // the Needs Attention run only continues for coins the run itself opened (Fix them button)
   const existing = id ? getCoin(id) : null;
   draft = existing ? JSON.parse(JSON.stringify(existing)) : blankCoin();
   draft._isNew = !existing;

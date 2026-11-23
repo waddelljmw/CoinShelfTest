@@ -464,7 +464,7 @@ const fixupQueue = () => (listState._shown && listState.f && listState.f.inc ? l
 function fixupNext() {
   const q = fixupQueue();
   if (!q.length) { fixup.on = false; toast("All caught up. Nothing left that needs attention."); render(); return; }
-  openCoinForm(q[0].id);
+  fixup.opening = true; try { openCoinForm(q[0].id); } finally { fixup.opening = false; }
 }
 // Small bar at the top of the edit form while a run is going.
 function fixupBar(d) {
