@@ -53,7 +53,7 @@ function factTable(c) {
   return s.circ ? { rows: s.circ, kind: "circ" } : null;
 }
 function bookBase(c, kind) {
-  return String(c.year) + (kind === "proof" || kind === "sms" || !normMint(c.mint) ? "" : "-" + normMint(c.mint));
+  return String(c.year) + (kind === "proof" || kind === "sms" || !valueMint(c.mint) ? "" : "-" + valueMint(c.mint));
 }
 function bookKey(c, kind) {
   return bookBase(c, kind) + (c.variety ? "|" + c.variety : "");
@@ -61,7 +61,7 @@ function bookKey(c, kind) {
 // Silver Eagles carry no mint mark, so the Red Book gives the mint in brackets: the plain date is the ordinary coin and "(P)", "(S)", "(W)" are choices ("2016|(S)").
 // A coin saved with a mint letter (or none) finds its row: its own bracket choice, then the plain date. Prices stay in the private price file.
 function bookRowKey(c, kind, rows) {
-  const k = bookKey(c, kind), m = normMint(c.mint);
+  const k = bookKey(c, kind), m = valueMint(c.mint);
   if (c.typeId !== "silver-eagle" || kind !== "circ" || !m || rows[k]) return k;
   const y = String(c.year), v = c.variety ? "|" + c.variety : "";
   return [v ? "" : y + "|(" + m + ")", y + v].find((x) => x && rows[x]) || k;
@@ -262,11 +262,13 @@ function missingOf(c) {
   return m;
 }
 // Blank mint on a US coin from a year that also had D/S mints: could be Philadelphia or just never picked. Picking "P" once clears it. Coins in an album spot are skipped (the spot sets the mint).
-function checkMint(c) {
-  if (itemOf(c) !== "coin" || c.mint || c.albumId || isProofGrade(c.grade) || !c.year) return false;
+// Step 4c: "No mint mark" picked on purpose (mintOk) or "Can't tell" also clears it. Old coins aren't changed.
+function mintOpen(c) {
+  if (itemOf(c) !== "coin" || c.albumId || isProofGrade(c.grade) || !c.year) return false;
   const slots = EXACT_SLOTS[c.typeId], hit = slots && slots.find((s) => s[0] === +c.year);
   return !!hit && hit[1].split(" ").some((m) => m !== "P");
 }
+const checkMint = (c) => !c.mint && !c.mintOk && mintOpen(c);
 // Everything the fix-up run looks for: what totals need (missingOf) plus where from and a mint to check.
 // A single coin with no year and no "Unreadable / too worn" or "Never had a date" tick. Groups (qty over 1) can hold mixed years, so they're skipped, same as when saving.
 const noYear = (c) => itemOf(c) === "coin" && num(c.year) == null && !c.noDate && (num(c.qty) || 1) <= 1;
@@ -289,7 +291,7 @@ const NEED_NOTE = "Some coins are missing a grade, a cost or the date inherited,
 // The amber line under the Home totals; opens My Coins filtered to coins that need info.
 function needInfoLine() {
   const n = needInfoCoins().length;
-  return n ? `<button class="need-line" data-act="needInfo">${n} coin${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} attention${valueGapCoins().length ? ", totals may be off" : ""} \u203A</button>` : "";
+  return n ? `<button class="need-line" data-act="needFix"><span>${n} coin${n > 1 ? "s" : ""} need${n > 1 ? "" : "s"} attention${valueGapCoins().length ? ", totals may be off" : ""}</span><span class="need-chip">Fix them \u203A</span></button>` : "";
 }
 const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 
@@ -360,7 +362,7 @@ function gradeText(c) {
   return (g ? (c.noGrade && !c.grade ? g : "Raw " + g) : "Raw") + extra;
 }
 function autoLabel(c) {
-  const date = c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : "";
+  const date = dateText(c);
   if (itemOf(c) === "bullion") return [barWeightText(c), (c.bMaker || "").trim(), ...(c.bShape === "Other" || c.bShape === "Shape" ? ["Silver item"] : [c.metal || "Silver", c.bShape || "Bar"])].filter(Boolean).join(" ");
   if (itemOf(c) === "set") return [c.year, c.typeName].filter(Boolean).join(" ");
   if (itemOf(c) === "roll") return [date, (TYPE_BY_ID[c.typeId] || {}).name || c.typeName, "roll (" + rollCountOf(c) + ")"].filter(Boolean).join(" ");
@@ -372,11 +374,12 @@ const familyOf = (c) => c.family || c.typeName || "Other";
 function ebayUrl(c) {
   let q;
   if (c.gradeMode === "cert") {
-    const date = c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : "";
+    const date = dateText(c);
     q = [date, c.typeName, gradeText(c)].filter(Boolean).join(" ");
   } else {
     q = labelOf(c) + (c.fbl && !isProofGrade(c.grade) ? " " + fbTag(c.typeId) : "") + (isProofGrade(c.grade) ? " proof" : "");
   }
+  q = q.replace(" (mint?)", "");
   return "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(q) + "&LH_Sold=1&LH_Complete=1";
 }
 

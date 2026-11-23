@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.105.0": [
+    "Mint mark: new coins start at Pick a mint when more than one mint made that year (years only Philadelphia made fill in by themselves). Pick No mint mark, P only if the coin shows a P, or the new Can't tell. Any answer clears Needs attention. Your saved coins aren't changed.",
+    "Home: the coins-need-attention line is now a gold Fix them button that starts the Needs attention run.",
+  ],
   "0.104.0": [
     "Adding a coin: Circulated (not graded) and Can't grade this one now sit right above the Grade box. Edit spots shows which spots are filled. Coin type fields in want lists and albums search as you type. The Fix-up list is now called Needs attention.",
   ],

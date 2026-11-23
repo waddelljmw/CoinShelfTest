@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-22 (step 4 done)",
-  "app": "v0.104.0",
+  "updated": "2026-11-22 (step 4c done)",
+  "app": "v0.105.0",
   "week": {
     "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-    "weekly_now": 88,
+    "weekly_now": 91,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -1383,7 +1383,7 @@
       "name": "Fresh-start repo",
       "model": "Sonnet",
       "est": "1–2",
-      "actual": "~1 (reading pending)",
+      "actual": "~2",
       "status": "done",
       "when": "done 11-22",
       "why": "Already planned (N4/G): a clean copy of the project for testers. You do a few GitHub taps.",
@@ -1414,11 +1414,11 @@
     {
       "n": "4c",
       "stage": "now",
-      "name": "Mint \"Can't tell\" + Skip in Fix-up (plan + build)",
+      "name": "Mint \"Can't tell\" + Home Fix them button",
       "model": "Opus",
       "est": "3-5",
-      "actual": "",
-      "status": "next",
+      "actual": "reading pending",
+      "status": "done",
       "chat": "New Opus chat",
       "when": "ready now",
       "why": "Tell \"no mint mark\", \"P\" and \"can't tell\" apart and add a Skip in Fix-up tick, without breaking your 500+ saved coins. One Opus chat plans it, then builds it.",
@@ -1432,13 +1432,6 @@
         },
         {
           "id": "new (11-18)",
-          "size": "M",
-          "what": "\"Skip in Fix-up\" tick",
-          "change": "A tick on a coin stops it from nagging you. It leaves a small skipped mark, and totals stay estimates. Planned together with the mint change because they touch the same screens.",
-          "affects": "Saved coins (new flag), Needs info, Fix-up"
-        },
-        {
-          "id": "new (11-18)",
           "size": "S",
           "what": "Make the \"coins need info\" line easy to see",
           "change": "The Home line \"404 coins need info, totals may be off ›\" looks like plain text and is easy to miss. It becomes a gold-outlined button (maybe a \"Fix them\" chip) and jumps straight into the Fix-up run. Opus decides the spot and fits it into the schedule.",
@@ -1448,7 +1441,10 @@
       "try": [
         "After it merges: open Fix-up and pick a mint for a coin; Can't tell and Skip are there."
       ],
-      "needs": "4"
+      "needs": "4",
+      "started": "2026-11-22 20:06",
+      "ended": "2026-11-22 20:30",
+      "minutes": 24
     },
     {
       "n": "15c",
@@ -1603,7 +1599,7 @@
       "model": "Opus",
       "est": "2–4",
       "actual": "",
-      "status": "queued",
+      "status": "next",
       "chat": "New Opus chat",
       "when": "after step 4",
       "why": "Only the testers you invite can open the app, and your code stops being public, so nobody passes it around before you sell it.",
@@ -1654,6 +1650,10 @@
     {
       "group": "Later",
       "items": [
+        {
+          "t": "\"Skip in Needs attention\" tick (split from 4c, 11-22): a tick on a coin stops it nagging, leaves a small skipped mark, totals stay estimates. Changes saved data (Opus)",
+          "size": "M"
+        },
         {
           "t": "Shopping view: talk and sketch (no code; waiting on you, no date). Ideas 101/103 + want-list note 11-20. We discuss and sketch the look first; building comes only after you approve",
           "size": "S",
@@ -2068,8 +2068,15 @@
       "date": "11-22",
       "name": "Fresh-start repo (4)",
       "ver": "v0.104.1",
-      "cost": "~1 (reading pending)",
+      "cost": "~2",
       "change": "The public repo now has a clean one-commit history; the old repo is private as CoinShelfTest-old (keep about a month, then you may delete it). Branches clean up by themselves."
+    },
+    {
+      "date": "11-22",
+      "name": "Mint Can't tell + Fix them (4c)",
+      "ver": "v0.105.0",
+      "cost": "reading pending",
+      "change": "New coins start at Pick a mint in years more than one mint made; pick No mint mark, P (only if it shows a P) or the new Can't tell. Old coins unchanged. Home's need-attention line is a gold Fix them button that starts the Needs attention run."
     }
   ],
   "modes": [

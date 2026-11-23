@@ -89,6 +89,17 @@ function proofMintsOf(t) {
   if (t.proofMints) return t.proofMints;
   return t.end < 1968 ? ["P"] : t.start >= 1968 ? ["S"] : ["P", "S"]; // US proofs moved from Philadelphia to San Francisco in 1968
 }
+// Step 4c: the mint dropdown. Blank = "Pick a mint…" only where more than one mint struck that year; otherwise it reads No mint mark.
+// "-" is the form's word for No mint mark picked on purpose (saved as a blank mint plus mintOk). "?" is Can't tell.
+const mintShown = (d) => (d.mint ? d.mint : d.mintOk || !mintOpen(d) ? "-" : "");
+function mintOptions(mints, d) {
+  const cur = mintShown(d), opts = [["", "Pick a mint\u2026"], ["-", "No mint mark (Philadelphia)"], ...mints.filter((m) => m && m !== CANT_TELL).map((m) => [m, m === "P" ? "P (only if the coin shows a P)" : m]), [CANT_TELL, "Can't tell"]];
+  return opts.map(([v, txt]) => `<option value="${v}" ${cur === v ? "selected" : ""}>${txt}</option>`).join("");
+}
+// Turns the dropdown's answer into what is saved.
+function setMintPick(d, v) {
+  if (v === "-") { d.mint = ""; d.mintOk = true; } else { d.mint = v || ""; delete d.mintOk; }
+}
 function mintChoices(t, proof) {
   if (!t) return MINTS;
   const ms = proof ? proofMintsOf(t) : t.mints;
@@ -155,7 +166,7 @@ function renderCoinForm() {
     ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
     <div class="grid2">
       ${yearFirst ? "" : `<label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + typeLastYear(t) : "1921"}"></label>`}
-      ${other ? "" : `<label class="f"><span>Mint mark</span><select data-f="mint">${mints.map((m) => `<option value="${m}" ${d.mint === m ? "selected" : ""}>${m || "None (Philadelphia)"}</option>`).join("")}</select></label>`}
+      ${other ? "" : `<label class="f"><span>Mint mark</span><select data-f="mint">${mintOptions(mints, d)}</select></label>`}
     </div>
     ${yearFirst ? "" : `<div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>`}`}
     ${it === "roll" ? rollFields(d) : ""}
@@ -450,6 +461,7 @@ function refreshFormHints() {
   const yh = $("#yearHint"); if (yh) yh.textContent = itemOf(draft) === "set" ? setYearProblem(draft.setKind, draft.year) : yearProblem(draft.typeId, draft.year, "coin") || (draft._proof || itemOf(draft) !== "coin" ? "" : mintWarning(draft.typeId, draft.year, draft.mint));
   if (yh) yh.style.color = yearProblem(draft.typeId, draft.year, "coin") ? "var(--bad)" : "#b26a00";
   const wr = $("#wornRow"); if (wr) wr.hidden = !!String(draft.year || "").trim();
+  const ms = $("select[data-f=mint]"); if (ms && document.activeElement !== ms) ms.value = mintShown(draft); // the year decides whether Pick a mint shows
   const bh = $("#bullionHint"); if (bh) bh.textContent = bullionHint(draft);
   const rh = $("#rollHint"); if (rh) rh.textContent = rollHint(draft);
   const mh = $("#meltHint"); if (mh) mh.textContent = meltHintText(draft);
@@ -494,7 +506,7 @@ function pickType(id) {
   draft.denom = t.denom;
   draft.metal = t.metal;
   draft.oz = t.oz || "";
-  if (draft.mint && !t.mints.includes(draft.mint) && draft.mint !== "") draft.mint = "";
+  if (draft.mint && !t.mints.includes(draft.mint) && draft.mint !== CANT_TELL) { draft.mint = ""; delete draft.mintOk; }
   const al = draft.albumId && getAlbum(draft.albumId);
   if (al && !albumHasType(al, t.id)) { draft.albumId = ""; delete draft.slotId; } // that album is for other types
   applyYearMetal(draft);

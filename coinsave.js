@@ -93,6 +93,8 @@ async function saveDraft() {
   // Coins saved before this check keep their year; only a new or changed year is checked.
   const yp = it === "set" ? setYearProblem(c.setKind, c.year) : yearProblem(c.typeId, c.year, "coin");
   if (yp && !(prev && String(prev.year) === String(c.year))) { toast(yp); return; }
+  if (c.mint === "-") c.mint = ""; // never save the form's own word
+  if (c.mint || itemOf(c) !== "coin") delete c.mintOk; // mintOk only marks a blank mint picked on purpose
   if (!c.family) c.family = c.typeName || "Other";
   if (!c.labelEdited) c.label = autoLabel(c);
   if (c.slotId) {
