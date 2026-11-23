@@ -18,7 +18,7 @@ const { chromium } = require("./_compat");
   await p.evaluate(() => closeSheet()); await p.click("#fab"); await p.fill("#typeSearch", "washington quarter (silver)"); await p.click("#typeList button[data-act=pickType] >> nth=0");
   await p.check("[data-act=toggleProof]"); await p.waitForTimeout(80);
   m = await opts("[data-f=mint]");
-  ok("silver Washington proof: no mint mark only", m.join() === "");
+  ok("silver Washington proof: no mint mark only (plus Pick and Can't tell, 4c)", m.join() === ",-,?");
   await p.uncheck("[data-act=toggleProof]"); await p.waitForTimeout(80);
   m = await opts("[data-f=mint]");
   ok("silver Washington regular: P D S, no W", m.includes("D") && m.includes("S") && !m.includes("W"));
@@ -27,7 +27,7 @@ const { chromium } = require("./_compat");
   m = await opts("[data-f=mint]");
   ok("ATB quarter regular includes W", m.includes("W"));
   await p.check("[data-act=toggleProof]"); await p.waitForTimeout(80); m = await opts("[data-f=mint]");
-  ok("ATB quarter proof: S only", m.join() === ",S");
+  ok("ATB quarter proof: S only (plus Pick, No mint mark and Can't tell, 4c)", m.join() === ",-,S,?");
   // turning proof off clears a PR grade and a proof-only mint
   await p.selectOption("[data-f=mint]", "S"); await p.selectOption("[data-f=grade]", "PR-69");
   await p.uncheck("[data-act=toggleProof]"); await p.waitForTimeout(80);
