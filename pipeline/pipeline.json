@@ -2613,7 +2613,7 @@
     "last": "2026-11-24 (Tue 1pm, Opus weekly planning)",
     "last_review": "2026-11-24 (R9 solo review, report 30)",
     "review_baseline": 40,
-    "saved_data_ahead": true,
+    "saved_data_ahead": false,
     "note": "Review due when 8-10 steps are done since the last review, a change to how coins are saved is coming up, or before testers/buyers. Steps since review = done steps minus review_baseline."
   },
   "test_help": {
