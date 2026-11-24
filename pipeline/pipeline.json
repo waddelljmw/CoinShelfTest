@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-24 (step 25 done)",
+  "updated": "2026-11-24 (R9 done)",
   "app": "v0.107.0",
   "week": {
     "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-    "weekly_now": 2,
+    "weekly_now": 3,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -1602,7 +1602,7 @@
       "model": "Sonnet",
       "est": "1–2",
       "time": "30–45 min",
-      "actual": "reading pending",
+      "actual": "~1 (15/2 → 24/3)",
       "status": "done",
       "chat": "New Sonnet chat",
       "when": "planned 11-24",
@@ -1639,6 +1639,34 @@
       "minutes": 24
     },
     {
+      "n": "R9",
+      "stage": "now",
+      "name": "Solo safety review before Purchases",
+      "model": "Opus",
+      "est": "~1",
+      "time": "~25 min",
+      "actual": "reading pending",
+      "status": "done",
+      "chat": "New Opus chat",
+      "when": "11-24",
+      "why": "8 steps since R8 and Purchases changes how coins are saved, so a short check of recent changes and of backup, restore, photos and snapshots came first. Done: report 30, 5 findings (2 are rules for Purchases, 1 medium: editing a coin and leaving drops changes without asking). Nothing fixed; you decide first.",
+      "items": [
+        {
+          "id": "review",
+          "size": "S",
+          "what": "Review changes since R8 + Purchases safety check",
+          "change": "No app change. Report reviews/30 lists reproduced problems only.",
+          "affects": "Nothing"
+        }
+      ],
+      "try": [
+        "Read report 30 (reviews/30-R9-solo-review-2026-11-24.md)."
+      ],
+      "started": "15:23",
+      "ended": "15:27",
+      "minutes": 4
+    },
+    {
       "n": "26",
       "stage": "now",
       "name": "Purchases: one receipt, many coins (138)",
@@ -1649,15 +1677,8 @@
       "status": "next",
       "chat": "New Opus chat",
       "when": "planned 11-24",
-      "why": "You have 100+ old receipts: enter each once and tick the coins it covers, instead of typing price and photo on every coin.",
+      "why": "You have 100+ old receipts: enter each once and tick the coins it covers, instead of typing price and photo on every coin. R9 rules (report 30): receipt kept as receiptPhotos on the purchase; snapshots leave purchases out; the new purchase form asks before losing changes.",
       "items": [
-        {
-          "id": "R9",
-          "size": "S",
-          "what": "Short solo safety review first (his OK 11-24)",
-          "change": "8 steps since the last review and Purchases changes how coins are saved, so a ~25 min Opus check of recent changes comes first (report only, ~1 weekly).",
-          "affects": "Nothing"
-        },
         {
           "id": "plan",
           "size": "S",
@@ -1710,7 +1731,7 @@
       "name": "Quick wins",
       "model": "Sonnet",
       "est": "1–2",
-      "time": "40–60 min",
+      "time": "50–70 min",
       "actual": "",
       "status": "next",
       "chat": "New Sonnet chat",
@@ -1765,11 +1786,26 @@
           "what": "Save note button turns off while saving",
           "change": "Page only, no more 5 copies.",
           "affects": "Pipeline page"
+        },
+        {
+          "id": "R9-3",
+          "size": "S",
+          "what": "Ask before losing edits on a saved coin",
+          "change": "Closing an edited coin without Save asks \"Discard your changes?\", like a new coin already does (your yes 11-24).",
+          "affects": "Coin form"
+        },
+        {
+          "id": "R9-5",
+          "size": "S",
+          "what": "Can't tell mint in box spots",
+          "change": "Box spots show \"1955 (mint?)\" instead of \"1955-?\". Display only.",
+          "affects": "Storage boxes"
         }
       ],
       "try": [
         "Holder list shows GSA holder.",
-        "Rename a want list."
+        "Rename a want list.",
+        "Open a saved coin, type in Notes, tap ✕: it asks Discard your changes?"
       ]
     },
     {
@@ -2491,8 +2527,15 @@
       "date": "11-24",
       "name": "P and D side by side, store names, sources (step 25)",
       "ver": "v0.107.0",
-      "cost": "reading pending",
+      "cost": "~1",
       "change": "New albums list each design as P then D (and W) side by side, like the real page; 2020 now has W spots. Seller/shop names suggest as you type. Where from gains Antique store, Yard sale, Estate sale; Bank roll leaves the choices (saved Bank roll coins keep their label)."
+    },
+    {
+      "date": "11-24",
+      "name": "R9 solo safety review (report 30)",
+      "ver": "v0.107.0",
+      "cost": "reading pending",
+      "change": "No app change. 5 findings: snapshots would share purchase records, receipt photo must be saved as receiptPhotos, editing a coin and leaving drops changes without asking, old Parks albums keep the old order, Can't tell shows 1955-? in box spots."
     }
   ],
   "modes": [
@@ -2583,8 +2626,8 @@
   },
   "checkin": {
     "last": "2026-11-24 (Tue 1pm, Opus weekly planning)",
-    "last_review": "2026-11-20 (R8 solo review, report 28)",
-    "review_baseline": 30,
+    "last_review": "2026-11-24 (R9 solo review, report 30)",
+    "review_baseline": 40,
     "saved_data_ahead": false,
     "note": "Review due when 8-10 steps are done since the last review, a change to how coins are saved is coming up, or before testers/buyers. Steps since review = done steps minus review_baseline."
   },
