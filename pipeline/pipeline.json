@@ -1731,7 +1731,7 @@
       "name": "Quick wins",
       "model": "Sonnet",
       "est": "1–2",
-      "time": "40–60 min",
+      "time": "50–70 min",
       "actual": "",
       "status": "next",
       "chat": "New Sonnet chat",
@@ -1786,11 +1786,26 @@
           "what": "Save note button turns off while saving",
           "change": "Page only, no more 5 copies.",
           "affects": "Pipeline page"
+        },
+        {
+          "id": "R9-3",
+          "size": "S",
+          "what": "Ask before losing edits on a saved coin",
+          "change": "Closing an edited coin without Save asks \"Discard your changes?\", like a new coin already does (your yes 11-24).",
+          "affects": "Coin form"
+        },
+        {
+          "id": "R9-5",
+          "size": "S",
+          "what": "Can't tell mint in box spots",
+          "change": "Box spots show \"1955 (mint?)\" instead of \"1955-?\". Display only.",
+          "affects": "Storage boxes"
         }
       ],
       "try": [
         "Holder list shows GSA holder.",
-        "Rename a want list."
+        "Rename a want list.",
+        "Open a saved coin, type in Notes, tap ✕: it asks Discard your changes?"
       ]
     },
     {
