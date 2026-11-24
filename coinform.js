@@ -284,6 +284,7 @@ function purchaseFields(d) {
       </div>
       <div class="grid3">${money$("buyTax", "Tax")}${money$("buyShip", "Shipping")}${money$("buyFees", "Fees")}</div>
       <div class="hint" id="costHint">${costHintText(d)}</div>
+      ${typeof coinPurchaseField === "function" ? coinPurchaseField(d) : ""}
       <label class="f"><span>Receipt number</span><input type="text" data-f="receiptNo" value="${esc(d.receiptNo || "")}" placeholder="Order or invoice number" maxlength="60"></label>
       <div class="photos">${(d.receiptPhotos || []).map((p, i) => `<div class="ph"><img src="${esc(photoSrc(p))}" alt=""><button type="button" class="rm" data-act="rmPhoto" data-k="receiptPhotos" data-i="${i}" aria-label="Remove receipt photo">✕</button></div>`).join("")}</div>
       <label class="btn file-btn" style="display:inline-block;margin-top:6px">${(d.receiptPhotos || []).length ? "Add another receipt photo" : "Add receipt photo"}<input type="file" accept="image/*" id="receiptInput"></label>`, has);
