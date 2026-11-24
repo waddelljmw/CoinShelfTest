@@ -1678,6 +1678,10 @@
       "group": "Later",
       "items": [
         {
+          "t": "\"Keeping for\" tag (idea 137, 11-24): mark coins held for your son or nephew; locked against accidental sale like Inherited, but they count in your totals. Changes saved data: plan with idea 97 (Opus)",
+          "size": "M"
+        },
+        {
           "t": "\"Skip in Needs attention\" tick (split from 4c, 11-22): a tick on a coin stops it nagging, leaves a small skipped mark, totals stay estimates. Changes saved data (Opus)",
           "size": "M"
         },
@@ -1769,6 +1773,13 @@
   ],
   "prompt_template": "Let's start the coin work. Pipeline step {n}: {name}. Mode: {mode}. Usage: [{usage}]",
   "done": [
+    {
+      "date": "11-24",
+      "name": "Circulated with a plain design (fill-in)",
+      "ver": "v0.106.2",
+      "cost": "~1",
+      "change": "Add/Edit coin form offers Circulated (not graded) when a plain design is picked (e.g. America the Beautiful quarter). Doubled dies, No P and the Known variety box still ask for a grade. No new saved field. Idea 137 (Keeping for tag) added to Later."
+    },
     {
       "date": "11-19",
       "name": "Weekly check-in (top up the queue)",
