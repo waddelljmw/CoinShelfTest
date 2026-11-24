@@ -32,10 +32,12 @@ function openSnapshotForm() {
 }
 
 // The documents a snapshot carries, with private fields stripped.
+const SNAP_KEEP = ["c_", "a_", "aw_", "b_", "w_", "wl_", "settings", "history"];
 async function snapshotDocs(inc) {
   const out = [];
   for (const [id, d0] of store.docs) {
     if (!d0 || id === "pricebook") continue; // the price list never goes into a shared file
+    if (!SNAP_KEEP.some((k) => id === k || id.startsWith(k))) continue; // R9-1: only what a view-only file needs (no purchases, shows or anything added later)
     if (id === "history" && !inc.values) continue; // value-over-time holds dollar totals
     const d = JSON.parse(JSON.stringify(d0));
     // Stamp the worked-out value and mintage on the coin (or want) instead.
@@ -45,7 +47,7 @@ async function snapshotDocs(inc) {
     if (id.startsWith("c_")) {
       if (d.status === "deleted") continue;
       if (!inc.paid) { delete d.paid; ["buyTax", "buyShip", "buyFees", "seller", "payMethod", "receiptNo", "trackNo", "trackCarrier"].forEach((k) => delete d[k]); }
-      delete d.receiptPhotos; // receipts are never shared
+      delete d.receiptPhotos; delete d.purchaseId; // receipts and purchases are never shared
       if (!inc.source) { if (isInherited(d0)) d.source = "Inherited"; else delete d.source; } // inherited coins still just say "Inherited"
       SNAP_COIN_DROP.forEach((k) => delete d[k]);
       if (!inc.notes) delete d.notes;

@@ -278,6 +278,7 @@ function sheetUnsaved() {
   if (draft && draft._isNew) return "coin";
   if ($("#fillForm")) return "list";
   if ($("#albumForm")) return "album";
+  if ($("#purchaseForm")) return "purchase";
   return "";
 }
 function askDiscard(kind) {

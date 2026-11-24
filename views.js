@@ -1,6 +1,6 @@
 // Navigation and pages: Home, Stacks, Value, Coins, coin page (split from app.js; plain script, shares the page's global names)
 /* ---------- navigation ---------- */
-const VIEWS = ["home", "value", "albums", "wants", "coins", "forsale", "melt", "stacks", "boxes", "shows", "reports", "guide", "options"];
+const VIEWS = ["home", "value", "albums", "wants", "coins", "forsale", "melt", "stacks", "boxes", "purchases", "shows", "reports", "guide", "options"];
 function currentRoute() {
   const h = location.hash.replace(/^#/, "");
   if (VIEWS.includes(h)) return { view: h };
@@ -8,6 +8,7 @@ function currentRoute() {
   if (h.startsWith("album-")) return { view: "album", id: h.slice(6) };
   if (h.startsWith("box-")) return { view: "box", id: h.slice(4) };
   if (h.startsWith("show-")) return { view: "show", id: h.slice(5) };
+  if (h.startsWith("purchase-")) return { view: "purchase", id: h.slice(9) };
   return { view: "home" };
 }
 function go(hash) {
@@ -39,6 +40,8 @@ function coinBackLink() {
   let name = { home: "My Cabinet", value: "Coin Value", albums: "My Albums", wants: "Want List", coins: "My Coins", stacks: "My Stacks", boxes: "Storage", guide: "PCGS Photograde", options: "Options" }[h];
   if (!name && h.startsWith("box-")) { const b = getBox(h.slice(4)); name = b ? b.name : "Boxes"; }
   if (!name && h.startsWith("album-")) { const a = getAlbum(h.slice(6)); name = a ? albumTitle(a) : "My Albums"; }
+  if (!name && h.startsWith("purchase-") && typeof getPurchase === "function") { const p = getPurchase(h.slice(9)); name = p ? purchaseName(p) : "Purchases"; }
+  if (!name && h === "purchases") name = "Purchases";
   return `<button class="link-btn" data-go="${esc(name ? h : "coins")}">← ${esc(name || "My Coins")}</button>`;
 }
 function closeMenu() { $("#menu").hidden = true; $("#menuBtn").setAttribute("aria-expanded", "false"); }
@@ -50,12 +53,12 @@ function render() {
   const main = $("#view");
   if (store.mode === "loading") { main.innerHTML = `<div class="empty">Opening your cabinet…</div>`; return; }
   if (typeof ensureIds === "function") ensureIds(); // Step 7.0: every coin gets its ID
-  const menuKey = r.view === "coin" || r.view === "forsale" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view === "show" ? "shows" : r.view;
+  const menuKey = r.view === "coin" || r.view === "forsale" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view === "show" ? "shows" : r.view === "purchase" ? "purchases" : r.view;
   $$("#menu button").forEach((b) => b.classList.toggle("on", b.dataset.go === menuKey));
   if (typeof applyShelfStyle === "function") applyShelfStyle();
   if (typeof applyTextSize === "function") applyTextSize();
   if (typeof syncShowsMenu === "function") syncShowsMenu();
-  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, shows: typeof viewShows === "function" ? viewShows : viewHome, show: typeof viewShow === "function" ? viewShow : viewHome, reports: typeof viewReports === "function" ? viewReports : viewHome, coin: viewCoin, guide: viewGuide, options: viewOptions, melt: typeof viewMelt === "function" ? viewMelt : viewHome }[r.view];
+  const fn = { home: viewHome, value: viewValue, albums: viewAlbums, album: viewAlbum, wants: viewWants, coins: viewCoins, forsale: typeof viewForSale === "function" ? viewForSale : viewCoins, stacks: viewStacks, boxes: viewBoxes, box: viewBox, shows: typeof viewShows === "function" ? viewShows : viewHome, show: typeof viewShow === "function" ? viewShow : viewHome, purchases: typeof viewPurchases === "function" ? viewPurchases : viewHome, purchase: typeof viewPurchase === "function" ? viewPurchase : viewHome, reports: typeof viewReports === "function" ? viewReports : viewHome, coin: viewCoin, guide: viewGuide, options: viewOptions, melt: typeof viewMelt === "function" ? viewMelt : viewHome }[r.view];
   // Keep the search box focus when the list re-renders.
   const active = document.activeElement;
   const keepSearch = active && active.id === "coinSearch" ? active.selectionStart : null;
@@ -356,7 +359,7 @@ function viewCoin(r) {
   const sold = c.sold || {};
   return `${coinBackLink()}${eyeButton()}
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""} <button class="star" data-act="favToggle" data-id="${esc(c.id)}" aria-pressed="${!!c.fav}" aria-label="${c.fav ? "Remove from favorites" : "Add to favorites"}">${c.fav ? "★" : "☆"}</button></h1>
-    ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>${wherePartsOf(c).slice(1).map((x) => " \u203A " + esc(x)).join("")}</div>` : ""}
+    ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>${wherePartsOf(c).slice(1).map((x) => " \u203A " + esc(x)).join("")}</div>` : ""}${typeof coinPurchaseLine === "function" ? coinPurchaseLine(c) : ""}
     <div class="small muted" style="margin:-4px 0 8px">ID <b>${c.cid ? esc(c.cid) : "No ID"}</b> <button class="link-btn" data-act="editId" data-id="${esc(c.id)}">${c.cid ? "Change" : "Add"}</button>${(c.oldCids || []).length ? ` · old ID${c.oldCids.length > 1 ? "s" : ""}: ${esc(c.oldCids.join(", "))}` : ""}</div>
     ${mintageLine(c)}${c.status === "owned" && itemOf(c) === "coin" ? coinCardHtml(c) : ""}${typeof coinInhHtml === "function" ? coinInhHtml(c) : ""}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}

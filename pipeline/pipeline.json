@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-24 (R9 done)",
-  "app": "v0.107.0",
+  "updated": "2026-11-24 (step 26 done)",
+  "app": "v0.108.0",
   "week": {
     "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-    "weekly_now": 3,
+    "weekly_now": 5,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -1645,7 +1645,7 @@
       "model": "Opus",
       "est": "~1",
       "time": "~25 min",
-      "actual": "reading pending",
+      "actual": "~2",
       "status": "done",
       "chat": "New Opus chat",
       "when": "11-24",
@@ -1673,8 +1673,8 @@
       "model": "Opus",
       "est": "4–5",
       "time": "2–2.5 h",
-      "actual": "",
-      "status": "next",
+      "actual": "reading pending",
+      "status": "done",
       "chat": "New Opus chat",
       "when": "planned 11-24",
       "why": "You have 100+ old receipts: enter each once and tick the coins it covers, instead of typing price and photo on every coin. R9 rules (report 30): receipt kept as receiptPhotos on the purchase; snapshots leave purchases out; the new purchase form asks before losing changes.",
@@ -1698,7 +1698,10 @@
         "Purchases › + New purchase: enter one receipt with 3 coins; the prices must add up to the total.",
         "Open one of those coins: its Purchase line opens the receipt.",
         "Make a backup, restore it in a private window: the purchase is still there."
-      ]
+      ],
+      "started": "16:38",
+      "ended": "17:05",
+      "minutes": 27
     },
     {
       "n": "26b",
@@ -1717,7 +1720,7 @@
           "id": "143",
           "size": "S–M",
           "what": "Add another copies everything",
-          "change": "Copies metal, grade, where from, purchase and notes (not photos or the ID); renamed so it's clear.",
+          "change": "Copies metal, grade, where from, purchase and notes (not photos or the ID); renamed so it's clear. Album spot: never placed automatically. After Save it asks \"Put it in an album spot?\" listing every album with an open spot for that coin by name (two copies of the same album both show), or Not now (stays loose).",
           "affects": "Coin form"
         }
       ],
@@ -2534,8 +2537,15 @@
       "date": "11-24",
       "name": "R9 solo safety review (report 30)",
       "ver": "v0.107.0",
-      "cost": "reading pending",
+      "cost": "~2",
       "change": "No app change. 5 findings: snapshots would share purchase records, receipt photo must be saved as receiptPhotos, editing a coin and leaving drops changes without asking, old Parks albums keep the old order, Can't tell shows 1955-? in box spots."
+    },
+    {
+      "date": "11-24",
+      "name": "Purchases: one receipt, many coins (step 26)",
+      "ver": "v0.108.0",
+      "cost": "reading pending",
+      "change": "Menu > Purchases: receipt photo (kept small), date, where from, store, optional receipt total (not checked: other items allowed), tax split by price, shipping split evenly. Find coins I have adds coins already entered. Before changing a coin it lists what changes: Use receipt info or Keep coin's info per coin. Coin page Purchase line; coin form Add to a purchase. Delete keeps coin details, with Undo. Snapshots leave purchases out (R9-1)."
     }
   ],
   "modes": [

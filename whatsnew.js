@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.108.0": [
+    "Purchases (Menu › Purchases): enter a receipt once with its photo, date, store and the coins on it. Tax splits by price, shipping splits evenly. Each coin shows a Purchase line that opens its receipt.",
+    "Before a receipt changes a coin's price, date or store, it shows what will change, and you pick Use receipt info or Keep coin's info for each coin.",
+  ],
   "0.107.0": [
     "New albums: when every mint struck the same designs (America the Beautiful, State quarters), each design shows P then D side by side, like the real album page. The 2020 spots now include the W quarters too.",
     "Seller or shop name: type the first letters and names you used before appear in a short list under the box.",
