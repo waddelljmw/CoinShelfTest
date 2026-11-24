@@ -1,6 +1,6 @@
 {
-  "updated": "2026-11-24 (step 26 done)",
-  "app": "v0.108.0",
+  "updated": "2026-11-24 (step 26b done)",
+  "app": "v0.109.0",
   "week": {
     "label": "Tue 11-24 1pm → Tue 12-01 1pm",
     "weekly_now": 5,
@@ -1706,27 +1706,46 @@
     {
       "n": "26b",
       "stage": "now",
-      "name": "Add another like this / from this purchase (143)",
+      "name": "Add another like this + New coin on a receipt + receipt fixes (143)",
       "model": "Sonnet",
-      "est": "1–2",
+      "est": "2–3",
       "time": "~45 min",
-      "actual": "",
-      "status": "next",
+      "actual": "reading pending",
+      "status": "done",
       "chat": "New Sonnet chat",
       "when": "planned 11-24",
-      "why": "New coins from the same receipt or set: everything filled in, change one thing, Save.",
+      "why": "New coins from the same receipt or set: everything filled in, change one thing, Save. Receipts: add a new coin right from the receipt, plus small fixes from your chat.",
       "items": [
         {
           "id": "143",
           "size": "S–M",
-          "what": "Add another copies everything",
-          "change": "Copies metal, grade, where from, purchase and notes (not photos or the ID); renamed so it's clear. Album spot: never placed automatically. After Save it asks \"Put it in an album spot?\" listing every album with an open spot for that coin by name (two copies of the same album both show), or Not now (stays loose).",
+          "what": "Add another like this",
+          "change": "Copies metal, grade, where from, price, receipt link and notes (not photos, ID, tax/shipping/fees). After Save it asks \"Put it in an album spot?\" listing every album with an open spot, or Not now (stays loose).",
           "affects": "Coin form"
+        },
+        {
+          "id": "26b-new",
+          "size": "S",
+          "what": "+ New coin on this receipt",
+          "change": "Opens Add coin with date, where from, store and paid with filled in; after Save you are back on the receipt with the coin on it.",
+          "affects": "Receipt form"
+        },
+        {
+          "id": "26b-fix",
+          "size": "S",
+          "what": "Receipt fixes",
+          "change": "Blank store OK, named \"Receipt, date\"; note that coins keep their own Where from; Receipt link with a plain date moved into the coin's Purchase box; total line flags coins with no price; one warning line on spreadsheet import that receipt links aren't kept.",
+          "affects": "Receipt screens, coin page, import"
         }
       ],
       "try": [
-        "Open a coin, tap Add another like this: everything is filled in except photos."
-      ]
+        "Open a coin, tap Add another like this: everything is filled in except photos and the ID.",
+        "Purchases › + New purchase › + New coin on this receipt: date and where from are filled in; Save brings you back to the receipt.",
+        "Open a coin on a receipt: its Purchase box has a Receipt link."
+      ],
+      "started": "17:51",
+      "ended": "18:06",
+      "minutes": 15
     },
     {
       "n": "27",
@@ -1973,8 +1992,33 @@
       ]
     },
     {
-      "n": "32",
+      "n": "31b",
       "stage": "now",
+      "name": "Album research (Whitman, Dansco, H.E. Harris and others)",
+      "model": "Sonnet",
+      "est": "2–3",
+      "time": "~1 h",
+      "actual": "",
+      "status": "next",
+      "chat": "New Sonnet chat",
+      "when": "your call 11-24",
+      "why": "List common albums by number and year range, and which can be confirmed from public product listings, so a later build step can fill an album's spots when you pick its number. Report only; no guessing album contents. Pairs with idea 107.",
+      "items": [
+        {
+          "id": "107r",
+          "size": "M",
+          "what": "Album research report",
+          "change": "Report only: album numbers, year ranges, what public listings confirm.",
+          "affects": "Nothing"
+        }
+      ],
+      "try": [
+        "Read the report."
+      ]
+    },
+    {
+      "n": "32",
+      "stage": "fill",
       "name": "Reports: key dates + varieties scan (153, 152)",
       "model": "Sonnet",
       "est": "2–3",
@@ -1982,8 +2026,8 @@
       "actual": "",
       "status": "next",
       "chat": "New Sonnet chat",
-      "when": "planned 11-24",
-      "why": "Find missing key dates and varieties from public sources; report only.",
+      "when": "filler (your call 11-24)",
+      "why": "FILLER: run only when there is spare usage, not a queued step. Find missing key dates and varieties from public sources; report only.",
       "items": [
         {
           "id": "153",
@@ -2546,6 +2590,13 @@
       "ver": "v0.108.0",
       "cost": "reading pending",
       "change": "Menu > Purchases: receipt photo (kept small), date, where from, store, optional receipt total (not checked: other items allowed), tax split by price, shipping split evenly. Find coins I have adds coins already entered. Before changing a coin it lists what changes: Use receipt info or Keep coin's info per coin. Coin page Purchase line; coin form Add to a purchase. Delete keeps coin details, with Undo. Snapshots leave purchases out (R9-1)."
+    },
+    {
+      "date": "11-24",
+      "name": "Add another like this + receipt fixes (step 26b)",
+      "ver": "v0.109.0",
+      "cost": "reading pending",
+      "change": "Add another like this copies the coin (not photos, ID, tax/shipping/fees) and offers album spots after Save. Receipt: + New coin on this receipt, blank store named Receipt, date, coins keep their own Where from note, no-price flag in the total line, Receipt link in the coin's Purchase box, import warning line."
     }
   ],
   "modes": [

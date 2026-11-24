@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.109.0": [
+    "Add another like this (on a coin's page) copies the coin's details into a new coin: metal, grade, where from, receipt, notes. Photos and the ID start empty. After you add it, it offers the album spots it could go in, or Not now.",
+    "Receipts: + New coin on this receipt opens Add coin filled in with the date, store, where from and paid with, and brings you back to the receipt. A receipt with no store is named Receipt, date. The total line flags coins with no price. The coin's Purchase box now has the Receipt link with a plain date. Spreadsheet import says receipt links aren't kept.",
+  ],
   "0.108.0": [
     "Purchases (Menu › Purchases): enter a receipt once with its photo, date, store and the coins on it. Tax splits by price, shipping splits evenly. Each coin shows a Purchase line that opens its receipt.",
     "Before a receipt changes a coin's price, date or store, it shows what will change, and you pick Use receipt info or Keep coin's info for each coin.",

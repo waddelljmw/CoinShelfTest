@@ -53,7 +53,7 @@ const { chromium } = require("./_compat");
   ok("purchase page opens", /Coins on this receipt \(3\)/.test(await p.textContent("main")));
   // Coin page line opens the purchase.
   await p.evaluate(() => go("coin-m2")); await p.waitForTimeout(200);
-  ok("coin page shows the Purchase line", /Purchase: Main St Coins/.test(await p.textContent("main")));
+  ok("coin page Purchase box shows the Receipt link", /Receipt\s*Mar 14, 2025/.test(await p.textContent("main")));
   // Backup includes the purchase; a snapshot leaves it out.
   const bk = await p.evaluate(async () => { const d = await buildBackup(() => {}); return d.docs.some((x) => x.data && x.data.kind === "purchase"); });
   ok("backup includes the purchase", bk);

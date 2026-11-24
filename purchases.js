@@ -9,7 +9,11 @@ const getPurchase = (id) => (id ? store.docs.get("pu_" + id) : null);
 const allPurchases = () => [...store.docs.values()].filter((d) => d && d.kind === "purchase").sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) || (b.createdAt || 0) - (a.createdAt || 0));
 const purchaseCoins = (p) => (p ? allCoins().filter((c) => c.status !== "deleted" && c.purchaseId === p.id) : []);
 const purchaseCoinTotal = (cs) => r2(sum(cs, (c) => (num(c.paid) || 0) * qtyOf(c)));
-const purchaseName = (p) => [p.seller || p.source || "Purchase", p.date ? stampText(p.date).replace(/ @.*$/, "") : "No date"].join(", ");
+// Plain date ("Nov 24, 2026"). A receipt with no store is named "Receipt, <date>".
+const plainDate = (v) => { if (!v) return ""; const d = new Date(/^\d{4}-\d\d-\d\d$/.test(v) ? v + "T12:00:00" : v); return isNaN(d) ? String(v) : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
+const purchaseName = (p) => [p.seller || "Receipt", plainDate(p.date) || "No date"].join(", ");
+const noPriceCount = (cs) => cs.filter((c) => num(c.paid) == null).length;
+const noPriceText = (n) => (n ? n + (n === 1 ? " coin has" : " coins have") + " no price yet" : "");
 // Coins that were not bought can't go on a receipt: Inherited, Gift, Pocket change, Coin roll hunting.
 const purchaseOk = (c) => c && c.status !== "deleted" && !isInherited(c) && String(c.source || "").trim().toLowerCase() !== "gift" && !(typeof isFaceSource === "function" && isFaceSource(c));
 const PURCHASE_SOURCES = () => (typeof sourceOptions === "function" ? sourceOptions() : SOURCE_DEFAULTS).filter((s) => !["inherited", "gift", "pocket change", "coin roll hunting", "bank roll"].includes(String(s).toLowerCase()));
@@ -36,8 +40,8 @@ function viewPurchases() {
     <p class="small muted" style="margin-top:-4px">One receipt, many coins. Enter it once, tick the coins.</p>
     <button class="btn primary block" data-act="purchaseNew">+ New purchase</button>
     ${ps.length ? ps.map((p) => { const cs = purchaseCoins(p); return `<button class="card" style="display:block;width:100%;text-align:left;margin-top:10px" data-go="purchase-${esc(p.id)}">
-      <div class="rowline"><b>${esc(p.seller || p.source || "Purchase")}</b><span class="num">${money(purchaseCoinTotal(cs))}</span></div>
-      <div class="small muted">${esc(p.date ? stampText(p.date).replace(/ @.*$/, "") : "No date")} · ${cs.length} coin${cs.length === 1 ? "" : "s"}${(p.receiptPhotos || []).length ? " · receipt photo" : ""}</div></button>`; }).join("")
+      <div class="rowline"><b>${esc(purchaseName(p))}</b><span class="num">${money(purchaseCoinTotal(cs))}</span></div>
+      <div class="small muted">${cs.length} coin${cs.length === 1 ? "" : "s"}${(p.receiptPhotos || []).length ? " · receipt photo" : ""}${noPriceCount(cs) ? ` · <span style="color:var(--bad)">${esc(noPriceText(noPriceCount(cs)))}</span>` : ""}</div></button>`; }).join("")
     : `<div class="card empty" style="margin-top:10px">No purchases yet. Tap + New purchase and start with your newest receipt.</div>`}`;
 }
 function viewPurchase(r) {
@@ -47,21 +51,21 @@ function viewPurchase(r) {
   const row = (k, v) => (v == null || v === "" ? "" : `<div class="rowline"><span class="muted">${k}</span><span class="num" style="text-align:right">${v}</span></div>`);
   const tax = num(p.tax), ship = num(p.ship), total = num(p.total);
   return `<button class="link-btn" data-go="purchases">← Purchases</button>
-    <h1 style="margin-top:10px">${esc(p.seller || p.source || "Purchase")}</h1>
+    <h1 style="margin-top:10px">${esc(purchaseName(p))}</h1>
     ${(p.receiptPhotos || []).length ? `<div class="detail-photos">${p.receiptPhotos.map((ph) => `<img src="${esc(photoSrc(ph))}" alt="Receipt photo">`).join("")}</div>` : ""}
-    <div class="card">${row("Date", esc(p.date ? stampText(p.date).replace(/ @.*$/, "") : ""))}${row("Where from", esc(p.source))}${row("Store or seller", esc(p.seller))}
-      ${row("Coins", money(coins))}${row("Tax on the coins", tax == null ? null : money(tax))}${row("Shipping for the coins", ship == null ? null : money(ship))}
+    <div class="card">${row("Date", esc(plainDate(p.date)))}${row("Where from", esc(p.source))}${row("Store or seller", esc(p.seller))}
+      ${row("Coins", money(coins) + (noPriceCount(cs) ? `<br><span class="small" style="color:var(--bad)">${esc(noPriceText(noPriceCount(cs)))}</span>` : ""))}${row("Tax on the coins", tax == null ? null : money(tax))}${row("Shipping for the coins", ship == null ? null : money(ship))}
       ${row("Receipt total (for your records)", total == null ? null : money(total))}${row("Paid with", esc(p.payMethod))}${row("Receipt number", esc(p.receiptNo))}${row("Notes", esc(p.notes))}</div>
     <h2>Coins on this receipt (${cs.length})</h2>
     ${cs.length ? `<div class="card">${cs.map((c) => `<div class="rowline"><button class="link-btn" data-go="coin-${esc(c.id)}">${esc(labelOf(c))}${qtyOf(c) > 1 ? " ×" + qtyOf(c) : ""}</button><span class="num">${money(num(c.paid))}</span></div>`).join("")}</div>` : `<div class="card empty">No coins yet. Tap Edit to tick the coins on this receipt.</div>`}
     <div class="btn-row" style="margin-top:12px"><button class="btn primary" data-act="purchaseEdit" data-id="${esc(p.id)}">Edit</button><button class="btn danger" data-act="purchaseDelete" data-id="${esc(p.id)}">Delete</button></div>`;
 }
-// The line on a coin page.
-function coinPurchaseLine(c) {
+// The Receipt row inside the coin page's Purchase box: plain date, link to the receipt.
+function coinReceiptRow(c, row) {
   const p = c && getPurchase(c.purchaseId);
   if (!p) return "";
   const n = purchaseCoins(p).length;
-  return `<div class="album-chip"><span aria-hidden="true">🧾</span> Purchase: <button class="link-btn" data-go="purchase-${esc(p.id)}">${esc(purchaseName(p))}${n > 1 ? " · " + n + " coins" : ""} ›</button></div>`;
+  return row("Receipt", `<button class="link-btn" data-go="purchase-${esc(p.id)}">${esc(plainDate(p.date) || "No date")}${p.seller ? " · " + esc(p.seller) : ""}${n > 1 ? " · " + n + " coins" : ""} ›</button>`);
 }
 // In the coin form's Purchase details.
 function coinPurchaseField(d) {
@@ -84,7 +88,8 @@ function purchaseSummary() {
   const items = pd.items.map((x) => ({ x, c: store.docs.get("c_" + x.id) })).filter((o) => o.c);
   const coins = r2(sum(items, (o) => (num(o.x.price) || 0) * qtyOf(o.c)));
   const tax = num(pd.tax) || 0, ship = num(pd.ship) || 0, all = r2(coins + tax + ship), total = num(pd.total);
-  let s = `Coins on this receipt: <b>${money(coins)}</b>`;
+  const np = noPriceCount(items.map((o) => ({ paid: o.x.price })));
+  let s = `Coins on this receipt: <b>${money(coins)}</b>${np ? ` <span style="color:var(--bad)">· ${esc(noPriceText(np))}</span>` : ""}`;
   if (tax || ship) s += ` + ${[tax ? "tax " + money(tax) : "", ship ? "shipping " + money(ship) : ""].filter(Boolean).join(" + ")} = <b>${money(all)}</b>`;
   if (total != null && total > all) s += `<br><span class="muted">Other items on the receipt: ${money(r2(total - all))} (not counted)</span>`;
   return s;
@@ -112,7 +117,8 @@ function renderPurchaseForm() {
     <div class="grid2"><label class="f"><span>Date</span><input type="date" data-pf="date" value="${v("date")}" max="${today()}"></label>
     <label class="f"><span>Receipt total <span class="muted small">(optional)</span></span><input type="number" inputmode="decimal" step="0.01" min="0" data-pf="total" value="${v("total")}" placeholder="$"></label></div>
     <div class="grid2"><label class="f"><span>Where from</span><select data-pf="source"><option value="">Choose…</option>${srcs.concat(pd.source && !srcs.includes(pd.source) ? [pd.source] : []).map((s) => `<option ${pd.source === s ? "selected" : ""}>${esc(s)}</option>`).join("")}</select></label>
-    <label class="f"><span>Store or seller</span><input type="text" data-pf="seller" data-suggest="seller" value="${v("seller")}" placeholder="Main Street Coins" maxlength="60"></label></div>
+    <label class="f"><span>Store or seller <span class="muted small">(optional)</span></span><input type="text" data-pf="seller" data-suggest="seller" value="${v("seller")}" placeholder="Main Street Coins" maxlength="60"></label></div>
+    <div class="hint" style="margin-top:-4px">Each coin keeps its own Where from. The receipt fills it in only where a coin has none, and asks before changing one.</div>
     <details ${num(pd.tax) != null || num(pd.ship) != null || pd.payMethod || pd.receiptNo || pd.notes ? "open" : ""}><summary class="small">Tax, shipping, paid with, receipt number</summary>
       <div class="grid2">${money$("tax", "Tax on the coins")}${money$("ship", "Shipping for the coins")}</div>
       <div class="hint">Only the coins' part. Leave tax blank if there was none. Tax splits by price, shipping splits evenly.</div>
@@ -124,6 +130,7 @@ function renderPurchaseForm() {
     ${items.length ? `<div class="card">${items.map(({ x, i, c }) => `<div class="rowline" style="gap:8px"><span style="flex:1">${esc(labelOf(c))}${qtyOf(c) > 1 ? ` <span class="muted small">×${qtyOf(c)}, price each</span>` : ""}</span>
       <input type="number" inputmode="decimal" step="0.01" min="0" data-pi="${i}" value="${esc(x.price)}" placeholder="$" style="width:6.5em" aria-label="Price for ${esc(labelOf(c))}">
       <button type="button" class="x" data-act="purchaseRmCoin" data-i="${i}" aria-label="Take ${esc(labelOf(c))} off this receipt">✕</button></div>`).join("")}</div>` : `<div class="small muted">No coins yet.</div>`}
+    <button type="button" class="btn block" style="margin-top:8px" data-act="purchaseNewCoin">+ New coin on this receipt</button>
     ${pd._pick ? `<div class="card" style="margin-top:8px"><label class="f"><span>Find coins you already entered</span><input type="search" id="purchaseQ" value="${esc(pd._q)}" placeholder="1921 Morgan"></label><div id="purchasePick">${purchasePickerHtml()}</div>
       <button type="button" class="btn block" style="margin-top:6px" data-act="purchasePickDone">Done adding</button></div>`
       : `<button type="button" class="btn block" style="margin-top:8px" data-act="purchasePickOpen">🔍 Find coins I have</button>`}
@@ -252,6 +259,17 @@ Object.assign(actions, {
   purchasePickOpen: () => { pd._pick = true; pd._focusQ = true; renderPurchaseForm(); },
   purchasePickDone: () => { pd._pick = false; pd._q = ""; renderPurchaseForm(); },
   purchaseAddCoin: (el) => { const c = store.docs.get("c_" + el.dataset.id); if (!c || !pd) return; pd.items.push({ id: c.id, price: c.paid == null ? "" : String(c.paid) }); formTouched = true; const box = $("#purchasePick"); renderPurchaseForm(); if (box) { const q = $("#purchaseQ"); if (q) q.focus(); } },
+  // A new coin on this receipt: Add coin opens with date, where from, store and paid with filled in. After Save you are back here with it on the list.
+  purchaseNewCoin: () => {
+    if (!pd) return;
+    openCoinForm(null);
+    if (pd.source) applySourceKind(draft, pd.source);
+    Object.assign(draft, { acquired: pd.date || draft.acquired, _forPurchase: true });
+    if (String(pd.seller || "").trim()) draft.seller = String(pd.seller).trim();
+    if (pd.payMethod) draft.payMethod = pd.payMethod;
+    draft._carry = {};
+    formTouched = false; renderCoinForm();
+  },
   purchaseRmCoin: (el) => { pd.items.splice(+el.dataset.i, 1); formTouched = true; renderPurchaseForm(); },
   purchaseRmPhoto: (el) => { pd.receiptPhotos.splice(+el.dataset.i, 1); formTouched = true; renderPurchaseForm(); },
   purchaseSave: (el) => purchaseSave(!!el.dataset.next),

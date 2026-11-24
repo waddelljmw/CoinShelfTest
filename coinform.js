@@ -160,7 +160,8 @@ function renderCoinForm() {
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   ${typeof fixupBar === "function" ? fixupBar(d) : ""}
   <form id="coinForm" data-coin="${d.id}" autocomplete="off">
-    ${d._isNew && !d._replaces ? `<div class="hint" id="blankHint">Any field can be left blank. Fill in what you know; you can add the rest later.</div>` : ""}
+    ${d._isNew && d._copiedFrom ? `<div class="hint" id="copiedNote">Copied from <b>${esc(d._copiedFrom)}</b>. Change what is different, then add it. Photos, the ID number and the album spot start empty; tax, shipping and fees are not copied.</div>` : ""}
+    ${d._isNew && !d._replaces && !d._copiedFrom ? `<div class="hint" id="blankHint">Any field can be left blank. Fill in what you know; you can add the rest later.</div>` : ""}
     ${d._replaces ? `<div class="hint" id="readdNote">Copied from your old entry: year, grade, price, photos and notes. Album spot and variety are cleared. The old entry goes to Recently deleted.</div>` : ""}
     ${d._isNew && !other && it === "coin" ? (store.mode === "demo" && typeof demoFillCard === "function" ? demoFillCard(d) : sampleApi ? photoFillButton(d) : "") : ""}
     ${it === "bullion" ? bullionTopHtml(d) : it === "set" ? setTopHtml(d) : `${yearFirst ? yearFirstHtml(d, t) : ""}${typeBlock}

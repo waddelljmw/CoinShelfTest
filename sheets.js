@@ -405,6 +405,7 @@ function renderImport() {
     ${!hasYear || !hasType ? `<div class="banner" style="margin:12px 0 0">Pick which column is the <b>${!hasYear ? "Year" : "Coin type"}</b> to continue.</div>` : `
     <h2>Preview</h2>
     <div class="small muted" style="margin:-4px 0 8px">Untick any row you don't want. Rows that look like coins you already have, or have a year that doesn't fit, start unticked.</div>
+    <div class="small muted" style="margin:-4px 0 8px">Receipt links aren't kept in a spreadsheet. Imported coins aren't on a receipt until you add them in Menu › Purchases.</div>
     <div class="list">${parsed.map((p, i) => {
       const c = p.coin; const flags = [];
       if (!c.year) flags.push("no year");
