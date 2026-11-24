@@ -1,6 +1,6 @@
 {
-  "updated": "2026-11-24 (weekly planning)",
-  "app": "v0.106.1",
+  "updated": "2026-11-24 (step 25 done)",
+  "app": "v0.107.0",
   "week": {
     "label": "Tue 11-24 1pm → Tue 12-01 1pm",
     "weekly_now": 2,
@@ -1602,8 +1602,8 @@
       "model": "Sonnet",
       "est": "1–2",
       "time": "30–45 min",
-      "actual": "",
-      "status": "next",
+      "actual": "reading pending",
+      "status": "done",
       "chat": "New Sonnet chat",
       "when": "planned 11-24",
       "why": "Unblocks entering your National Parks quarters, and fixes the store-name box before Purchases uses it.",
@@ -1633,7 +1633,10 @@
       "try": [
         "Open your National Parks album: each park shows P then D.",
         "Add coin: type the first 2 letters of a past seller; it offers the name."
-      ]
+      ],
+      "started": "14:23",
+      "ended": "14:47",
+      "minutes": 24
     },
     {
       "n": "26",
@@ -2483,6 +2486,13 @@
       "ver": "v0.106.1",
       "cost": "reading pending",
       "change": "Editing a coin you opened yourself (for example inside an album) no longer jumps to the Needs Attention list after Save. The run only keeps going when you started it with Fix them."
+    },
+    {
+      "date": "11-24",
+      "name": "P and D side by side, store names, sources (step 25)",
+      "ver": "v0.107.0",
+      "cost": "reading pending",
+      "change": "New albums list each design as P then D (and W) side by side, like the real page; 2020 now has W spots. Seller/shop names suggest as you type. Where from gains Antique store, Yard sale, Estate sale; Bank roll leaves the choices (saved Bank roll coins keep their label)."
     }
   ],
   "modes": [

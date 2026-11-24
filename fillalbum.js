@@ -58,7 +58,7 @@ function openFillAlbum(albumId, fresh) {
       <label class="f"><span>Date acquired</span><input type="date" id="fillDate"></label>
       <label class="f"><span>Where from</span><input type="text" id="fillSource" list="fillSourceList" value="${esc(a.inherited ? "Inherited" : settings().lastFillSource && !isFaceSource({ source: settings().lastFillSource }) ? settings().lastFillSource : "")}" placeholder="optional"></label>
     </div>
-    <div class="chips" style="margin:0 0 6px">${["Pocket change", "Coin roll hunting", "Bank roll"].map((x) => `<button type="button" class="chip" data-act="fillSrc" data-v="${x}">${x}</button>`).join("")}</div>
+    <div class="chips" style="margin:0 0 6px">${["Pocket change", "Coin roll hunting"].map((x) => `<button type="button" class="chip" data-act="fillSrc" data-v="${x}">${x}</button>`).join("")}</div>
     <datalist id="fillSourceList">${sourceOptions().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
     <div class="btn-row" style="margin:6px 0"><button type="button" class="btn" data-act="fillTick" data-v="1">Tick all</button><button type="button" class="btn" data-act="fillTick" data-v="0">Untick all</button></div>
     ${fillGuideLink(a, spots)}
