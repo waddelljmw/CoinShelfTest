@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.106.2": [
+    "Adding a coin: Circulated (not graded) now also shows when you pick a design (for example an America the Beautiful quarter). Valuable varieties such as doubled dies still ask for a grade.",
+  ],
   "0.106.0": [
     "Needs Attention: a coin kept in an album now shows the album's name on its card; tap it to open the album. \"Needs Attention\" is written with a capital A everywhere.",
   ],
