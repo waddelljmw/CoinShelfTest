@@ -5,7 +5,7 @@ async function saveDraft() {
   if (typeof inhLeaveAsk === "function" && inhLeaveAsk(d)) return;
   if (typeof inhSoldAsk === "function" && inhSoldAsk(d)) return; // Edit: a sold coin made Inherited, ask first // Edit: Source moved away from Inherited, ask first
   const c = { ...d };
-  delete c._isNew; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._srcMore; delete c._acqAuto; delete c._payAuto; delete c._paidAuto; delete c._replaces; delete c._proof; delete c._worn; delete c._none; delete c._preProof; // working copies aren't saved
+  delete c._isNew; delete c._forPurchase; delete c._copiedFrom; delete c._newAlbum; delete c._fillBlobs; delete c._fromWant; delete c._stay; delete c._short; delete c._what; delete c._open; delete c._sourceKind; delete c._srcMore; delete c._acqAuto; delete c._payAuto; delete c._paidAuto; delete c._replaces; delete c._proof; delete c._worn; delete c._none; delete c._preProof; // working copies aren't saved
   delete c._many; delete c._payMode; delete c._lotMode; delete c._spots; delete c._spotsFor; delete c._grams; delete c._purity; delete c._newStack; delete c._lastHolder; delete c._carry; delete c._srcOk; delete c._status; delete c._goneReason; delete c._goneDate;
   c.holder = normHolder(formHolder(d));
   if (typeof lotOn === "function" && lotOn(d) && num(c.paid) != null) c.paid = String(Math.round(num(c.paid) / (num(d.qty) || 1) * 10000) / 10000); // whole-lot price saved as price each
@@ -145,9 +145,16 @@ async function saveDraft() {
   }
   if (d._fromWant) remove("w_" + d._fromWant); // bought a coin off the want list
   if (c.typeId) touchType(c.typeId);
+  const forPurchase = !!d._forPurchase && typeof pd !== "undefined" && !!pd, copied = d._copiedFrom; // from a receipt, or from Add another like this
+  d._forPurchase = false; // closing now must not reopen the receipt by itself
   closeSheet();
-  if (many) { await manySave(c, d); return; }
+  if (many) { await manySave(c, d); if (forPurchase) renderPurchaseForm(); return; }
   await saveCoin(c);
+  if (forPurchase) { // back on the receipt with the new coin on its list
+    if (!pd.items.some((x) => x.id === c.id)) pd.items.push({ id: c.id, price: c.paid == null ? "" : String(c.paid) });
+    renderPurchaseForm(); toast("Coin added to this receipt.");
+    return;
+  }
   if (typeof syncUpgradeMark === "function") syncUpgradeMark(c, prev); // the coin's "Upgrade wanted" tick and the spot's upgrade want stay one mark
   if (d._replaces) {
     const old = getCoin(d._replaces);
@@ -167,6 +174,7 @@ async function saveDraft() {
   if (isNew) go("coin-" + c.id);
   if (isNew) askMetalPrice(c);
   if (swapAsk) openSwapSheet(c, swapAsk); else if (wantAsk) askWantRemove(c);
+  if (copied && isNew && $("#sheet").hidden && typeof askAlbumSpot === "function") askAlbumSpot(c); // Add another like this: offer a spot (only if no other question is open), never place it by itself
 }
 
 // Resize to at most 1600px and save as JPEG (also converts iPhone HEIC photos the browser can show).

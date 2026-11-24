@@ -251,10 +251,15 @@ const actions = {
     delete draft._sourceKind;
     renderCoinForm();
   },
-  addAnother: (el) => { // a fresh Add coin form with the same coin type picked
+  addAnother: (el) => { // Add another like this: a new coin with everything copied except photos, ID, album spot and the entry-wide costs
     const c = getCoin(el.dataset.id);
     openCoinForm(null);
-    if (c && c.typeId && TYPE_BY_ID[c.typeId]) pickType(c.typeId);
+    if (!c) return;
+    const keep = ["typeId", "typeName", "family", "denom", "year", "mint", "gradeMode", "grade", "customGrade", "service", "customService", "metal", "oz", "value", "valueFrom", "source", "seller", "acquired", "paid", "payMethod", "receiptNo", "purchaseId", "holder", "packaging", "notes", "variety", "knownVar", "fbl", "sms", "inhId"];
+    keep.forEach((k) => { if (c[k] != null && c[k] !== "") draft[k] = JSON.parse(JSON.stringify(c[k])); });
+    draft.qty = 1; draft._copiedFrom = labelOf(c); draft._carry = {};
+    draft._sourceKind = !draft.source ? "" : sourceOptions().includes(draft.source) ? draft.source : "Other";
+    renderCoinForm();
   },
   retype: () => retypeDraft(),
   toggleProof: (el) => {

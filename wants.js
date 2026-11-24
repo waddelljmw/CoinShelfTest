@@ -586,6 +586,28 @@ function albumMoveTargets(c, from) {
   });
   return out;
 }
+// Add another like this: after Save, offer every album with an open spot for the coin. Never placed by itself.
+function askAlbumSpot(c) {
+  const list = albumMoveTargets(c, null);
+  if (!list.length) return;
+  openSheet(`<div class="sheet-head"><h2>Put it in an album spot?</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <div class="list">${list.map((t) => `<button class="coin-row" style="width:100%;text-align:left" data-act="anotherPlace" data-id="${esc(c.id)}" data-album="${esc(t.album.id)}" data-sid="${esc(t.spot.id || "")}" data-key="${esc(slotKey(t.spot))}"><span class="coin-main"><span class="coin-label">${esc(albumTitle(t.album))}</span><span class="coin-sub">${esc(t.spot.set ? "Set spot" : t.spot.y + (t.spot.m ? "-" + t.spot.m : "") + (t.spot.v ? " · " + t.spot.v : ""))}</span></span></button>`).join("")}</div>
+    <button class="btn block" style="margin-top:8px" data-act="closeSheet">Not now (stays loose)</button>`);
+}
+function anotherPlace(el) {
+  const c = getCoin(el.dataset.id), al = getAlbum(el.dataset.album);
+  if (!c || !al) return;
+  const aa = withSlotIds(al);
+  const spot = (el.dataset.sid && (aa.slots || []).find((x) => x.id === el.dataset.sid)) || (aa.slots || []).find((x) => slotKey(x) === el.dataset.key);
+  if (albumStats(al).filled.has(el.dataset.key)) { toast("That spot just got filled."); return; }
+  const before = { ...c }, next = { ...c };
+  applyKept(next, "a:" + al.id, true);
+  if (spot) next.slotId = spot.id;
+  saveCoin(next);
+  const gone = spot ? dropSpotWants(aa, [spot]) : [];
+  closeSheet(); render();
+  toast("Placed in " + albumTitle(al) + (gone.length ? " and crossed off its want list" : "") + ".", { label: "Undo", fn: () => { saveCoin(before); gone.forEach(saveWant); render(); } });
+}
 function slotMoveList(el) {
   const c = getCoin(el.dataset.id);
   if (!c) return;
@@ -686,7 +708,7 @@ Object.assign(actions, {
   slotMenu: openSlotMenu,
   slotWant,
   slotHave,
-  slotUseList,
+  slotUseList, anotherPlace,
   slotUse,
   slotMoveList,
   slotMoveGo,

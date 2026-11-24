@@ -336,7 +336,7 @@ function purchaseCard(c, row) {
   const m = (k) => (num(c[k]) == null ? null : money(num(c[k])));
   const cost = costOf(c);
   const extras = BUY_EXTRAS.some((k) => num(c[k]) != null);
-  const body = [row("Where", esc(c.source)), row("Seller", esc(c.seller)), row("Date", esc(c.acquired)),
+  const body = [typeof coinReceiptRow === "function" ? coinReceiptRow(c, row) : "", row("Where", esc(c.source)), row("Seller", esc(c.seller)), row("Date", esc(c.acquired)),
     row(qtyOf(c) > 1 ? "Paid each" : "Paid", m("paid")), row("Tax", m("buyTax")), row("Shipping", m("buyShip")), row("Fees", m("buyFees")),
     extras || qtyOf(c) > 1 ? row("Total cost", cost == null ? null : "<b>" + money(cost) + "</b>") : "",
     row("Paid with", esc(c.payMethod)), row("Receipt number", esc(c.receiptNo))].join("");
@@ -359,7 +359,7 @@ function viewCoin(r) {
   const sold = c.sold || {};
   return `${coinBackLink()}${eyeButton()}
     <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""} <button class="star" data-act="favToggle" data-id="${esc(c.id)}" aria-pressed="${!!c.fav}" aria-label="${c.fav ? "Remove from favorites" : "Add to favorites"}">${c.fav ? "★" : "☆"}</button></h1>
-    ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>${wherePartsOf(c).slice(1).map((x) => " \u203A " + esc(x)).join("")}</div>` : ""}${typeof coinPurchaseLine === "function" ? coinPurchaseLine(c) : ""}
+    ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>${wherePartsOf(c).slice(1).map((x) => " \u203A " + esc(x)).join("")}</div>` : ""}
     <div class="small muted" style="margin:-4px 0 8px">ID <b>${c.cid ? esc(c.cid) : "No ID"}</b> <button class="link-btn" data-act="editId" data-id="${esc(c.id)}">${c.cid ? "Change" : "Add"}</button>${(c.oldCids || []).length ? ` · old ID${c.oldCids.length > 1 ? "s" : ""}: ${esc(c.oldCids.join(", "))}` : ""}</div>
     ${mintageLine(c)}${c.status === "owned" && itemOf(c) === "coin" ? coinCardHtml(c) : ""}${typeof coinInhHtml === "function" ? coinInhHtml(c) : ""}
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
@@ -398,7 +398,7 @@ function viewCoin(r) {
     ${typeof askCard === "function" ? askCard(c) : ""}
     ${certUrl(c) ? `<a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit;margin-bottom:8px" href="${esc(certUrl(c))}" target="_blank" rel="noopener">Verify cert on ${esc(c.service)} ↗</a>` : ""}
     ${c.status === "sold" && c.sold && c.sold.whereType && !/^eBay/.test(c.sold.whereType) ? "" : `<a class="btn block" style="display:block;text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(c))}" target="_blank" rel="noopener">Check eBay sold ↗</a>`}
-    ${c.status === "owned" && itemOf(c) === "coin" ? `<button class="btn block" style="margin-bottom:8px" data-act="addAnother" data-id="${esc(c.id)}">+ Add another${c.typeId ? " " + esc(shortName(TYPE_BY_ID[c.typeId] || { name: c.typeName })) : ""}</button>` : ""}
+    ${c.status === "owned" && itemOf(c) === "coin" ? `<button class="btn block" style="margin-bottom:8px" data-act="addAnother" data-id="${esc(c.id)}">+ Add another like this</button>` : ""}
     <div class="btn-row">
       <button class="btn primary" data-act="edit" data-id="${esc(c.id)}">Edit</button>
       ${c.status === "owned" ? (levelKey() === "simple" ? "" : `${isInherited(c) ? `<button class="btn" data-act="sellLater" data-id="${esc(c.id)}">${c.sellLater ? "Remove my sell-eventually note" : "I'd like to sell this one eventually"}</button>` : stageOf(c) === "forsale" ? `<button class="btn" data-act="notForSale" data-id="${esc(c.id)}">Take off For sale</button>` : `<button class="btn" data-act="forSale" data-id="${esc(c.id)}">For sale</button>`}${!isInherited(c) || c.sellLater ? `<button class="btn" data-act="sell" data-id="${esc(c.id)}">Mark as sold</button>` : ""}${typeof bizButton === "function" ? bizButton(c) : ""}`) : c.status === "gone" ? `<button class="btn" data-act="ungone" data-id="${esc(c.id)}">Move back to collection</button>` : `<button class="btn" data-act="editSale" data-id="${esc(c.id)}">Edit sale</button><button class="btn" data-act="refund" data-id="${esc(c.id)}">Refund or cancel</button><button class="btn" data-act="unsell" data-id="${esc(c.id)}">Move back to collection</button>`}

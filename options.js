@@ -286,6 +286,7 @@ function askDiscard(kind) {
     <div class="btn-row"><button class="btn danger" data-act="discardYes">Discard</button><button class="btn primary" data-act="wordBack">Keep editing</button></div>`);
 }
 function closeSheet() {
+  const backToReceipt = !!(draft && draft._forPurchase && typeof pd !== "undefined" && pd); // a coin started from a receipt: closing it returns to the receipt
   formTouched = false;
   const w = $("#sheet");
   w.hidden = true;
@@ -295,6 +296,7 @@ function closeSheet() {
   sheetLayers = []; hideTopSheet();
   if (typeof clearStash === "function") clearStash();
   sheetUnmark();
+  if (backToReceipt) renderPurchaseForm();
 }
 window.addEventListener("popstate", () => {
   const was = sheetOnMark, now = !!(history.state && (history.state.sheet || history.state.stale)), same = location.href === sheetLastHref;
@@ -310,7 +312,7 @@ window.addEventListener("popstate", () => {
   if (sheetMarks && history.state && history.state.sheet && history.state.d >= sheetMarks) { sheetSkipping = true; history.back(); return; } // Forward onto a pop-up entry that was already closed by Back: stay put, keep the form and its typing
   if (sheetMarks) { // the person pressed Back with a pop-up open: close only the top pop-up
     sheetMarks--;
-    if (!sheetLayerBack()) { const kind = sheetUnsaved(); if (kind) { sheetMark(); askDiscard(kind); return; } formTouched = false; const w = $("#sheet"); w.hidden = true; w.innerHTML = ""; document.body.style.overflow = ""; draft = null; sheetLayers = []; hideTopSheet(); if (typeof clearStash === "function") clearStash(); sheetMarks = 0; }
+    if (!sheetLayerBack()) { const kind = sheetUnsaved(); if (kind) { sheetMark(); askDiscard(kind); return; } formTouched = false; const back = !!(draft && draft._forPurchase && typeof pd !== "undefined" && pd); const w = $("#sheet"); w.hidden = true; w.innerHTML = ""; document.body.style.overflow = ""; draft = null; sheetLayers = []; hideTopSheet(); if (typeof clearStash === "function") clearStash(); sheetMarks = 0; if (back) renderPurchaseForm(); }
     return;
   }
   if (now || (was && same && !justSkipped)) { sheetSkipping = true; history.back(); } // landed on, or just left, a left-over pop-up entry: it is the same page, so step over it
