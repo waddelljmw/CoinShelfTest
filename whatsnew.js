@@ -1,5 +1,14 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.110.0": [
+    "Containers: a box can now be Metal (with a color), a Bag, a Tube or Other (you type what it is), and can be marked Lockable (a small lock shows).",
+    "Boxes inside boxes: + Container inside on a box page. The box shows how many coins are inside at every level, and a coin's page shows the whole path, like Small bag › Big ziplock › Red box.",
+    "Move everything to… on a box page moves all its coins, albums and boxes into another box in one go (fill the empty spots in order, or put them in loose). One Undo.",
+    "Deleting a box that sits inside another box moves what was inside up one level instead of out of the box.",
+    "A box with numbered spots can also hold loose coins: pick Loose in the box (no spot), or + Add a loose coin.",
+    "Junk silver keeps its stack when you put it in a box: Also in a stack under Kept in.",
+    "Year set holder: a new kind of box with 5 spots (Half, Quarter, Dime, Nickel, Cent). Tapping a spot fills in the set's year, and the coin type when only one fits. Any coin can go in any spot.",
+  ],
   "0.109.0": [
     "Add another like this (on a coin's page) copies the coin's details into a new coin: metal, grade, where from, receipt, notes. Photos and the ID start empty. After you add it, it offers the album spots it could go in, or Not now.",
     "Receipts: + New coin on this receipt opens Add coin filled in with the date, store, where from and paid with, and brings you back to the receipt. A receipt with no store is named Receipt, date. The total line flags coins with no price. The coin's Purchase box now has the Receipt link with a plain date. Spreadsheet import says receipt links aren't kept.",
