@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-22 (idea 134 built)",
+  "updated": "2026-11-24 (weekly planning)",
   "app": "v0.106.1",
   "week": {
-    "label": "Tue 11-17 1pm → Tue 11-24 1pm",
-    "weekly_now": 91,
+    "label": "Tue 11-24 1pm → Tue 12-01 1pm",
+    "weekly_now": 2,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -1596,6 +1596,366 @@
       "minutes": 14
     },
     {
+      "n": "25",
+      "stage": "now",
+      "name": "P and D side by side + store names + new sources",
+      "model": "Sonnet",
+      "est": "1–2",
+      "time": "30–45 min",
+      "actual": "",
+      "status": "next",
+      "chat": "New Sonnet chat",
+      "when": "planned 11-24",
+      "why": "Unblocks entering your National Parks quarters, and fixes the store-name box before Purchases uses it.",
+      "items": [
+        {
+          "id": "139",
+          "size": "S",
+          "what": "P and D side by side",
+          "change": "America the Beautiful albums show each park's P then D, like the real album. Spot order is calculated; if it turns out to be saved, stop and ask. Also check the 2019-W / 2020-W spots.",
+          "affects": "Album pages"
+        },
+        {
+          "id": "158",
+          "size": "S",
+          "what": "Store / seller names suggest as you type",
+          "change": "Typing the start of a name you used before offers it; no side-scrolling.",
+          "affects": "Add coin, Set purchase info"
+        },
+        {
+          "id": "149",
+          "size": "S",
+          "what": "Antique store, Yard sale, Estate sale",
+          "change": "Three new Where from choices (choices only).",
+          "affects": "Where from list"
+        }
+      ],
+      "try": [
+        "Open your National Parks album: each park shows P then D.",
+        "Add coin: type the first 2 letters of a past seller; it offers the name."
+      ]
+    },
+    {
+      "n": "26",
+      "stage": "now",
+      "name": "Purchases: one receipt, many coins (138)",
+      "model": "Opus",
+      "est": "3–4",
+      "time": "1.5–2 h",
+      "actual": "",
+      "status": "next",
+      "chat": "New Opus chat",
+      "when": "planned 11-24",
+      "why": "You have 100+ old receipts: enter each once and tick the coins it covers, instead of typing price and photo on every coin.",
+      "items": [
+        {
+          "id": "plan",
+          "size": "S",
+          "what": "Confirm the details with you first",
+          "change": "Screen sketch in chat, the fields, the bought-sources list, the Bank roll question. Saved data: approved 11-24 (new purchase record + link on each coin).",
+          "affects": "Nothing until you agree"
+        },
+        {
+          "id": "138",
+          "size": "L",
+          "what": "Purchases + attach coins you already entered",
+          "change": "Menu item Purchases, + New purchase: photo, date, store, total, tick coins, price each, total check, Next receipt. Purchase line on each coin page. Receipt photo kept once, shrunk to ~100 KB. Split shipping across the coins. Backup, restore and CSV include purchases.",
+          "affects": "New saved purchase record; coins keep their own price/date/where from"
+        }
+      ],
+      "try": [
+        "Purchases › + New purchase: enter one receipt with 3 coins; the prices must add up to the total.",
+        "Open one of those coins: its Purchase line opens the receipt.",
+        "Make a backup, restore it in a private window: the purchase is still there."
+      ]
+    },
+    {
+      "n": "26b",
+      "stage": "now",
+      "name": "Add another like this / from this purchase (143)",
+      "model": "Sonnet",
+      "est": "1–2",
+      "time": "~45 min",
+      "actual": "",
+      "status": "next",
+      "chat": "New Sonnet chat",
+      "when": "planned 11-24",
+      "why": "New coins from the same receipt or set: everything filled in, change one thing, Save.",
+      "items": [
+        {
+          "id": "143",
+          "size": "S–M",
+          "what": "Add another copies everything",
+          "change": "Copies metal, grade, where from, purchase and notes (not photos or the ID); renamed so it's clear.",
+          "affects": "Coin form"
+        }
+      ],
+      "try": [
+        "Open a coin, tap Add another like this: everything is filled in except photos."
+      ]
+    },
+    {
+      "n": "27",
+      "stage": "now",
+      "name": "Quick wins",
+      "model": "Sonnet",
+      "est": "1–2",
+      "time": "40–60 min",
+      "actual": "",
+      "status": "next",
+      "chat": "New Sonnet chat",
+      "when": "planned 11-24",
+      "why": "Small fixes from your notes, no saved-data change.",
+      "items": [
+        {
+          "id": "151",
+          "size": "S",
+          "what": "GSA holder",
+          "change": "New Holder choice.",
+          "affects": "Holder list"
+        },
+        {
+          "id": "152a",
+          "size": "S",
+          "what": "1922 Peace dollar high relief",
+          "change": "New variety.",
+          "affects": "Catalog"
+        },
+        {
+          "id": "146",
+          "size": "S",
+          "what": "Add another coin type sits by the type picker",
+          "change": "Layout only.",
+          "affects": "New album"
+        },
+        {
+          "id": "144",
+          "size": "S",
+          "what": "Needs info chip on the You-own line",
+          "change": "Display only.",
+          "affects": "Coin card"
+        },
+        {
+          "id": "141",
+          "size": "S",
+          "what": "Lincoln 'what am I missing' button off Storage",
+          "change": "Removed; a real missing view comes with want lists.",
+          "affects": "Storage"
+        },
+        {
+          "id": "157",
+          "size": "S",
+          "what": "Rename a want list",
+          "change": "Rename button.",
+          "affects": "Wants"
+        },
+        {
+          "id": "161",
+          "size": "S",
+          "what": "Save note button turns off while saving",
+          "change": "Page only, no more 5 copies.",
+          "affects": "Pipeline page"
+        }
+      ],
+      "try": [
+        "Holder list shows GSA holder.",
+        "Rename a want list."
+      ]
+    },
+    {
+      "n": "24",
+      "stage": "now",
+      "name": "Labels: Described as (97) + Keeping for (137) + Altered (150)",
+      "model": "Opus",
+      "est": "2–3",
+      "actual": "",
+      "status": "next",
+      "chat": "New Opus chat",
+      "when": "after Quick wins",
+      "why": "Record what the flip or seller says (Circulated/AU/UNC/BU, + on a slab grade), mark coins you're keeping for your son or nephew, and mark plated or colorized coins so they aren't valued as normal.",
+      "items": [
+        {
+          "id": "97",
+          "size": "M",
+          "what": "Described as label",
+          "change": "Optional label (Circulated, AU, UNC, BU, or your words) apart from your grade; optional + on a certified grade (MS-64+), value uses MS-64. Display only; never sets grade or value.",
+          "affects": "New optional saved box on each coin; existing coins untouched"
+        },
+        {
+          "id": "137",
+          "size": "M",
+          "what": "Keeping for tag",
+          "change": "Mark coins held for someone; locked against accidental sale like Inherited, but they count in your totals.",
+          "affects": "New optional saved box"
+        },
+        {
+          "id": "150",
+          "size": "M",
+          "what": "Altered tick",
+          "change": "One tick + short text (plated, colorized); the app stops auto-valuing that coin.",
+          "affects": "New optional saved box"
+        }
+      ],
+      "try": [
+        "Open a coin: set Described as UNC; grade and value don't change.",
+        "Mark a coin Keeping for; Mark as sold asks first."
+      ],
+      "time": "1–1.5 h"
+    },
+    {
+      "n": "28",
+      "stage": "now",
+      "name": "Needs attention: Back + Quick grade (140)",
+      "model": "Sonnet",
+      "est": "1–2",
+      "time": "45–60 min",
+      "actual": "",
+      "status": "next",
+      "chat": "New Sonnet chat",
+      "when": "planned 11-24",
+      "why": "Fix one wrong Skip without restarting; grade an album coin by coin fast.",
+      "items": [
+        {
+          "id": "140",
+          "size": "S–M",
+          "what": "Back, Quick grade from an album, Photograde link",
+          "change": "Reuses the Needs attention run screen; grade dropdown saves and moves on.",
+          "affects": "Needs attention, album page"
+        }
+      ],
+      "try": [
+        "Skip a coin, tap Back: you're on it again."
+      ]
+    },
+    {
+      "n": "29",
+      "stage": "now",
+      "name": "Containers: red-box nesting plan + build (147, 148)",
+      "model": "Opus",
+      "est": "4–6",
+      "time": "2–3 h (plan, then build)",
+      "actual": "",
+      "status": "next",
+      "chat": "New Opus chat",
+      "when": "planned 11-24",
+      "why": "Enter your red box, black flip box and year sets the way they really are.",
+      "items": [
+        {
+          "id": "147",
+          "size": "M–L",
+          "what": "Nesting, Metal + Lockable, Tube, Other container, Move everything, box with spots and loose items",
+          "change": "Plan first with sketches; your existing containers must not change.",
+          "affects": "Saved data: ask first"
+        },
+        {
+          "id": "148",
+          "size": "M",
+          "what": "Year set holder",
+          "change": "5 named spots, any coin in any spot.",
+          "affects": "Containers"
+        }
+      ],
+      "try": [
+        "Make a box inside a box; move everything from one box to another."
+      ]
+    },
+    {
+      "n": "30",
+      "stage": "now",
+      "name": "Select many › Set for all (155, 156)",
+      "model": "Opus",
+      "est": "2–3",
+      "time": "1–1.5 h",
+      "actual": "",
+      "status": "next",
+      "chat": "New Opus chat",
+      "when": "planned 11-24",
+      "why": "Change grade, holder, original to album and more on many coins at once.",
+      "items": [
+        {
+          "id": "155",
+          "size": "M",
+          "what": "Set for all",
+          "change": "Small safe set first; confirm + one Undo.",
+          "affects": "Writes many coins"
+        },
+        {
+          "id": "156",
+          "size": "S",
+          "what": "Original to album without Inherited",
+          "change": "Tick allowed for bought albums.",
+          "affects": "Album coins"
+        }
+      ],
+      "try": [
+        "Select 5 coins, set grade for all, then Undo."
+      ]
+    },
+    {
+      "n": "31",
+      "stage": "now",
+      "name": "Album layout (145, 142)",
+      "model": "Opus",
+      "est": "2–3",
+      "time": "1–1.5 h",
+      "actual": "",
+      "status": "next",
+      "chat": "New Opus chat",
+      "when": "planned 11-24",
+      "why": "Make app albums match your real pages.",
+      "items": [
+        {
+          "id": "145",
+          "size": "M",
+          "what": "Extra blank spots + move added spots",
+          "change": "Opus checks how spot order is saved first.",
+          "affects": "Maybe saved data: ask first"
+        },
+        {
+          "id": "142",
+          "size": "S",
+          "what": "Whitman Lincoln 9004 / 9030",
+          "change": "9004 needs an inside photo.",
+          "affects": "Album list"
+        }
+      ],
+      "try": [
+        "New album with 5 extra blank spots."
+      ]
+    },
+    {
+      "n": "32",
+      "stage": "now",
+      "name": "Reports: key dates + varieties scan (153, 152)",
+      "model": "Sonnet",
+      "est": "2–3",
+      "time": "~1 h",
+      "actual": "",
+      "status": "next",
+      "chat": "New Sonnet chat",
+      "when": "planned 11-24",
+      "why": "Find missing key dates and varieties from public sources; report only.",
+      "items": [
+        {
+          "id": "153",
+          "size": "M",
+          "what": "Key date check",
+          "change": "Report only; Key vs Semi-key tiers?",
+          "affects": "Nothing"
+        },
+        {
+          "id": "152b",
+          "size": "S",
+          "what": "Varieties scan",
+          "change": "Report only, public sources.",
+          "affects": "Nothing"
+        }
+      ],
+      "try": [
+        "Read the report."
+      ]
+    },
+    {
       "n": "4b",
       "stage": "now",
       "name": "Private tester copy (plan, then build)",
@@ -1604,7 +1964,7 @@
       "actual": "",
       "status": "next",
       "chat": "New Opus chat",
-      "when": "after step 4",
+      "when": "after the improvements (moved back 11-24)",
       "why": "Only the testers you invite can open the app, and your code stops being public, so nobody passes it around before you sell it.",
       "items": [
         {
@@ -1634,30 +1994,6 @@
         "Try an email that isn't on the list: it is refused."
       ],
       "needs": "4"
-    },
-    {
-      "n": "24p",
-      "stage": "now",
-      "name": "Described as label: plan (97)",
-      "model": "Opus",
-      "est": "1-2",
-      "actual": "",
-      "status": "next",
-      "chat": "New Opus chat",
-      "when": "start Tue 11-24 morning (he asked to hold until then)",
-      "why": "He is editing coin info now and wants a label for what the flip or seller says (Circulated, AU, UNC, BU), kept apart from his own grade.",
-      "items": [
-        {
-          "id": "97",
-          "size": "M",
-          "what": "Plan the Described as label (planning only, no build)",
-          "change": "Decide the label list (plus type-your-own), where it shows (coin page, CSV, filter), and how it is saved without touching existing coins. Display only: it never sets a grade or a value. NEW SAVED FIELD, so 4-box check and ask him first. His call 11-23: YES to an optional '+' on a certified numeric grade (he owns an MS-64+ coin). Plan it as display-only: value uses the base grade (MS-64) since price tables have no '+' rows; no new Grade list entries. Then add the Sonnet build step.",
-          "affects": "Nothing until he agrees"
-        }
-      ],
-      "try": [
-        "Planning only: read the plan and say yes or change it."
-      ]
     }
   ],
   "parked": [
@@ -1677,10 +2013,6 @@
     {
       "group": "Later",
       "items": [
-        {
-          "t": "\"Keeping for\" tag (idea 137, 11-24): mark coins held for your son or nephew; locked against accidental sale like Inherited, but they count in your totals. Changes saved data: plan with idea 97 (Opus)",
-          "size": "M"
-        },
         {
           "t": "\"Skip in Needs attention\" tick (split from 4c, 11-22): a tick on a coin stops it nagging, leaves a small skipped mark, totals stay estimates. Changes saved data (Opus)",
           "size": "M"
@@ -1721,6 +2053,10 @@
         },
         {
           "t": "Pawn-shop sim run (idea 115)",
+          "size": "M"
+        },
+        {
+          "t": "Default value source + per-coin override (idea 154): Opus",
           "size": "M"
         }
       ]
@@ -1767,12 +2103,23 @@
         {
           "t": "Trade-in value toward cost (idea 114, parked)",
           "size": "L"
+        },
+        {
+          "t": "Seller premium table (idea 160)",
+          "size": "M"
         }
       ]
     }
   ],
   "prompt_template": "Let's start the coin work. Pipeline step {n}: {name}. Mode: {mode}. Usage: [{usage}]",
   "done": [
+    {
+      "date": "11-24",
+      "name": "Weekly planning (Opus)",
+      "ver": "",
+      "cost": "~2",
+      "change": "Purchases idea (138) checked and approved (new purchase record). 24 notes filed as ideas 138–161. Queue: 25 P/D + store names + sources, 26 Purchases, 26b Add another like this, 27 quick wins, 24 Labels (97/137/150), 28 Quick grade, 29 Containers, 30 Select many, 31 Album layout, 32 reports, then 4b tester copy."
+    },
     {
       "date": "11-24",
       "name": "Circulated with a plain design (fill-in)",
@@ -2218,7 +2565,7 @@
     ]
   },
   "checkin": {
-    "last": "2026-11-20 (Fri midday, early check-in)",
+    "last": "2026-11-24 (Tue 1pm, Opus weekly planning)",
     "last_review": "2026-11-20 (R8 solo review, report 28)",
     "review_baseline": 30,
     "saved_data_ahead": false,
