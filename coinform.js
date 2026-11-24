@@ -275,14 +275,13 @@ function purchaseFields(d) {
       <label class="f"><span>Date acquired</span><input type="date" data-f="acquired" value="${esc(d.acquired)}"></label>
     </div>
     <label class="f"><span>Source</span><select data-f="_sourceKind" data-rerender><option value="">Choose…</option>${sourceOptions().map((s) => `<option value="${esc(s)}" ${d._sourceKind === s ? "selected" : ""}>${esc(s)}</option>`).join("")}<option value="Other" ${d._sourceKind === "Other" ? "selected" : ""}>Other…</option></select></label>
-    ${d._sourceKind === "Coin Shop" ? `<label class="f"><span>Shop or dealer name (optional)</span><input type="text" data-f="seller" list="sellerList" value="${esc(d.seller || "")}" placeholder="e.g. Main Street Coins" maxlength="60"></label>` : ""}
+    ${d._sourceKind === "Coin Shop" ? `<label class="f"><span>Shop or dealer name (optional)</span><input type="text" data-f="seller" data-suggest="seller" autocomplete="off" value="${esc(d.seller || "")}" placeholder="e.g. Main Street Coins" maxlength="60"></label>` : ""}
     ${d._sourceKind === "Other" ? `<label class="f"><span>Where did you get it?</span><input type="text" data-f="source" value="${esc(d.source)}" placeholder="e.g. Grandpa's collection, flea market"></label>` : ""}
     <div class="hint" id="inhHint" ${isInherited(d) ? "" : "hidden"}><span class="dns">Do not sell</span> Inherited coins are marked do-not-sell and aren't counted in gains.</div>
       <div class="grid2">
-        ${d._sourceKind === "Coin Shop" ? "" : `<label class="f"><span>Seller</span><input type="text" data-f="seller" list="sellerList" value="${esc(d.seller || "")}" placeholder="Person or shop" maxlength="60"></label>`}
+        ${d._sourceKind === "Coin Shop" ? "" : `<label class="f"><span>Seller</span><input type="text" data-f="seller" data-suggest="seller" autocomplete="off" value="${esc(d.seller || "")}" placeholder="Person or shop" maxlength="60"></label>`}
         <label class="f"><span>Paid with</span><select data-f="payMethod"><option value="">Choose…</option>${PAY_METHODS.concat(d.payMethod && !PAY_METHODS.includes(d.payMethod) ? [d.payMethod] : []).map((x) => `<option ${d.payMethod === x ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
       </div>
-      <datalist id="sellerList">${pastSellers().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
       <div class="grid3">${money$("buyTax", "Tax")}${money$("buyShip", "Shipping")}${money$("buyFees", "Fees")}</div>
       <div class="hint" id="costHint">${costHintText(d)}</div>
       <label class="f"><span>Receipt number</span><input type="text" data-f="receiptNo" value="${esc(d.receiptNo || "")}" placeholder="Order or invoice number" maxlength="60"></label>

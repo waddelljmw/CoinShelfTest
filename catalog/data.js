@@ -204,7 +204,7 @@ const EXACT_SLOTS = {
     "ike-40": [[1971, "S"], [1972, "S"], [1973, "S"], [1974, "S"], [1976, "S"]],
     "sacagawea-dollar": yrs(2000, 2026, "P D"),
     "state-quarter": yrs(1999, 2008, "P D"),
-    "atb-quarter": [...yrs(2010, 2018, "P D"), [2019, "P D W"], ...yrs(2020, 2021, "P D")],
+    "atb-quarter": [...yrs(2010, 2018, "P D"), [2019, "P D W"], [2020, "P D W"], [2021, "P D"]],
     "women-quarter": yrs(2022, 2025, "P D"),
     "semiq-quarter": [[2026, "P D"]], "emerging-liberty-dime": [[2026, "P D"]], "enduring-liberty-half": [[2026, "P D"]],
   });
@@ -228,7 +228,7 @@ const EXACT_SLOTS = {
     2016: ["Shawnee", "Cumberland Gap", "Harpers Ferry", "Theodore Roosevelt", "Fort Moultrie"], 2017: ["Effigy Mounds", "Frederick Douglass", "Ozark Riverways", "Ellis Island", "George Rogers Clark"],
     2018: ["Pictured Rocks", "Apostle Islands", "Voyageurs", "Cumberland Island", "Block Island"], 2019: ["Lowell", "American Memorial Park", "War in the Pacific", "San Antonio Missions", "Frank Church"],
     2020: ["American Samoa", "Weir Farm", "Salt River Bay", "Marsh-Billings-Rockefeller", "Tallgrass Prairie"], 2021: ["Tuskegee Airmen"],
-  }, ["P", "D"], { 2019: ["P", "D", "W"] });
+  }, ["P", "D"], { 2019: ["P", "D", "W"], 2020: ["P", "D", "W"] });
   designs("women-quarter", {
     2022: ["Maya Angelou", "Sally Ride", "Wilma Mankiller", "Nina Otero-Warren", "Anna May Wong"], 2023: ["Bessie Coleman", "Edith Kanaka'ole", "Eleanor Roosevelt", "Jovita Idar", "Maria Tallchief"],
     2024: ["Patsy Takemoto Mink", "Mary Edwards Walker", "Celia Cruz", "Zitkala-Sa", "Pauli Murray"], 2025: ["Ida B. Wells", "Juliette Gordon Low", "Vera Rubin", "Stacey Park Milbern", "Althea Gibson"],
@@ -346,7 +346,7 @@ function setYearProblem(kind, year) {
   if (k.years.some(([a, b]) => y >= a && y <= b)) return "";
   return k.name + "s weren't made in " + y + ".";
 }
-const SOURCE_DEFAULTS = ["Inherited", "Coin Shop", "Coin Show", "Pawn Shop", "eBay", "Whatnot", "U.S. Mint", "Gift", "Pocket change", "Coin roll hunting", "Bank roll"];
+const SOURCE_DEFAULTS = ["Inherited", "Coin Shop", "Coin Show", "Pawn Shop", "eBay", "Whatnot", "U.S. Mint", "Gift", "Antique store", "Yard sale", "Estate sale", "Pocket change", "Coin roll hunting"];
 const ALBUM_BRANDS = ["Whitman", "Dansco", "H.E. Harris", "Littleton", "Other"];
 
 // Short, plain-language grade guide (our own summary, not copied from any book).

@@ -304,8 +304,7 @@ Object.assign(actions, {
       <label class="f"><span>Date acquired</span><input type="date" id="pcDate" data-pc></label>
       <label class="f"><span>Where from</span><select id="pcSrc" data-pc><option value="">Leave as is</option>${pcSources().map((x) => `<option>${esc(x)}</option>`).join("")}<option value="Other">Other…</option></select></label>
       <label class="f" id="pcOtherRow" hidden><span>Where did you get them?</span><input type="text" id="pcOther" maxlength="60" placeholder="e.g. flea market"></label>
-      <label class="f"><span>Shop, show or seller name (optional)</span><input type="text" id="pcSeller" data-pc list="sellerList" maxlength="60" placeholder="e.g. Main Street Coins"></label>
-      <datalist id="sellerList">${pastSellers().map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
+      <label class="f"><span>Shop, show or seller name (optional)</span><input type="text" id="pcSeller" data-pc data-suggest="seller" autocomplete="off" maxlength="60" placeholder="e.g. Main Street Coins"></label>
       <div class="btn-row" style="margin:8px 0"><label><input type="radio" name="pcMode" value="each" data-pc checked> Price paid each</label><label><input type="radio" name="pcMode" value="split" data-pc> Split a total evenly</label></div>
       <label class="f"><span>Amount</span><input type="number" inputmode="decimal" step="0.01" id="pcAmt" data-pc placeholder="$ (leave blank to keep prices)"></label>
       <div class="small" id="pcPreview" style="margin:6px 0"></div>

@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.107.0": [
+    "New albums: when every mint struck the same designs (America the Beautiful, State quarters), each design shows P then D side by side, like the real album page. The 2020 spots now include the W quarters too.",
+    "Seller or shop name: type the first letters and names you used before appear in a short list under the box.",
+    "Where from: new choices Antique store, Yard sale and Estate sale. Bank roll is no longer offered (use Coin roll hunting); coins already saved as Bank roll keep their label.",
+  ],
   "0.106.2": [
     "Adding a coin: Circulated (not graded) now also shows when you pick a design (for example an America the Beautiful quarter). Valuable varieties such as doubled dies still ask for a grade.",
   ],

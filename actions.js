@@ -525,3 +525,26 @@ Object.assign(actions, {
     last = y; clearTimeout(t); t = setTimeout(() => fab.classList.remove("away"), 700);
   }, { passive: true });
 })();
+
+// Step 25 (158): names you used before are offered as you type, in a short list under the box (no side-scrolling).
+function suggestShow(inp) {
+  const lab = inp.closest("label") || inp.parentNode;
+  lab.style.position = "relative";
+  let box = lab.querySelector(".ta-list.sugg");
+  const q = inp.value.trim().toLowerCase();
+  const all = pastSellers();
+  const hits = !q ? [] : [...all.filter((x) => x.toLowerCase().startsWith(q)), ...all.filter((x) => !x.toLowerCase().startsWith(q) && x.toLowerCase().includes(q))].filter((x) => x.toLowerCase() !== q).slice(0, 6);
+  if (!hits.length) { if (box) box.remove(); return; }
+  if (!box) { box = document.createElement("div"); box.className = "ta-list sugg"; lab.appendChild(box); }
+  box.innerHTML = hits.map((x) => `<button type="button" data-sugg="${esc(x)}">${esc(x)}</button>`).join("");
+}
+document.addEventListener("input", (e) => { if (e.target.dataset && e.target.dataset.suggest === "seller") suggestShow(e.target); });
+document.addEventListener("click", (e) => {
+  const b = e.target.closest && e.target.closest("[data-sugg]");
+  if (b) {
+    const lab = b.closest("label"), inp = lab && lab.querySelector("input[data-suggest]");
+    if (inp) { inp.value = b.dataset.sugg; inp.dispatchEvent(new Event("input", { bubbles: true })); inp.dispatchEvent(new Event("change", { bubbles: true })); }
+    b.parentNode.remove(); return;
+  }
+  document.querySelectorAll(".ta-list.sugg").forEach((x) => x.remove());
+});

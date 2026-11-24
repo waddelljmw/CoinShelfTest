@@ -112,12 +112,12 @@ function buildSlots(typeId, start, end, extraVarieties) {
   if (EXACT_SLOTS[typeId]) {
     EXACT_SLOTS[typeId].forEach(([y, ms]) => {
       if (y < start || y > end) return;
-      ms.split(" ").forEach((m) => {
-        // Some dates have a spot per variety (e.g. 1909 VDB, the four 2009 designs); "" is the plain spot.
-        const k = y + "|" + normMint(m);
-        const vs = (extraVarieties && extraVarieties[k]) || (t.varieties && t.varieties[k]) || [""];
-        vs.forEach((v) => out.push(v ? { id: uid(), y, m: normMint(m), v } : { id: uid(), y, m: normMint(m) }));
-      });
+      // Some dates have a spot per variety (e.g. 1909 VDB, the four 2009 designs); "" is the plain spot.
+      const rows = ms.split(" ").map((m) => { const k = y + "|" + normMint(m); return [normMint(m), (extraVarieties && extraVarieties[k]) || (t.varieties && t.varieties[k]) || [""]]; });
+      const add = (m, v) => out.push(v ? { id: uid(), y, m, v } : { id: uid(), y, m });
+      // Same designs at every mint (state quarters, parks): one design at a time, P then D, like the real album page.
+      if (rows.length > 1 && rows[0][1].length > 1 && rows.every((r) => r[1].join("|") === rows[0][1].join("|"))) rows[0][1].forEach((v) => rows.forEach((r) => add(r[0], v)));
+      else rows.forEach((r) => r[1].forEach((v) => add(r[0], v)));
     });
   } else {
     for (let y = start; y <= end; y++) t.mints.forEach((m) => out.push({ id: uid(), y, m: normMint(m) }));
