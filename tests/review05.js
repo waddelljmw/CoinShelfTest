@@ -23,7 +23,7 @@ const { chromium } = require("./_compat");
   const sq = await L(["state-quarter"], 1999, 2008); const q99 = sq.filter((x) => x.startsWith("1999"));
   ok("State quarters 1999: 10 spots (5 designs × P, D)", q99.length === 10 && sq.length === 100);
   const wq = await L(["women-quarter"], 2022, 2025); ok("Women quarters: 40 spots", wq.length === 40);
-  const atb = await L(["atb-quarter"], 2010, 2021); ok("ATB quarters: 56 designs P+D, plus 2019 W", atb.length === (56 * 2) + 5 && atb.filter((x) => /2019-W/.test(x)).length === 5);
+  const atb = await L(["atb-quarter"], 2010, 2021); ok("ATB quarters: 56 designs P+D, plus 2019 W and 2020 W", atb.length === (56 * 2) + 10 && atb.filter((x) => /2019-W/.test(x)).length === 5 && atb.filter((x) => /2020-W/.test(x)).length === 5);
   // Littleton 48 now holds 100 spots; five different 1999-P coins fill five spots
   const fill = await p.evaluate(() => {
     const info = lookupAlbum("Littleton", "48"); const a = { kind: "album", id: "st", brand: "Littleton", number: info.number, name: info.name, typeId: "state-quarter", typeIds: info.types, layout: "dates", start: info.start, end: info.end, removed: [], createdAt: 1 };
