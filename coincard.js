@@ -51,8 +51,13 @@ function quickAddOk(a, s) {
   if (typeof proofOnlySpot === "function" && proofOnlySpot(a, s)) return false;
   return quickOkFor(slotType(a, s), s.y, s.m);
 }
-// The Add/Edit coin form: can this coin be marked Circulated? Everyday types only, not proof, not a variety.
-const quickCoinOk = (d) => itemOf(d) === "coin" && !isProofGrade(d.grade) && !d.sms && !d.variety && quickOkFor(d.typeId, d.year, d.mint);
+// A plain design pick (a state, a park, a person on the back) is not a valuable variety. Valuable ones (doubled die, No P...) come from the book list or the Known variety box.
+function designVariety(d) {
+  const t = TYPE_BY_ID[d.typeId], list = (t && t.varieties && d.year && t.varieties[d.year + "|" + normMint(d.mint)]) || [];
+  return !!d.variety && list.includes(d.variety);
+}
+// The Add/Edit coin form: can this coin be marked Circulated? Everyday types only, not proof, no valuable variety (a plain design pick is fine).
+const quickCoinOk = (d) => itemOf(d) === "coin" && !isProofGrade(d.grade) && !d.sms && !d.knownVar && (!d.variety || designVariety(d)) && quickOkFor(d.typeId, d.year, d.mint);
 // The owned coins of this date and mint (all varieties, all albums).
 function ownedOfDate(c) {
   if (!c || !c.typeId || !c.year) return [];
