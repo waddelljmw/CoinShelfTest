@@ -213,4 +213,4 @@ Sizes: S small fix, M a feature, L big or changes how data is saved. This week's
 160. **(M; 2027 selling, parked) Seller premium table (note 11-23).** Like the Melt Table plus the dealer's premium (spot + $7, spot + 10% + $2), so a customer can see the price.
 161. **(S; pipeline page) Save note button turns off while saving (note 11-23).** Repeat taps on a slow connection saved 5 copies.
 - Folded in, no new number: pick the display photo → idea 106 part 2; want-list "grade or better", whole-denomination lists and mixed new/upgrade lists → Shopping view sketch; "Add another" serial field → rejected (Notes covers it).
-- Waiting on him: drop "Bank roll" from the Where from choices (Coin roll hunting does the same job; saved Bank roll coins keep their label)?
+- Decided 11-24: drop "Bank roll" from the Where from choices (Coin roll hunting does the same job); saved Bank roll coins keep their label and face value. Done in step 25.

@@ -1598,7 +1598,7 @@
     {
       "n": "25",
       "stage": "now",
-      "name": "P and D side by side + store names + new sources",
+      "name": "P and D side by side + store names + sources (add 3, drop Bank roll)",
       "model": "Sonnet",
       "est": "1–2",
       "time": "30–45 min",
@@ -1625,8 +1625,8 @@
         {
           "id": "149",
           "size": "S",
-          "what": "Antique store, Yard sale, Estate sale",
-          "change": "Three new Where from choices (choices only).",
+          "what": "Antique store, Yard sale, Estate sale in; Bank roll out",
+          "change": "Three new Where from choices. Bank roll leaves the choices (Coin roll hunting does the same job); coins already saved as Bank roll keep their label and still get face value. Choices only, no saved-data change.",
           "affects": "Where from list"
         }
       ],
@@ -1640,14 +1640,21 @@
       "stage": "now",
       "name": "Purchases: one receipt, many coins (138)",
       "model": "Opus",
-      "est": "3–4",
-      "time": "1.5–2 h",
+      "est": "4–5",
+      "time": "2–2.5 h",
       "actual": "",
       "status": "next",
       "chat": "New Opus chat",
       "when": "planned 11-24",
       "why": "You have 100+ old receipts: enter each once and tick the coins it covers, instead of typing price and photo on every coin.",
       "items": [
+        {
+          "id": "R9",
+          "size": "S",
+          "what": "Short solo safety review first (his OK 11-24)",
+          "change": "8 steps since the last review and Purchases changes how coins are saved, so a ~25 min Opus check of recent changes comes first (report only, ~1 weekly).",
+          "affects": "Nothing"
+        },
         {
           "id": "plan",
           "size": "S",
