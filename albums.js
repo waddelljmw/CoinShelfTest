@@ -167,6 +167,16 @@ function albumUnits() {
   });
   return units;
 }
+// Step 28b: Auto order keys. Face value first (cent < nickel < ... < dollar; type sets last), then the coin's family name, then first year.
+const albumAutoType = (a) => TYPE_BY_ID[albumTypes(a)[0]];
+const albumAutoKey = (a) => { const t = albumAutoType(a); return isSetAlbum(a) || !t ? 9999 : t.face != null ? t.face : 9998; };
+const _famStart = {};
+const albumAutoName = (a) => { // the coin's family, ordered by when that family began (Flying Eagle, Indian Head, Lincoln), name breaks ties
+  const t = albumAutoType(a); if (isSetAlbum(a) || !t) return "~";
+  const f = t.family || t.name || "";
+  if (_famStart[f] == null) _famStart[f] = Math.min(...Object.values(TYPE_BY_ID).filter((x) => (x.family || x.name) === f).map((x) => x.start || 9999));
+  return String(_famStart[f]).padStart(5, "0") + f;
+};
 // Sort albums by date: each series (or single album) goes by its first coin's first year. Series stay together.
 const albumFirstYear = (a) => { const t = TYPE_BY_ID[albumTypes(a)[0]]; const y = isSetAlbum(a) ? (t && t.start) : num(a.start) || (t && t.start); return y || 9999; };
 function sortAlbumsByDate() {
@@ -177,8 +187,17 @@ function sortAlbumsByDate() {
   saveSettings({ albumOrder: units.flatMap((u) => u.items.map((a) => a.id)) });
   toast("Albums sorted by date. Move any you like.");
 }
+// Auto order on/off. Turning it off keeps the order you see now; turning it on goes back to coin value, coin type, first year.
+function autoOrderSet(on) {
+  if (on) saveSettings({ autoOrder: true });
+  else saveSettings({ autoOrder: false, albumOrder: albums().map((x) => x.id) });
+}
 // Move one album (within its series) or a whole series (d = -1 up, 1 down).
 function moveAlbum(id, d, whole) {
+  if (settings().autoOrder !== false) { // moving by hand turns Auto order off, so ask first
+    confirmSheet("Turn off Auto order?", "Auto order keeps albums by coin value, coin type, then first year. Moving one by hand turns it off, and your order is kept until you turn it back on.", "Turn off and move", () => { autoOrderSet(false); closeSheet(); moveAlbum(id, d, whole); });
+    return;
+  }
   const units = albumUnits();
   const ui = units.findIndex((u) => u.items.some((a) => a.id === id));
   if (ui < 0) return;
@@ -205,7 +224,7 @@ function viewAlbums() {
         ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b>${mv(u.items[0].id, ui, units.length, true)}</div>
             <div class="list">${u.items.map((a, i) => `<div class="coin-row"><span class="coin-main"><span class="coin-label">${esc(albumTitle(a))}</span><span class="coin-sub">${esc(albumSub(a))}</span></span>${mv(a.id, i, u.items.length)}</div>`).join("")}</div></div>`
         : `<div class="list" style="margin-bottom:10px"><div class="coin-row"><span class="coin-main"><span class="coin-label">${esc(albumTitle(u.items[0]))}</span><span class="coin-sub">${esc(albumSub(u.items[0]))}</span></span>${mv(u.items[0].id, ui, units.length, true)}</div></div>`).join("")}
-      <button class="btn block" data-act="sortAlbumsDate">Sort by date</button>
+      ${settings().autoOrder !== false ? "" : `<button class="btn block" data-act="sortAlbumsDate">Sort by date</button><button class="btn block" style="margin-top:8px" data-act="autoOrderOn">Turn Auto order back on</button>`}
       <button class="btn primary block" style="margin-top:12px" data-act="reorderAlbums">Done</button>`;
   }
   const card = (a) => {
@@ -221,7 +240,7 @@ function viewAlbums() {
   return `<h1>My Albums</h1>
     <button class="btn primary block" data-act="newAlbum">+ New album</button>
     <button class="btn block" style="margin-top:8px" data-act="pocketNew">+ New pocket album (flips or capsules)</button>
-    ${list.length > 1 ? `<div style="text-align:right;margin-top:8px"><button class="link-btn" data-act="reorderAlbums">Reorder albums</button></div>` : ""}
+    ${list.length > 1 ? `<label class="switch" style="margin-top:10px"><span>Auto order (coin value, coin type, year)</span><input type="checkbox" data-act="autoOrder" ${settings().autoOrder !== false ? "checked" : ""}></label><div style="text-align:right;margin-top:4px"><button class="link-btn" data-act="reorderAlbums">Reorder albums</button></div>` : ""}
     <div style="margin-top:12px">${list.length ? units.map((u) => u.key ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b></div>${u.items.map(card).join("")}</div>` : card(u.items[0])).join("") : pocketAlbums().length ? "" : `<div class="card empty">No albums yet. Make one here, or pick an album number when you add a coin.</div>`}${pocketCards()}</div>`;
 }
 const albumEdit = { id: null };

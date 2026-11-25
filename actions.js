@@ -161,6 +161,8 @@ const actions = {
   addSpot: (el) => openAddSpot(el.dataset.id),
   shareApp: () => shareAppLink(),
   sortAlbumsDate: () => { sortAlbumsByDate(); },
+  autoOrder: (el) => { if (el.checked) autoOrderSet(true); else autoOrderSet(false); render(); },
+  autoOrderOn: () => { autoOrderSet(true); albumsView.reorder = false; render(); },
   reorderAlbums: () => { albumsView.reorder = !albumsView.reorder; render(); },
   moveAlbum: (el) => moveAlbum(el.dataset.id, +el.dataset.d, !!el.dataset.whole),
   albumAddType: () => {
@@ -336,7 +338,7 @@ function deleteAlbumNow(a, dropWants) {
 }
 const SNAPSHOT_BLOCK = new Set(("pocketNew fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd boxAddNew boxHave slotMoveList slotMoveGo newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot slotWantQuick slotTakeOut swapGo delAlbumGo " +
   "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale textSize shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd lookupWant slotUnwant missing missingQuick missQuickAdd missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
-  "export openImport undoImport openReport openSnapshot openBackup doBackup savePriceFile reorderAlbums sortAlbumsDate moveAlbum").split(" "));
+  "export openImport undoImport openReport openSnapshot openBackup doBackup savePriceFile reorderAlbums sortAlbumsDate autoOrder autoOrderOn moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const starEl = e.target.closest("[data-act=favToggle]"); // the star inside a list row must not open the coin
   if (starEl) { e.preventDefault(); e.stopPropagation(); actions.favToggle(starEl); return; }

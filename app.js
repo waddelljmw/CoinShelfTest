@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.111.0";
+const APP_VERSION = "0.111.1";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 // Step 4c: mint "?" = "Can't tell". It finds no album spot, filter or mintage, but values use the plain-date (no mint mark) price.
@@ -298,7 +298,8 @@ const deletedCoins = () => allCoins().filter((c) => c.status === "deleted");
 const albums = () => {
   const order = settings().albumOrder || [];
   const pos = (a) => { const i = order.indexOf(a.id); return i < 0 ? Infinity : i; };
-  const sorted = [...store.docs.values()].filter((d) => d.kind === "album").sort((a, b) => pos(a) - pos(b) || albumTitle(a).localeCompare(albumTitle(b)));
+  const auto = settings().autoOrder !== false; // step 28b: Auto order (default on) = face value, then coin type, then first year
+  const sorted = [...store.docs.values()].filter((d) => d.kind === "album").sort((a, b) => (auto ? albumAutoKey(a) - albumAutoKey(b) || albumAutoName(a).localeCompare(albumAutoName(b)) || albumFirstYear(a) - albumFirstYear(b) : 0) || pos(a) - pos(b) || albumTitle(a).localeCompare(albumTitle(b)));
   // Albums in the same series always sit together, where the first one of them is.
   const key = albumSeriesKeys(sorted);
   const out = [], done = new Set();
