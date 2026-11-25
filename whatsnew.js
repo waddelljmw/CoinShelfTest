@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.112.0": [
+    "The Home shelf now shows every album: it adds shelves as you need them, and a short last shelf is filled out with plain books.",
+    "The Show on Home shelf switch moved to the bottom of the album page, so a stray tap can't hide an album.",
+    "New album: the 2019-W and 2020-W quarter spots are now a tick, off unless you want them.",
+  ],
   "0.111.1": [
     "Albums are now kept in order by themselves (Auto order): by coin value (cents first, then nickels, dimes, quarters, halves, dollars), then the kind of coin, then the first year. Albums in a series stay together, earliest year first. The Home shelf follows the same order.",
     "To arrange albums your own way, use Reorder albums. Moving one asks to turn Auto order off, and the switch at the top of My Albums turns it back on.",

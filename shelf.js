@@ -54,17 +54,15 @@ function brandSpine(a) {
   const k = BOX_COLORS.some((x) => x[0] === a.color) && a.color !== "clear" ? a.color : "red", hex = colorHex(k, "red");
   return { cls: "so", style: `style="background:linear-gradient(90deg,${hex},${hex} 50%,${hex});box-shadow:inset 0 0 0 99px rgba(0,0,0,.08);color:${LIGHT_COLORS.includes(k) ? "#2a2218" : "#e8d29a"}"` };
 }
-// Albums fill up to 2 shelves of 9 spines. If there are more, the last spot becomes a "+N more" spine that opens Albums.
-const SPINES_PER_SHELF = 9, ALBUM_SHELVES = 2, GROUPS_PER_SHELF = 5;
+// Albums fill shelves of 9 spines, with as many shelves as needed. Past one shelf, a short last shelf is filled out with plain books.
+const SPINES_PER_SHELF = 9, GROUPS_PER_SHELF = 5;
 function shelfAlbums() {
   const units = albumUnits();
   if (!units.length && !pocketAlbums().length) return [`<button class="sh-ghost" data-go="albums">No albums yet<br>Tap to add one</button>`];
   const all = [];
   units.forEach((u, i) => u.items.forEach((a) => { if (itemShown(a.id)) all.push([a, i]); }));
   pocketAlbums().forEach((b) => { if (itemShown(b.id)) all.push([b, -1]); });
-  const cap = SPINES_PER_SHELF * ALBUM_SHELVES;
-  const more = all.length > cap ? all.length - (cap - 1) : 0;
-  const spines = all.slice(0, more ? cap - 1 : cap).map(([a, i]) => {
+  const spines = all.map(([a, i]) => {
     if (a.type === "pocket") return pocketSpine(a);
     const st = albumStats(a);
     const done = st.total && st.owned === st.total;
@@ -73,7 +71,8 @@ function shelfAlbums() {
     return `<button class="sh-spine ${bc.cls} ${h}" ${bc.style} data-go="album-${esc(a.id)}" aria-label="${esc(albumTitle(a))}, ${st.owned} of ${st.total}${done ? ", complete" : ""}">
       <span>${esc(spineText(a))}</span>${done ? `<i class="sh-ok" aria-hidden="true">✓</i>` : ""}</button>`;
   });
-  if (more) spines.push(`<button class="sh-spine more" data-go="albums" aria-label="${more} more albums, open Albums"><span>+${more} more</span></button>`);
+  // Plain, unlabeled books: only decoration, so they can't be tapped.
+  if (spines.length > SPINES_PER_SHELF) for (let i = 0; spines.length % SPINES_PER_SHELF; i++) spines.push(`<i class="sh-spine filler ${["sd", "s1", "s3"][i % 3]} ${["", "short", "tall"][i % 3]}" aria-hidden="true"></i>`);
   const rows = [];
   for (let i = 0; i < spines.length; i += SPINES_PER_SHELF) rows.push(spines.slice(i, i + SPINES_PER_SHELF).join(""));
   return rows;

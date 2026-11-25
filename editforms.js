@@ -36,6 +36,7 @@ function openNewAlbum() {
       <label class="f"><span>From year</span><input type="number" name="start" id="albumStart" placeholder="e.g. 1964"></label>
       <label class="f"><span>To year</span><input type="number" name="end" id="albumEnd" placeholder="e.g. 2002"></label>
     </div>
+    <label class="f inline-check" id="albumWRow" hidden><input type="checkbox" name="wq"> <span>Add 2019-W and 2020-W quarter spots</span></label>
     <div class="hint" id="albumHint">Use the years printed on your album. Each coin type gets spots for the dates and mint marks struck in those years. You can add, hide or reorder spots later.</div>
     <div class="btn-row"><button class="btn primary" type="submit" id="albumCreate" disabled>Create album</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
@@ -47,6 +48,17 @@ function albumTypeRow(id, i) {
 function albumTypeRows(ids, hidden) {
   return `<div class="f" id="albumTypesBlock" ${hidden ? "hidden" : ""}><span>Coin types in this album</span><button type="button" class="link-btn" data-act="albumAddType">+ Add another coin type</button><div id="albumTypes">${ids.map(albumTypeRow).join("")}</div></div>`;
 }
+// The West Point (W) park quarters of 2019 and 2020 get spots only when asked for: many albums have none.
+const isWQuarterSpot = (s) => s.t === "atb-quarter" && s.m === "W" && !s.pf;
+const withoutWQuarters = (slots) => slots.filter((s) => !isWQuarterSpot(s));
+function albumWTick() {
+  const f = $("#albumForm"), row = $("#albumWRow");
+  if (!f || !row) return;
+  const start = num(f.querySelector("[name=start]").value) ?? 0, end = num(f.querySelector("[name=end]").value) ?? 9999;
+  row.hidden = !(readAlbumTypes(f).includes("atb-quarter") && f.querySelector("[name=layout]").value !== "set" && Math.min(start, end) <= 2020 && Math.max(start, end) >= 2019);
+}
+document.addEventListener("input", (e) => { if (e.target.form && e.target.form.id === "albumForm") albumWTick(); });
+document.addEventListener("change", (e) => { if (e.target.form && e.target.form.id === "albumForm") albumWTick(); });
 function proofSelect(cur) {
   cur = cur === true ? "all" : cur || "";
   const o = (v, l) => `<option value="${v}" ${cur === v ? "selected" : ""}>${l}</option>`;
@@ -87,6 +99,7 @@ function doNewAlbum(form) {
   if (fd.get("brand") === "Other") a.color = String(fd.get("color") || "red");
   if (typeof applyAlbumKept === "function") applyAlbumKept(a, fd);
   a.slots = buildAlbumSlots(types, layout, start, end, proofs, info0 && info0.spotVarieties);
+  if (!fd.get("wq")) a.slots = withoutWQuarters(a.slots);
   const twin = uniqueAlbumName(a);
   put("a_" + a.id, a);
   types.forEach(touchType);
@@ -186,7 +199,7 @@ function saveEditAlbum(form) {
     const have = new Set(kept.map(slotKey));
     // Add standard spots for new types and new years only (spots you removed before stay removed).
     const info = typeof lookupAlbum === "function" ? lookupAlbum(a.brand, a.number) : null; // the album's own variety spots (e.g. 1878 Morgan) come back with the years
-    const added = buildAlbumSlots(types, layout, start, end, proofs, info && info.spotVarieties).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end, oldPf));
+    const added = buildAlbumSlots(types, layout, start, end, proofs, info && info.spotVarieties).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end, oldPf) && (!isWQuarterSpot(x) || (a.slots || []).some((y) => y.m === "W" && slotType(a, y) === "atb-quarter")));
     slots = set ? [...kept, ...added] : sortSlots([...kept, ...added]);
   }
   const removed = a.removed || [];
@@ -218,6 +231,7 @@ function openMissing(id) { openMissingPicker(id); }
 function albumTypesChanged() {
   const f = $("#albumForm");
   if (!f) return;
+  albumWTick();
   const b = $("#albumCreate"), blk = $("#albumTypesBlock"), box = $("#albumTypes");
   if (b) b.disabled = !readAlbumTypes(f).length;
   if (blk && box) blk.hidden = !box.children.length;

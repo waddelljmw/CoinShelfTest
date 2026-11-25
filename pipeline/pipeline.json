@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-24 (idea 163 logged)",
- "app": "v0.111.1",
+ "updated": "2026-11-24 (overnight: shelf switch, W tick, all albums on shelf)",
+ "app": "v0.112.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 14,
+  "weekly_now": 15,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2124,10 +2124,6 @@
    "group": "Later",
    "items": [
     {
-     "t": "Fill-in: move the \"Show on Home shelf\" switch to the bottom of the album page (idea 163), so a stray tap can't hide an album",
-     "size": "S"
-    },
-    {
      "t": "\"Skip in Needs attention\" tick (split from 4c, 11-22): a tick on a coin stops it nagging, leaves a small skipped mark, totals stay estimates. Changes saved data (Opus)",
      "size": "M"
     },
@@ -2646,6 +2642,13 @@
    "ver": "v0.111.1",
    "cost": "~0-1 weekly (reading pending)",
    "change": "Albums keep themselves in order: coin value, then kind of coin, then first year; series earliest year first; Auto order switch on My Albums; moving by hand asks to turn it off. Home shelf follows."
+  },
+  {
+   "date": "11-24",
+   "name": "Shelf switch, all albums on the shelf, W-quarter tick (ideas 163, 164)",
+   "ver": "v0.112.0",
+   "cost": "reading pending",
+   "change": "Show on Home shelf switch is at the bottom of the album page; the Home shelf adds rows for every album and fills a short last row with plain books; New album has a 2019-W / 2020-W tick, off by default."
   }
  ],
  "modes": [

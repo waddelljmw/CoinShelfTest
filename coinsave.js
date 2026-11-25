@@ -126,12 +126,14 @@ async function saveDraft() {
       const pf = lookupProofs(info);
       const a = { kind: "album", id: uid(), brand: na.brand, number: info.number, name: info.name, typeId: info.types[0], typeIds: info.types, layout: "dates", start: info.start, end: info.end, proofs: pf, removed: [], createdAt: Date.now() };
       a.slots = buildAlbumSlots(info.types, "dates", info.start, info.end, pf, info.spotVarieties);
+      if (normMint(c.mint) !== "W") a.slots = withoutWQuarters(a.slots);
       put("a_" + a.id, a);
       c.albumId = a.id;
     } else {
       const a = { kind: "album", id: uid(), brand: na.brand, number: na.number.trim(), name: na.brand === "Other" ? na.number.trim() : "", ...(na.brand === "Other" ? { color: na.color || "red" } : {}), typeId: c.typeId,
         start: t ? t.start : num(c.year) || 1900, end: t ? t.end : num(c.year) || 1900, removed: [], createdAt: Date.now() };
       a.slots = t ? buildSlots(t.id, a.start, a.end) : [{ y: num(c.year), m: normMint(c.mint) }];
+      if (t && t.id === "atb-quarter" && normMint(c.mint) !== "W") a.slots = a.slots.filter((s) => s.m !== "W");
       put("a_" + a.id, a);
       c.albumId = a.id;
     }
