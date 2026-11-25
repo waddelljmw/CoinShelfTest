@@ -17,6 +17,7 @@ function openNewAlbum() {
     <label class="f"><span>Coin type</span><input type="search" id="albumTypeFind" list="albumTypeList" placeholder="Type a coin, e.g. Kennedy 1964-2002" autocomplete="off"></label>
     <datalist id="albumTypeList">${COIN_TYPES.map((t) => `<option value="${esc(t.name)}">`).join("")}</datalist>
     <div class="hint" id="albumTypeHint">Pick a coin type to start. Add the years to fill in everything at once.</div>
+    ${albumTypeRows([], true)}
     <div class="grid2">
       <label class="f"><span>Brand</span><select name="brand">${ALBUM_BRANDS.map((b) => `<option>${b}</option>`).join("")}</select></label>
       <label class="f"><span>Album number</span><input type="text" name="number" placeholder="9128"></label>
@@ -30,7 +31,6 @@ function openNewAlbum() {
     ${typeof albumKeptField === "function" ? albumKeptField(null) : ""}
     <label class="f"><span>Kind of album</span><select name="layout" id="albumLayout">
       <option value="dates">Dates and mint marks (most albums)</option><option value="set">Type set (one coin of each type)</option></select></label>
-    ${albumTypeRows([], true)}
     ${proofSelect("")}
     <div class="grid2">
       <label class="f"><span>From year</span><input type="number" name="start" id="albumStart" placeholder="e.g. 1964"></label>
