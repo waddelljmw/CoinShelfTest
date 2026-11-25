@@ -36,5 +36,6 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
     const t = document.body.innerText;
     return k === "edit" && /Discard your changes\?/.test(t);
   }));
+  ok("New album: extra coin types sit right under the Coin type box", await ev(() => { openNewAlbum(); const f = document.querySelector("#albumForm"), blk = f.querySelector("#albumTypesBlock"), top = f.querySelector("#albumTypeFind"); const ok = blk && top && (top.compareDocumentPosition(blk) & 4) && !(f.querySelector('[name=brand]').compareDocumentPosition(blk) & 4); closeSheet(); return !!ok; }));
   await b.close();
 })();
