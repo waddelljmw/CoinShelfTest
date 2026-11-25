@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25 (step 30 done)",
+ "updated": "2026-11-25 (step 30c long-press queued)",
  "app": "v0.114.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
@@ -2068,6 +2068,32 @@
    ],
    "try": [
     "Tap + › pick a bar: the top says Add bar and the button says Save bar."
+   ]
+  },
+  {
+   "n": "30c",
+   "stage": "now",
+   "name": "Long-press to select (38, 132)",
+   "model": "Sonnet",
+   "est": "~1",
+   "time": "30–45 min",
+   "actual": "",
+   "status": "next",
+   "chat": "New Sonnet chat",
+   "when": "added 11-25",
+   "why": "Long-press a coin or album spot to start Select with it ticked. A shortcut only: the Select coins button stays.",
+   "items": [
+    {
+     "id": "38+132",
+     "size": "M",
+     "what": "Long-press starts Select",
+     "change": "Everywhere Select coins exists (My Coins, album, box and pocket pages); stops the phone's own long-press menu on those coins.",
+     "affects": "Screens only, no saved data"
+    }
+   ],
+   "try": [
+    "My Coins: long-press a coin; Select turns on with it ticked. Tap 2 more, then Set for all.",
+    "Album page: long-press a filled spot; same."
    ]
   },
   {
