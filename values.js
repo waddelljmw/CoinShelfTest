@@ -235,6 +235,9 @@ const JUNK_KINDS = [["90", "90% silver (dimes, quarters, halves to 1964)", 0.723
 const junkKindOf = (c) => JUNK_KINDS.find((k) => k[0] === String(c.jKind)) || JUNK_KINDS[0];
 const junkOz = (c) => { const f = num(c.jFace); return f && f > 0 ? Math.round(f * junkKindOf(c)[2] * 100000) / 100000 : 0; };
 const BULLION_HOLDERS = ["Loose", "Capsule", "Tube", "Mint box", "Bag", "Other"];
+// Step 30: holders that fit each bullion shape (a bar never sits in a tube or a 2x2 flip).
+const BULLION_HOLDERS_BY = { Bar: ["Loose", "Assay card", "Capsule", "Mint box", "Bag", "Other"], Round: BULLION_HOLDERS, Junk: ["Loose", "Bag", "Tube", "Other"], Other: ["Loose", "Assay card", "Capsule", "Tube", "Mint box", "Bag", "Other"] };
+const bullionHolders = (d) => BULLION_HOLDERS_BY[d.bShape === "Shape" ? "Other" : d.bShape || "Bar"] || BULLION_HOLDERS;
 const bullionOz = (c) => { const w = num(c.bWeight), p = num(c.bPurity); return w && p ? Math.round(w * p * 100000) / 100000 : 0; };
 const stackOf = (c) => { const s = String(c.stack || "").trim(); return itemOf(c) === "bullion" ? s || "My " + (c.metal || "Silver") + " Stack" : s; };
 const stacksPresent = () => [...new Set(ownedCoins().map(stackOf).filter(Boolean))].sort((a, b) => a.localeCompare(b));

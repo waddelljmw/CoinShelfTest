@@ -112,7 +112,7 @@ const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"]
 function selBarHtml(picked, shown) {
   const dis = picked.length ? "" : "disabled";
   return `<div class="card selbar"><div class="selrow"><b>${picked.length} selected</b><button class="btn" data-act="selAll">Select all (${shown})</button><button class="btn" data-act="selNone">Clear</button></div></div>
-      <div class="card selacts"><div class="btn-row" style="margin-top:8px"><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="toOpen" ${dis}>Take out of album…</button><button class="btn" data-act="hdOpen" ${dis}>Set holder…</button><button class="btn" data-act="inhMark" ${dis}>Mark inherited…</button><button class="btn" data-act="pcOpen" ${dis}>Set purchase info…</button><button class="btn" data-act="orderOpen" ${dis}>Sell together…</button></div>
+      <div class="card selacts"><div class="btn-row" style="margin-top:8px"><button class="btn" data-act="saOpen" ${dis}>Set for all…</button><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="toOpen" ${dis}>Take out of album…</button><button class="btn" data-act="orderOpen" ${dis}>Sell together…</button></div>
       ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button><button class="btn" data-act="selAsk" ${dis}>Suggested asking price</button></div>` : ""}</div>`;
 }
 // Bottom copy of Select all · Clear for long lists.
@@ -257,6 +257,7 @@ function bulkApply(label, fn) {
   pickedCoins().forEach((c0) => {
     const c = JSON.parse(JSON.stringify(c0));
     const why = fn(c, used);
+    if (why === true) return; // left alone on purpose (Set for all, "Only the blank ones"): not listed
     if (why) { skipped.push([labelOf(c0), why]); return; }
     before.push(c0); put("c_" + c.id, c, true); done++;
   });

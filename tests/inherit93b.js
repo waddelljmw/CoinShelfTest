@@ -84,7 +84,7 @@ const { chromium } = require("./_compat");
   await p.waitForTimeout(250);
   await p.evaluate(() => { actions.selStart(); });
   await p.evaluate(() => { listState._shown.forEach((c) => { if (c.id === "m1" || c.id === "m2") listState.sel.add(c.id); }); render(); });
-  await p.click("[data-act=inhMark]"); await p.waitForTimeout(150);
+  await p.click("[data-act=saOpen]"); await p.click("[data-act=saPick][data-k=inh]"); await p.waitForTimeout(150);
   await p.selectOption("[data-inh-pick]", "i1"); await p.waitForTimeout(100);
   await p.click("[data-act=inhMarkGo]"); await p.waitForTimeout(250);
   const mm = await p.evaluate(() => ({ m1: getCoin("m1"), m2: getCoin("m2") }));

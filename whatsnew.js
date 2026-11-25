@@ -1,5 +1,11 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.114.0": [
+    "Select › Set for all: change grade, Described as, holder, Keeping for, Original to the album, inherited, purchase info or notes on many coins at once, or add them to a want list. One Undo.",
+    "Set for all starts on \"Only the blank ones\" and shows what \"Change all\" would replace. Slabbed coins keep their grade and holder.",
+    "Original to the album now works for albums you bought, not just inherited ones.",
+    "A new bar or round no longer picks up a holder that can't hold it (like a 2x2 flip). Bars can be on an Assay card.",
+  ],
   "0.113.0": [
     "Described as: record what the flip or seller says (Circulated, AU, UNC, BU or your own words). It never changes your grade or value.",
     "Slabs can show a plus, like MS-64+. The value still uses MS-64.",
