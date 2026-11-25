@@ -276,13 +276,14 @@ let formTouched = false;
 function sheetUnsaved() {
   if (!formTouched || $("#sheet").hidden) return "";
   if (draft && draft._isNew) return "coin";
+  if ($("#coinForm")) return "edit";
   if ($("#fillForm")) return "list";
   if ($("#albumForm")) return "album";
   if ($("#purchaseForm")) return "purchase";
   return "";
 }
 function askDiscard(kind) {
-  openSheetOver(`<div class="sheet-head"><h2>Discard this ${kind}?</h2></div><p>What you typed will be lost.</p>
+  openSheetOver(`<div class="sheet-head"><h2>${kind === "edit" ? "Discard your changes?" : "Discard this " + kind + "?"}</h2></div><p>${kind === "edit" ? "The changes you made to this coin will be lost." : "What you typed will be lost."}</p>
     <div class="btn-row"><button class="btn danger" data-act="discardYes">Discard</button><button class="btn primary" data-act="wordBack">Keep editing</button></div>`);
 }
 function closeSheet() {

@@ -84,7 +84,7 @@ function boxText(c) {
 }
 // Coins that could go in an empty spot of this box: single owned coins, not in an album, not already in this box.
 const boxHaveCoins = (b) => ownedCoins().filter((c) => itemOf(c) !== "bullion" && qtyOf(c) === 1 && !(c.albumId && getAlbum(c.albumId)) && c.boxId !== b.id && !(typeof caseOn === "function" && caseOn(b) && isInherited(c))).sort((x, y) => labelOf(x).localeCompare(labelOf(y)));
-const slotDate = (c) => (c.year ? String(c.year) + (c.mint ? "-" + c.mint : "") : (c.label || "Coin").slice(0, 8));
+const slotDate = (c) => (c.year ? String(c.year) + (c.mint === CANT_TELL ? " (mint?)" : c.mint ? "-" + c.mint : "") : (c.label || "Coin").slice(0, 8));
 
 // --- in the coin form (Holder section): the "Kept in" dropdown, and a row/slot when the box has numbered spots ---
 // One place per item: picking one clears the others. Old items that already have two keep both until edited.
@@ -212,8 +212,7 @@ function viewBoxes() {
     ${bs.length ? `<form id="boxFind" style="margin-top:12px"><div class="grid2" style="grid-template-columns:1fr auto"><input type="search" id="boxQ" value="${esc(boxFind.q)}" placeholder="Find a coin, e.g. 1909-S" aria-label="Find a coin in your boxes"><button class="btn" type="submit">Find</button></div></form>` : ""}
     ${q ? `<div class="card" style="margin-top:10px"><b>${hits.length} found for "${esc(q)}"</b>${hits.slice(0, 30).map((c) => `<button class="coin-row" data-go="coin-${esc(c.id)}"><span class="coin-main"><span class="coin-label">${esc(labelOf(c))}</span><span class="coin-sub">${esc(boxText(c))}</span></span></button>`).join("") || `<div class="small muted">Nothing in your boxes matches. Only items placed in a box are searched.</div>`}</div>` : ""}
     <div style="margin-top:12px">${bs.length ? (sb.length ? `<h2 style="margin:6px 0">Storage boxes</h2>${sb.map(boxCard).join("")}` : "") + (db.length ? `<h2 style="margin:10px 0 6px">Display boxes</h2>${db.map(boxCard).join("")}` : "") + (dl.length ? `<h2 style="margin:10px 0 6px">Dealer cases</h2>${dl.map(boxCard).join("")}` : "")
-      : `<div class="card empty">No boxes yet. Tap <b>+ New box</b>, name it (like "Black box 1") and choose storage or display.</div>`}</div>
-    ${storageBoxes().some(hasSpots) ? `<button class="btn block" data-act="boxMissing">Which Lincoln wheat dates am I missing?</button>` : ""}`;
+      : `<div class="card empty">No boxes yet. Tap <b>+ New box</b>, name it (like "Black box 1") and choose storage or display.</div>`}</div>`;
 }
 function viewBox(r) {
   const b = getBox(r.id);
