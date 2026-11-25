@@ -38,6 +38,10 @@ function openNewAlbum() {
     </div>
     <label class="f inline-check" id="albumWRow" hidden><input type="checkbox" name="wq"> <span>Add 2019-W and 2020-W quarter spots</span></label>
     <div class="hint" id="albumHint">Use the years printed on your album. Each coin type gets spots for the dates and mint marks struck in those years. You can add, hide or reorder spots later.</div>
+    <details><summary>More</summary>
+      <label class="f"><span>Extra blank spots</span><input type="number" inputmode="numeric" name="blanks" min="0" max="200" value="0"></label>
+      <div class="hint">For empty spots with no date printed, often at the end of an album. Any coin fits one. They never count in "owned" or Add missing.</div>
+    </details>
     <div class="btn-row"><button class="btn primary" type="submit" id="albumCreate" disabled>Create album</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
@@ -100,6 +104,8 @@ function doNewAlbum(form) {
   if (typeof applyAlbumKept === "function") applyAlbumKept(a, fd);
   a.slots = buildAlbumSlots(types, layout, start, end, proofs, info0 && info0.spotVarieties);
   if (!fd.get("wq")) a.slots = withoutWQuarters(a.slots);
+  const nb = Math.min(200, Math.max(0, Math.round(num(fd.get("blanks")) || 0)));
+  if (nb) a.slots = [...a.slots, ...Array.from({ length: nb }, newBlankSpot)]; // step 31: extra blank spots at the end
   const twin = uniqueAlbumName(a);
   put("a_" + a.id, a);
   types.forEach(touchType);
@@ -200,7 +206,8 @@ function saveEditAlbum(form) {
     // Add standard spots for new types and new years only (spots you removed before stay removed).
     const info = typeof lookupAlbum === "function" ? lookupAlbum(a.brand, a.number) : null; // the album's own variety spots (e.g. 1878 Morgan) come back with the years
     const added = buildAlbumSlots(types, layout, start, end, proofs, info && info.spotVarieties).filter((x) => !have.has(slotKey(x)) && !fits(x, oldTypes, a.start, a.end, oldPf) && (!isWQuarterSpot(x) || (a.slots || []).some((y) => y.m === "W" && slotType(a, y) === "atb-quarter")));
-    slots = set ? [...kept, ...added] : sortSlots([...kept, ...added]);
+    // An album you put in your own order keeps it (step 31): new spots go next to their year, nothing is re-sorted.
+    slots = set ? [...kept, ...added] : a.freeOrder ? added.reduce(insertByYear, kept) : sortSlots([...kept, ...added]);
   }
   const removed = a.removed || [];
   const edited = applyAlbumKept({ ...a, color: String(fd.get("color") || a.color || "red"), brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, inherited: !!fd.get("inherited"), proofs, slots, removed, ...seriesFromForm(a, fd) }, fd);

@@ -2037,13 +2037,17 @@
      "id": "142",
      "size": "S",
      "what": "Whitman Lincoln 9004 / 9030",
-     "change": "9004 needs an inside photo.",
+     "change": "Waits for your inside photos (9030 and 9004). Not built in this step.",
      "affects": "Album list"
     }
    ],
    "try": [
-    "New album with 5 extra blank spots."
-   ]
+    "New album: open More, set Extra blank spots to 5. They show as dotted circles at the end.",
+    "Tap a blank spot > A coin I have: any coin goes in; Owned stays the same and a '+ 1 in blank spot' line shows.",
+    "Edit spots > Move spots: tap 2 spots in different years, Move 2 spots…, type a year and mint (like 1963-D). Then Undo.",
+    "Edit spots > Put back in year order, then Undo."
+   ],
+   "started": "2026-11-25 13:09"
   },
   {
    "n": "30b",

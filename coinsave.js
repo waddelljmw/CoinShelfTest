@@ -46,7 +46,7 @@ async function saveDraft() {
     if (c.typeName !== prev.typeName && c.family === prev.typeName) c.family = ""; // a kind that was just the old name follows the new name
   }
   const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);
-  if (al0 && albumTypes(al0).length && !albumHasType(al0, c.typeId) && !(prev && prev.albumId === c.albumId)) { toast("That album is for a different coin type."); return; }
+  if (al0 && albumTypes(al0).length && !albumHasType(al0, c.typeId) && !(prev && prev.albumId === c.albumId) && !blankSpotOf(c)) { toast("That album is for a different coin type."); return; }
   c.year = num(c.year) ?? "";
   c.qty = Math.max(1, num(c.qty) || 1);
   delete c._ozEdited; delete c._countEdited;
@@ -118,7 +118,7 @@ async function saveDraft() {
       }
     }
     // The spot is gone, or the coin no longer fits it (date, mint, type, or proof vs. regular), so it finds its right spot.
-    const fitsSpot = sl && (sl.set ? c.typeId === sl.t : num(c.year) === sl.y && normMint(c.mint) === sl.m && (sl.pf ? isProofGrade(c.grade) : !isProofGrade(c.grade) || !prev || isProofGrade(prev.grade)));
+    const fitsSpot = sl && (sl.blank || (sl.set ? c.typeId === sl.t : num(c.year) === sl.y && normMint(c.mint) === sl.m && (sl.pf ? isProofGrade(c.grade) : !isProofGrade(c.grade) || !prev || isProofGrade(prev.grade))));
     if (!fitsSpot) delete c.slotId;
   }
   if (c.albumId === "__new") {
