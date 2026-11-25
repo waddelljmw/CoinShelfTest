@@ -99,10 +99,10 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
     const c = getCoin("rx"); go("box-rv"); await new Promise((r) => setTimeout(r, 50)); boxTab.rv = 1; render();
     return c.status === "owned" && c.boxId === "rv" && !c.boxRow && !c.boxTray && document.body.innerHTML.includes('data-go="coin-rx"');
   }));
-  ok("old coin left at a removed tray is listed under No numbered spot", await p.evaluate(async () => {
+  ok("old coin left at a removed tray is listed under Loose in this box", await p.evaluate(async () => {
     put("c_ry", { kind: "coin", id: "ry", status: "owned", typeId: COIN_TYPES[0].id, year: 1951, boxId: "rv", boxRow: "1", boxSlot: "1", boxTray: "3", createdAt: 32 });
     go("box-rv"); await new Promise((r) => setTimeout(r, 50)); boxTab.rv = 1; render();
-    return document.body.innerHTML.includes("No numbered spot") && document.body.innerHTML.includes('data-go="coin-ry"');
+    return document.body.innerHTML.includes("Loose in this box") && document.body.innerHTML.includes('data-go="coin-ry"');
   }));
   ok("back from a dealer case never doubles up a spot", await p.evaluate(() => {
     put("b_dc", { kind: "box", id: "dc", name: "Case", rows: 2, perRow: 6, spots: true, type: "dealer", forSale: true, createdAt: 40 });

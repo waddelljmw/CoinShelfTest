@@ -5,11 +5,12 @@
    An item sits in a box with boxId (and boxRow, boxSlot when the box has numbered spots). */
 function normBox(b) {
   if (b && b.kind === "box") {
-    if (b.type !== "display" && b.type !== "dealer" && b.type !== "pocket") b.type = "storage";
+    if (!["display", "dealer", "pocket", "yearset"].includes(b.type)) b.type = "storage";
+    if (b.type === "yearset") { b.spots = true; b.rows = 1; b.perRow = YS_SLOTS.length; delete b.trays; delete b.cols; } // step 29: 5 named spots
     if (b.type === "pocket") b.spots = true; // a pocket album (Step 9.7d) always has numbered pockets; its pages are the trays
     if (b.type === "dealer") b.forSale = b.forSale !== false; else delete b.forSale;
-    if (!["black", "cardboard", "plastic", "wood"].includes(b.look)) b.look = "black";
-    if (b.look === "plastic" && !BOX_COLORS.some((x) => x[0] === b.color)) b.color = "clear";
+    if (!BOX_LOOKS.includes(b.look)) b.look = "black";
+    if (lookHasColor(b.look) && !BOX_COLORS.some((x) => x[0] === b.color)) b.color = b.look === "metal" ? "black" : "clear";
     if (b.spots !== false) b.spots = true;
     // Trays (Step 9.6b): b.trays = [{ rows, perRow }, ...]. rows/perRow always mirror tray 1, so old readers keep working.
     if (Array.isArray(b.trays) && b.trays.length > 1 && b.spots && b.type !== "dealer") {
@@ -20,6 +21,30 @@ function normBox(b) {
   return b;
 }
 const hasSpots = (b) => !!b && b.spots !== false;
+// Step 29 (idea 147/148): more container looks, a Lockable tick, and the year set holder. All optional fields; old boxes read as before.
+const BOX_LOOKS = ["black", "cardboard", "plastic", "wood", "metal", "bag", "tube", "other"];
+const lookHasColor = (look) => look === "plastic" || look === "metal";
+const YS_SLOTS = ["Half", "Quarter", "Dime", "Nickel", "Cent"];
+const YS_DENOMS = ["50C", "25C", "10C", "5C", "1C"];
+const lockMark = (b) => (b && b.locked ? ` <span title="Lockable" aria-label="Lockable">\u{1F512}</span>` : "");
+const ysName = (b, slot) => (b && b.type === "yearset" ? YS_SLOTS[(+slot || 1) - 1] || "" : "");
+// The one everyday coin type for this year and coin (e.g. 1925 Quarter -> Standing Liberty); none when two types share the year.
+function ysTypeFor(year, slot) {
+  const d = YS_DENOMS[(+slot || 1) - 1], y = +year;
+  if (!d || !y) return "";
+  const last = (t) => (typeof typeLastYear === "function" ? typeLastYear(t) : t.end);
+  const list = COIN_TYPES.filter((t) => t.denom === d && !/half dime|commem/i.test(t.family || "") && y >= t.start && y <= last(t));
+  return list.length === 1 ? list[0].id : "";
+}
+// Every coin inside this box, counting boxes kept inside it at every level.
+function deepCoins(b, seen) {
+  if (!seen) { const all = deepCoins(b, new Set()), ids = new Set(); return all.filter((c) => !ids.has(c.id) && ids.add(c.id)); } // each coin once
+  if (!b || seen.has(b.id)) return [];
+  seen.add(b.id);
+  return [...boxCoins(b), ...allBoxes().filter((x) => x.keptBox === b.id).flatMap((x) => deepCoins(x, seen))];
+}
+const hasInner = (b) => allBoxes().some((x) => x.keptBox === b.id);
+const deepNote = (b) => (hasInner(b) ? sum(deepCoins(b), qtyOf) + " coins inside (all levels)" : "");
 // A box without trays reads as one tray with its old layout; a coin without boxTray is in tray 1.
 const trayList = (b) => (b && b.trays && b.trays.length > 1 ? b.trays : [{ rows: b ? b.rows : 0, perRow: b ? b.perRow : 0 }]);
 const trayCount = (b) => trayList(b).length;
@@ -33,6 +58,8 @@ const lineWord = (b) => (b && b.cols ? "Column" : "Row");
 const getBox = (id) => normBox(store.docs.get("b_" + id));
 const allBoxes = () => [...store.docs.values()].filter((d) => d.kind === "box").map(normBox).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 const storageBoxes = () => allBoxes().filter((b) => b.type !== "display" && b.type !== "dealer" && b.type !== "pocket");
+// Outside-in path of a box: "Red box › Big ziplock › Small bag 1".
+const boxPathName = (b) => boxChain(b.id).map((x) => x.name).reverse().join(" \u203A ");
 const pocketAlbums = () => allBoxes().filter((b) => b.type === "pocket");
 // Pocket albums say Page and Pocket where boxes say Tray and Slot.
 const trayWord = (b) => (b && b.type === "pocket" ? "Page" : "Tray");
@@ -52,6 +79,7 @@ function nextFreeSpot(b, exceptId, from) {
 function boxText(c) {
   const b = c.boxId && getBox(c.boxId);
   if (!b) return "";
+  if (b.type === "yearset" && c.boxSlot) return b.name + " · " + ysName(b, c.boxSlot);
   return hasSpots(b) && c.boxRow && c.boxSlot ? b.name + (trayCount(b) > 1 ? " · " + trayWord(b) + " " + trayNo(c) : "") + " · " + lineWord(b) + " " + c.boxRow + " · " + slotWord(b) + " " + c.boxSlot : b.name;
 }
 // Coins that could go in an empty spot of this box: single owned coins, not in an album, not already in this box.
@@ -72,7 +100,7 @@ function applyKept(d, v, keepStack) { // keepStack: a move changes where the coi
 
   const was = keptValue(d);
   if (v === was) return;
-  if (itemOf(d) !== "bullion" && !keepStack) d.stack = ""; // bullion always belongs to a stack
+  if (itemOf(d) !== "bullion" && !keepStack && !String(v).startsWith("b:")) d.stack = ""; // bullion always belongs to a stack; step 29: junk silver keeps its stack inside a box
   if (d.albumId) delete d.slotId;
   delete d._newStack;
   d.albumId = ""; d.boxId = ""; d.boxRow = ""; d.boxSlot = ""; d.boxTray = ""; delete d._boxFor;
@@ -87,13 +115,15 @@ function keptInFields(d) {
   const it = itemOf(d), cur = keptValue(d);
   const opt = (v, label) => `<option value="${esc(v)}" ${cur === v ? "selected" : ""}>${esc(label)}</option>`;
   const albumOpts = it === "coin" ? albumsForCoin(d).map((a) => opt("a:" + a.id, "Album: " + albumTitle(a))).join("") + opt("__new", "+ New album…") : "";
-  const sb = storageBoxes().map((x) => opt("b:" + x.id, "Storage box: " + x.name)).join("");
-  const db = displayBoxes().map((x) => opt("b:" + x.id, "Display box: " + x.name)).join("") + pocketAlbums().map((x) => opt("b:" + x.id, "Pocket album: " + x.name)).join("");
+  const byPath = (list) => list.map((x) => [x, boxPathName(x)]).sort((a, b) => a[1].localeCompare(b[1]));
+  const sb = byPath(storageBoxes()).map(([x, n]) => opt("b:" + x.id, (x.type === "yearset" ? "Year set: " : "Storage box: ") + n)).join("");
+  const db = byPath(displayBoxes()).map(([x, n]) => opt("b:" + x.id, "Display box: " + n)).join("") + pocketAlbums().map((x) => opt("b:" + x.id, "Pocket album: " + x.name)).join("");
   const dl = (typeof dealerBoxes === "function" ? dealerBoxes() : []).filter((x) => sellerOn() || cur === "b:" + x.id).map((x) => opt("b:" + x.id, "Dealer case: " + x.name)).join("");
   const canStack = it === "coin" && isJunk(d) && d.metal === "Silver";
   const names = [...new Set([...stackNames(), String(d.stack || "").trim()].filter(Boolean))];
   const stacks = canStack ? names.map((x) => opt("s:" + x, "Stack: " + x)).join("") + opt("s:__new", "+ New stack…") : "";
   return `<label class="f"><span>Kept in ${typeof wi === "function" ? wi("keptin") : ""}</span><select data-kept data-rerender><option value="">Nothing special</option>${albumOpts}${sb}${db}${dl}${stacks}<option value="b:__add">+ Add storage…</option></select></label>
+    ${canStack && cur.startsWith("b:") ? `<label class="f"><span>Also in a stack <span class="muted small">(why you keep it)</span></span><select data-alsostack><option value="">No stack</option>${names.map((x) => `<option value="${esc(x)}" ${String(d.stack || "").trim() === x && !d._newStack ? "selected" : ""}>${esc(x)}</option>`).join("")}<option value="__new" ${d._newStack ? "selected" : ""}>+ New stack…</option></select></label>` : ""}
     ${canStack && d._newStack ? `<label class="f"><span>New stack name</span><input type="text" data-f="stack" value="${esc(d.stack || "")}" placeholder="e.g. Junk silver stack"></label>` : ""}
     ${!allBoxes().length ? `<div class="hint">Want to say which box this is in? Add one on the <b>Storage</b> page first.</div>` : ""}`;
 }
@@ -107,6 +137,7 @@ function boxFields(d) {
   const b = d.boxId && getBox(d.boxId);
   if (!b || !hasSpots(b)) return "";
   if (typeof manyOn === "function" && manyOn(d)) return manySpots(d, b); // several coins: tap their spots
+  if (d._boxFor === undefined && !d._isNew && !d.boxRow && !d.boxSlot && d._spotAsk === undefined) d._spotAsk = "loose"; // a saved coin already loose in this box stays loose
   if (d._boxFor === undefined) d._boxFor = d.boxId; else if (d._boxFor !== d.boxId) { d._boxFor = d.boxId; d.boxRow = ""; d.boxSlot = ""; d.boxTray = ""; delete d._spotAsk; } // a different box starts with a fresh spot
   const tn = trayCount(b);
   if (tn > 1 && !(+d.boxTray >= 1 && +d.boxTray <= tn)) d.boxTray = "1";
@@ -114,8 +145,10 @@ function boxFields(d) {
   if (!hasSpot && d._spotAsk !== "yes" && d._spotAsk !== "no") { // ask first: his coins sit in a real order, so he may want to pick the spot
     return `<div class="card" style="margin:8px 0"><b>Choose the spot yourself?</b>
       <div class="hint">Yes: you type the real row and slot. No: the next empty spot is filled in for you.</div>
-      <div class="btn-row"><button class="btn" type="button" data-act="spotAsk" data-v="yes">Yes, I'll choose</button><button class="btn" type="button" data-act="spotAsk" data-v="no">No, fill it in</button></div></div>`;
+      <div class="btn-row"><button class="btn" type="button" data-act="spotAsk" data-v="yes">Yes, I'll choose</button><button class="btn" type="button" data-act="spotAsk" data-v="no">No, fill it in</button></div>
+      <button class="btn block" type="button" data-act="spotAsk" data-v="loose" style="margin-top:6px">Loose in the box (no spot)</button></div>`;
   }
+  if (!hasSpot && d._spotAsk === "loose") return `<div class="hint">Loose in this box, with no numbered spot. <button class="link-btn" type="button" data-act="spotAsk" data-v="yes">Pick a spot instead</button></div>`;
   if (!hasSpot && d._spotAsk === "no") { const n = nextFreeSpot(b, d.id, d.boxTray); if (n) { d.boxRow = String(n.row); d.boxSlot = String(n.slot); if (tn > 1) d.boxTray = String(n.tray); } } // suggests the next empty spot
   const L2 = trayOf(b, d.boxTray);
   return `${trayPick(d, b)}<div class="grid2"><label class="f"><span>${lineWord(b)} (1–${L2.rows})</span><input type="number" inputmode="numeric" min="1" max="${L2.rows}" data-f="boxRow" value="${esc(d.boxRow || "")}"></label>
@@ -124,11 +157,12 @@ function boxFields(d) {
 }
 // Called when an item is saved: tidies the box fields, and returns a message if the spot can't be used.
 function boxCheck(c) {
+  const loose = c._spotAsk === "loose" && !c.boxRow && !c.boxSlot;
   delete c._boxFor; delete c._spotAsk;
   const b = c.boxId && getBox(c.boxId);
   if (!b) { delete c.boxId; delete c.boxRow; delete c.boxSlot; delete c.boxTray; return ""; }
   if (typeof caseOn === "function" && caseOn(b) && isInherited(c) && c.status === "owned") return "Inherited coins can't go in a for-sale dealer case. Turn off \u201cFor sale case\u201d on the case, or pick another place.";
-  if (!hasSpots(b)) { delete c.boxRow; delete c.boxSlot; delete c.boxTray; return ""; }
+  if (!hasSpots(b) || loose) { delete c.boxRow; delete c.boxSlot; delete c.boxTray; return ""; }
   const tn = trayCount(b), t = tn > 1 ? Math.round(+c.boxTray) || 1 : 1;
   if (t < 1 || t > tn) return "Pick a " + trayWord(b).toLowerCase() + " from 1 to " + tn + ", or choose Nothing special.";
   const L = trayOf(b, t), r = Math.round(+c.boxRow), s = Math.round(+c.boxSlot);
@@ -158,13 +192,13 @@ const boxAlbumCount = (b) => keptAlbums(b).length + keptPockets(b).length;
 const boxCountText = (b) => { const st = boxStats(b), na = boxAlbumCount(b); return (hasSpots(b) ? st.filled + "/" + st.total : st.filled + " item" + (st.filled === 1 ? "" : "s")) + (na ? " · " + na + " album" + (na === 1 ? "" : "s") : ""); };
 // Storage card: the albums number sits on its own line under the coin count.
 const boxCountHtml = (b) => { const na = boxAlbumCount(b), t = boxCountText(b); return na ? esc(t.split(" · ")[0]) + `<span style="display:block;text-align:right;white-space:nowrap">${na} album${na === 1 ? "" : "s"}</span>` : esc(t); };
-const boxKindText = (b) => (b.type === "pocket" ? "Pocket album" : b.type === "dealer" ? "Dealer case" : b.type === "display" ? "Display box" : "Storage box");
-const boxLookText = (b) => (b.type === "pocket" ? "Spine " + (b.color && b.color !== "clear" ? b.color : "black") : b.look === "plastic" ? (b.color === "clear" ? "Clear plastic" : "Plastic · " + b.color) : b.look === "cardboard" ? "Cardboard" : b.look === "wood" ? "Wooden" : "Black");
+const boxKindText = (b) => (b.type === "yearset" ? "Year set holder" + (b.setYear ? " · " + b.setYear : "") : b.type === "pocket" ? "Pocket album" : b.type === "dealer" ? "Dealer case" : b.type === "display" ? "Display box" : "Storage box");
+const boxLookText = (b) => b.type === "yearset" ? (b.locked ? "Lockable" : "") : (b.type === "pocket" ? "Spine " + (b.color && b.color !== "clear" ? b.color : "black") : b.look === "plastic" ? (b.color === "clear" ? "Clear plastic" : "Plastic · " + b.color) : b.look === "metal" ? "Metal · " + (b.color || "black") : b.look === "bag" ? "Bag" : b.look === "tube" ? "Tube" : b.look === "other" ? b.lookName || "Other container" : b.look === "cardboard" ? "Cardboard" : b.look === "wood" ? "Wooden" : "Black") + (b.locked ? " · Lockable" : "");
 function boxCard(b) {
   const st = boxStats(b);
   return `<button class="card" style="display:block;width:100%;text-align:left" data-go="box-${esc(b.id)}">
-    <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(b.name)}</b><span class="num" style="text-align:right">${boxCountHtml(b)}</span></div>
-    <div class="small muted">${hasSpots(b) ? (trayCount(b) > 1 ? trayCount(b) + " trays · " : b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow + " slots · ") : ""}${esc(boxLookText(b))}</div>${hasSpots(b) ? `<div class="bar"><i style="width:${st.total ? (st.filled / st.total) * 100 : 0}%"></i></div>` : ""}</button>`;
+    <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(b.name)}${lockMark(b)}</b><span class="num" style="text-align:right">${boxCountHtml(b)}</span></div>
+    <div class="small muted">${b.type === "yearset" ? "" : hasSpots(b) ? (trayCount(b) > 1 ? trayCount(b) + " trays · " : b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow + " slots · ") : ""}${esc(boxLookText(b))}${b.keptBox && getBox(b.keptBox) ? " · in " + esc(getBox(b.keptBox).name) : ""}${deepNote(b) ? " · " + esc(deepNote(b)) : ""}</div>${hasSpots(b) ? `<div class="bar"><i style="width:${st.total ? (st.filled / st.total) * 100 : 0}%"></i></div>` : ""}</button>`;
 }
 function viewBoxes() {
   const sellOn = sellerOn(), dl = sellOn && typeof dealerBoxes === "function" ? dealerBoxes() : [];
@@ -205,26 +239,29 @@ function viewBox(r) {
       const row = i + 1;
       const cells = Array.from({ length: L.perRow }, (_, j) => {
         const slot = j + 1, c = here(row, slot);
-        return c ? `<button class="slot full${sel && sel.has(c.id) ? " on" : ""}" ${sel ? `data-act="selToggle" data-id="${esc(c.id)}" aria-pressed="${sel.has(c.id)}"` : `data-go="coin-${esc(c.id)}"`} title="${esc(labelOf(c))}"><span class="sn">${slot}</span>${esc(slotDate(c))}</button>`
-          : `<button class="slot" data-act="boxAdd" data-box="${esc(b.id)}" data-row="${row}" data-slot="${slot}" data-tray="${tray}" aria-label="Add a coin to row ${row}, slot ${slot}"><span class="sn">${slot}</span>+</button>`;
+        return c ? `<button class="slot full${sel && sel.has(c.id) ? " on" : ""}" ${sel ? `data-act="selToggle" data-id="${esc(c.id)}" aria-pressed="${sel.has(c.id)}"` : `data-go="coin-${esc(c.id)}"`} title="${esc(labelOf(c))}"><span class="sn">${ysName(b, slot) || slot}</span>${esc(slotDate(c))}</button>`
+          : `<button class="slot" data-act="boxAdd" data-box="${esc(b.id)}" data-row="${row}" data-slot="${slot}" data-tray="${tray}" aria-label="Add a coin to row ${row}, slot ${slot}"><span class="sn">${ysName(b, slot) || slot}</span>+</button>`;
       }).join("");
-      return `<h2 style="margin:14px 0 6px">Row ${row} <span class="muted small">· ${inTray.filter((c) => +c.boxRow === row).length}/${L.perRow}</span></h2><div class="slots">${cells}</div>`;
+      return b.type === "yearset" ? `<div class="slots" style="margin-top:10px">${cells}</div>` : `<h2 style="margin:14px 0 6px">Row ${row} <span class="muted small">· ${inTray.filter((c) => +c.boxRow === row).length}/${L.perRow}</span></h2><div class="slots">${cells}</div>`;
     }).join("");
     const loose = inBox.filter((c) => { if (!spotExists(b, trayNo(c), c.boxRow, c.boxSlot)) return true; const o = spotCoin(b.id, c.boxRow, c.boxSlot, undefined, trayNo(c)); return !o || o.id !== c.id; });
-    body = rowsHtml + (loose.length ? `<h2 style="margin:14px 0 6px">No numbered spot</h2><div class="card">${loose.map(itemRow).join("")}</div>` : "");
+    body = rowsHtml + (loose.length ? `<h2 style="margin:14px 0 6px">Loose in this box</h2><div class="card">${loose.map(itemRow).join("")}</div>` : "") + (b.type !== "pocket" && b.type !== "yearset" ? `<button class="btn block" style="margin-top:8px" data-act="boxAddNew" data-box="${esc(b.id)}" data-loose="1">+ Add a loose coin (no spot)</button>` : "");
   } else {
     body = b.type === "dealer" ? `<button class="btn block" style="margin-top:8px" data-act="boxAdd" data-box="${esc(b.id)}">+ Add a coin to this case</button>` : `<div class="card">${inBox.length ? inBox.map(itemRow).join("") : `<div class="small muted">Nothing here yet. When you add a coin, pick <b>Kept in</b> and choose this box.</div>`}</div>
       <button class="btn block" style="margin-top:8px" data-act="boxAdd" data-box="${esc(b.id)}">+ Add a coin to this box</button>`;
   }
   return `<button class="link-btn" data-go="${b.type === "pocket" ? "albums" : "boxes"}">← ${b.type === "pocket" ? "My Albums" : "Storage"}</button>
-    <h1 style="margin-top:10px">${esc(b.name)}</h1>
-    <div class="small muted" style="margin:-8px 0 12px">${boxKindText(b)} · ${esc(boxLookText(b))} · ${hasSpots(b) ? st.filled + " of " + st.total + (b.type === "pocket" ? " pockets" : " slots") + " filled · " + (tn > 1 ? tn + (b.type === "pocket" ? " pages" : " trays") : b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow) : st.filled + " item" + (st.filled === 1 ? "" : "s")}</div>
+    <h1 style="margin-top:10px">${esc(b.name)}${lockMark(b)}</h1>
+    ${b.keptBox && getBox(b.keptBox) ? `<div class="small" style="margin:-8px 0 10px">Kept in: <button class="link-btn" data-go="box-${esc(b.keptBox)}">${esc(boxPathName(getBox(b.keptBox)))}</button></div>` : ""}
+    <div class="small muted" style="margin:-8px 0 12px">${boxKindText(b)} · ${boxLookText(b) ? esc(boxLookText(b)) + " · " : ""}${hasSpots(b) ? st.filled + " of " + st.total + (b.type === "pocket" ? " pockets" : " slots") + " filled" + (b.type === "yearset" ? "" : " · " + (tn > 1 ? tn + (b.type === "pocket" ? " pages" : " trays") : b.rows + " " + lineWord(b).toLowerCase() + "s of " + b.perRow)) : st.filled + " item" + (st.filled === 1 ? "" : "s")}</div>
     ${b.type === "pocket" && typeof pocketTotalsHtml === "function" ? pocketTotalsHtml(b) : ""}
+    ${deepNote(b) ? `<div class="small" style="margin:-6px 0 10px"><b>${esc(deepNote(b))}</b></div>` : ""}
     ${b.inside ? `<div class="card"><div class="muted small">What's inside</div><div style="white-space:pre-wrap">${esc(b.inside)}</div></div>` : ""}
     ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(b.id) : ""}
     ${typeof pageSelHtml === "function" ? pageSelHtml(inBox) : ""}
     ${b.type === "dealer" && typeof dealerPanel === "function" ? dealerPanel(b) : ""}
     ${pocketKeptHtml(b)}${keptAlbumsHtml(b)}${trayTabs}${tn > 1 && hasSpots(b) ? `<div class="small muted" style="margin:-4px 0 4px">${trayWord(b)} ${tray}: ${L.rows} ${lineWord(b).toLowerCase()}${L.rows === 1 ? "" : "s"} of ${L.perRow} slots</div>` : ""}${body}${typeof selFootHtml === "function" ? selFootHtml() : ""}
+    ${b.type !== "dealer" && b.type !== "pocket" && b.type !== "yearset" ? `<div class="btn-row" style="margin-top:10px"><button class="btn" data-act="boxNewInside" data-id="${esc(b.id)}">+ Container inside</button><button class="btn" data-act="boxMoveAll" data-id="${esc(b.id)}">Move everything to…</button></div>` : b.type === "yearset" ? `<div class="btn-row" style="margin-top:10px"><button class="btn" data-act="boxMoveAll" data-id="${esc(b.id)}">Move everything to…</button></div>` : ""}
     <div class="btn-row"><button class="btn" data-act="boxEdit" data-id="${esc(b.id)}">${b.type === "pocket" ? "Edit album" : "Edit box"}</button><button class="btn danger" data-act="boxDelete" data-id="${esc(b.id)}">${b.type === "pocket" ? "Delete album" : "Delete box"}</button></div>`;
 }
 // "+ Add storage" on a Kept in list sends you here and brings you back: { kind: "coin" | "form" | "move", stash }.
@@ -244,16 +281,19 @@ function boxForm(b) {
   openSheet(`<div class="sheet-head"><h2>${b ? "Edit box" : "New box"}</h2><button class="x" data-act="${back}" aria-label="Close">✕</button></div>
   <form id="boxForm" data-id="${b ? esc(b.id) : ""}" autocomplete="off">
     <label class="f"><span>Name</span><input type="text" name="name" value="${esc(b ? b.name : "")}" placeholder="e.g. Black box 1" maxlength="40" required></label>
-    <div class="grid2"><label class="f"><span>Kind</span><select name="type"><option value="storage" ${cur.type === "storage" ? "selected" : ""}>Storage box</option><option value="display" ${cur.type === "display" ? "selected" : ""}>Display box</option>${sellerOn() || cur.type === "dealer" ? `<option value="dealer" ${cur.type === "dealer" ? "selected" : ""}>Dealer case (show case)</option>` : ""}</select></label>
-    <label class="f"><span>Look</span><select name="look" id="boxLook"><option value="black" ${cur.look === "black" ? "selected" : ""}>Black box</option><option value="cardboard" ${cur.look === "cardboard" ? "selected" : ""}>Cardboard box</option><option value="plastic" ${cur.look === "plastic" ? "selected" : ""}>Plastic container</option><option value="wood" ${cur.look === "wood" ? "selected" : ""}>Wooden box</option></select></label></div>
+    <div class="grid2"><label class="f"><span>Kind</span><select name="type"><option value="storage" ${cur.type === "storage" ? "selected" : ""}>Storage box</option><option value="display" ${cur.type === "display" ? "selected" : ""}>Display box</option><option value="yearset" ${cur.type === "yearset" ? "selected" : ""}>Year set holder</option>${sellerOn() || cur.type === "dealer" ? `<option value="dealer" ${cur.type === "dealer" ? "selected" : ""}>Dealer case (show case)</option>` : ""}</select></label>
+    <label class="f"><span>Look</span><select name="look" id="boxLook"><option value="black" ${cur.look === "black" ? "selected" : ""}>Black box</option><option value="cardboard" ${cur.look === "cardboard" ? "selected" : ""}>Cardboard box</option><option value="plastic" ${cur.look === "plastic" ? "selected" : ""}>Plastic container</option><option value="wood" ${cur.look === "wood" ? "selected" : ""}>Wooden box</option><option value="metal" ${cur.look === "metal" ? "selected" : ""}>Metal box</option><option value="bag" ${cur.look === "bag" ? "selected" : ""}>Bag</option><option value="tube" ${cur.look === "tube" ? "selected" : ""}>Tube</option><option value="other" ${cur.look === "other" ? "selected" : ""}>Other (type a name)</option></select></label></div>
+    <label class="f" id="lookNameRow" ${cur.look === "other" ? "" : "hidden"}><span>What is it?</span><input type="text" name="lookName" maxlength="30" value="${esc(cur.lookName || "")}" placeholder="e.g. Jewelry box"></label>
+    <label class="f" id="setYearRow" ${cur.type === "yearset" ? "" : "hidden"}><span>Year of the set</span><input type="number" inputmode="numeric" name="setYear" min="1793" max="2100" value="${esc(cur.setYear || "")}" placeholder="e.g. 1925"><div class="hint">5 spots: Half, Quarter, Dime, Nickel, Cent. Any coin can go in any spot.</div></label>
+    <label class="switch"><span>Lockable<div class="small muted">Has a lock or key. Shows a small lock; nothing else changes.</div></span><input type="checkbox" name="locked" ${cur.locked ? "checked" : ""}></label>
     <label class="switch" id="caseSaleRow" ${cur.type === "dealer" ? "" : "hidden"}><span>For sale case<div class="small muted">On: coins you move in switch to For sale. Turning this off later doesn't change coins already inside.</div></span><input type="checkbox" name="forSale" ${cur.forSale !== false ? "checked" : ""}></label>
-    <label class="f"><span>Plastic color <span class="muted small">(plastic only)</span></span><select name="color">${BOX_COLORS.map((x) => `<option value="${x[0]}" ${cur.color === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>
-    <label class="switch"><span>Numbered spots<div class="small muted">Rows and slots, one per coin. Turn off to just list what's inside.</div></span><input type="checkbox" name="spots" id="boxSpots" ${cur.spots !== false ? "checked" : ""}></label>
+    <label class="f"><span>Color <span class="muted small">(plastic or metal)</span></span><select name="color">${BOX_COLORS.map((x) => `<option value="${x[0]}" ${cur.color === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>
+    <div id="spotSettings" ${cur.type === "yearset" ? "hidden" : ""}><label class="switch"><span>Numbered spots<div class="small muted">Rows and slots, one per coin. Turn off to just list what's inside.</div></span><input type="checkbox" name="spots" id="boxSpots" ${cur.spots !== false ? "checked" : ""}></label>
     <label class="f"><span>Spots run in</span><select name="dir"><option value="rows" ${!cur.cols ? "selected" : ""}>Rows (across)</option><option value="cols" ${cur.cols ? "selected" : ""}>Columns (front to back)</option></select></label>
     <label class="f" id="trayCountRow"><span>How many trays? <span class="muted small">(pullout drawers inside the box)</span></span><input type="number" inputmode="numeric" name="trays" min="1" max="12" value="${trayCount(cur.rows ? cur : { rows: 1, perRow: 1 })}"></label>
     <div class="grid2" id="boxGrid"><label class="f"><span>Rows or columns <span class="muted small">(tray 1)</span></span><input type="number" inputmode="numeric" name="rows" min="1" max="50" value="${b && hasSpots(b) ? b.rows : ""}" placeholder="e.g. 5"></label>
     <label class="f"><span>Slots in each</span><input type="number" inputmode="numeric" name="perRow" min="1" max="100" value="${b && hasSpots(b) ? b.perRow : ""}" placeholder="e.g. 20"></label></div>
-    <div id="trayRows">${trayRowsHtml(b ? trayList(b).slice(1) : [], b ? trayList(b)[0] : null)}</div>
+    <div id="trayRows">${trayRowsHtml(b ? trayList(b).slice(1) : [], b ? trayList(b)[0] : null)}</div></div>
     ${boxKeptField(b)}
     ${traySwapHtml(b)}
     <label class="f"><span>What's inside <span class="muted small">(optional)</span></span><textarea name="inside" rows="3" maxlength="500" placeholder="e.g. ziplock of Bicentennial quarters, pill bottle of halves">${esc(b ? b.inside || "" : "")}</textarea></label>
@@ -292,11 +332,13 @@ function boxWarn(form, msg) {
 function saveBoxForm(form) {
   const f = new FormData(form); let id = form.dataset.id;
   const name = String(f.get("name") || "").trim();
-  const spots = f.get("spots") === "on";
-  const rows = spots ? Math.round(+f.get("rows")) : 0, perRow = spots ? Math.round(+f.get("perRow")) : 0;
+  const ys = f.get("type") === "yearset", setYear = Math.round(+f.get("setYear"));
+  if (ys && !(setYear >= 1793 && setYear <= new Date().getFullYear() + 1)) { boxWarn(form, "Type the year of the set, like 1925."); return; }
+  const spots = ys || f.get("spots") === "on";
+  const rows = ys ? 1 : spots ? Math.round(+f.get("rows")) : 0, perRow = ys ? YS_SLOTS.length : spots ? Math.round(+f.get("perRow")) : 0;
   const isCase = f.get("type") === "dealer";
   let trays = [{ rows, perRow }];
-  if (spots && !isCase) {
+  if (spots && !isCase && !ys) {
     const n = Math.round(+f.get("trays")) || 1;
     if (!(n >= 1 && n <= 12)) { boxWarn(form, "Trays: pick 1 to 12."); return; }
     trays = readTrays(form, n, { rows, perRow });
@@ -325,13 +367,16 @@ function saveBoxForm(form) {
     coinsBefore.forEach((c) => { const x = { ...c }; delete x.boxRow; delete x.boxSlot; delete x.boxTray; put("c_" + c.id, x); });
   }
   if (!old) id = uid();
-  const look = ["black", "cardboard", "plastic", "wood"].includes(f.get("look")) ? f.get("look") : "black";
-  const rec = { ...(old || { kind: "box", id, createdAt: Date.now() }), name, rows, perRow, type: f.get("type") === "display" ? "display" : f.get("type") === "dealer" ? "dealer" : "storage", look, spots, inside: String(f.get("inside") || "").trim() };
-  if (look === "plastic") rec.color = BOX_COLORS.some((x) => x[0] === f.get("color")) ? f.get("color") : "clear"; else delete rec.color;
+  const look = BOX_LOOKS.includes(f.get("look")) ? f.get("look") : "black";
+  const rec = { ...(old || { kind: "box", id, createdAt: Date.now() }), name, rows, perRow, type: ["display", "dealer", "yearset"].includes(f.get("type")) ? f.get("type") : "storage", look, spots, inside: String(f.get("inside") || "").trim() };
+  if (lookHasColor(look)) rec.color = BOX_COLORS.some((x) => x[0] === f.get("color")) ? f.get("color") : look === "metal" ? "black" : "clear"; else delete rec.color;
+  const ln = String(f.get("lookName") || "").trim(); if (look === "other" && ln) rec.lookName = ln; else delete rec.lookName;
+  if (f.get("locked") === "on") rec.locked = true; else delete rec.locked;
+  if (ys) rec.setYear = setYear; else delete rec.setYear;
   if (!rec.inside) delete rec.inside;
   if (trays.length > 1) rec.trays = trays; else delete rec.trays;
   if (rec.type === "dealer") rec.forSale = f.get("forSale") === "on"; else delete rec.forSale;
-  if (f.get("dir") === "cols") rec.cols = true; else delete rec.cols; // switching only relabels: items keep their numbers
+  if (f.get("dir") === "cols" && !ys) rec.cols = true; else delete rec.cols; // switching only relabels: items keep their numbers
   const kb = String(f.get("keptBox") || "");
   if (kb && boxChain(kb).some((x) => x.id === rec.id)) { toast("A box can't be kept inside itself (or inside a box that sits in it)."); return; }
   applyAlbumKept(rec, f);
@@ -384,23 +429,25 @@ Object.assign(actions, {
   boxAddNew: (el) => {
     openCoinForm(null);
     Object.assign(draft, { _what: "us", holder: "2x2 cardboard flip", boxId: el.dataset.box, boxRow: el.dataset.row || "", boxSlot: el.dataset.slot || "", boxTray: el.dataset.tray || "" });
+    if (el.dataset.loose) draft._spotAsk = "loose";
+    const yb = getBox(el.dataset.box);
+    if (yb && yb.type === "yearset") { // year set: the set's year filled in, and the coin type when only one fits that year
+      draft.holder = "";
+      const t = ysTypeFor(yb.setYear, el.dataset.slot);
+      if (t) pickType(t);
+      if (yb.setYear) draft.year = String(yb.setYear);
+    }
     renderCoinForm();
   },
   boxDelete: (el) => {
     const b = getBox(el.dataset.id);
     if (!b) return;
     const n = boxCoins(b).length, pk = b.type === "pocket";
+    const up = b.type !== "dealer" && b.type !== "pocket" && b.keptBox && getBox(b.keptBox), upOk = up && ["storage", "display"].includes(up.type) ? up : null; // step 29: what's inside moves up one level
+    const inner = allBoxes().filter((x) => x.keptBox === b.id).length + keptAlbums(b).length;
+    if (upOk && (n || inner)) return confirmSheet("Delete " + b.name + "?", "Everything inside moves up into " + upOk.name + " (loose, no numbered spot). No coins are deleted.", "Delete box", () => boxDeleteGo(b, upOk));
     confirmSheet("Delete " + b.name + "?", n ? (b.type === "dealer" ? "Its " + n + " item" + (n > 1 ? "s go" : " goes") + " back where " + (n > 1 ? "they were" : "it was") + " before the case." : "Its " + n + " item" + (n > 1 ? "s stay" : " stays") + " in your collection. They just lose their " + (pk ? "pocket." : "box.")) : pk ? "This album is empty." : "This box is empty.", pk ? "Delete album" : "Delete box", () => {
-      const coins = boxCoins(b).map((c) => JSON.parse(JSON.stringify(c)));
-      const box = JSON.parse(JSON.stringify(b));
-      coins.forEach((c) => { const x = JSON.parse(JSON.stringify(c)); if (b.type === "dealer" && x.caseFrom && typeof caseRestore === "function") caseRestore(x); /* back to its old place and status */ else { delete x.boxId; delete x.boxRow; delete x.boxSlot; delete x.boxTray; } put("c_" + c.id, x); });
-      const albs = keptAlbums(b).map((a) => JSON.parse(JSON.stringify(a))); // albums kept in it just lose the box; they stay on the shelf
-      albs.forEach((a) => { const x = { ...a }; delete x.keptBox; put("a_" + a.id, x); });
-      const pks = allBoxes().filter((x) => x.keptBox === b.id).map((x) => JSON.parse(JSON.stringify(x)));
-      pks.forEach((x) => { const y = { ...x }; delete y.keptBox; put("b_" + x.id, y); });
-      remove("b_" + b.id);
-      go(pk ? "albums" : "boxes"); // pocket albums live on My Albums, not Storage
-      toast(pk ? "Album deleted." : "Box deleted.", { label: "Undo", fn: () => { put("b_" + box.id, box); coins.forEach((c) => put("c_" + c.id, c)); albs.forEach((a) => put("a_" + a.id, a)); pks.forEach((x) => put("b_" + x.id, x)); toast("Restored."); } });
+      boxDeleteGo(b, null);
     });
   },
   boxMissing: () => {
@@ -423,13 +470,15 @@ document.addEventListener("change", (e) => { // more or fewer trays: keep the on
     for (let i = 0; i < n - 1; i++) { const o = old[i], t = o && o.changed ? { rows: o.rows, perRow: o.perRow } : { ...prev }; list.push(t); prev = t; }
     $("#trayRows").innerHTML = trayRowsHtml(list, first);
   }
+  if (e.target.id === "boxLook" && e.target.closest("#boxForm")) { const ln = $("#lookNameRow"); if (ln) ln.hidden = e.target.value !== "other"; }
   if (e.target.id === "boxLook" && e.target.closest("#boxForm")) { // a new cardboard box starts with numbered spots off (a pile needs no rows); an untouched switch follows the look
     const form = e.target.closest("#boxForm"), sp = $("#boxSpots");
-    if (sp && !form.dataset.id && !form.dataset.spotsTouched) { sp.checked = e.target.value !== "cardboard"; ["trayCountRow", "trayRows"].forEach((id) => { const x = $("#" + id); if (x) x.hidden = !sp.checked; }); }
+    if (sp && !form.dataset.id && !form.dataset.spotsTouched) { sp.checked = !["cardboard", "bag", "tube", "other"].includes(e.target.value); ["trayCountRow", "trayRows"].forEach((id) => { const x = $("#" + id); if (x) x.hidden = !sp.checked; }); }
   }
   if (e.target.id === "boxSpots" && e.target.closest("#boxForm")) { e.target.closest("#boxForm").dataset.spotsTouched = "1"; const off = !e.target.checked; ["trayCountRow", "trayRows"].forEach((id) => { const x = $("#" + id); if (x) x.hidden = off; }); }
   if (e.target.name === "type" && e.target.closest("#boxForm")) {
     const r = $("#caseSaleRow"); if (r) r.hidden = e.target.value !== "dealer";
+    const yr = $("#setYearRow"), ss = $("#spotSettings"); if (yr) yr.hidden = e.target.value !== "yearset"; if (ss) ss.hidden = e.target.value === "yearset";
     const form = e.target.closest("#boxForm"); // a new dealer case starts as 2 rows of 6 (only fills boxes still empty)
     if (e.target.value === "dealer" && !form.dataset.id && !form.elements.rows.value && !form.elements.perRow.value) { form.elements.rows.value = 2; form.elements.perRow.value = 6; }
   }
@@ -473,6 +522,21 @@ function applyAlbumKept(a, fd) {
   return a;
 }
 
+// Delete a box. With `up` (the box it sits in), coins, albums and boxes inside move up into that box (coins loose); otherwise they just leave the box.
+function boxDeleteGo(b, up) {
+  const pk = b.type === "pocket";
+  const coins = boxCoins(b).map((c) => JSON.parse(JSON.stringify(c)));
+  const box = JSON.parse(JSON.stringify(b));
+  coins.forEach((c) => { const x = JSON.parse(JSON.stringify(c)); if (b.type === "dealer" && x.caseFrom && typeof caseRestore === "function") caseRestore(x); /* back to its old place and status */ else { delete x.boxId; delete x.boxRow; delete x.boxSlot; delete x.boxTray; if (up) x.boxId = up.id; } put("c_" + c.id, x); });
+  const albs = keptAlbums(b).map((a) => JSON.parse(JSON.stringify(a))); // albums kept in it just lose the box (or move up); they stay on the shelf
+  albs.forEach((a) => { const x = { ...a }; if (up) x.keptBox = up.id; else delete x.keptBox; put("a_" + a.id, x); });
+  const pks = allBoxes().filter((x) => x.keptBox === b.id).map((x) => JSON.parse(JSON.stringify(x)));
+  pks.forEach((x) => { const y = { ...x }; if (up) y.keptBox = up.id; else delete y.keptBox; put("b_" + x.id, y); });
+  remove("b_" + b.id);
+  go(pk ? "albums" : up ? "box-" + up.id : "boxes"); // pocket albums live on My Albums, not Storage
+  toast(pk ? "Album deleted." : "Box deleted.", { label: "Undo", fn: () => { put("b_" + box.id, box); coins.forEach((c) => put("c_" + c.id, c)); albs.forEach((a) => put("a_" + a.id, a)); pks.forEach((x) => put("b_" + x.id, x)); toast("Restored."); } });
+}
+
 // --- Idea 34: a box can be kept in another box (album in a cardboard box in the safe). Any box record may have
 // keptBox (another box's id) and keptPlace (free text), the same two fields albums and pocket albums already use.
 // New optional fields only: old boxes simply have neither, so nothing is converted. Display follows the chain; a loop can't be saved. ---
@@ -493,10 +557,10 @@ function keptParts(rec, seen) {
   return out;
 }
 const keptBoxes = (b) => allBoxes().filter((x) => x.keptBox === b.id && x.type !== "pocket"); // boxes (not pocket albums) kept in this box
-const keptBoxesHtml = (list) => (list.length ? `<div class="card" style="margin:0 0 10px"><div class="muted small">Boxes kept in this box</div>${list.map((x) => `<button class="coin-row" data-go="box-${esc(x.id)}"><span class="coin-main"><span class="coin-label">${esc(x.name)}</span><span class="coin-sub">${esc(boxKindText(x))}${x.keptPlace ? " · " + esc(x.keptPlace) : ""}</span></span></button>`).join("")}</div>` : "");
+const keptBoxesHtml = (list) => (list.length ? `<div class="card" style="margin:0 0 10px"><div class="muted small">Boxes kept in this box</div>${list.map((x) => `<button class="coin-row" data-go="box-${esc(x.id)}"><span class="coin-main"><span class="coin-label">${esc(x.name)}</span><span class="coin-sub">${esc(x.type === "storage" ? boxLookText(x) : boxKindText(x))}${deepNote(x) || boxCoins(x).length ? " · " + sum(deepCoins(x), qtyOf) + " coin" + (sum(deepCoins(x), qtyOf) === 1 ? "" : "s") : ""}${x.keptPlace ? " · " + esc(x.keptPlace) : ""}</span></span></button>`).join("")}</div>` : "");
 // The "Kept in" field on New box / Edit box: any storage or display box except itself and boxes that sit inside it.
 function boxKeptField(b) {
-  const ok = [...storageBoxes(), ...displayBoxes()].filter((x) => !b || !boxChain(x.id).some((y) => y.id === b.id));
+  const ok = [...storageBoxes(), ...displayBoxes()].filter((x) => x.type !== "yearset").filter((x) => !b || !boxChain(x.id).some((y) => y.id === b.id));
   const opts = ok.map((x) => `<option value="${esc(x.id)}" ${b && b.keptBox === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("");
   return `<label class="f"><span>Kept in ${typeof wi === "function" ? wi("keptin") : ""}</span><select name="keptBox"><option value="">Not in another box</option>${opts}</select></label>
     <label class="f"><span>Or type a place <span class="muted small">(optional)</span></span><input type="text" name="keptPlace" maxlength="60" value="${esc(b ? b.keptPlace || "" : "")}" placeholder="e.g. safe, closet shelf"></label>`;
@@ -540,4 +604,57 @@ Object.assign(actions, {
     closeSheet(); render();
     toast("Trays " + x + " and " + y + " swapped.", { label: "Undo", fn: () => { put("b_" + before.box.id, before.box); before.coins.forEach((c) => put("c_" + c.id, c)); render(); toast("Swap undone."); } });
   },
+});
+
+// --- Step 29 (idea 147): "+ Container inside", "Move everything to…", and "Also in a stack" for junk silver kept in a box. ---
+// Boxes that may receive a box's contents: storage, display and year set holders, not itself or anything inside it.
+const moveTargets = (b) => allBoxes().filter((x) => ["storage", "display", "yearset"].includes(x.type) && x.id !== b.id && !boxChain(x.id).some((y) => y.id === b.id));
+// Moves everything in `from` into `to`. fill: coins take the next empty numbered spots in order (the rest go loose). Returns the old records for Undo.
+function moveAllInto(from, to, fill) {
+  const coins = boxCoins(from).map((c) => JSON.parse(JSON.stringify(c)));
+  const albs = keptAlbums(from).map((a) => JSON.parse(JSON.stringify(a))), pks = allBoxes().filter((x) => x.keptBox === from.id).map((x) => JSON.parse(JSON.stringify(x)));
+  const order = coins.slice().sort((x, y) => trayNo(x) - trayNo(y) || (+x.boxRow || 99999) - (+y.boxRow || 99999) || (+x.boxSlot || 99999) - (+y.boxSlot || 99999));
+  let loose = 0;
+  order.forEach((c) => {
+    const x = JSON.parse(JSON.stringify(c));
+    delete x.boxRow; delete x.boxSlot; delete x.boxTray; x.boxId = to.id;
+    const n = fill && hasSpots(to) ? nextFreeSpot(to, x.id) : null;
+    if (n) { x.boxRow = String(n.row); x.boxSlot = String(n.slot); if (trayCount(to) > 1) x.boxTray = String(n.tray); } else if (hasSpots(to)) loose++;
+    put("c_" + x.id, x);
+  });
+  albs.forEach((a) => put("a_" + a.id, { ...a, keptBox: to.id }));
+  pks.forEach((x) => put("b_" + x.id, { ...x, keptBox: to.id }));
+  return { coins, albs, pks, loose };
+}
+Object.assign(actions, {
+  boxNewInside: (el) => {
+    boxReturn = null; boxForm(null);
+    const k = $("#sheet [name=keptBox]"); if (k) k.value = el.dataset.id;
+  },
+  boxMoveAll: (el) => {
+    const b = getBox(el.dataset.id);
+    if (!b) return;
+    const ts = moveTargets(b);
+    const n = boxCoins(b).length + keptAlbums(b).length + allBoxes().filter((x) => x.keptBox === b.id).length;
+    if (!n) { toast("This box is empty."); return; }
+    if (!ts.length) { toast("Make the other box first (Storage › + New box)."); return; }
+    openSheet(`<div class="sheet-head"><h2>Move everything to…</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <p class="small muted">Everything in ${esc(b.name)} (${n} item${n === 1 ? "" : "s"}) moves into the box you pick. ${esc(b.name)} stays, empty. One Undo.</p>
+      <label class="f"><span>Move into</span><select id="mvAllTo">${ts.map((x) => `<option value="${esc(x.id)}">${esc(boxPathName(x))}${hasSpots(x) ? " (numbered spots)" : ""}</option>`).join("")}</select></label>
+      <label class="f"><span>If it has numbered spots</span><select id="mvAllFill"><option value="fill">Fill the empty spots in order</option><option value="loose">Put coins in loose (no spot)</option></select></label>
+      <button class="btn primary block" data-act="boxMoveAllGo" data-id="${esc(b.id)}">Move everything</button>`);
+  },
+  boxMoveAllGo: (el) => {
+    const b = getBox(el.dataset.id), to = getBox(($("#mvAllTo") || {}).value || "");
+    if (!b || !to || !moveTargets(b).some((x) => x.id === to.id)) return;
+    const before = moveAllInto(b, to, ($("#mvAllFill") || {}).value !== "loose");
+    closeSheet(); go("box-" + to.id);
+    toast("Moved into " + to.name + "." + (before.loose ? " " + before.loose + " went in loose (no empty spot)." : ""), { label: "Undo", fn: () => { before.coins.forEach((c) => put("c_" + c.id, c)); before.albs.forEach((a) => put("a_" + a.id, a)); before.pks.forEach((x) => put("b_" + x.id, x)); render(); toast("Move undone."); } });
+  },
+});
+document.addEventListener("change", (e) => { // "Also in a stack" (junk silver kept in a box keeps its stack)
+  if (!e.target.matches || !e.target.matches("[data-alsostack]") || !draft) return;
+  const v = e.target.value;
+  if (v === "__new") { draft._newStack = true; draft.stack = ""; } else { delete draft._newStack; draft.stack = v; }
+  const y = $(".sheet") ? $(".sheet").scrollTop : 0; renderCoinForm(); if ($(".sheet")) $(".sheet").scrollTop = y;
 });

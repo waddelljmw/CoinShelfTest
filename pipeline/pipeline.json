@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-24 (step 26b done)",
-  "app": "v0.109.0",
+  "updated": "2026-11-24 (step 29 done)",
+  "app": "v0.110.0",
   "week": {
     "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-    "weekly_now": 5,
+    "weekly_now": 10,
     "build_cap": 85,
     "fill_cap": 95,
     "fantasy_reserve": 5,
@@ -1710,7 +1710,7 @@
       "model": "Sonnet",
       "est": "2–3",
       "time": "~45 min",
-      "actual": "reading pending",
+      "actual": "~2",
       "status": "done",
       "chat": "New Sonnet chat",
       "when": "planned 11-24",
@@ -1822,12 +1822,20 @@
           "what": "Can't tell mint in box spots",
           "change": "Box spots show \"1955 (mint?)\" instead of \"1955-?\". Display only.",
           "affects": "Storage boxes"
+        },
+        {
+          "id": "162",
+          "size": "S",
+          "what": "'You own' counts the same kind",
+          "change": "Counts only the same strike (proof or not), metal and variety; others shown as 'also 1 Doubled Die'; tap the line to see where each is kept. Display only (your yes 11-24).",
+          "affects": "Coin card"
         }
       ],
       "try": [
         "Holder list shows GSA holder.",
         "Rename a want list.",
-        "Open a saved coin, type in Notes, tap ✕: it asks Discard your changes?"
+        "Open a saved coin, type in Notes, tap ✕: it asks Discard your changes?",
+        "Open an empty 1976-S silver proof spot: You own counts only silver proofs; tap it to see where each is."
       ]
     },
     {
@@ -1902,8 +1910,8 @@
       "model": "Opus",
       "est": "4–6",
       "time": "2–3 h (plan, then build)",
-      "actual": "",
-      "status": "next",
+      "actual": "reading pending",
+      "status": "done",
       "chat": "New Opus chat",
       "when": "planned 11-24",
       "why": "Enter your red box, black flip box and year sets the way they really are.",
@@ -1925,7 +1933,10 @@
       ],
       "try": [
         "Make a box inside a box; move everything from one box to another."
-      ]
+      ],
+      "started": "18:25",
+      "ended": "18:55",
+      "minutes": 30
     },
     {
       "n": "30",
@@ -2597,6 +2608,13 @@
       "ver": "v0.109.0",
       "cost": "reading pending",
       "change": "Add another like this copies the coin (not photos, ID, tax/shipping/fees) and offers album spots after Save. Receipt: + New coin on this receipt, blank store named Receipt, date, coins keep their own Where from note, no-price flag in the total line, Receipt link in the coin's Purchase box, import warning line."
+    },
+    {
+      "date": "11-24",
+      "name": "Containers: red-box nesting + year set holder (step 29)",
+      "ver": "v0.110.0",
+      "cost": "reading pending",
+      "change": "Metal (color), Bag, Tube, Other looks; Lockable tick; + Container inside; count at all levels; Move everything to…; delete moves contents up one level; loose coins in a spot box; junk silver keeps its stack in a box; Year set holder with 5 named spots."
     }
   ],
   "modes": [
