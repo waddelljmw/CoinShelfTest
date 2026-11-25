@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-24 (overnight: shelf switch, W tick, all albums on shelf)",
- "app": "v0.112.0",
+ "updated": "2026-11-24 (overnight: reports and page items; app v0.112.0 waits for you to merge PR #21)",
+ "app": "v0.111.1 (v0.112.0 waits in PR #21)",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 15,
@@ -2015,8 +2015,8 @@
    "model": "Sonnet",
    "est": "2–3",
    "time": "~1 h",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "your call 11-24",
    "why": "List common albums by number and year range, and which can be confirmed from public product listings, so a later build step can fill an album's spots when you pick its number. Report only; no guessing album contents. Pairs with idea 107.",
@@ -2040,8 +2040,8 @@
    "model": "Sonnet",
    "est": "2–3",
    "time": "~1 h",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "filler (your call 11-24)",
    "why": "FILLER: run only when there is spare usage, not a queued step. Find missing key dates and varieties from public sources; report only.",
@@ -2649,6 +2649,27 @@
    "ver": "v0.112.0",
    "cost": "reading pending",
    "change": "Show on Home shelf switch is at the bottom of the album page; the Home shelf adds rows for every album and fills a short last row with plain books; New album has a 2019-W / 2020-W tick, off by default."
+  },
+  {
+   "date": "11-24",
+   "name": "Album research (Whitman, Dansco, H.E. Harris and others) (step 31b)",
+   "ver": "report",
+   "cost": "reading pending",
+   "change": "Report only: reviews/32-album-research-2026-11-24.md. Nothing in the app changed."
+  },
+  {
+   "date": "11-24",
+   "name": "Reports: key dates + varieties scan (153, 152) (step 32)",
+   "ver": "report",
+   "cost": "reading pending",
+   "change": "Report only: reviews/31-keydates-varieties-scan-2026-11-24.md. Nothing in the app changed."
+  },
+  {
+   "date": "11-24",
+   "name": "Pipeline page: New reply tag, Where line on each test step",
+   "ver": "page",
+   "cost": "reading pending",
+   "change": "Gold New reply tag on notes answered since you last opened the page; each Test checklist step says which screen to open. Edit on your own notes was already there."
   }
  ],
  "modes": [
@@ -2756,6 +2777,378 @@
   "s6b-2": {
    "where": "My Coins > Select",
    "text": "Tap Select, tick 3 coins whose Where from is Pocket change, tap Set purchase info…, pick Where from: Coin roll hunting, then confirm. Open one of them: Price paid shows its face value."
+  },
+  "s1-0": {
+   "where": "Albums and Add coin"
+  },
+  "s1-1": {
+   "where": "The + button (Add coin)"
+  },
+  "s1-2": {
+   "where": "Menu > Options (metal prices), then the + button"
+  },
+  "s2-0": {
+   "where": "Home, then Add coin"
+  },
+  "s2-1": {
+   "where": "Menu > My Coins, search box"
+  },
+  "s2-2": {
+   "where": "The + button (Add coin)"
+  },
+  "s2-3": {
+   "where": "Albums > any album > Fill spots"
+  },
+  "s3a-0": {
+   "where": "Albums > a Walking Liberty or Washington album > tap an empty spot"
+  },
+  "s3a-1": {
+   "where": "Albums > a Walking Liberty or Washington album > tap an empty spot"
+  },
+  "s3b-0": {
+   "where": "Albums > any album with empty spots"
+  },
+  "s3b-1": {
+   "where": "Albums > any album with empty spots"
+  },
+  "s4a-0": {
+   "where": "Home > Search any coin box"
+  },
+  "s4a-1": {
+   "where": "Home > Search any coin box"
+  },
+  "s4a-2": {
+   "where": "Home > Search any coin box"
+  },
+  "s5-0": {
+   "where": "Albums > a Morgan album"
+  },
+  "s5-1": {
+   "where": "Albums > a Morgan album"
+  },
+  "s5-2": {
+   "where": "Albums > a Morgan album"
+  },
+  "s5-3": {
+   "where": "Albums > a Morgan album"
+  },
+  "s6-0": {
+   "where": "Albums > any album"
+  },
+  "s6-1": {
+   "where": "Albums > any album"
+  },
+  "s6-2": {
+   "where": "Albums > any album"
+  },
+  "s6-3": {
+   "where": "Albums > any album"
+  },
+  "s6b-0": {
+   "where": "Albums > Washington or Kennedy album"
+  },
+  "s6b-1": {
+   "where": "Albums > Washington or Kennedy album"
+  },
+  "s6b-3": {
+   "where": "Albums > Washington or Kennedy album"
+  },
+  "s7-0": {
+   "where": "Albums > any album with coins"
+  },
+  "s7-1": {
+   "where": "Albums > any album with coins"
+  },
+  "s7-2": {
+   "where": "Albums > any album with coins"
+  },
+  "s7-3": {
+   "where": "Albums > any album with coins"
+  },
+  "s8-0": {
+   "where": "Menu > My Albums"
+  },
+  "s8-1": {
+   "where": "Menu > My Albums"
+  },
+  "s8-2": {
+   "where": "Menu > Storage"
+  },
+  "s8-3": {
+   "where": "Menu > My Coins > a sold coin"
+  },
+  "s9-0": {
+   "where": "Menu > Options > Look"
+  },
+  "s9-1": {
+   "where": "Menu > Options > Look"
+  },
+  "s9-2": {
+   "where": "Menu > Options > Look"
+  },
+  "s10-0": {
+   "where": "Menu (top right)"
+  },
+  "s10-1": {
+   "where": "The + button (Add coin)"
+  },
+  "s10-2": {
+   "where": "Menu > My Coins"
+  },
+  "s10-3": {
+   "where": "Menu > Coin Value"
+  },
+  "s11-0": {
+   "where": "Menu > My Coins, open a coin"
+  },
+  "s11-1": {
+   "where": "Menu > Storage > a dealer case (Seller Mode on)"
+  },
+  "s11-2": {
+   "where": "Menu > My Coins, open a coin"
+  },
+  "s12-0": {
+   "where": "The app link in a private window"
+  },
+  "s12-1": {
+   "where": "Menu > Options"
+  },
+  "s12-2": {
+   "where": "Menu > Storage"
+  },
+  "s13-0": {
+   "where": "Home"
+  },
+  "s13-1": {
+   "where": "Home"
+  },
+  "s13-2": {
+   "where": "Home"
+  },
+  "s14-0": {
+   "where": "Menu > Reports (Seller Mode on)"
+  },
+  "s14-1": {
+   "where": "Menu > Reports (Seller Mode on)"
+  },
+  "s14-2": {
+   "where": "Menu > Reports (Seller Mode on)"
+  },
+  "s13b-0": {
+   "where": "Menu > My Albums"
+  },
+  "s13b-1": {
+   "where": "Menu > My Coins > a coin For sale"
+  },
+  "s13b-2": {
+   "where": "Albums > any album"
+  },
+  "s15-0": {
+   "where": "Menu > Options"
+  },
+  "s15-1": {
+   "where": "Menu > Options"
+  },
+  "s15-2": {
+   "where": "Menu > Options"
+  },
+  "s16a-0": {
+   "where": "Home"
+  },
+  "s16a-1": {
+   "where": "Menu > My Coins"
+  },
+  "s16a-2": {
+   "where": "Menu > Storage > a pocket album"
+  },
+  "s16a-3": {
+   "where": "Menu > Storage > a pocket album"
+  },
+  "s16a-4": {
+   "where": "Menu > My Albums"
+  },
+  "s16a-5": {
+   "where": "Menu > My Albums"
+  },
+  "s17-0": {
+   "where": "The ?demo=full link"
+  },
+  "s17-1": {
+   "where": "The ?demo=full link"
+  },
+  "s17-2": {
+   "where": "The ?demo=full link"
+  },
+  "s17-3": {
+   "where": "The ?demo=full link"
+  },
+  "sR7f-0": {
+   "where": "Albums > any album"
+  },
+  "sR7f-1": {
+   "where": "Albums > any album"
+  },
+  "s16-0": {
+   "where": "Menu > My Coins"
+  },
+  "s16-1": {
+   "where": "Menu > My Coins"
+  },
+  "s16b-0": {
+   "where": "The + button (Add coin)"
+  },
+  "s16b-1": {
+   "where": "The + button (Add coin)"
+  },
+  "s16c-0": {
+   "where": "Menu > Options"
+  },
+  "s16c-1": {
+   "where": "Albums > any album"
+  },
+  "s16c-2": {
+   "where": "Albums > any album"
+  },
+  "s16c-3": {
+   "where": "Menu > Options"
+  },
+  "s16d-0": {
+   "where": "Home > Search any coin box"
+  },
+  "s16d-1": {
+   "where": "Home > Search any coin box"
+  },
+  "s18-0": {
+   "where": "Home"
+  },
+  "s18-1": {
+   "where": "Home"
+  },
+  "s18-2": {
+   "where": "Home"
+  },
+  "s19-0": {
+   "where": "Menu > Options > Spreadsheet"
+  },
+  "s19-1": {
+   "where": "Menu > Options > Spreadsheet"
+  },
+  "s20-0": {
+   "where": "Albums > any album"
+  },
+  "s20-1": {
+   "where": "Albums > any album"
+  },
+  "sR8-0": {
+   "where": "This pipeline page (nothing in the app)"
+  },
+  "sR8f-0": {
+   "where": "Menu > Options > Spreadsheet"
+  },
+  "s22-0": {
+   "where": "Home"
+  },
+  "s22-1": {
+   "where": "Menu > Options"
+  },
+  "s22-2": {
+   "where": "This pipeline page, Home tab"
+  },
+  "s23-0": {
+   "where": "Albums > any album"
+  },
+  "s23-1": {
+   "where": "Albums > any album"
+  },
+  "s23-2": {
+   "where": "Menu > Wants"
+  },
+  "s4-0": {
+   "where": "GitHub (not the app)"
+  },
+  "s4c-0": {
+   "where": "Home"
+  },
+  "s4c-1": {
+   "where": "Home"
+  },
+  "s4c-2": {
+   "where": "Home"
+  },
+  "s4c-3": {
+   "where": "Home"
+  },
+  "s15c-0": {
+   "where": "This pipeline page (nothing in the app)"
+  },
+  "s15d-0": {
+   "where": "The ?demo link"
+  },
+  "s15d-1": {
+   "where": "The ?demo link"
+  },
+  "s15d-2": {
+   "where": "The ?demo link"
+  },
+  "s21-0": {
+   "where": "Menu > Options, turn on Seller Mode first"
+  },
+  "s21-1": {
+   "where": "Menu > Options, turn on Seller Mode first"
+  },
+  "s21-2": {
+   "where": "Menu > Options, turn on Seller Mode first"
+  },
+  "s25-0": {
+   "where": "Menu > My Albums"
+  },
+  "s25-1": {
+   "where": "The + button (Add coin)"
+  },
+  "sR9-0": {
+   "where": "The repo (nothing in the app)"
+  },
+  "s26-0": {
+   "where": "Menu > Purchases"
+  },
+  "s26-1": {
+   "where": "Menu > Purchases"
+  },
+  "s26-2": {
+   "where": "Menu > Purchases"
+  },
+  "s26b-0": {
+   "where": "Menu > My Coins, open a coin"
+  },
+  "s26b-1": {
+   "where": "Menu > My Coins, open a coin"
+  },
+  "s26b-2": {
+   "where": "Menu > My Coins, open a coin"
+  },
+  "s27-0": {
+   "where": "The + button > Holder"
+  },
+  "s27-1": {
+   "where": "Menu > Wants"
+  },
+  "s27-2": {
+   "where": "Menu > My Coins, open a coin"
+  },
+  "s27-3": {
+   "where": "Albums > a silver quarter album with proof spots"
+  },
+  "s28-0": {
+   "where": "Home > Fix them"
+  },
+  "s29-0": {
+   "where": "Menu > Storage"
+  },
+  "s31b-0": {
+   "where": "The report sent in chat"
+  },
+  "s32-0": {
+   "where": "The report sent in chat"
   }
  }
 }

@@ -40,6 +40,10 @@ const http = require("http"), fs = require("fs"), path = require("path");
   ok("a test tick is saved", await p.evaluate(() => [...window.__docs].some(([k, v]) => k.startsWith("ticks/") && v.done)));
   await p.click('[data-t="n"]'); await p.fill("#nt", "buy a loupe"); await p.check("#nb"); await p.click("#ns"); await p.waitForTimeout(150);
   ok("note saved and listed with blocks chip", /buy a loupe/.test(await p.textContent("#notes")) && /blocks entering coins/.test(await p.textContent("#notes")));
+  // New reply tag: the first look is the baseline; a reply that arrives later is tagged on the next visit. Test steps say where to go.
+  ok("test steps show where to go", /Where:/.test(await p.textContent("#test")));
+  ok("a reply that changed since last visit is tagged", await p.evaluate(() => { localStorage.setItem("coinPipeSeenReplies", JSON.stringify({ a: "old" })); seenAtOpen = undefined; S.notes = [{ id: "a", text: "x", reply: "new", at: 1 }]; renderNotes(); return !!document.querySelector("#notes .newreply"); }));
+  ok("after seeing it, the next visit has no tag", await p.evaluate(() => { seenAtOpen = undefined; renderNotes(); return !document.querySelector("#notes .newreply"); }));
   await p.click("[data-t=h]"); await p.click(".dot >> nth=0"); await p.waitForTimeout(100);
   ok("tapping a bubble shows the Queue", !(await p.$eval("#tab-q", (e) => e.hidden)));
   ok("no page errors", errors.length === 0);
