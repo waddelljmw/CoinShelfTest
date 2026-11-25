@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.115.0": [
+    "Press and hold a coin (or a filled album spot) to start Select with it ticked. The Select button still works too.",
+  ],
   "0.114.0": [
     "Select › Set for all: change grade, Described as, holder, Keeping for, Original to the album, inherited, purchase info or notes on many coins at once, or add them to a want list. One Undo.",
     "Set for all starts on \"Only the blank ones\" and shows what \"Change all\" would replace. Slabbed coins keep their grade and holder.",

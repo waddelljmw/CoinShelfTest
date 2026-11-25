@@ -117,6 +117,42 @@ function selBarHtml(picked, shown) {
 }
 // Bottom copy of Select all · Clear for long lists.
 const selFootHtml = () => listState.sel ? `<div class="small muted" style="text-align:center;margin:10px 0"><button type="button" class="link-btn" data-act="selAll">Select all</button> · <button type="button" class="link-btn" data-act="selNone">Clear</button></div>` : "";
+/* Long-press (38, 132): hold a coin on any page that has a Select button to start Select with it ticked. A shortcut only. */
+const LP_MS = 500, LP_SEL = '[data-go^="coin-"], .slot.have[data-coin]';
+let lpTimer = null, lpAt = null, lpFired = false;
+// The coin under a finger, only where Select is offered and not already on.
+function lpTarget(t) {
+  const el = t && t.closest && t.closest(LP_SEL);
+  if (!el || el.closest("#sheet") || !document.querySelector("[data-act=selStart]")) return null;
+  const id = el.dataset.coin || el.dataset.go.slice(5);
+  return (listState._shown || []).some((c) => c.id === id && c.status === "owned") ? { el, id } : null;
+}
+const lpCancel = () => { clearTimeout(lpTimer); lpTimer = null; };
+function lpStart(id, el) {
+  lpCancel(); lpFired = true;
+  const top = el.getBoundingClientRect().top;
+  listState.sel = new Set([id]); render();
+  // The Select bar appears above the list: scroll so the held coin stays under the finger.
+  const now = document.querySelector(`[data-act=selToggle][data-id="${CSS.escape(id)}"]`);
+  if (now) window.scrollBy(0, now.getBoundingClientRect().top - top);
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+document.addEventListener("pointerdown", (e) => {
+  lpCancel(); lpFired = false;
+  if (e.button || !e.isPrimary || e.target.closest("[data-act=favToggle]")) return;
+  const hit = lpTarget(e.target);
+  if (!hit) return;
+  lpAt = { x: e.clientX, y: e.clientY };
+  lpTimer = setTimeout(() => lpStart(hit.id, hit.el), LP_MS);
+});
+document.addEventListener("pointermove", (e) => { if (lpTimer && Math.hypot(e.clientX - lpAt.x, e.clientY - lpAt.y) > 10) lpCancel(); });
+["pointerup", "pointercancel", "hashchange"].forEach((n) => window.addEventListener(n, lpCancel));
+window.addEventListener("scroll", lpCancel, { passive: true });
+// Letting go must not also count as a tap (it would open the coin, or untick it).
+window.addEventListener("click", (e) => { if (lpFired && e.detail) { lpFired = false; e.preventDefault(); e.stopPropagation(); } }, true);
+// Stop the phone's own long-press menu on those coins.
+document.addEventListener("contextmenu", (e) => { if (lpFired || lpTarget(e.target) || (listState.sel && e.target.closest("[data-act=selToggle]"))) e.preventDefault(); });
+
 // Select button + bar for album and box pages. "coins" = the owned coins on that page.
 function pageSelHtml(coins) {
   coins = coins.filter((c) => c.status === "owned");
