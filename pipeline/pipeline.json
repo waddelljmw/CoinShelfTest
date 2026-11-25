@@ -3,7 +3,7 @@
  "app": "v0.113.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 18,
+  "weekly_now": 19,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1847,7 +1847,7 @@
    "name": "Labels: Described as (97) + Keeping for (137) + Altered (150)",
    "model": "Opus",
    "est": "2–3",
-   "actual": "reading pending",
+   "actual": "~2",
    "status": "done",
    "chat": "New Opus chat",
    "when": "after Quick wins",
@@ -1881,8 +1881,8 @@
    ],
    "time": "1–1.5 h",
    "started": "00:26",
-   "ended": "00:40",
-   "minutes": 14
+   "ended": "00:42",
+   "minutes": 16
   },
   {
    "n": "28",
@@ -2678,7 +2678,7 @@
    "date": "11-25",
    "name": "Step 24 Labels",
    "ver": "v0.113.0",
-   "cost": "reading pending",
+   "cost": "~2",
    "change": "Described as (Circulated/AU/UNC/BU/own words, display only), + on slab grades, Keeping for (locked against selling, still in totals, filter), Plated and Colorized in Problems."
   }
  ],
