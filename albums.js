@@ -250,6 +250,7 @@ function viewAlbum(r) {
       <button class="btn" data-act="addSpot" data-id="${esc(a.id)}">+ Add a spot</button>
       ${!editing && st.total > st.owned && typeof openFillAlbum === "function" ? `<button class="btn" data-act="fillSpots" data-id="${esc(a.id)}">Fill spots</button>` : ""}
       <button class="btn ${editing ? "primary" : ""}" data-act="editSlots" data-id="${esc(a.id)}">${editing ? "Done editing" : "Edit spots"}</button>
+      ${!editing && typeof albumNoGrade === "function" && albumNoGrade(a.id).length ? `<button class="btn" data-act="fixupQuick" data-id="${esc(a.id)}">Quick grade (${albumNoGrade(a.id).length})</button>` : ""}
     </div>
     ${editing ? `<div class="banner" style="margin:0 0 10px">Use ◀ ▶ to put spots in the same order as your album (within each year). Tap a spot to rename its label, or hide or remove it.</div>` : ""}
     <div class="album-grid">${(editing ? a.slots || [] : st.slots).map((s, i, arr) => {

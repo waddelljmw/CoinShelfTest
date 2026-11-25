@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.111.0": [
+    "Needs Attention: new Back button goes to the coin before, so one wrong Skip doesn't mean starting over.",
+    "Quick grade: on an album page, grade the coins that have no grade one at a time. Pick a grade, Save, and the next one opens. There is a PCGS Photograde link, Back and Skip.",
+  ],
   "0.110.0": [
     "Containers: a box can now be Metal (with a color), a Bag, a Tube or Other (you type what it is), and can be marked Lockable (a small lock shows).",
     "Boxes inside boxes: + Container inside on a box page. The box shows how many coins are inside at every level, and a coin's page shows the whole path, like Small bag › Big ziplock › Red box.",

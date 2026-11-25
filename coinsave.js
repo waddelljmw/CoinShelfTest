@@ -169,7 +169,7 @@ async function saveDraft() {
   const wantAsk = isNew && !d._fromWant && typeof askWantRemove === "function"; // a normal Add coin that matches a want asks after the page changes
   const swapAsk = isNew && typeof swapCandidate === "function" ? swapCandidate(c) : null; // a better coin for a spot that is already filled asks to swap
   if (isNew && d._stay) { toast("Added to " + (getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "the album") + "."); if (swapAsk) openSwapSheet(c, swapAsk); else if (wantAsk) askWantRemove(c); return; } // stay on the album
-  if (!isNew && typeof fixup !== "undefined" && fixup.on) { if (needsOf(c).length) fixup.skip.push(c.id); toast("Saved."); fixupNext(); return; } // fix-up run: on to the next coin
+  if (!isNew && typeof fixup !== "undefined" && fixup.on) { if (fixupStill(c)) fixup.skip.push(c.id); toast("Saved."); fixupNext(); return; } // fix-up run: on to the next coin
   toast(isNew ? (firstEver ? "Coin added. Tap the + button to add the next one." : "Coin added.") : "Saved.");
   if (isNew) go("coin-" + c.id);
   if (isNew) askMetalPrice(c);
