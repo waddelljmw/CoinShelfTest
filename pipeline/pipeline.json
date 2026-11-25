@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-25 (step 30c long-press queued)",
- "app": "v0.114.0",
+ "updated": "2026-11-25 (steps 30b and 30c done)",
+ "app": "v0.115.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 20,
+  "weekly_now": 23,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1954,7 +1954,7 @@
    "model": "Opus",
    "est": "~3",
    "time": "~1.5 h",
-   "actual": "reading pending (start 8 / 20)",
+   "actual": "~3",
    "status": "done",
    "chat": "New Opus chat",
    "when": "planned 11-24",
@@ -2052,8 +2052,8 @@
    "model": "Sonnet",
    "est": "~0–1",
    "time": "~20 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending (start 21 / 23, both steps)",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "added 11-25",
    "why": "The Add form and Save button name what you're adding (bar, round, roll, set), not always 'coin'.",
@@ -2068,7 +2068,10 @@
    ],
    "try": [
     "Tap + › pick a bar: the top says Add bar and the button says Save bar."
-   ]
+   ],
+   "started": "10:28",
+   "ended": "10:31",
+   "minutes": 3
   },
   {
    "n": "30c",
@@ -2077,8 +2080,8 @@
    "model": "Sonnet",
    "est": "~1",
    "time": "30–45 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending (start 21 / 23, both steps)",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "added 11-25",
    "why": "Long-press a coin or album spot to start Select with it ticked. A shortcut only: the Select coins button stays.",
@@ -2094,7 +2097,10 @@
    "try": [
     "My Coins: long-press a coin; Select turns on with it ticked. Tap 2 more, then Set for all.",
     "Album page: long-press a filled spot; same."
-   ]
+   ],
+   "started": "10:31",
+   "ended": "10:33",
+   "minutes": 2
   },
   {
    "n": "31b",
@@ -2770,8 +2776,22 @@
    "date": "11-25",
    "name": "Step 30 Set for all",
    "ver": "v0.114.0",
-   "cost": "pending",
+   "cost": "~3",
    "change": "Select › Set for all (grade, Described as, holder, Keeping for, original to album, inherited, purchase info, notes, want list); Only-blank default with Change all preview; slabs skipped; one Undo. Original to album for bought albums. New bars drop a carried-over flip; Assay card holder."
+  },
+  {
+   "date": "11-25",
+   "name": "Step 30b Add bar wording",
+   "ver": "v0.114.1",
+   "cost": "pending",
+   "change": "Add form and Save button name the item (bar, round, junk silver, roll, set)."
+  },
+  {
+   "date": "11-25",
+   "name": "Step 30c Long-press to select",
+   "ver": "v0.115.0",
+   "cost": "pending",
+   "change": "Press and hold a coin or filled album spot to start Select with it ticked."
   }
  ],
  "modes": [
