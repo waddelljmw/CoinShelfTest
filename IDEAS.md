@@ -213,5 +213,6 @@ Sizes: S small fix, M a feature, L big or changes how data is saved. This week's
 160. **(M; 2027 selling, parked) Seller premium table (note 11-23).** Like the Melt Table plus the dealer's premium (spot + $7, spot + 10% + $2), so a customer can see the price.
 161. **(S; pipeline page) Save note button turns off while saving (note 11-23).** Repeat taps on a slow connection saved 5 copies.
 162. **(S) 'You own' counts the same kind (note 11-24).** On a coin card, count only coins with the same strike (proof or not), metal and variety; mention the others ("also 1 Doubled Die"); tap the line to see where each is kept. Display only. Step 27.
+163. **(S) Move the "Show on Home shelf" switch to the bottom of the album page (note 11-24).** An accidental tap hid 2 albums from the Home shelf. Put the switch with Edit album at the bottom, where a thumb won't catch it while scrolling. Display only, no saved-data change. New albums already start shown.
 - Folded in, no new number: pick the display photo → idea 106 part 2; want-list "grade or better", whole-denomination lists and mixed new/upgrade lists → Shopping view sketch; "Add another" serial field → rejected (Notes covers it).
 - Decided 11-24: drop "Bank roll" from the Where from choices (Coin roll hunting does the same job); saved Bank roll coins keep their label and face value. Done in step 25.
