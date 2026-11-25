@@ -129,7 +129,8 @@ function renderCoinForm() {
   stashDraft();
   const d = draft;
   const it = itemOf(d);
-  const noun = it === "set" ? "set" : it === "roll" ? "roll" : "coin";
+  const noun = it === "set" ? "set" : it === "roll" ? "roll" : it === "bullion" ? bullionNoun(d) : "coin";
+  const saveWord = !d._isNew ? "Save changes" : noun === "coin" ? "Add coin" : "Save " + noun; // 30b: name what's being added
   if (d._isNew && !d.typeId && !d.typeName && !d._what) return whatPicker();
   document.querySelectorAll(`#coinForm[data-coin="${d.id}"] details[data-sec]`).forEach((x) => { (d._open = d._open || {})[x.dataset.sec] = x.open; }); // keep sections as you left them
   if (d._isNew) carryOpen = { ...d._open }; // the next new coin starts with the same sections open (R5-14)
@@ -243,7 +244,7 @@ function renderCoinForm() {
     </details>
 
     <div class="btn-row">
-      <button type="submit" class="btn primary">${d._isNew ? "Add " + noun : "Save changes"}</button>
+      <button type="submit" class="btn primary">${saveWord}</button>
       <button type="button" class="btn" data-act="closeSheet">Cancel</button>
     </div>
   </form>`, d._short ? "sheet-75" : "");
@@ -370,6 +371,7 @@ function rollFields(d) {
     <div class="hint" id="rollHint">${esc(rollHint(d))}</div>`;
 }
 function bullionHint(d) { if (d.bShape === "Junk") return junkOz(d) ? "Worked out: " + junkOz(d) + " oz of pure silver ($" + num(d.jFace) + " face × " + junkKindOf(d)[2] + " oz per $1). Face value is the total, like $20 of dimes." : "Type the total face value (e.g. $20 of dimes) and the silver ounces are worked out."; return bullionOz(d) ? "Pure silver: " + bullionOz(d) + " oz (weight × purity)." : "Pure silver ounces = weight × purity. Pick ounces (troy), grams or kilos; a kilo bar is 32.15 oz."; }
+const bullionNoun = (d) => ({ Round: "round", Junk: "junk silver", Other: "item", Shape: "item" })[d.bShape] || "bar";
 function bullionTopHtml(d) {
   const makers = [...new Set(allCoins().filter((c) => itemOf(c) === "bullion").map((c) => (c.bMaker || "").trim()).filter(Boolean))];
   return `<div class="grid2">
