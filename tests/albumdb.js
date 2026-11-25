@@ -34,7 +34,7 @@ const { chromium } = require("./_compat");
   await p.fill("#albumForm [name=number]", "9999"); await p.waitForTimeout(80);
   ok("unknown number: says it isn't in our list", (await p.textContent("#albumLookupHint")).includes("isn't in our list"));
   const before = await p.evaluate(() => albums().length);
-  ok("unknown number: Create stays off until a coin type is picked, no album made", await p.evaluate((n) => document.querySelector("#albumCreate").disabled && albums().length === n, before));
+  ok("unknown number: Create stays off until a coin type is picked, no album made", await p.evaluate((n) => document.querySelector("#albumCreate").classList.contains("needs") && albums().length === n, before));
   // typed name is not overwritten
   await p.fill("#albumForm [name=name]", "Grandpa's quarters"); await p.fill("#albumForm [name=number]", "9123"); await p.waitForTimeout(80);
   ok("your own album name is kept", await p.evaluate(() => document.querySelector("#albumForm [name=name]").value === "Grandpa's quarters"));
