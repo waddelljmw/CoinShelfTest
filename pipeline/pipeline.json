@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-24 (step 28 done)",
+ "updated": "2026-11-24 (idea 163 logged)",
  "app": "v0.111.1",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
@@ -2123,6 +2123,10 @@
   {
    "group": "Later",
    "items": [
+    {
+     "t": "Fill-in: move the \"Show on Home shelf\" switch to the bottom of the album page (idea 163), so a stray tap can't hide an album",
+     "size": "S"
+    },
     {
      "t": "\"Skip in Needs attention\" tick (split from 4c, 11-22): a tick on a coin stops it nagging, leaves a small skipped mark, totals stay estimates. Changes saved data (Opus)",
      "size": "M"
