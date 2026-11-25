@@ -100,6 +100,9 @@ function applyKept(d, v, keepStack) { // keepStack: a move changes where the coi
 
   const was = keptValue(d);
   if (v === was) return;
+  // R10-1: "Original to the album" belongs to that one album. A dealer case is a visit (Return puts it back), so it keeps the mark.
+  const toCase = String(v).startsWith("b:") && (getBox(v.slice(2)) || {}).type === "dealer";
+  if (d.origAlbum && v !== "a:" + d.albumId && !toCase) delete d.origAlbum;
   if (itemOf(d) !== "bullion" && !keepStack && !String(v).startsWith("b:")) d.stack = ""; // bullion always belongs to a stack; step 29: junk silver keeps its stack inside a box
   if (d.albumId) delete d.slotId;
   delete d._newStack;

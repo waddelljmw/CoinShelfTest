@@ -17,7 +17,7 @@ const { chromium } = require("./_compat");
 
   await pick(["g1", "g2", "g3", "g4", "g5"]);
   const bar = await p.$$eval(".selacts [data-act]", (els) => els.map((e) => e.dataset.act));
-  ok("Select bar has 4 buttons: Set for all, Move, Take out, Sell together", bar.slice(0, 4).join() === "saOpen,mvOpen,toOpen,orderOpen" && !bar.includes("hdOpen") && !bar.includes("pcOpen"));
+  ok("My Coins Select bar (Seller Mode off): Set for all, Move", bar.join().startsWith("saOpen,mvOpen") && !bar.includes("toOpen") && !bar.includes("orderOpen") && !bar.includes("hdOpen") && !bar.includes("pcOpen"));
   await p.click("[data-act=saOpen]");
   ok("Set for all list has 9 rows", (await p.locator("[data-act=saPick]").count()) === 9);
   await p.click("[data-act=saPick][data-k=grade]");

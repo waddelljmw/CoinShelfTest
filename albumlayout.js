@@ -130,7 +130,7 @@ function putBackYearOrder(albumId) {
 }
 
 // Tapping an empty blank spot: a new coin, or a coin you already have (like a box spot).
-const blankCandidates = () => ownedCoins().filter((c) => !(c.albumId && getAlbum(c.albumId)) && qtyOf(c) === 1 && itemOf(c) !== "bullion").sort((x, y) => labelOf(x).localeCompare(labelOf(y)));
+const blankCandidates = () => ownedCoins().filter((c) => !(c.albumId && getAlbum(c.albumId)) && qtyOf(c) === 1 && itemOf(c) === "coin").sort((x, y) => labelOf(x).localeCompare(labelOf(y)));
 function openBlankMenu(a, s) {
   const have = blankCandidates();
   const at = `data-album="${esc(a.id)}" data-sid="${esc(s.id)}" data-y="" data-m="" data-v=""`;

@@ -288,7 +288,7 @@ function viewAlbum(r) {
     </div>
     ${(a.removed || []).length && !editing ? `<div class="small muted" style="margin:-4px 0 10px">${(a.removed || []).length} spot${(a.removed || []).length > 1 ? "s" : ""} hidden · <button class="link-btn" data-act="editSlots" data-id="${esc(a.id)}">Show</button></div>` : ""}
     <div class="bar" style="margin:12px 0 16px"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div>
-    ${!editing && typeof pageSelHtml === "function" ? pageSelHtml([...st.filled.values(), ...extras]) : ""}
+    ${!editing && typeof pageSelHtml === "function" ? pageSelHtml([...st.filled.values(), ...extras], true) : ""}
     <div class="btn-row" style="margin:0 0 12px">
       <button class="btn" data-act="addSpot" data-id="${esc(a.id)}">+ Add a spot</button>
       ${!editing && st.total > st.owned && typeof openFillAlbum === "function" ? `<button class="btn" data-act="fillSpots" data-id="${esc(a.id)}">Fill spots</button>` : ""}

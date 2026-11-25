@@ -109,10 +109,10 @@ function fltChips() {
 const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"], ng: ["ng"], value: ["vFrom", "vTo"], probs: ["probs"], inc: ["inc"] };
 
 // The Select bar (shared by My Coins, album pages and box pages): count, Select all / Clear, and the bulk buttons.
-function selBarHtml(picked, shown) {
+function selBarHtml(picked, shown, onAlbum) {
   const dis = picked.length ? "" : "disabled";
   return `<div class="card selbar"><div class="selrow"><b>${picked.length} selected</b><button class="btn" data-act="selAll">Select all (${shown})</button><button class="btn" data-act="selNone">Clear</button></div></div>
-      <div class="card selacts"><div class="btn-row" style="margin-top:8px"><button class="btn" data-act="saOpen" ${dis}>Set for all…</button><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="toOpen" ${dis}>Take out of album…</button><button class="btn" data-act="orderOpen" ${dis}>Sell together…</button></div>
+      <div class="card selacts"><div class="btn-row" style="margin-top:8px"><button class="btn" data-act="saOpen" ${dis}>Set for all…</button><button class="btn" data-act="mvOpen" ${dis}>Move to…</button>${onAlbum ? `<button class="btn" data-act="toOpen" ${dis}>Take out of album…</button>` : ""}${sellerOn() ? `<button class="btn" data-act="orderOpen" ${dis}>Sell together…</button>` : ""}</div>
       ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button><button class="btn" data-act="selAsk" ${dis}>Suggested asking price</button></div>` : ""}</div>`;
 }
 // Bottom copy of Select all · Clear for long lists.
@@ -154,12 +154,12 @@ window.addEventListener("click", (e) => { if (lpFired && e.detail) { lpFired = f
 document.addEventListener("contextmenu", (e) => { if (lpFired || lpTarget(e.target) || (listState.sel && e.target.closest("[data-act=selToggle]"))) e.preventDefault(); });
 
 // Select button + bar for album and box pages. "coins" = the owned coins on that page.
-function pageSelHtml(coins) {
+function pageSelHtml(coins, onAlbum) {
   coins = coins.filter((c) => c.status === "owned");
   listState._shown = coins;
   if (!coins.length) return "";
   const picked = listState.sel ? coins.filter((c) => listState.sel.has(c.id)) : [];
-  return `<div class="toolbar"><button class="btn ${listState.sel ? "on-btn" : ""}" data-act="${listState.sel ? "selDone" : "selStart"}" style="flex:1">${listState.sel ? "Done selecting" : "Select coins"}</button></div>${listState.sel ? selBarHtml(picked, coins.length) : ""}`;
+  return `<div class="toolbar"><button class="btn ${listState.sel ? "on-btn" : ""}" data-act="${listState.sel ? "selDone" : "selStart"}" style="flex:1">${listState.sel ? "Done selecting" : "Select coins"}</button></div>${listState.sel ? selBarHtml(picked, coins.length, onAlbum) : ""}`;
 }
 
 // Everything between the search box and the sort line: Filter / Select buttons, chips, the count, and the Select bar.
