@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-24 (overnight: reports and page items; app v0.112.0 waits for you to merge PR #21)",
- "app": "v0.111.1 (v0.112.0 waits in PR #21)",
+ "updated": "2026-11-24 (overnight run merged: app v0.112.0; reports 31 and 32; page New reply tag)",
+ "app": "v0.112.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 15,
