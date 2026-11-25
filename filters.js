@@ -32,6 +32,7 @@ function extraFilter(c) {
   if (f.holder && holderText(c) !== f.holder) return false;
   if (f.src && (c.source || "").trim().toLowerCase() !== f.src.toLowerCase()) return false; // R4-37: where it came from
   if (f.kept && !fltKept(c, f.kept)) return false;
+  if (f.kf && keepForOf(c).toLowerCase() !== f.kf.toLowerCase()) return false; // step 24: Keeping for
   const y = num(c.year), yF = fltNum(f.yFrom), yT = fltNum(f.yTo);
   if ((yF != null || yT != null) && y == null) return false;
   if (yF != null && y < yF) return false;
@@ -93,6 +94,7 @@ function fltChips() {
   if (f.holder) add("holder", "Holder: " + f.holder);
   if (f.src) add("src", "Where from: " + f.src);
   if (f.kept) add("kept", "Kept in: " + fltKeptName(f.kept));
+  if (f.kf) add("kf", "Keeping for: " + f.kf);
   if (f.yFrom || f.yTo) add("year", "Year " + (f.yFrom || "…") + "–" + (f.yTo || "…"));
   if (f.mint) add("mint", "Mint: " + (f.mint === "P" ? "P / none" : f.mint === CANT_TELL ? "Can't tell" : f.mint));
   if (f.ng) add("ng", "Not graded");
@@ -180,6 +182,7 @@ function openFilterPanel() {
     ${field("Holder", sel("holder", "Any holder", holders, f.holder || ""))}
     ${srcs.length ? field("Where from", sel("src", "Any source", srcs, f.src || "")) : ""}
     ${field("Kept in", sel("kept", "Anywhere", keptList, f.kept || ""))}
+    ${pastKeepFor().length ? field("Keeping for", sel("kf", "Anyone or no one", pastKeepFor(), f.kf || "")) : ""}
     <div class="grid2">${field("Year from", `<input type="number" inputmode="numeric" data-flt="yFrom" value="${esc(f.yFrom || "")}">`)}${field("Year to", `<input type="number" inputmode="numeric" data-flt="yTo" value="${esc(f.yTo || "")}">`)}</div>
     ${field("Mint mark", sel("mint", "Any", FLT_MINTS, f.mint || ""))}
     <div class="grid2">${field("Grade from", sel("gFrom", "Any", GRADES, f.gFrom || ""))}${field("Grade to", sel("gTo", "Any", GRADES, f.gTo || ""))}</div>
@@ -200,7 +203,7 @@ function fltRead() {
   if (v("metal") !== undefined) listState.metal = v("metal");
   if (v("cert") !== undefined) listState.cert = v("cert");
   const f = {};
-  ["group", "stack", "biz", "holder", "src", "kept", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "ng", "vFrom", "vTo", "inc", "fav"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
+  ["group", "stack", "biz", "holder", "src", "kept", "kf", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "ng", "vFrom", "vTo", "inc", "fav"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
   const probs = [...document.querySelectorAll("#sheet [data-flt-prob]:checked")].map((e) => e.dataset.fltProb);
   if (probs.length) f.probs = probs;
   listState.f = f;
@@ -229,6 +232,7 @@ function movePlace(c, dest, used) {
     const b = getBox(dest.slice(2));
     if (!b) return "box not found";
     if (caseOn(b) && isInherited(c)) return "inherited coins can't go in a for-sale case";
+    if (caseOn(b) && isKeptFor(c)) return "coins you keep for someone can't go in a for-sale case";
     if (c.boxId === b.id && (!hasSpots(b) || c.boxRow)) return "already in it";
     let spot = null;
     if (hasSpots(b)) {

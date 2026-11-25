@@ -330,7 +330,7 @@ function openSwapSheet(c, sw) {
     <p><b>${esc(slotLabel(sw.slot))}</b> already holds your ${esc(swapGrade(sw.old))}. Where should that one go?</p>
     <div class="btn-row"><button class="btn primary" data-act="swapGo" ${idAttr} data-to="loose">Swap · old one loose</button></div>
     ${boxes.length ? `<label class="f"><span>Or into a box</span><select id="swapBox">${boxes.map((b) => `<option value="${esc(b.id)}">${esc(b.name || "Box")}</option>`).join("")}</select></label><div class="btn-row"><button class="btn" data-act="swapGo" ${idAttr} data-to="box">Swap · old one to the box</button></div>` : ""}
-    ${isInherited(sw.old) ? "" : `<div class="btn-row"><button class="btn" data-act="swapGo" ${idAttr} data-to="forsale">Swap · old one for sale</button></div>`}
+    ${noSell(sw.old) ? "" : `<div class="btn-row"><button class="btn" data-act="swapGo" ${idAttr} data-to="forsale">Swap · old one for sale</button></div>`}
     <div class="btn-row"><button class="btn" data-act="closeSheet">Keep both for now</button></div>
     <div class="hint">Nothing is deleted. The better coin takes the spot, and the old one stays in your collection.</div>`);
 }

@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.112.0";
+const APP_VERSION = "0.113.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 // Step 4c: mint "?" = "Can't tell". It finds no album spot, filter or mintage, but values use the plain-date (no mint mark) price.
@@ -349,7 +349,7 @@ const getAlbum = (id) => store.docs.get("a_" + id);
 // so "remove last import" can never delete a coin you've since edited.
 // For sale on/off from a coin's page (the Status choice in Edit does the same).
 function putForSale(id, on, biz) { // biz: true / false sets Business / Personal in the same save; undefined leaves it
-  const c = getCoin(id); if (!c || c.status !== "owned" || isInherited(c)) return;
+  const c = getCoin(id); if (!c || c.status !== "owned" || noSell(c)) return;
   const n = { ...c }; if (on) n.stage = "forsale"; else delete n.stage;
   if (on && biz === true) n.biz = true; else if (on && biz === false) delete n.biz;
   saveCoin(n); toast(on ? "Put up for sale." : "Taken off For sale.", { label: "Undo", fn: () => { saveCoin(c); toast("Undone."); } });

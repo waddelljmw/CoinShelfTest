@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-24 (overnight run merged: app v0.112.0; reports 31 and 32; page New reply tag)",
- "app": "v0.112.0",
+ "updated": "2026-11-25 (step 24 Labels: app v0.113.0)",
+ "app": "v0.113.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 15,
+  "weekly_now": 19,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1847,8 +1847,8 @@
    "name": "Labels: Described as (97) + Keeping for (137) + Altered (150)",
    "model": "Opus",
    "est": "2–3",
-   "actual": "",
-   "status": "next",
+   "actual": "~2",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "after Quick wins",
    "why": "Record what the flip or seller says (Circulated/AU/UNC/BU, + on a slab grade), mark coins you're keeping for your son or nephew, and mark plated or colorized coins so they aren't valued as normal.",
@@ -1871,15 +1871,18 @@
      "id": "150",
      "size": "M",
      "what": "Altered tick",
-     "change": "One tick + short text (plated, colorized); the app stops auto-valuing that coin.",
-     "affects": "New optional saved box"
+     "change": "Plated and Colorized added to the existing Problems list (no new box); the app already stops book values for coins with problems. Section renamed Errors, problems and changes.",
+     "affects": "No new saved box"
     }
    ],
    "try": [
     "Open a coin: set Described as UNC; grade and value don't change.",
     "Mark a coin Keeping for; Mark as sold asks first."
    ],
-   "time": "1–1.5 h"
+   "time": "1–1.5 h",
+   "started": "00:26",
+   "ended": "00:42",
+   "minutes": 16
   },
   {
    "n": "28",
@@ -2670,6 +2673,13 @@
    "ver": "page",
    "cost": "reading pending",
    "change": "Gold New reply tag on notes answered since you last opened the page; each Test checklist step says which screen to open. Edit on your own notes was already there."
+  },
+  {
+   "date": "11-25",
+   "name": "Step 24 Labels",
+   "ver": "v0.113.0",
+   "cost": "~2",
+   "change": "Described as (Circulated/AU/UNC/BU/own words, display only), + on slab grades, Keeping for (locked against selling, still in totals, filter), Plated and Colorized in Problems."
   }
  ],
  "modes": [

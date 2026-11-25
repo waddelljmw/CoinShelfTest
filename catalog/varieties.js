@@ -34,7 +34,7 @@ const KNOWN_VARIETIES = {
 // Mistakes made while striking the coin (they can add value).
 const MINT_ERRORS = ["Off-center", "Clipped planchet", "Double struck", "Broadstrike", "Wrong planchet", "Struck through", "Die cap", "Brockage", "Die break or cud", "Lamination", "Missing clad layer", "Other"];
 // Damage after it left the Mint. Any of these makes it a "Details" coin, worth less than the Red Book price.
-const COIN_PROBLEMS = ["Cleaned", "Scratched", "Holed", "Bent", "Corroded", "Environmental damage", "Polished", "Tooled", "Repaired", "Rim damage", "Other"];
+const COIN_PROBLEMS = ["Cleaned", "Scratched", "Holed", "Bent", "Corroded", "Environmental damage", "Polished", "Tooled", "Repaired", "Rim damage", "Plated", "Colorized", "Other"];
 // Ways a coin can be gone from the collection without being sold.
 const GONE_REASONS = ["Traded", "Gifted", "Lost", "Spent", "Other"];
 // How a purchase was paid for.

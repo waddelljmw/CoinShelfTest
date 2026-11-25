@@ -20,7 +20,7 @@ const orderCoins = (orderId) => orderId ? soldCoins().filter((c) => c.sold && c.
 const orderTotal = (cs, k) => r2(sum(cs, (c) => num(c.sold && c.sold[k])));
 
 function openOrder(list) {
-  const cs = (list || []).filter((c) => c.status === "owned" && !isInherited(c));
+  const cs = (list || []).filter((c) => c.status === "owned" && !noSell(c));
   if (list && cs.length < list.length) toast("Inherited coins can't be sold, so they were left out.");
   if (cs.length < 2) { toast("Pick at least two coins to sell together."); return; }
   const first = cs[0], sh0 = typeof showToday === "function" && typeof showPicker === "function" && sellerOn() ? showToday() : null;
