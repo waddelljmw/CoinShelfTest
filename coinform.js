@@ -533,7 +533,7 @@ function pickType(id) {
   draft.oz = t.oz || "";
   if (draft.mint && !t.mints.includes(draft.mint) && draft.mint !== CANT_TELL) { draft.mint = ""; delete draft.mintOk; }
   const al = draft.albumId && getAlbum(draft.albumId);
-  if (al && !albumHasType(al, t.id) && !blankSpotOf(draft)) { draft.albumId = ""; delete draft.slotId; } // that album is for other types
+  if (al && !albumHasType(al, t.id) && !blankSpotOf(draft)) { draft.albumId = ""; delete draft.slotId; delete draft.origAlbum; } // that album is for other types
   applyYearMetal(draft);
   autoPaid(draft); // a face-value source fills Price paid once the coin type is known
   if (itemOf(draft) === "roll" && !draft._countEdited) draft.rollCount = ROLL_COUNTS[t.denom] || "";

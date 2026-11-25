@@ -18,6 +18,7 @@ const SA_FIELDS = {
     title: "grade",
     why: (c) => (itemOf(c) !== "coin" ? "only coins have a grade" : isSlab(c) ? "slabbed; its grade is on the label" : ""),
     now: (c) => (c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? "Not graded" : "")),
+    blank: (c) => !c.grade, // R10-4: Not graded counts as blank
     set: (c, v) => {
       if (v !== "Not graded" && c.grade && c.grade !== "Other" && isProofGrade(c.grade) !== isProofGrade(v)) return isProofGrade(c.grade) ? "it's a proof; pick a PR grade" : "not a proof; pick a non-PR grade";
       if (v === "Not graded") { c.grade = ""; c.noGrade = true; } else { c.grade = v; delete c.noGrade; }
@@ -45,6 +46,7 @@ const SA_FIELDS = {
 };
 const saOwned = () => pickedCoins().filter((c) => c.status === "owned");
 const saSoldCount = () => pickedCoins().length - saOwned().length;
+const saIsBlank = (f, c) => (f.blank ? f.blank(c) : !f.now(c));
 // Splits the picked coins for a field: ok (can change) and skip ([coin, why]).
 function saSplit(f) {
   const ok = [], skip = [];
@@ -67,12 +69,13 @@ function saValue(key) {
 }
 const saMode = () => (document.querySelector('#sheet input[name="saMode"]:checked') || {}).value || "blank";
 function saSheet(key) {
-  const f = SA_FIELDS[key], { ok, skip } = saSplit(f), blank = ok.filter((c) => !f.now(c)), filled = ok.filter((c) => f.now(c));
+  const f = SA_FIELDS[key], { ok, skip } = saSplit(f), blank = ok.filter((c) => saIsBlank(f, c)), filled = ok.filter((c) => !saIsBlank(f, c));
   const sold = saSoldCount();
   const choose = blank.length && filled.length;
   openSheet(`${saHead("Set " + f.title + " for " + saPlural(ok.length))}
     <div class="small muted" style="margin-bottom:8px">Now: ${esc(saCountText(ok.map((c) => f.now(c) || "blank"))) || "nothing to change"}</div>
     <label class="f"><span>${key === "grade" ? "Grade" : key === "described" ? "Described as" : key === "holder" ? "Holder" : "Keeping for"}</span>${saInput(key, f)}</label>
+    ${key === "grade" && choose ? `<div class="hint">Not graded counts as blank.</div>` : ""}
     ${key === "described" ? `<div class="hint">What the flip, holder or seller says. It never changes your grade or value.</div>` : ""}
     ${key === "keepFor" ? `<div class="hint">\u{1F512} Locked: they can't go For sale, and Mark as sold asks first. They still count in your totals.</div>` : ""}
     ${choose ? `<div class="btn-row" style="margin:8px 0"><label><input type="radio" name="saMode" value="blank" data-sa checked> Only the ${blank.length} blank</label><label><input type="radio" name="saMode" value="all" data-sa> Change all ${ok.length}</label></div>` : ""}
@@ -84,7 +87,7 @@ function saSheet(key) {
 }
 // Which coins a tap would change, and the button and preview words to match.
 function saTargets(key) {
-  const f = SA_FIELDS[key], { ok } = saSplit(f), blank = ok.filter((c) => !f.now(c));
+  const f = SA_FIELDS[key], { ok } = saSplit(f), blank = ok.filter((c) => saIsBlank(f, c));
   return !blank.length || blank.length === ok.length || saMode() === "all" ? ok : blank;
 }
 function saPreview(key) {
@@ -140,7 +143,7 @@ function saWantSheet() {
     <button class="btn primary block" data-act="saWantGo" style="margin-top:10px" ${ok.length ? "" : "disabled"}>Add to list</button>`);
 }
 document.addEventListener("change", (e) => { if (e.target.matches && e.target.matches("[data-saw]")) { const r = $("#saNewRow"); if (r) r.hidden = e.target.value !== "__new"; } });
-let saWantLast = null;
+let saWantLast = null, saPending = null;
 
 Object.assign(actions, {
   saOpen: () => {
@@ -162,10 +165,22 @@ Object.assign(actions, {
   saGo: (el) => {
     const key = el.dataset.k, f = SA_FIELDS[key], v = saValue(key);
     if (!v) { toast(key === "keepFor" ? "Type who you're keeping them for." : "Pick what to set."); return; }
-    const t = new Set(saTargets(key).map((c) => c.id));
-    t.why = (c) => f.why(c);
-    saApply(f.title.charAt(0).toUpperCase() + f.title.slice(1) + " set", t, (c) => (f.now(c) === v ? "already " + v : f.set(c, v)));
+    const targets = saTargets(key);
+    const run = () => {
+      const t = new Set(targets.map((c) => c.id));
+      t.why = (c) => f.why(c);
+      saApply(f.title.charAt(0).toUpperCase() + f.title.slice(1) + " set", t, (c) => (f.now(c) === v ? "already " + v : f.set(c, v)));
+    };
+    // R10-4: replacing real grades asks first and lists them (coins that would be skipped aren't listed).
+    const real = key === "grade" ? targets.filter((c) => !saIsBlank(f, c) && f.now(c) !== v && !f.set({ ...c }, v)) : [];
+    if (!real.length) return run();
+    saPending = () => { closeSheet(); run(); };
+    openSheet(`<div class="sheet-head"><h2>Replace ${real.length} grade${real.length === 1 ? "" : "s"}?</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <p class="small">These change to ${esc(v)}:</p><div class="card">${real.map((c) => `<div class="rowline"><span>${esc(labelOf(c))}</span><span class="muted small" style="white-space:nowrap">${esc(f.now(c))}</span></div>`).join("")}</div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn danger" data-act="saReplaceOk">Replace</button><button class="btn" data-act="closeSheet">Cancel</button></div>
+      <div class="hint">One Undo puts everything back.</div>`);
   },
+  saReplaceOk: () => { const go = saPending; saPending = null; if (go) go(); },
   saOrigGo: (el) => {
     const on = el.dataset.v === "1";
     bulkApply(on ? "Marked original" : "Marked not original", (c) => {
@@ -218,4 +233,4 @@ Object.assign(actions, {
     saWantLast = null; closeSheet(); render(); toast("Undone.");
   },
 });
-if (typeof SNAPSHOT_BLOCK !== "undefined") ["saGo", "saOrigGo", "saNotesGo", "saWantGo", "saWantUndo"].forEach((a) => SNAPSHOT_BLOCK.add(a));
+if (typeof SNAPSHOT_BLOCK !== "undefined") ["saGo", "saReplaceOk", "saOrigGo", "saNotesGo", "saWantGo", "saWantUndo"].forEach((a) => SNAPSHOT_BLOCK.add(a));

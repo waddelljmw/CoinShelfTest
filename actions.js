@@ -188,8 +188,10 @@ const actions = {
     if (j < 0 || j >= slots.length) return;
     const cross = slots[i].y !== slots[j].y; // years stay in order, unless you put this album in your own order (step 31) or it's a blank spot
     if (cross && !a.freeOrder && !slots[i].blank && !slots[j].blank) return;
+    // R10-2: a blank spot moved among dated spots is your own order too, or the next re-sort sends it back to the end.
+    const own = cross || !!slots[i].blank !== !!slots[j].blank;
     [slots[i], slots[j]] = [slots[j], slots[i]];
-    put("a_" + a.id, { ...a, slots, ...(cross && !slots[i].blank && !slots[j].blank ? { freeOrder: true } : {}) });
+    put("a_" + a.id, { ...a, slots, ...(own ? { freeOrder: true } : {}) });
   },
   pickSpotV: (el) => { const i = $("#spotV"); if (i) i.value = el.dataset.v; },
   deleteSpot: (el) => {
@@ -199,7 +201,10 @@ const actions = {
     const gone = (a.slots || []).find((x) => slotKey(x) === k);
     const freed = gone && gone.id ? allCoins().filter((c) => c.slotId === gone.id) : [];
     if (freed.length && !el.dataset.ok) {
-      confirmSheet("Remove this spot?", "This spot holds your " + slotLabel(gone) + " " + slotGrade(freed[0]) + ". The coin stays in the album under its date. Remove the spot anyway?", "Remove spot", () => actions.deleteSpot({ dataset: { ...el.dataset, ok: "1" } }));
+      const held = freed.find((c) => c.status === "owned") || freed[0];
+      const after = albumStats({ ...a, slots: (a.slots || []).filter((x) => slotKey(x) !== k) });
+      const where = [...after.filled.values()].some((c) => c.id === held.id) ? "under its date" : "under \u201cAlso in this album\u201d";
+      confirmSheet("Remove this spot?", "This spot holds your " + (gone.blank ? blankCoinLabel(held) : slotLabel(gone)) + " " + slotGrade(held) + ". The coin stays in the album " + where + ". Remove the spot anyway?", "Remove spot", () => actions.deleteSpot({ dataset: { ...el.dataset, ok: "1" } }));
       return;
     }
     put("a_" + a.id, { ...a, slots: (a.slots || []).filter((x) => slotKey(x) !== k) });
@@ -214,7 +219,7 @@ const actions = {
     if (!removed.has(k) && !el.dataset.ok) {
       const s = (a.slots || []).find((x) => slotKey(x) === k), c = albumStats(a).filled.get(k);
       if (s && c) {
-        confirmSheet("Hide this spot?", "This spot holds your " + slotLabel(s) + " " + slotGrade(c) + ". Hide it anyway? The coin stays in the album.", "Hide spot", () => actions.toggleSlot({ dataset: { ...el.dataset, ok: "1" } }));
+        confirmSheet("Hide this spot?", "This spot holds your " + (s.blank ? blankCoinLabel(c) : slotLabel(s)) + " " + slotGrade(c) + ". Hide it anyway? The coin stays in the album.", "Hide spot", () => actions.toggleSlot({ dataset: { ...el.dataset, ok: "1" } }));
         return;
       }
     }
