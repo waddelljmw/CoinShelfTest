@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25 (step 24 Labels: app v0.113.0)",
+ "updated": "2026-11-25 (step 30 scope: 4 items added)",
  "app": "v0.113.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
@@ -1952,13 +1952,13 @@
    "stage": "now",
    "name": "Select many › Set for all (155, 156)",
    "model": "Opus",
-   "est": "2–3",
-   "time": "1–1.5 h",
+   "est": "~3",
+   "time": "~1.5 h",
    "actual": "",
    "status": "next",
    "chat": "New Opus chat",
    "when": "planned 11-24",
-   "why": "Change grade, holder, original to album and more on many coins at once.",
+   "why": "Change grade, holder, original to album, keeping for and more on many coins at once.",
    "items": [
     {
      "id": "155",
@@ -1973,11 +1973,40 @@
      "what": "Original to album without Inherited",
      "change": "Tick allowed for bought albums.",
      "affects": "Album coins"
+    },
+    {
+     "id": "137b",
+     "size": "S",
+     "what": "Keeping for, for all",
+     "change": "Mark many coins as kept for someone at once.",
+     "affects": "Writes many coins"
+    },
+    {
+     "id": "97b",
+     "size": "S",
+     "what": "Described as, for all",
+     "change": "E.g. a whole roll set to BU. Display only.",
+     "affects": "Writes many coins"
+    },
+    {
+     "id": "30n",
+     "size": "S",
+     "what": "Add to notes",
+     "change": "Adds a line to each coin's notes; never wipes what's there.",
+     "affects": "Writes many coins"
+    },
+    {
+     "id": "133",
+     "size": "S",
+     "what": "Add selected coins to a want list",
+     "change": "E.g. low-grade coins onto an upgrade list (moved here from the Shopping view).",
+     "affects": "Want lists"
     }
    ],
    "try": [
     "Select 5 coins, set grade for all, then Undo."
-   ]
+   ],
+   "scope_note": "His yes 11-25: add 4 items. Leave out year, mint, type, photos, ID and spot (unique per coin)."
   },
   {
    "n": "31",
