@@ -406,3 +406,10 @@ body:has(#sheet:not([hidden])) .toast { bottom: auto; top: 12px; }
 /* Long-press selects (30c): no text highlight or phone menu on coins. */
 .coin-row, .slot.have, .slot.full { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .coin-row img, .slot.have img { -webkit-touch-callout: none; pointer-events: none; }
+/* Step 31 album layout: blank spots, pick-and-move */
+.slot.blank-spot { display: flex; align-items: center; justify-content: center; min-height: 46px; }
+.blank-ring { width: 30px; height: 30px; border: 2px dotted var(--muted); border-radius: 50%; display: inline-block; }
+.spot-bar { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: #f5c518; box-shadow: 0 0 0 2px color-mix(in srgb, #f5c518 35%, transparent); }
+.slot.spot-pick { position: relative; }
+.slot.spot-pick.on { outline: 3px solid var(--accent); outline-offset: -1px; }
+.pick-n { position: absolute; top: 2px; left: 4px; font-size: 12px; font-weight: 700; background: var(--accent); color: #111; border-radius: 8px; padding: 0 5px; line-height: 16px; }

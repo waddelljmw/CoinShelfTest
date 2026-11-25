@@ -466,9 +466,10 @@ function openSlotMenu(el) {
   const a = getAlbum(el.dataset.album);
   if (!a) return;
   const s = spotFromEl(a, el);
-  const y = s.set ? "" : s.y, m = s.m || "", v = s.v || "";
-  const t = TYPE_BY_ID[slotType(a, s)];
   const coin = el.dataset.coin ? getCoin(el.dataset.coin) : null;
+  if (s.blank && !coin && typeof openBlankMenu === "function") return openBlankMenu(a, s); // step 31: an empty blank spot takes any coin
+  const y = s.set || s.blank ? "" : s.y, m = s.m || "", v = s.v || "";
+  const t = TYPE_BY_ID[s.blank && coin ? coin.typeId : slotType(a, s)];
   const fake = { typeId: t ? t.id : "", typeName: t ? shortName(t) : "", denom: t ? t.denom : "", year: y, mint: m, variety: v, gradeMode: "raw", grade: "" };
   const label = (s.set ? [t ? t.name : "Coin"] : [y + (m ? "-" + m : ""), fake.typeName, fake.denom, s.pf ? "Proof" : ""]).filter(Boolean).join(" ") + (v ? " · " + v : "") + (proofOnlySpot(a, s) ? " · Proof only" : "");
   if (v || s.pf) fake.label = autoLabel(fake) + (s.pf ? " Proof" : "") + (v ? " " + v : "");
@@ -665,10 +666,10 @@ function slotHave(el) {
   const aa = withSlotIds(a);
   const s0 = spotFromEl(a, el);
   const spot = (s0.id && (aa.slots || []).find((x) => x.id === s0.id)) || (aa.slots || []).find((x) => slotKey(x) === slotKey(s0));
-  const t = TYPE_BY_ID[slotType(aa, s0)];
+  const t = s0.blank ? null : TYPE_BY_ID[slotType(aa, s0)]; // a blank spot: you pick the coin type
   openCoinForm(null);
   if (t) { draft.typeId = t.id; draft.typeName = shortName(t); draft.family = t.family; draft.denom = t.denom; draft.metal = t.metal; draft.oz = t.oz || ""; }
-  draft.year = s0.set ? "" : s0.y; draft.mint = s0.m || ""; draft.albumId = a.id;
+  draft.year = s0.set || s0.blank ? "" : s0.y; draft.mint = s0.m || ""; draft.albumId = a.id;
   if (a.inherited) applySourceKind(draft, "Inherited"); // an inherited album: its coins start as Inherited
   const proofOnly = proofOnlySpot(a, s0);
   if (s0.pf || proofOnly) draft._proof = true;
@@ -684,7 +685,7 @@ function slotHave(el) {
     else if (known.length === 1) draft.variety = known[0];
     else draft.spotVariety = v; // several book names fit (or none): keep the spot's name so the coin stays in this spot
   }
-  const w = spotFindWant(aa, s0);
+  const w = s0.blank ? null : spotFindWant(aa, s0);
   if (w) draft._fromWant = w.id;
   draft._stay = true;   // after saving, stay on this album
   draft._short = true;  // three-quarter-height window over the album

@@ -158,7 +158,7 @@ const actions = {
   shelfShowAll: () => saveLayout({ hiddenItems: {} }),
   newAlbum: openNewAlbum,
   missing: (el) => openMissing(el.dataset.id),
-  editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; render(); },
+  editSlots: (el) => { albumEdit.id = albumEdit.id === el.dataset.id ? null : el.dataset.id; if (typeof spotPickReset === "function") spotPickReset(); render(); },
   addSpot: (el) => openAddSpot(el.dataset.id),
   shareApp: () => shareAppLink(),
   sortAlbumsDate: () => { sortAlbumsByDate(); },
@@ -185,9 +185,11 @@ const actions = {
     if (!a) return;
     const i = +el.dataset.i, j = i + (+el.dataset.d);
     const slots = (a.slots || []).slice();
-    if (j < 0 || j >= slots.length || slots[i].y !== slots[j].y) return; // years stay in order
+    if (j < 0 || j >= slots.length) return;
+    const cross = slots[i].y !== slots[j].y; // years stay in order, unless you put this album in your own order (step 31) or it's a blank spot
+    if (cross && !a.freeOrder && !slots[i].blank && !slots[j].blank) return;
     [slots[i], slots[j]] = [slots[j], slots[i]];
-    put("a_" + a.id, { ...a, slots });
+    put("a_" + a.id, { ...a, slots, ...(cross && !slots[i].blank && !slots[j].blank ? { freeOrder: true } : {}) });
   },
   pickSpotV: (el) => { const i = $("#spotV"); if (i) i.value = el.dataset.v; },
   deleteSpot: (el) => {

@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.116.0": [
+    "Albums can have extra blank spots (New album > More, or + Add a spot > Blank spots). Any coin fits; they don't count in owned.",
+    "Edit spots > Move spots: pick several spots and put them after any date, at the start or end, or tap where. Hide several at once. Undo.",
+    "Put back in year order undoes your own order. Tap an empty blank spot to add a new coin or one you have.",
+  ],
   "0.115.0": [
     "Press and hold a coin (or a filled album spot) to start Select with it ticked. The Select button still works too.",
   ],
