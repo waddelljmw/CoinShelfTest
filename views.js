@@ -84,7 +84,7 @@ function coinRow(c, opts = {}) {
     ${isIncomplete(c) ? `<span class="inc-mark" title="${needsText(c)}" aria-label="${needsText(c)}"></span>` : ""}${thumbHtml(c)}
     <span class="coin-main">
       <span class="coin-label">${esc(labelOf(c))}</span>
-      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}${opts.miss && isIncomplete(c) ? `<span class="miss-tag">${needsText(c)}</span>` : ""}${opts.miss && c.status === "owned" && whereText2(c) ? `<span class="small muted where-line" style="display:block">\u{1F4CD} ${esc(whereText2(c))}</span>` : ""}${typeof sellerOn === "function" && sellerOn() && c.biz ? `<span class="sold-tag st-biz">Business</span>` : ""}</span>
+      <span class="coin-sub">${q > 1 ? `<span class="qty">×${q}</span> ` : ""}${c.status === "sold" && c.sold && c.sold.date ? "Sold " + esc(c.sold.date) + " · " : ""}${esc(gradeText(c))}${cacBadge(c)}${c.metal ? " · " + esc(c.metal) : ""}${isInherited(c) ? `<span class="dns" title="Inherited: do not sell">Do not sell</span>` : ""}${isKeptFor(c) ? `<span class="dns" title="Keeping for ${esc(keepForOf(c))}">\u{1F512} ${esc(keepForOf(c))}</span>` : ""}${c.status === "sold" ? `<span class="sold-tag">Sold</span>` : ""}${statusTags(c)}${opts.miss && isIncomplete(c) ? `<span class="miss-tag">${needsText(c)}</span>` : ""}${opts.miss && c.status === "owned" && whereText2(c) ? `<span class="small muted where-line" style="display:block">\u{1F4CD} ${esc(whereText2(c))}</span>` : ""}${typeof sellerOn === "function" && sellerOn() && c.biz ? `<span class="sold-tag st-biz">Business</span>` : ""}</span>
     </span>
     <span class="coin-val">${c.status === "sold" ? money(num(c.sold && c.sold.amount)) : money(v == null ? null : v * q)}${m != null && c.status !== "sold" ? `<div class="melt">melt ${money(m * q)}</div>` : ""}</span>
   </button>`;
@@ -358,7 +358,7 @@ function viewCoin(r) {
   const row = (k, val) => (val == null || val === "" ? "" : `<div class="rowline"><span class="muted">${k}</span><span class="num" style="text-align:right">${val}</span></div>`);
   const sold = c.sold || {};
   return `${coinBackLink()}${eyeButton()}
-    <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""} <button class="star" data-act="favToggle" data-id="${esc(c.id)}" aria-pressed="${!!c.fav}" aria-label="${c.fav ? "Remove from favorites" : "Add to favorites"}">${c.fav ? "★" : "☆"}</button></h1>
+    <h1 style="margin-top:10px">${esc(labelOf(c))}${isInherited(c) ? ` <span class="dns">Inherited · do not sell</span>` : ""}${isKeptFor(c) ? ` <span class="dns">\u{1F512} Keeping for ${esc(keepForOf(c))}</span>` : ""} <button class="star" data-act="favToggle" data-id="${esc(c.id)}" aria-pressed="${!!c.fav}" aria-label="${c.fav ? "Remove from favorites" : "Add to favorites"}">${c.fav ? "★" : "☆"}</button></h1>
     ${album && c.status === "owned" ? `<div class="album-chip"><span aria-hidden="true">📖</span> In <button class="link-btn" data-go="album-${esc(album.id)}">${esc(albumTitle(album))}</button>${wherePartsOf(c).slice(1).map((x) => " \u203A " + esc(x)).join("")}</div>` : ""}
     <div class="small muted" style="margin:-4px 0 8px">ID <b>${c.cid ? esc(c.cid) : "No ID"}</b> <button class="link-btn" data-act="editId" data-id="${esc(c.id)}">${c.cid ? "Change" : "Add"}</button>${(c.oldCids || []).length ? ` · old ID${c.oldCids.length > 1 ? "s" : ""}: ${esc(c.oldCids.join(", "))}` : ""}</div>
     ${mintageLine(c)}${c.status === "owned" && itemOf(c) === "coin" ? coinCardHtml(c) : ""}${typeof coinInhHtml === "function" ? coinInhHtml(c) : ""}
@@ -366,6 +366,7 @@ function viewCoin(r) {
     <div class="card">
       ${row("Status", esc(STATUS_TEXT[statusKey(c)] || "") + (c.upgrade && c.status === "owned" ? " · Upgrade wanted" : ""))}
       ${itemOf(c) === "coin" ? row("Grade", esc(gradeText(c)) + cacBadge(c) + (photoGuideCode(c) ? ` <a class="small" href="${esc(photoGuideUrl(c))}" target="_blank" rel="noopener">PCGS photos ↗</a>` : "")) : ""}
+      ${itemOf(c) === "coin" && c.described ? row("Described as", esc(c.described)) : ""}
       ${itemOf(c) === "set" ? row("Set", esc(c.typeName)) : ""}
       ${itemOf(c) === "bullion" ? row("Type", esc(shapeName(c.bShape))) + (c.bShape === "Junk" ? row("Silver kind", junkKindOf(c)[0] + "%") + row("Face value", num(c.jFace) ? "$" + num(c.jFace) : null) + row("Pure silver", num(c.bWeight) ? esc(barWeightText(c)) : null) : row("Maker", esc(c.bMaker)) + row("Serial number", esc(c.bSerial)) + row("Weight", num(c.bWeight) ? esc(barWeightText(c)) : null) + row("Purity", esc(c.bPurity))) : ""}
       ${stackOf(c) ? row("Stack", esc(stackOf(c))) : ""}

@@ -41,7 +41,7 @@ function returnToStock(el, keepRecord, collect) { // collect (optional list): us
       return;
     }
     const n = { ...c, status: "owned" };
-    if (!isInherited(c) && (num(c.ask) != null || c.biz)) n.stage = "forsale"; // it was for sale: back on the For sale list
+    if (!noSell(c) && (num(c.ask) != null || c.biz)) n.stage = "forsale"; // it was for sale: back on the For sale list
     delete n.sold;
     delete n.splitFrom;
     if (refs(c).length) n.refunds = refs(c);
@@ -67,6 +67,7 @@ const actions = {
   sell: (el) => {
     const c = getCoin(el.dataset.id);
     if (c && isInherited(c)) return confirmSheet("Sell this inherited coin?", "It stays out of sold results and profit. Only go on if you really mean to sell it.", "Continue", () => openSell(c.id));
+    if (c && isKeptFor(c)) return confirmSheet("Sell a coin you're keeping for " + keepForOf(c) + "?", "It's marked Keeping for " + keepForOf(c) + ". Only go on if you really mean to sell it.", "Continue", () => openSell(c.id));
     openSell(el.dataset.id);
   },
   editSale: (el) => openSell(el.dataset.id, true),
@@ -539,13 +540,13 @@ function suggestShow(inp) {
   lab.style.position = "relative";
   let box = lab.querySelector(".ta-list.sugg");
   const q = inp.value.trim().toLowerCase();
-  const all = pastSellers();
+  const all = inp.dataset.suggest === "keepFor" ? pastKeepFor() : pastSellers();
   const hits = !q ? [] : [...all.filter((x) => x.toLowerCase().startsWith(q)), ...all.filter((x) => !x.toLowerCase().startsWith(q) && x.toLowerCase().includes(q))].filter((x) => x.toLowerCase() !== q).slice(0, 6);
   if (!hits.length) { if (box) box.remove(); return; }
   if (!box) { box = document.createElement("div"); box.className = "ta-list sugg"; lab.appendChild(box); }
   box.innerHTML = hits.map((x) => `<button type="button" data-sugg="${esc(x)}">${esc(x)}</button>`).join("");
 }
-document.addEventListener("input", (e) => { if (e.target.dataset && e.target.dataset.suggest === "seller") suggestShow(e.target); });
+document.addEventListener("input", (e) => { if (e.target.dataset && (e.target.dataset.suggest === "seller" || e.target.dataset.suggest === "keepFor")) suggestShow(e.target); });
 document.addEventListener("click", (e) => {
   const b = e.target.closest && e.target.closest("[data-sugg]");
   if (b) {

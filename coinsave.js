@@ -13,10 +13,15 @@ async function saveDraft() {
   if (many) { const m = manyPrep(c, d); if (m) { toast(m); return; } } // several coins: every chosen spot must be free
   if (typeof boxCheck === "function") { const m = boxCheck(c); if (m) { toast(m); return; } }
   if (c.gradeMode !== "cert") { c.cac = ""; c.catNo = ""; }
+  // Step 24: new optional boxes are only saved when used (old coins stay exactly as they were).
+  if (c.gradeMode !== "cert" || !c.grade || c.grade === "Other" || !c.plus) delete c.plus;
+  c.described = String(c.described || "").trim(); if (!c.described || c.described === "__own" || itemOf(c) !== "coin") delete c.described;
+  c.keepFor = keepForOf(c); if (!c.keepFor) delete c.keepFor;
   // Status: Sold (and deleted) are only changed from the coin's page.
   if (c.status === "owned" || c.status === "gone") {
     const k = d._status || "owned";
     if (k === "forsale" && isInherited(c)) { toast("Inherited coins can't be set to For sale."); return; }
+    if (k === "forsale" && isKeptFor(c)) { toast("Coins you're keeping for someone can't be For sale. Clear Keeping for first."); return; }
     if (k === "gone") { c.status = "gone"; c.stage = ""; c.gone = { reason: d._goneReason || "", date: d._goneDate || "" }; }
     else { c.status = "owned"; c.stage = k === "owned" ? "" : k; delete c.gone; }
   }

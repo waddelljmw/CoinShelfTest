@@ -188,6 +188,8 @@ function renderCoinForm() {
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
       <div class="hint">Not sure of the grade? Compare your coin with photos: <a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
+      ${d.gradeMode === "cert" && d.grade && d.grade !== "Other" ? `<label class="switch"><span>Plus (+) on the label<div class="small muted">Like ${esc(d.grade)}+. The value still uses ${esc(d.grade)}.</div></span><input type="checkbox" data-fcheck="plus" ${d.plus ? "checked" : ""}></label>` : ""}
+      ${describedField(d)}
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
       ${it === "coin" && (d.typeName || d.year) ? `<div class="hint"><a id="ebayLink" href="${esc(ebayUrl(d))}" target="_blank" rel="noopener">Check eBay sold ↗</a></div>` : ""}
@@ -197,6 +199,8 @@ function renderCoinForm() {
     </fieldset>`}
 
     ${sourceChips(d)}
+    <label class="f"><span>Keeping for (optional)</span><input type="text" data-f="keepFor" data-suggest="keepFor" autocomplete="off" value="${esc(d.keepFor || "")}" placeholder="e.g. my son" maxlength="40"></label>
+    <div class="hint">\u{1F512} Locked: it can't go For sale, and Mark as sold asks first. It still counts in your totals.</div>
     ${purchaseFields(d)}
 
     ${sec("holder", (it === "set" ? "Packaging and Kept in" : "Holder and Kept in") + (h ? ` <span class="muted small">· ${esc(h)}</span>` : ""), `${keptInFields(d)}
@@ -303,16 +307,23 @@ function knownVarHint(d) {
   const kv = knownVarieties(d);
   return kv.length ? "Known for this date: " + kv.join(", ") + "." : d.typeId && d.year ? "No known varieties listed for this date. You can type one." : "Pick the type and year to see known varieties.";
 }
+// Step 24 (97): "Described as" (what the flip or seller says). Display only.
+function describedField(d) {
+  const own = d.described && !DESCRIBED_WORDS.includes(d.described);
+  return `<label class="f"><span>Described as (optional)</span><select data-f="described" data-rerender><option value="">None</option>${DESCRIBED_WORDS.map((w) => `<option ${d.described === w ? "selected" : ""}>${w}</option>`).join("")}<option value="__own" ${own ? "selected" : ""}>Your own words…</option></select></label>
+      ${own ? `<label class="f"><span>Described as</span><input type="text" data-f="described" value="${esc(d.described === "__own" ? "" : d.described)}" placeholder="e.g. Gem BU, Choice AU" maxlength="30"></label>` : ""}
+      <div class="hint">What the flip, holder or seller says. It never changes your grade or value.</div>`;
+}
 function errorFields(d) {
   const errs = listOf(d.mintErrors), probs = listOf(d.problems);
   const checks = (key, all, on) => `<div class="chk-list">${all.map((x) => `<label><input type="checkbox" data-flist="${key}" value="${esc(x)}" ${on.includes(x) ? "checked" : ""}>${esc(x)}</label>`).join("")}</div>`;
-  return sec("errors", "Errors and problems" + (probs.length ? " · Details" : ""), `
+  return sec("errors", "Errors, problems and changes" + (probs.length ? " · Details" : ""), `
       <label class="f"><span>Known variety</span><input type="text" data-f="knownVar" list="kvList" value="${esc(d.knownVar || "")}" placeholder="e.g. Doubled Die Obverse" maxlength="60"></label>
       <datalist id="kvList">${knownVarieties(d).map((x) => `<option value="${esc(x)}">`).join("")}</datalist>
       <div class="hint" id="kvHint">${esc(knownVarHint(d))}</div>
       <div class="small" style="margin-top:8px"><b>Mint errors</b> <span class="muted">(mistakes made when it was struck)</span></div>
       ${checks("mintErrors", MINT_ERRORS, errs)}
-      <div class="small"><b>Problems</b> <span class="muted">(damage after it left the Mint)</span></div>
+      <div class="small"><b>Problems</b> <span class="muted">(damage or changes after it left the Mint: cleaned, plated, colorized…)</span></div>
       ${checks("problems", COIN_PROBLEMS, probs)}
       <div class="hint">Any problem makes it a "Details" coin. Red Book prices are for coins without problems, so they aren't used for it.</div>
       <label class="f"><span>Describe (optional)</span><textarea data-f="errorNote" placeholder="e.g. 10% off-center at 3 o'clock">${esc(d.errorNote || "")}</textarea></label>`, d.knownVar || errs.length || probs.length || d.errorNote);

@@ -246,6 +246,13 @@ const hiddenStacks = () => settings().hiddenStacks || [];
 const isCounted = (c) => !c.biz && !hiddenGroups().includes(groupOf(c)) && !hiddenStacks().includes(stackOf(c)); // in the Home totals
 const countedCoins = () => ownedCoins().filter(isCounted);
 const isInherited = (c) => (c.source || "").trim().toLowerCase() === "inherited";
+// Step 24 (137): a coin you are keeping for someone (son, nephew). Locked against selling like Inherited, but it stays in your totals.
+const keepForOf = (c) => String((c && c.keepFor) || "").trim();
+const isKeptFor = (c) => !!keepForOf(c);
+const noSell = (c) => isInherited(c) || isKeptFor(c);
+const pastKeepFor = () => [...new Set(allCoins().map(keepForOf).filter(Boolean))].sort();
+// Step 24 (97): what the flip or seller says. Display only: never sets the grade or the value.
+const DESCRIBED_WORDS = ["Circulated", "AU", "UNC", "BU"];
 // Inheritances (made in Options): { id, from, date, earlier: [{ who, when }], valueWhen }. A coin points to one with inhId; the first is the default (settings.inhDefault).
 const inheritances = () => (Array.isArray(settings().inheritances) ? settings().inheritances : []);
 const inheritanceOf = (c) => (c.inhId ? inheritances().find((x) => x.id === c.inhId) || null : null);
@@ -299,7 +306,7 @@ const sum = (arr, f) => arr.reduce((t, x) => t + (f(x) || 0), 0);
 // Saved status: owned | sold | gone | deleted. An owned coin can also be on the way or for sale (its "stage"),
 // so everything that counts owned coins (totals, albums, reports) keeps working. Older coins have no stage: In collection.
 const STATUS_TEXT = { owned: "In collection", coming: "On the way", forsale: "For sale", sold: "Sold", gone: "Gone" };
-const stageOf = (c) => (c.status !== "owned" ? "" : c.stage === "coming" ? "coming" : c.stage === "forsale" && !isInherited(c) ? "forsale" : "");
+const stageOf = (c) => (c.status !== "owned" ? "" : c.stage === "coming" ? "coming" : c.stage === "forsale" && !noSell(c) ? "forsale" : "");
 const statusKey = (c) => (c.status === "owned" ? stageOf(c) || "owned" : c.status);
 const goneCoins = () => allCoins().filter((c) => c.status === "gone");
 const listOf = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === "string" && x) : []);
@@ -358,7 +365,7 @@ function gradeText(c) {
   const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? noGradeWord(c) : "");
   const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && bookFactRows(c.typeId, "fbl") ? " " + fbTag(c.typeId) : "")
     + (nifcOf(c) ? " · NIFC" : "") + (hasProblems(c) ? " Details" : "") + (c.variety ? " · " + c.variety : "") + (c.knownVar ? " · " + c.knownVar : "");
-  if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g].filter(Boolean).join(" ") + extra;
+  if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g && c.plus && c.grade !== "Other" ? g + "+" : g].filter(Boolean).join(" ") + extra;
   return (g ? (c.noGrade && !c.grade ? g : "Raw " + g) : "Raw") + extra;
 }
 function autoLabel(c) {

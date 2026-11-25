@@ -1,5 +1,11 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.113.0": [
+    "Described as: record what the flip or seller says (Circulated, AU, UNC, BU or your own words). It never changes your grade or value.",
+    "Slabs can show a plus, like MS-64+. The value still uses MS-64.",
+    "Keeping for: mark coins you're holding for someone. They're locked against selling, still count in your totals, and you can filter by them.",
+    "Plated and Colorized are now in the coin's problems list (now called Errors, problems and changes).",
+  ],
   "0.112.0": [
     "The Home shelf now shows every album: it adds shelves as you need them, and a short last shelf is filled out with plain books.",
     "The Show on Home shelf switch moved to the bottom of the album page, so a stray tap can't hide an album.",
