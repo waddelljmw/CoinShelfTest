@@ -402,3 +402,7 @@ html[data-text] .chip { white-space: normal; max-width: 100%; text-align: left; 
 .slot-photo { display: block; width: 38px; height: 38px; object-fit: cover; border-radius: 50%; margin: 0 auto 3px; border: 1px solid var(--line); } /* 106: the coin's own photo in its album spot */
 /* 15d n3: while a pop-up is open the message sits at the top, so it never covers the pop-up's buttons */
 body:has(#sheet:not([hidden])) .toast { bottom: auto; top: 12px; }
+
+/* Long-press selects (30c): no text highlight or phone menu on coins. */
+.coin-row, .slot.have, .slot.full { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.coin-row img, .slot.have img { -webkit-touch-callout: none; pointer-events: none; }
