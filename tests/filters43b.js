@@ -99,11 +99,11 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
   // Set holder: coins change, picked ones only
   await p.click("[data-act=selStart]"); await p.click("[data-act=selNone]");
   await p.evaluate(() => { listState.sel.add("w1"); listState.sel.add("w2"); render(); });
-  await p.click("[data-act=hdOpen]"); await p.selectOption("[data-flt=hd]", "Capsule"); await p.click("[data-act=hdGo]"); await p.waitForTimeout(200);
+  await p.click("[data-act=saOpen]"); await p.click("[data-act=saPick][data-k=holder]"); await p.selectOption("#saVal", "Capsule"); await p.click("[data-act=saGo]"); await p.waitForTimeout(200);
   ok("set holder", await p.evaluate(() => getCoin("w1").holder === "Capsule" && getCoin("w2").holder === "Capsule" && getCoin("w4").holder === "2x2 cardboard flip"));
   await p.click("[data-act=toastAction]"); await p.waitForTimeout(150);
   ok("holder Undo", await p.evaluate(() => getCoin("w1").holder === "2x2 cardboard flip"));
-  await p.click("[data-act=selDone]");
+  // Set for all ends Select by itself (step 30)
   ok("select mode off", await p.evaluate(() => !listState.sel && !document.querySelector(".selbox")));
 
   ok("version", await p.evaluate(() => /^0\.\d+\.\d+$/.test(APP_VERSION)));

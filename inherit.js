@@ -79,22 +79,26 @@ function inhFields(d) {
     <label class="f"><span>Which inheritance</span><select data-f="inhId" data-rerender><option value="">Not set yet</option>${inhOpts(d.inhId, `<option value="__new" ${d.inhId === "__new" ? "selected" : ""}>+ New inheritance…</option>`)}</select></label>
     ${d.inhId === "__new" ? `<div class="grid2"><label class="f"><span>From whom</span><input type="text" data-f="_inhFrom" value="${esc(d._inhFrom || "")}" placeholder="e.g. Uncle Bob" maxlength="60"></label><label class="f"><span>When</span><input type="text" data-f="_inhDate" value="${esc(d._inhDate || "")}" placeholder="e.g. 2024" maxlength="20"></label></div>` : ""}
     <label class="f"><span>Value when inherited <span class="muted small">(each, optional)</span></span><input type="number" inputmode="decimal" step="0.01" min="0" data-f="inhValue" value="${esc(d.inhValue ?? "")}"></label>
-    ${al && al.inherited ? `<label class="switch"><span>Original to the album<div class="small muted">It was in the album when you inherited it</div></span><input type="checkbox" data-fcheck="origAlbum" ${d.origAlbum ? "checked" : ""}></label>` : ""}
   </div>`;
+}
+// Step 30 (156): "Original to the album" for any coin in an album, bought or inherited.
+function origAlbumField(d) {
+  const al = d.albumId && d.albumId !== "__new" ? getAlbum(d.albumId) : null;
+  if (!al || itemOf(d) !== "coin") return "";
+  return `<label class="switch"><span>Original to the album<div class="small muted">It was in the album when you got it</div></span><input type="checkbox" data-fcheck="origAlbum" ${d.origAlbum ? "checked" : ""}></label>`;
 }
 // Run from saveDraft on the copy being saved: creates a new inheritance if asked, drops fields that don't apply.
 function inhPrepSave(c) {
   const from = String(c._inhFrom || "").trim(), date = String(c._inhDate || "").trim();
   delete c._inhFrom; delete c._inhDate;
-  if (!isInherited(c)) { delete c.inhId; delete c.inhValue; delete c.origAlbum; return; }
+  if (!(c.albumId && getAlbum(c.albumId))) delete c.origAlbum; else if (!c.origAlbum) delete c.origAlbum; // 156: any album, bought or inherited
+  if (!isInherited(c)) { delete c.inhId; delete c.inhValue; return; }
   if (c.inhId === "__new") {
     if (from || date) { const rec = { id: uid(), from, date, valueWhen: "", earlier: [] }; inhSet([...inheritances(), rec], inhDefaultId() || rec.id); c.inhId = rec.id; }
     else c.inhId = "";
   }
   if (!c.inhId) delete c.inhId;
   c.inhValue = num(c.inhValue) == null ? "" : String(Math.max(0, num(c.inhValue)));
-  const al = c.albumId && getAlbum(c.albumId);
-  if (!(al && al.inherited)) delete c.origAlbum; else c.origAlbum = !!c.origAlbum;
 }
 
 /* ---------- Edit: leaving Inherited ---------- */
@@ -144,7 +148,7 @@ Object.assign(actions, {
 function coinInhHtml(c) {
   const miss = missingOf(c);
   const banner = miss.length ? `<div class="banner miss-banner"><b>Missing: ${esc(miss.join(", "))}</b> <button class="btn" data-act="edit" data-id="${esc(c.id)}">Fill in</button></div>` : "";
-  if (!isInherited(c)) return banner;
+  if (!isInherited(c)) return banner + (c.origAlbum && c.albumId ? `<div class="card"><div class="rowline"><span class="muted">Album</span><span>Original to the album</span></div></div>` : "");
   const later = c.sellLater ? `<div class="small muted" style="margin:0 0 6px">You plan to sell this one eventually.</div>` : "";
   const i = inheritanceOf(c), v = inhValueOf(c);
   const row = (k, val) => `<div class="rowline"><span class="muted">${k}</span><span class="num" style="text-align:right">${val}</span></div>`;

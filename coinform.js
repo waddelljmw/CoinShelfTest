@@ -75,7 +75,7 @@ function sourceChips(d) {
   if (d._isNew && d._carry && d._carry.s && d.source && d.source === (settings().lastSource || "")) cs.push(["source", "Where from: " + d.source]);
   if (d._isNew && d._carry && !d.holder && !d.albumId && d.gradeMode !== "cert" && normHolder(d._lastHolder)) cs.push(["holder", "Holder: " + normHolder(d._lastHolder)]);
   const carry = cs.length ? `<div class="f"><span class="muted small">Same as your last coin (tap to clear)</span><div class="chips wrap">${cs.map(([k, t]) => `<button type="button" class="chip on" data-act="carryClear" data-k="${k}" aria-label="Clear ${esc(t)}">Same as last: ${esc(t)} ✕</button>`).join("")}</div></div>` : "";
-  return carry + `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">${d._srcMore ? "Fewer" : "More…"}</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}</div>`;
+  return carry + `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">${d._srcMore ? "Fewer" : "More…"}</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}${typeof origAlbumField === "function" ? origAlbumField(d) : ""}</div>`;
 }
 // First render of a coin: figure out whether its saved source is a known choice or custom text.
 function initSourceKind(d) {
@@ -333,7 +333,16 @@ function formHolder(d) {
   if (itemOf(d) !== "coin") return d.holder || "";
   return (d.albumId || normHolder(d.holder) !== "Album" ? normHolder(d.holder) : "") || (d.albumId ? "Album" : d.gradeMode === "cert" ? "Slab" : d._isNew ? normHolder(d._lastHolder) : "");
 }
+// Step 30: a holder carried over from the last entry (or Add another) that can't hold this item is dropped on a new entry.
+const baseHolders = (d) => (itemOf(d) === "set" ? SET_HOLDERS : itemOf(d) === "roll" ? ROLL_HOLDERS : itemOf(d) === "bullion" ? bullionHolders(d) : HOLDERS);
+function holderFits(d) {
+  if (!d._isNew) return; // a saved item keeps what it has (it still shows)
+  const l = baseHolders(d);
+  if (d.holder && !l.includes(normHolder(d.holder))) d.holder = "";
+  if (d._lastHolder && !l.includes(normHolder(d._lastHolder))) d._lastHolder = "";
+}
 function holderFields(d) {
+  holderFits(d);
   const h = formHolder(d);
   const showPack = d.coa || h === "Mint box" || h === "Other";
   return `<div class="grid2">
@@ -345,7 +354,7 @@ function holderFields(d) {
     ${itemOf(d) === "coin" && CASE_HOLDERS.includes(h) ? `<label class="f"><span>Case name <span class="muted small">(several coins in one case)</span></span><input type="text" data-f="caseName" list="caseNames" value="${esc(d.caseName || "")}" placeholder="e.g. Steel cents case"><datalist id="caseNames">${[...new Set(ownedCoins().map((c) => (c.caseName || "").trim()).filter(Boolean))].map((x) => `<option value="${esc(x)}">`).join("")}</datalist></label>` : ""}`;
 }
 function holderList(d, h) {
-  const l = itemOf(d) === "set" ? SET_HOLDERS : itemOf(d) === "roll" ? ROLL_HOLDERS : itemOf(d) === "bullion" ? BULLION_HOLDERS : HOLDERS;
+  const l = baseHolders(d);
   return l.concat(h && !l.includes(h) ? [h] : []);
 }
 // Sets: kind and year. Rolls: count, condition and bank wrap.

@@ -13,7 +13,7 @@ const fs = require("fs"), path = require("path");
   const pick = async (ids) => { await p.evaluate(() => { listState.family = null; listState.status = "owned"; go("coins"); }); await p.waitForTimeout(150); await p.click("[data-act=selStart]"); for (const id of ids) await p.click(`[data-act=selToggle][data-id=${id}]`); };
   // 1. split $10 over 3 coins adds up to exactly $10.00
   await pick(["r1", "r2", "r3"]);
-  await p.click("[data-act=pcOpen]"); await p.check("input[name=pcMode][value=split]"); await p.fill("#pcAmt", "10");
+  await p.click("[data-act=saOpen]"); await p.click("[data-act=saPick][data-k=purchase]"); await p.check("input[name=pcMode][value=split]"); await p.fill("#pcAmt", "10");
   ok("preview shows the leftover cent", /\$0\.01/.test(await p.textContent("#pcPreview")));
   await p.click("[data-act=pcGo]"); await p.waitForTimeout(300);
   const tot = await p.evaluate(() => ["r1", "r2", "r3"].reduce((s, id) => s + Number(getCoin(id).paid) * 100, 0));
