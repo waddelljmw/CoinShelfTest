@@ -413,3 +413,6 @@ body:has(#sheet:not([hidden])) .toast { bottom: auto; top: 12px; }
 .slot.spot-pick { position: relative; }
 .slot.spot-pick.on { outline: 3px solid var(--accent); outline-offset: -1px; }
 .pick-n { position: absolute; top: 2px; left: 4px; font-size: 12px; font-weight: 700; background: var(--accent); color: #111; border-radius: 8px; padding: 0 5px; line-height: 16px; }
+/* A switched-off button must look off */
+.btn:disabled, .btn[disabled] { opacity: .45; }
+#albumCreate.needs { opacity: .6; }

@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-25 (step 31 done)",
- "app": "v0.116.0",
+ "updated": "2026-11-25 (v0.116.1 Create album fix)",
+ "app": "v0.116.1",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 25,
@@ -2805,6 +2805,13 @@
    "ver": "v0.116.0",
    "cost": "pending",
    "change": "Extra blank spots, Move/Hide several spots, albums keep your own order, Put back in year order."
+  },
+  {
+   "date": "11-25",
+   "name": "Fix: Create album says what is missing",
+   "ver": "v0.116.1",
+   "cost": "~0 (same chat as step 31)",
+   "change": "Create album no longer looks ready and does nothing; it says what is missing (like a coin type) and jumps there. Switched-off buttons now look off."
   }
  ],
  "modes": [

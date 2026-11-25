@@ -42,7 +42,7 @@ function openNewAlbum() {
       <label class="f"><span>Extra blank spots</span><input type="number" inputmode="numeric" name="blanks" min="0" max="200" value="0"></label>
       <div class="hint">For empty spots with no date printed, often at the end of an album. Any coin fits one. They never count in "owned" or Add missing.</div>
     </details>
-    <div class="btn-row"><button class="btn primary" type="submit" id="albumCreate" disabled>Create album</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
+    <div class="btn-row"><button class="btn primary needs" type="submit" id="albumCreate">Create album</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </form>`);
 }
 // One coin-type picker per type in the album, with "+ Add another coin type".
@@ -88,6 +88,11 @@ const firstAlbumType = () => TYPE_BY_ID[recentTypeIds()[0]] || COIN_TYPES[0];
 function doNewAlbum(form) {
   const fd = new FormData(form);
   const types = readAlbumTypes(form);
+  if (!types.length) { // say what's missing and take you there, instead of a button that does nothing
+    toast("Pick a coin type first: type its name in Coin type at the top, then tap it in the list.");
+    const q = $("#albumTypeFind"); if (q) { q.scrollIntoView({ block: "center" }); q.focus(); }
+    return;
+  }
   const layout = fd.get("layout") === "set" ? "set" : "dates";
   const info0 = typeof lookupAlbum === "function" ? lookupAlbum(fd.get("brand"), fd.get("number")) : null;
   const t = TYPE_BY_ID[types[0]];
@@ -240,7 +245,7 @@ function albumTypesChanged() {
   if (!f) return;
   albumWTick();
   const b = $("#albumCreate"), blk = $("#albumTypesBlock"), box = $("#albumTypes");
-  if (b) b.disabled = !readAlbumTypes(f).length;
+  if (b) b.classList.toggle("needs", !readAlbumTypes(f).length); // tappable; on tap it says what is missing
   if (blk && box) blk.hidden = !box.children.length;
 }
 // New album search box: "Kennedy", "Franklin Half Dollar" or "Kennedy 1964-2002" (all Kennedy types in those years, years filled in).
