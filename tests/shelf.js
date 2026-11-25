@@ -50,13 +50,12 @@ const shots = process.argv.includes("--shots");
     for (let i = 0; i < 7; i++) put("b_f" + i, { kind: "box", id: "f" + i, name: "Box " + i, rows: 10, perRow: 10, createdAt: 10 + i });
   });
   await p.evaluate(() => go("home")); await p.waitForTimeout(200);
-  ok("30 albums: 2 album shelves", (await p.$$(".sh-shelf.albums")).length === 2);
-  ok("30 albums: 17 spines + more", (await p.$$(".sh-spine:not(.more)")).length === 17 && /\+13 more/.test(await p.textContent(".sh-spine.more")));
+  ok("30 albums: 4 album shelves", (await p.$$(".sh-shelf.albums")).length === 4);
+  ok("30 albums: every spine shown, no +N more", (await p.$$("button.sh-spine")).length === 30 && !(await p.$(".sh-spine.more")));
+  ok("every shelf looks full (9 books)", await p.evaluate(() => [...document.querySelectorAll(".sh-shelf.albums")].every((e) => e.querySelectorAll(".sh-spine").length === 9)));
   ok("no sideways scroll on shelves", await p.evaluate(() => [...document.querySelectorAll(".sh-shelf")].every((e) => e.scrollWidth <= e.clientWidth + 1)));
   ok("boxes: 1 shelf with +N more", (await p.$$(".sh-group.more")).length === 1 && /\+/.test(await p.textContent(".sh-group.more")));
   if (shots) await p.screenshot({ path: "/tmp/shelf-full.png", fullPage: true });
-  await p.click(".sh-spine.more"); await p.waitForTimeout(150);
-  ok("more spine opens Albums", (await p.evaluate(() => location.hash)) === "#albums");
   await p.evaluate(() => { for (let i = 0; i < 29; i++) remove("a_f" + i); for (let i = 0; i < 7; i++) remove("b_f" + i); go("home"); }); await p.waitForTimeout(150);
   // A long box name stays below the lid line and inside the box
   await p.evaluate(() => { put("b_long", { kind: "box", id: "long", name: "2x2 Flip Box Mixed Coins (long and very wordy name)", rows: 10, perRow: 10, createdAt: 99 }); go("home"); }); await p.waitForTimeout(200);

@@ -263,7 +263,6 @@ function viewAlbum(r) {
     </div>
     ${(a.removed || []).length && !editing ? `<div class="small muted" style="margin:-4px 0 10px">${(a.removed || []).length} spot${(a.removed || []).length > 1 ? "s" : ""} hidden · <button class="link-btn" data-act="editSlots" data-id="${esc(a.id)}">Show</button></div>` : ""}
     <div class="bar" style="margin:12px 0 16px"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div>
-    ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(a.id) : ""}
     ${!editing && typeof pageSelHtml === "function" ? pageSelHtml([...st.filled.values(), ...extras]) : ""}
     <div class="btn-row" style="margin:0 0 12px">
       <button class="btn" data-act="addSpot" data-id="${esc(a.id)}">+ Add a spot</button>
@@ -299,6 +298,7 @@ function viewAlbum(r) {
       <button class="btn" data-act="editAlbum" data-id="${esc(a.id)}">Edit album</button>
       <button class="btn danger" data-act="deleteAlbum" data-id="${esc(a.id)}">Delete album</button>
     </div>
+    ${typeof shelfItemSwitch === "function" ? shelfItemSwitch(a.id) : ""}
     <p class="small muted">${isSetAlbum(a) ? "One spot per coin type. Any date fills it." : albumTypes(a).every((id) => EXACT_SLOTS[id]) ? "Spots follow the dates and mint marks this series was struck." : "Spots include every year and mint mark for this series. Use Edit spots to hide any your album doesn't have."} If your album has a spot that's missing here, like a variety, use <b>+ Add a spot</b>.</p>`;
 }
 
