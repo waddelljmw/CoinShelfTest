@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-24 (step 27 done)",
- "app": "v0.110.1",
+ "updated": "2026-11-24 (step 28 done)",
+ "app": "v0.111.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 13,
+  "weekly_now": 14,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1888,8 +1888,8 @@
    "model": "Sonnet",
    "est": "1–2",
    "time": "45–60 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "planned 11-24",
    "why": "Fix one wrong Skip without restarting; grade an album coin by coin fast.",
@@ -1904,7 +1904,10 @@
    ],
    "try": [
     "Skip a coin, tap Back: you're on it again."
-   ]
+   ],
+   "started": "21:23",
+   "ended": "21:25",
+   "minutes": 2
   },
   {
    "n": "29",
@@ -2625,6 +2628,13 @@
    "ver": "v0.110.1",
    "cost": "~1 weekly (12 to 13)",
    "change": "You own counts only the same kind (also 1 Doubled Die; tap to see where); GSA holder; 1922 Peace dollar High Relief; Add another coin type up by the picker; Lincoln missing button off Storage; rename a want list; Discard your changes? on saved coins; (mint?) in box spots; Save note button no longer saves twice."
+  },
+  {
+   "date": "11-24",
+   "name": "Needs attention: Back + Quick grade (step 28)",
+   "ver": "v0.111.0",
+   "cost": "~1 weekly (reading pending)",
+   "change": "Back button on the Needs Attention run (undoes a Skip); Quick grade button on an album page walks the coins with no grade one at a time, with a PCGS Photograde link, Back, Skip and Stop (returns to the album)."
   }
  ],
  "modes": [
