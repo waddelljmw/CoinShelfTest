@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-25 (step 30 scope: 4 items added)",
- "app": "v0.113.0",
+ "updated": "2026-11-25 (step 30 done)",
+ "app": "v0.114.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 19,
+  "weekly_now": 20,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -1950,12 +1950,12 @@
   {
    "n": "30",
    "stage": "now",
-   "name": "Select many › Set for all (155, 156)",
+   "name": "Select many › Set for all (155, 156, 133)",
    "model": "Opus",
    "est": "~3",
    "time": "~1.5 h",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending (start 8 / 20)",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "planned 11-24",
    "why": "Change grade, holder, original to album, keeping for and more on many coins at once.",
@@ -2004,9 +2004,14 @@
     }
    ],
    "try": [
-    "Select 5 coins, set grade for all, then Undo."
+    "Select 5 coins › Set for all › Grade: it starts on Only the blank; tap Change all to see what it replaces, then Set and Undo.",
+    "Select album coins › Set for all › Original to the album › Mark original; the spots say original.",
+    "New bar after a coin in a 2x2 flip: Holder is blank, not the flip."
    ],
-   "scope_note": "His yes 11-25: add 4 items. Leave out year, mint, type, photos, ID and spot (unique per coin)."
+   "scope_note": "His yes 11-25: add 4 items. Leave out year, mint, type, photos, ID and spot (unique per coin).",
+   "started": "09:14",
+   "ended": "09:39",
+   "minutes": 25
   },
   {
    "n": "31",
@@ -2038,6 +2043,31 @@
    ],
    "try": [
     "New album with 5 extra blank spots."
+   ]
+  },
+  {
+   "n": "30b",
+   "stage": "now",
+   "name": "Add bar / Add roll wording",
+   "model": "Sonnet",
+   "est": "~0–1",
+   "time": "~20 min",
+   "actual": "",
+   "status": "next",
+   "chat": "New Sonnet chat",
+   "when": "added 11-25",
+   "why": "The Add form and Save button name what you're adding (bar, round, roll, set), not always 'coin'.",
+   "items": [
+    {
+     "id": "30b",
+     "size": "S",
+     "what": "Title and Save name the item",
+     "change": "'Add bar' / 'Save bar', updates when the type changes.",
+     "affects": "Words only"
+    }
+   ],
+   "try": [
+    "Tap + › pick a bar: the top says Add bar and the button says Save bar."
    ]
   },
   {
@@ -2709,6 +2739,13 @@
    "ver": "v0.113.0",
    "cost": "~2",
    "change": "Described as (Circulated/AU/UNC/BU/own words, display only), + on slab grades, Keeping for (locked against selling, still in totals, filter), Plated and Colorized in Problems."
+  },
+  {
+   "date": "11-25",
+   "name": "Step 30 Set for all",
+   "ver": "v0.114.0",
+   "cost": "pending",
+   "change": "Select › Set for all (grade, Described as, holder, Keeping for, original to album, inherited, purchase info, notes, want list); Only-blank default with Change all preview; slabs skipped; one Undo. Original to album for bought albums. New bars drop a carried-over flip; Assay card holder."
   }
  ],
  "modes": [
