@@ -21,6 +21,7 @@ const KNOWN_VARIETIES = {
   "jefferson-war-nickel": [[1943, "P", "3 Over 2"]],
   "mercury-dime": [[1942, "", "2 Over 1"], [1942, "D", "2 Over 1"]],
   "roosevelt-clad": [[1982, "", "No P"]],
+  "peace-dollar": [[1922, "", "High Relief"]],
   "kennedy-90": [[1964, null, "Accented Hair (proof)"]],
   "kennedy-clad": [[1974, "D", "Doubled Die Obverse"]],
   "state-quarter": [

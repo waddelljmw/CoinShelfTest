@@ -172,7 +172,7 @@ function renderNotes(){
   (n.answer?`<div class="reply">You: ${esc(n.answer)}</div>`:"")+
   `<textarea id="na-${n.id}" placeholder="Reply to Claude" style="min-height:56px"></textarea><div class="row"><button class="btn alt" data-na="${n.id}">Send reply</button></div></div>`});
  const keep=$("nt")?$("nt").value:"";$("notes").innerHTML=h;$("nt").value=keep;
- $("ns").onclick=async()=>{const v=$("nt").value.trim();if(!v)return;if(await save(()=>DB.collection("notes").add({text:v,blocks:$("nb").checked,at:Date.now(),sorted:false}))){$("nt").value="";$("nb").checked=false}};
+ $("ns").onclick=async()=>{const b=$("ns");if(b.disabled)return;const v=$("nt").value.trim();if(!v)return;b.disabled=true;try{if(await save(()=>DB.collection("notes").add({text:v,blocks:$("nb").checked,at:Date.now(),sorted:false}))){$("nt").value="";$("nb").checked=false}}finally{b.disabled=false}};
  $("notes").querySelectorAll("[data-ne]").forEach(b=>b.onclick=()=>{S.ed=b.dataset.ne;renderNotes()});
  $("notes").querySelectorAll("[data-nec]").forEach(b=>b.onclick=()=>{S.ed=null;renderNotes()});
  $("notes").querySelectorAll("[data-nes]").forEach(b=>b.onclick=async()=>{const v=$("ne-"+b.dataset.nes).value.trim();if(v&&await save(()=>DB.doc("notes/"+b.dataset.nes).update({text:v,editedAt:Date.now()}))){S.ed=null;renderNotes()}});

@@ -77,7 +77,8 @@ function viewWants() {
     ${list.length ? `<div class="small muted" style="margin:10px 2px">${list.length} coin${list.length === 1 ? "" : "s"}${totalMax ? " · up to " + money(totalMax) + " budgeted" : ""}</div>` : ""}
     ${list.length ? `<div class="list">${list.map(wantRow).join("")}</div>` : `<div class="card empty" style="margin-top:12px">Nothing on this list yet. Add a coin here, or select missing coins from an album's "Show missing" list.</div>`}
     ${albumWishHtml()}
-    ${active && active.id !== DEFAULT_LIST_ID ? `<button class="btn danger block" style="margin-top:16px" data-act="wlDelete" data-id="${esc(active.id)}">Delete this list</button>` : ""}`;
+    ${active ? `<button class="btn block" style="margin-top:16px" data-act="wlRename" data-id="${esc(active.id)}">Rename this list</button>` : ""}
+    ${active && active.id !== DEFAULT_LIST_ID ? `<button class="btn danger block" style="margin-top:8px" data-act="wlDelete" data-id="${esc(active.id)}">Delete this list</button>` : ""}`;
 }
 function wantRow(w) {
   const fake = wantAsCoin(w);
@@ -725,6 +726,13 @@ Object.assign(actions, {
   awRemove: (el) => { const x = getAlbumWant(el.dataset.id); if (!x) return; remove("aw_" + x.id); toast("Removed from your album wish list.", { label: "Undo", fn: () => put("aw_" + x.id, x) }); },
   wantsPickList: (el) => { wantsView.listId = el.dataset.id; render(); },
   wlNew: () => { wlReturn = null; openNewListForm(); },
+  wlRename: (el) => {
+    const wl = getWantList(el.dataset.id);
+    if (!wl) return;
+    openSheet(`<div class="sheet-head"><h2>Rename list</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <form id="wlRenameForm" data-id="${esc(wl.id)}"><label class="f"><span>List name</span><input type="text" name="name" required maxlength="60" value="${esc(wl.name)}"></label>
+      <div class="btn-row"><button class="btn primary" type="submit">Save name</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div></form>`);
+  },
   wlNewQuick: (el) => { wlReturn = { kind: "quick", albumId: el.dataset.id }; openNewListForm(); },
   slotWantAdd: () => slotWantAdd(),
   // One tap from an empty spot: add it to this album's own list ("Missing from <album>"), making the list the first time.
@@ -804,6 +812,13 @@ document.addEventListener("submit", (e) => {
   if (e.target.id === "wantForm") { e.preventDefault(); saveWantForm(e.target); }
   else if (e.target.id === "awForm") { e.preventDefault(); saveAlbumWantForm(e.target); }
   else if (e.target.id === "wlForm") { e.preventDefault(); saveNewList(e.target); }
+  else if (e.target.id === "wlRenameForm") {
+    e.preventDefault();
+    const wl = getWantList(e.target.dataset.id), name = String(new FormData(e.target).get("name") || "").trim();
+    if (!wl || !name) return;
+    saveWantList({ ...wl, name });
+    closeSheet(); go("wants"); toast("List renamed.");
+  }
 });
 document.addEventListener("change", (e) => {
   if (e.target.id === "wlScope") renderWlScopeFields();

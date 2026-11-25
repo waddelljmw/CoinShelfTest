@@ -45,8 +45,7 @@ function albumTypeRow(id, i) {
   return `<div class="type-row">${typeSelect("typeId", id, "data-albumtype")}${i ? `<button type="button" class="type-del" data-act="albumDelType" aria-label="Remove this type">✕</button>` : ""}</div>`;
 }
 function albumTypeRows(ids, hidden) {
-  return `<div class="f" id="albumTypesBlock" ${hidden ? "hidden" : ""}><span>Coin types in this album</span><div id="albumTypes">${ids.map(albumTypeRow).join("")}</div>
-    <button type="button" class="link-btn" data-act="albumAddType">+ Add another coin type</button></div>`;
+  return `<div class="f" id="albumTypesBlock" ${hidden ? "hidden" : ""}><span>Coin types in this album</span><button type="button" class="link-btn" data-act="albumAddType">+ Add another coin type</button><div id="albumTypes">${ids.map(albumTypeRow).join("")}</div></div>`;
 }
 function proofSelect(cur) {
   cur = cur === true ? "all" : cur || "";

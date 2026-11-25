@@ -63,13 +63,32 @@ function ownedOfDate(c) {
   if (!c || !c.typeId || !c.year) return [];
   return ownedCoins().filter((o) => itemOf(o) === "coin" && o.typeId === c.typeId && String(o.year) === String(c.year) && (normMint(o.mint) || "P") === (normMint(c.mint) || "P"));
 }
-function ownCountOf(c) { return ownedOfDate(c).reduce((s, o) => s + qtyOf(o), 0); }
-// "You own 2: F-12, G-4" / "2× F-12" / "no grade" (a blank grade); one entry per coin, repeats grouped.
+// 162: the same kind as c: same strike (proof or not, when c has a grade), same metal (when both say), same variety.
+function sameKind(o, c) {
+  if (c.grade && isProofGrade(o.grade) !== isProofGrade(c.grade)) return false;
+  if (c.metal && o.metal && o.metal !== c.metal) return false;
+  return (o.variety || "") === (c.variety || "");
+}
+const ownedSame = (c) => ownedOfDate(c).filter((o) => sameKind(o, c));
+const ownedOther = (c) => ownedOfDate(c).filter((o) => !sameKind(o, c));
+function ownCountOf(c) { return ownedSame(c).reduce((s, o) => s + qtyOf(o), 0); }
+// "You own 2: F-12, G-4" / "2× F-12" / "no grade" (a blank grade); one entry per coin, repeats grouped. Other kinds: ", also 1 Doubled Die".
 function ownGradesText(c) {
   const g = {}, order = [];
-  ownedOfDate(c).forEach((o) => { const k = o.grade || "no grade"; if (!(k in g)) { g[k] = 0; order.push(k); } g[k] += qtyOf(o); });
+  ownedSame(c).forEach((o) => { const k = o.grade || "no grade"; if (!(k in g)) { g[k] = 0; order.push(k); } g[k] += qtyOf(o); });
   const n = order.reduce((s, k) => s + g[k], 0);
-  return n ? `You own ${n}: ${order.map((k) => (g[k] > 1 ? `${g[k]}× ${k}` : k)).join(", ")}` : "";
+  const oth = {};
+  ownedOther(c).forEach((o) => { const k = o.variety || (c.grade && isProofGrade(o.grade) !== isProofGrade(c.grade) ? (isProofGrade(o.grade) ? "Proof" : "non-proof") : o.metal || "other"); oth[k] = (oth[k] || 0) + qtyOf(o); });
+  const also = Object.keys(oth).map((k) => `${oth[k]} ${k}`).join(", ");
+  return (n ? `You own ${n}: ${order.map((k) => (g[k] > 1 ? `${g[k]}× ${k}` : k)).join(", ")}` : "") + (also ? (n ? ", also " : "Not this kind, but you own ") + also : "");
+}
+let ownCardCoin = null;
+// Tap the "You own" line: every coin of this date and mint and where each is kept.
+function ownWhere() {
+  const c = ownCardCoin; if (!c) return;
+  const list = ownedOfDate(c);
+  openSheet(`<div class="sheet-head"><h2>You own</h2><button class="x" data-act="closeSheet" aria-label="Close">\u2715</button></div>
+    ${list.map((o) => `<div class="rowline" style="padding:4px 0"><button class="link-btn" style="text-align:left" data-go="coin-${esc(o.id)}">${esc(gradeText(o))}${o.variety ? " · " + esc(o.variety) : ""}${qtyOf(o) > 1 ? " ×" + qtyOf(o) : ""}: ${esc(ownedWhere(o))} ›</button></div>`).join("") || `<div class="muted">Nothing.</div>`}`);
 }
 // R4-27: the coin card opens in a pop-up (outside the page draw), so it checks "hide values" itself.
 const hvMoney = (n) => (settings().hideValues && n != null ? HIDDEN_TEXT : money(n));
@@ -92,10 +111,12 @@ function coinCardHtml(c, opts) {
   }
   const vs = knownVarieties(c);
   if (vs.length) lines.push(`<div>Varieties to look for: ${esc(vs.join(", "))}</div>`);
-  const own = ownCountOf(c);
-  if (opts.lookup) lines.push(`<div><b>${own ? esc(ownGradesText(c)) : "You don't own this one yet"}</b></div>`);
-  else if (opts.spot) lines.push(`<div><b>${opts.inAlbum ? "This spot is filled" : own ? "Not in this album yet" : "Empty spot in your album"}</b>${own ? ` · ${esc(ownGradesText(c))}` : ""}</div>`);
-  else if (own > 1) lines.push(`<div>${esc(ownGradesText(c))}</div>`);
+  const own = ownCountOf(c), ownAny = ownedOfDate(c).length;
+  ownCardCoin = c;
+  const ownTxt = () => `<button class="link-btn" style="text-align:left;font-weight:600" data-act="ownWhere">${esc(ownGradesText(c))} ›</button>`;
+  if (opts.lookup) lines.push(`<div><b>${ownAny ? "</b>" + ownTxt() + "<b>" : "You don't own this one yet"}</b></div>`);
+  else if (opts.spot) lines.push(`<div><b>${opts.inAlbum ? "This spot is filled" : own ? "Not in this album yet" : "Empty spot in your album"}</b>${ownAny ? " · " + ownTxt() : ""}</div>`);
+  else if (ownAny > 1 || (ownAny && !own)) lines.push(`<div>${ownTxt()}</div>`);
   return lines.length ? `<div class="card small" style="margin:0 0 10px">${lines.join("")}</div>` : "";
 }
 
@@ -164,4 +185,4 @@ function lookupWant(el) {
   closeSheet();
   toast("Added to " + ((getWantList(DEFAULT_LIST_ID) || {}).name || "your want list") + ".");
 }
-Object.assign(actions, { lookupOpen, lookupWant });
+Object.assign(actions, { lookupOpen, lookupWant, ownWhere });
