@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-25 (steps 30b and 30c done)",
- "app": "v0.115.0",
+ "updated": "2026-11-25 (step 31 done)",
+ "app": "v0.116.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 23,
+  "weekly_now": 25,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2020,8 +2020,8 @@
    "model": "Opus",
    "est": "2–3",
    "time": "1–1.5 h",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "planned 11-24",
    "why": "Make app albums match your real pages.",
@@ -2047,7 +2047,9 @@
     "Edit spots > Move spots: tap 2 spots in different years, Move 2 spots…, type a year and mint (like 1963-D). Then Undo.",
     "Edit spots > Put back in year order, then Undo."
    ],
-   "started": "2026-11-25 13:09"
+   "started": "2026-11-25 13:09",
+   "ended": "2026-11-25 13:18",
+   "minutes": 9
   },
   {
    "n": "30b",
@@ -2796,6 +2798,13 @@
    "ver": "v0.115.0",
    "cost": "pending",
    "change": "Press and hold a coin or filled album spot to start Select with it ticked."
+  },
+  {
+   "date": "11-25",
+   "name": "Step 31 Album layout",
+   "ver": "v0.116.0",
+   "cost": "pending",
+   "change": "Extra blank spots, Move/Hide several spots, albums keep your own order, Put back in year order."
   }
  ],
  "modes": [
