@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-24 (step 28 done)",
- "app": "v0.111.0",
+ "app": "v0.111.1",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 14,
@@ -2635,6 +2635,13 @@
    "ver": "v0.111.0",
    "cost": "~1 weekly (reading pending)",
    "change": "Back button on the Needs Attention run (undoes a Skip); Quick grade button on an album page walks the coins with no grade one at a time, with a PCGS Photograde link, Back, Skip and Stop (returns to the album)."
+  },
+  {
+   "date": "11-24",
+   "name": "Auto order for albums (fill-in after step 28)",
+   "ver": "v0.111.1",
+   "cost": "~0-1 weekly (reading pending)",
+   "change": "Albums keep themselves in order: coin value, then kind of coin, then first year; series earliest year first; Auto order switch on My Albums; moving by hand asks to turn it off. Home shelf follows."
   }
  ],
  "modes": [

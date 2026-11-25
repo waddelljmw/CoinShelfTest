@@ -3,7 +3,7 @@ const { chromium } = require("./_compat");
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
   const errors = []; p.on("pageerror", (e) => errors.push(e.message));
-  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
+  await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300); await p.evaluate(() => saveSettings({ autoOrder: false })); // these tests check hand-made order
   const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
   // 1. Sort by date: Kennedy 1964, Morgan 1878 (vol 1 and 2 of a series), Lincoln 1909
   await p.evaluate(() => {

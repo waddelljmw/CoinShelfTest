@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.111.1": [
+    "Albums are now kept in order by themselves (Auto order): by coin value (cents first, then nickels, dimes, quarters, halves, dollars), then the kind of coin, then the first year. Albums in a series stay together, earliest year first. The Home shelf follows the same order.",
+    "To arrange albums your own way, use Reorder albums. Moving one asks to turn Auto order off, and the switch at the top of My Albums turns it back on.",
+  ],
   "0.111.0": [
     "Needs Attention: new Back button goes to the coin before, so one wrong Skip doesn't mean starting over.",
     "Quick grade: on an album page, grade the coins that have no grade one at a time. Pick a grade, Save, and the next one opens. There is a PCGS Photograde link, Back and Skip.",
