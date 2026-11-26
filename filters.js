@@ -113,7 +113,7 @@ const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"]
 function selBarHtml(picked, shown, onAlbum) {
   const dis = picked.length ? "" : "disabled";
   return `<div class="selstick"><div class="card selbar"><div class="selrow"><b>${picked.length} selected</b><button class="btn" data-act="selAll">Select all (${shown})</button><button class="btn" data-act="selNone">Clear</button></div></div>
-      <div class="card selacts"><div class="btn-row">${onAlbum ? `<button class="btn" data-act="selGradeOpen">Select by grade…</button>` : ""}<button class="btn" data-act="saOpen" ${dis}>Set for all…</button><button class="btn" data-act="mvOpen" ${dis}>Move to…</button>${onAlbum ? `<button class="btn" data-act="toOpen" ${dis}>Take out of album…</button>` : ""}<button class="btn" data-act="receiptOpen" ${dis}>Put on a receipt…</button>${sellerOn() ? `<button class="btn" data-act="orderOpen" ${dis}>Sell together…</button>` : ""}</div></div></div>
+      <div class="card selacts"><div class="btn-row">${onAlbum ? `<button class="btn" data-act="selGradeOpen">Select by grade…</button>` : ""}<button class="btn" data-act="saOpen" ${dis}>Set for all…</button><button class="btn" data-act="mvOpen" ${dis}>Move to…</button><button class="btn" data-act="editEach" ${dis}>Edit one by one</button>${onAlbum ? `<button class="btn" data-act="toOpen" ${dis}>Take out of album…</button>` : ""}<button class="btn" data-act="receiptOpen" ${dis}>Put on a receipt…</button>${sellerOn() ? `<button class="btn" data-act="orderOpen" ${dis}>Sell together…</button>` : ""}</div></div></div>
       ${sellerOn() ? `<div class="card selacts"><div class="btn-row" style="margin-top:0"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button><button class="btn" data-act="selAsk" ${dis}>Suggested asking price</button></div></div>` : ""}`;
 }
 const selGradeKey = (c) => (c.grade === "Other" ? c.customGrade || "Other" : c.grade || "No grade");
@@ -433,11 +433,19 @@ Object.assign(actions, {
     quickPickAt = Date.now();
     draft.grade = el.dataset.g; delete draft.noGrade; saveDraft();
   },
-  fixupStart: () => { fixup.on = true; fixup.skip = []; fixup.hist = []; fixup.album = null; fixupNext(); },
-  fixupQuick: (el) => { fixup.on = true; fixup.skip = []; fixup.hist = []; fixup.album = el.dataset.id; closeSheet(); fixupNext(); }, // 140: Quick grade from an album page
+  fixupStart: () => { fixup.list = null; fixup.on = true; fixup.skip = []; fixup.hist = []; fixup.album = null; fixupNext(); },
+  fixupQuick: (el) => { fixup.list = null; fixup.on = true; fixup.skip = []; fixup.hist = []; fixup.album = el.dataset.id; closeSheet(); fixupNext(); }, // 140: Quick grade from an album page
+  editEach: () => { // E1-12: the picked coins, one after another, in the order they are shown
+    const picked = new Set(pickedCoins().map((c) => c.id));
+    const ids = [...new Set([...$$("[data-act=selToggle]").map((x) => x.dataset.id).filter((id) => picked.has(id)), ...picked])];
+    if (!ids.length) return;
+    listState.sel = null; render();
+    Object.assign(fixup, { on: true, skip: [], hist: [], album: null, list: ids });
+    fixupNext();
+  },
   fixupSkip: () => { if (draft && draft.id) fixup.skip.push(draft.id); closeSheet(); fixupNext(); },
   fixupBack: () => { fixupBackGo(); }, // 140: back to the coin before this one
-  fixupStop: () => { const a = fixup.album; fixup.on = false; fixup.album = null; closeSheet(); if (a && getAlbum(a)) go("album-" + a); },
+  fixupStop: () => { const a = fixup.album; fixup.list = null; fixup.on = false; fixup.album = null; closeSheet(); if (a && getAlbum(a)) go("album-" + a); },
   fixupAlbum: (el) => { const id = el.dataset.id; closeSheet(); go("album-" + id); }, // 134: from the Needs Attention card straight to the coin's album
   needFix: () => { actions.needInfo(); actions.fixupStart(); }, // 4c: the Home button goes straight into the Needs Attention run
   needInfo: () => { Object.assign(listState, { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", f: { inc: "home" } }); go("coins"); },
@@ -527,14 +535,15 @@ Object.assign(actions, {
 if (typeof SNAPSHOT_BLOCK !== "undefined") ["mvGo", "hdGo", "pcOpen", "pcGo", "fltSave", "fltRenSave", "fltDel", "fltUndo"].forEach((a) => SNAPSHOT_BLOCK.add(a));
 
 /* --- Fix-up run (idea 117): one button walks through the coins that need info; Save goes to the next --- */
-const fixup = { on: false, skip: [], hist: [], album: null };
+const fixup = { on: false, skip: [], hist: [], album: null, list: null }; // list = the picked coins of Edit one by one (E1-12)
 // Step 28 (idea 140): Quick grade = the same run, limited to one album's coins that still have no grade.
 const albumNoGrade = (aid) => ownedCoins().filter((c) => c.albumId === aid && missingOf(c).includes("grade")).sort((a, b) => (num(a.year) || 0) - (num(b.year) || 0) || String(a.mint || "").localeCompare(String(b.mint || "")));
-const fixupStill = (c) => (fixup.album ? missingOf(c).includes("grade") : needsOf(c).length > 0); // does this coin still need what the run is fixing?
-const fixupQueue = () => fixup.album ? albumNoGrade(fixup.album).filter((c) => !fixup.skip.includes(c.id)) : (listState._shown && listState.f && listState.f.inc ? listState._shown : needInfoCoins()).map((c) => getCoin(c.id)).filter((c) => c && needsOf(c).length && !fixup.skip.includes(c.id));
+const fixupStill = (c) => (fixup.list ? true : fixup.album ? missingOf(c).includes("grade") : needsOf(c).length > 0); // does this coin still need what the run is fixing?
+const fixupQueue = () => fixup.list ? fixup.list.filter((id) => !fixup.skip.includes(id)).map((id) => getCoin(id)).filter((c) => c && c.status === "owned") : fixup.album ? albumNoGrade(fixup.album).filter((c) => !fixup.skip.includes(c.id)) : (listState._shown && listState.f && listState.f.inc ? listState._shown : needInfoCoins()).map((c) => getCoin(c.id)).filter((c) => c && needsOf(c).length && !fixup.skip.includes(c.id));
 function fixupOpen(id) { fixup.opening = true; try { openCoinForm(id); } finally { fixup.opening = false; } fixup.hist = (fixup.hist || []).filter((x) => x !== id); fixup.hist.push(id); }
 function fixupNext() {
   const q = fixupQueue();
+  if (!q.length && fixup.list) { const n = fixup.list.length; fixup.on = false; fixup.list = null; toast("Done. That was all " + n + " coin" + (n === 1 ? "" : "s") + "."); render(); return; }
   if (!q.length) { const a = fixup.album; fixup.on = false; fixup.album = null; toast(a ? "All caught up. Every coin in this album has a grade." : "All caught up. Nothing left that needs attention."); if (a && getAlbum(a)) go("album-" + a); else render(); return; }
   fixupOpen(q[0].id);
 }
@@ -561,7 +570,7 @@ function fixupBar(d) {
   const albLine = alb ? `<div class="small" style="color:#4a4130;margin-top:2px">\u{1F4D6} In <button type="button" class="link-btn" style="color:#6b4a00;text-decoration:underline" data-act="fixupAlbum" data-id="${esc(alb.id)}">${esc(albumTitle(alb))}</button></div>` : "";
   const quick = !!fixup.album, canBack = (fixup.hist || []).some((x) => x !== d.id && getCoin(x));
   const guide = `<a class="link-btn" style="color:#6b4a00;text-decoration:underline" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} \u2197</a>`;
-  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b style="color:#2a2418">${quick ? "Quick grade" : "Needs Attention"}: ${left} ${left === 1 ? "coin" : "coins"} left</b>${albLine}<div class="small" style="color:#4a4130">${quick ? "Tap a grade: it saves and the next coin opens." : `${esc(needsText(d) || "Nothing missing")}.${needsOf(d).includes("check mint") ? " Pick the mint: No mint mark, P only if the coin shows a P, or Can't tell." : ""} Save moves to the next coin.`}</div>${quick || needsOf(d).includes("grade") ? `<div class="small" style="margin-top:4px">${guide}</div>` : ""}<div class="row" style="gap:8px;margin-top:6px">${canBack ? `<button type="button" class="btn" data-act="fixupBack">\u2039 Back</button>` : ""}<button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div>${quick ? quickGradeButtons(d) : ""}</div>`;
+  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b style="color:#2a2418">${fixup.list ? "Edit one by one" : quick ? "Quick grade" : "Needs Attention"}: ${left} ${left === 1 ? "coin" : "coins"} left</b>${albLine}<div class="small" style="color:#4a4130">${fixup.list ? `<b>${esc(labelOf(d))}</b><br>Change what you need, then Save + next.` : quick ? "Tap a grade: it saves and the next coin opens." : `${esc(needsText(d) || "Nothing missing")}.${needsOf(d).includes("check mint") ? " Pick the mint: No mint mark, P only if the coin shows a P, or Can't tell." : ""} Save moves to the next coin.`}</div>${!fixup.list && (quick || needsOf(d).includes("grade")) ? `<div class="small" style="margin-top:4px">${guide}</div>` : ""}<div class="row" style="gap:8px;margin-top:6px">${canBack ? `<button type="button" class="btn" data-act="fixupBack">\u2039 Back</button>` : ""}<button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div>${quick ? quickGradeButtons(d) : ""}</div>`;
 }
 // E1-7: the pinned Select bar sits right under the top bar, whatever its height is on this phone.
 if (typeof ResizeObserver !== "undefined" && document.querySelector(".topbar")) new ResizeObserver(() => document.documentElement.style.setProperty("--topbar-h", document.querySelector(".topbar").offsetHeight + "px")).observe(document.querySelector(".topbar"));
