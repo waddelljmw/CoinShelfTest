@@ -27,6 +27,11 @@ const ALBUM_DB = {
   "Whitman|9129": { name: "Morgan Dollars Vol. 2, 1892–1921", types: ["morgan-dollar"], start: 1892, end: 1921 },
   "Whitman|9130": { name: "Peace Dollars 1921–1935", types: ["peace-dollar"], start: 1921, end: 1935 },
   "Whitman|9131": { name: "Eisenhower Dollars 1971–1978", types: ["ike-clad", "ike-40"], start: 1971, end: 1978 },
+  "Whitman|9004": { name: "Lincoln Cents No. 1, 1909–1940", types: ["lincoln-wheat"], start: 1909, end: 1940 },
+  "Whitman|9030": { name: "Lincoln Cents No. 2, 1941–1974", types: ["lincoln-wheat", "lincoln-memorial-copper"], start: 1941, end: 1974 },
+  "Whitman|9000": { name: "Lincoln Memorial Cents No. 1, 1959–1998", types: ["lincoln-memorial-copper", "lincoln-memorial-zinc"], start: 1959, end: 1998 },
+  "Whitman|9149": { name: "Susan B. Anthony Dollars 1979–1981", types: ["sba-dollar"], start: 1979, end: 1981 },
+  "Whitman|3394": { name: "Roosevelt Dimes 1946–2022", types: ["roosevelt-silver", "roosevelt-clad"], start: 1946, end: 2022 },
   // Dansco Supreme albums ("7xxx" has no proofs, "8xxx" has proofs)
   "Dansco|7100": { name: "Lincoln Cents 1909–2009", types: ["lincoln-wheat", "lincoln-memorial-copper", "lincoln-memorial-zinc", "lincoln-bicentennial"], start: 1909, end: 2009 },
   "Dansco|7101": { name: "Flying Eagle and Indian Head Cents 1857–1909", types: ["flying-eagle-cent", "indian-cent"], start: 1857, end: 1909 },
@@ -50,6 +55,7 @@ const ALBUM_DB = {
   "Dansco|7176": { name: "Eisenhower Dollars 1971–1978", types: ["ike-clad", "ike-40"], start: 1971, end: 1978 },
   "Dansco|7178": { name: "Morgan Dollars 1878–1890", types: ["morgan-dollar"], start: 1878, end: 1890 },
   "Dansco|7179": { name: "Morgan Dollars 1891–1921", types: ["morgan-dollar"], start: 1891, end: 1921 },
+  "Dansco|7181": { name: "American Silver Eagles 1986–2021", types: ["silver-eagle"], start: 1986, end: 2021 },
   // Littleton Coin Company albums (numbers from retailer listings; "LCA" is part of the number)
   "Littleton|LCA24": { name: "Flying Eagle and Indian Head Cents 1856–1909", types: ["flying-eagle-cent", "indian-cent"], start: 1856, end: 1909 },
   "Littleton|LCA1": { name: "Lincoln Cents Vol. 1, 1909–1958", types: ["lincoln-wheat"], start: 1909, end: 1958 },
@@ -82,5 +88,7 @@ const ALBUM_DB = {
   "Littleton|LCA12": { name: "Susan B. Anthony Dollars", types: ["sba-dollar"], start: 1979, end: 1999 },
   "Littleton|LCA59": { name: "Sacagawea Dollars 2000 to date", types: ["sacagawea-dollar"], start: 2000, end: 0 },
   // H.E. Harris folders
+  "H.E. Harris|2673": { name: "Lincoln Cents #2, 1941–1974", types: ["lincoln-wheat", "lincoln-memorial-copper"], start: 1941, end: 1974 },
+  "H.E. Harris|2674": { name: "Lincoln Cents #3, 1975–2013", types: ["lincoln-memorial-copper", "lincoln-memorial-zinc", "lincoln-bicentennial", "lincoln-shield"], start: 1975, end: 2013 },
   "H.E. Harris|2672": { name: "Lincoln Cents #1, 1909–1940", types: ["lincoln-wheat"], start: 1909, end: 1940 },
 };
