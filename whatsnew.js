@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.123.0": [
+    "On a receipt, Find coins I have can look in one album: tick the coins and add them all at once.",
+    "Select coins, then Put on a receipt.",
+    "Save + next receipt keeps the date and store.",
+  ],
   "0.122.0": [
     "Quick grade: the grades are first. Tap one and the next coin opens.",
     "Fill spots: tap anywhere on a row, and Save stays at the bottom.",
