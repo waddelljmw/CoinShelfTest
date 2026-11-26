@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-26 (Shelf fix)",
- "app": "v0.118.0",
+ "updated": "2026-11-26 (33a Semi-key tag)",
+ "app": "v0.119.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 44,
+  "weekly_now": 45,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2358,8 +2358,8 @@
    "model": "Sonnet",
    "est": "~1",
    "time": "~30 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 31)",
    "why": "A second 'Semi-key' tag from a short checked list (1893-CC Morgan would be one). Public Mint data only.",
@@ -2374,7 +2374,10 @@
    ],
    "try": [
     "Search 1893-CC Morgan: it shows Semi-key."
-   ]
+   ],
+   "started": "2026-11-26 01:12",
+   "ended": "2026-11-26 01:19",
+   "minutes": 7
   },
   {
    "n": "33b",
@@ -2384,7 +2387,7 @@
    "est": "~1",
    "time": "~30 min",
    "actual": "",
-   "status": "ready",
+   "status": "next",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 32)",
    "why": "Add the 8 albums report 32 confirmed from public store listings, so picking the number fills its spots.",
@@ -3283,6 +3286,13 @@
    "ver": "v0.118.0",
    "cost": "pending",
    "change": "Metal colors, zip-top bags with a color choice, tube and Other shapes, 4 boxes a shelf, set stacks and year set holders on the Sets shelf."
+  },
+  {
+   "date": "11-26",
+   "name": "33a Semi-key tag",
+   "ver": "v0.119.0",
+   "cost": "pending",
+   "change": "A Semi-key tag on 16 dates that two public sources call key or semi-key."
   }
  ],
  "modes": [

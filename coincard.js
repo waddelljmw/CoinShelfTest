@@ -21,6 +21,11 @@ function keyDateInfo(c) {
   const limit = Math.min(Math.round(med * KEY_SHARE), KEY_ABS);
   return n <= limit ? { n, limit } : null;
 }
+// Step 33a: the hand-checked second tag. Never on proofs, and never beside Key date.
+function isSemiKey(c) {
+  if (!c || !c.typeId || !c.year || isProofGrade(c.grade) || c.sms || keyDateInfo(c)) return false;
+  return (SEMI_KEYS[c.typeId] || []).includes(Number(c.year) + "|" + (normMint(c.mint) || "P"));
+}
 // Step 6b: quick-add for pocket change. No new grade and no new saved field: a coin with no grade and the existing noGrade flag reads as "Circulated (not graded)" when it came from pocket change, coin roll hunting or a bank roll.
 const FACE_SOURCES = ["pocket change", "coin roll hunting", "bank roll"]; // you paid face, so Price paid fills with face
 const isFaceSource = (c) => FACE_SOURCES.includes(String((c && c.source) || "").trim().toLowerCase());
@@ -100,6 +105,7 @@ function coinCardHtml(c, opts) {
   const lines = [];
   const key = keyDateInfo(c);
   if (key) lines.push(`<div>${KEY_CHIP}${opts.info ? keyInfoBtn() : ""} only ${key.n.toLocaleString("en-US")} struck, ${Math.round(key.n / typeMedianMintage(c.typeId) * 100)}% of a typical ${esc(t ? shortName(t) : "year")} year <span class="muted">(low mintage)</span></div>`);
+  if (isSemiKey(c)) lines.push(`<div>${SEMI_CHIP}${opts.info ? semiInfoBtn() : ""} <span class="muted">(collectors look for this date)</span></div>`);
   if (nifcOf(c)) lines.push(`<div>${NIFC_CHIP} not intended for circulation <span class="muted">(the U.S. Mint sold these only to collectors)</span></div>`);
   if ((opts.spot || opts.lookup) && t && t.oz) {
     const melt = meltEach({ metal: t.metal, oz: t.oz });
@@ -154,6 +160,8 @@ const ownedLine = (list) => `You own ${sum(list, qtyOf)}`;
 const lookupLabel = (r) => { const t = TYPE_BY_ID[r.typeId]; return `${r.year}${r.mint ? "-" + r.mint : ""} ${t ? shortName(t) : ""} ${t ? t.denom : ""}`.replace(/\s+/g, " ").trim(); };
 // The small ⓘ beside a Key date tag; its words open only when tapped (WORDS.keydate in welcome.js).
 const keyInfoBtn = () => wi("keydate", true);
+const semiInfoBtn = () => wi("semikey", true);
+const SEMI_CHIP = `<span class="chip" style="background:var(--warn,#f5d27a);color:#222;padding:1px 8px;border-radius:10px;font-weight:600">Semi-key</span>`;
 const NIFC_CHIP = `<span class="chip" style="background:var(--warn,#f5d27a);color:#222;padding:1px 8px;border-radius:10px;font-weight:600">NIFC</span>`;
 const KEY_CHIP = `<span class="chip" style="background:var(--warn,#f5d27a);color:#222;padding:1px 8px;border-radius:10px;font-weight:600">Key date</span>`;
 // Rows under the Coins search box: one per date and mint you typed, Key date tag first, then name and mintage.
@@ -162,7 +170,7 @@ function lookupRowsHtml(q) {
   if (!rs.length) return "";
   return `<div class="card small" style="margin:0 0 10px"><div class="muted" style="margin-bottom:4px">${rs.some((r) => ownedForLookup(r).length) ? "Tap one to see it" : "Not owned? Tap to see it"}</div>${rs.map((r) => {
     const f = { typeId: r.typeId, year: r.year, mint: r.mint, gradeMode: "raw", grade: "VF-20" }, mt = mintageInfo(f);
-    return `<div class="rowline" style="padding:4px 0">${keyDateInfo(f) ? KEY_CHIP + keyInfoBtn() + " " : ""}<button class="link-btn" style="text-align:left" data-act="lookupOpen" data-t="${esc(r.typeId)}" data-y="${r.year}" data-m="${esc(r.mint)}">${esc(lookupLabel(r))}${mt ? " · " + esc(mt.text) : ""}${ownedForLookup(r).length ? " · " + esc(ownedLine(ownedForLookup(r))) : ""} ›</button></div>`;
+    return `<div class="rowline" style="padding:4px 0">${keyDateInfo(f) ? KEY_CHIP + keyInfoBtn() + " " : isSemiKey(f) ? SEMI_CHIP + semiInfoBtn() + " " : ""}<button class="link-btn" style="text-align:left" data-act="lookupOpen" data-t="${esc(r.typeId)}" data-y="${r.year}" data-m="${esc(r.mint)}">${esc(lookupLabel(r))}${mt ? " · " + esc(mt.text) : ""}${ownedForLookup(r).length ? " · " + esc(ownedLine(ownedForLookup(r))) : ""} ›</button></div>`;
   }).join("")}</div>`;
 }
 const lookupFake = (el) => { const t = TYPE_BY_ID[el.dataset.t]; return { typeId: t.id, typeName: shortName(t), denom: t.denom, year: +el.dataset.y, mint: el.dataset.m || "", variety: "", gradeMode: "raw", grade: "VF-20" }; };
