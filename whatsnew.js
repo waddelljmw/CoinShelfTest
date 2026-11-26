@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.121.0": [
+    "New known varieties: 1936 quarter Doubled Die, 1955 Franklin Bugs Bunny, 1972 Eisenhower Type 2, 1979-P Anthony Wide Rim, 2000-P Cheerios dollar.",
+    "Coin search finds varieties, including the short forms DDO and DDR.",
+  ],
   "0.120.0": [
     "7 more album numbers fill in their years: Whitman 9004, 9030, 9000, 9149, 3394, H.E. Harris 2673 and 2674.",
   ],

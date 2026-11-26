@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-26 (33b Store-listed albums)",
- "app": "v0.120.0",
+ "updated": "2026-11-26 (33c Missing varieties)",
+ "app": "v0.121.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 45,
@@ -2404,8 +2404,8 @@
     "New album: type one of the new album numbers; the years fill in."
    ],
    "started": "2026-11-26 01:32",
-   "ended": "2026-11-26 01:32",
-   "minutes": 0
+   "ended": "2026-11-26 01:57",
+   "minutes": 25
   },
   {
    "n": "33c",
@@ -2414,8 +2414,8 @@
    "model": "Sonnet",
    "est": "~1",
    "time": "~20 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 31)",
    "why": "Add the varieties report 31 found missing (like the 1955 'Bugs Bunny' Franklin).",
@@ -2437,7 +2437,10 @@
    ],
    "try": [
     "Add a 1955 Franklin: the variety list has the new one."
-   ]
+   ],
+   "started": "2026-11-26 01:57",
+   "ended": "2026-11-26 01:57",
+   "minutes": 1
   },
   {
    "n": "E1b",
@@ -2447,7 +2450,7 @@
    "est": "~2",
    "time": "~1 h",
    "actual": "",
-   "status": "ready",
+   "status": "next",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 34)",
    "why": "Cuts scrolling and taps on jobs you repeat hundreds of times.",
@@ -3303,6 +3306,13 @@
    "ver": "v0.120.0",
    "cost": "pending",
    "change": "7 album numbers from public store listings now fill their years (Dansco 7181 waits on a question)."
+  },
+  {
+   "date": "11-26",
+   "name": "33c Missing varieties",
+   "ver": "v0.121.0",
+   "cost": "pending",
+   "change": "5 more known varieties in the coin form; search finds DDO and DDR."
   }
  ],
  "modes": [
