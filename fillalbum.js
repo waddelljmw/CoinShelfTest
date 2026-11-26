@@ -25,9 +25,8 @@ function fillRow(a, s, i, mode) {
   const loose = fillLooseFor(a, s);
   return `<div class="fill-row" data-i="${i}" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line,#ddd)">
     <input type="checkbox" class="fill-on" aria-label="Have ${esc(slotLabel(s))}" style="flex:none;width:22px;height:22px">
-    <span style="flex:1;min-width:0"><b>${esc(slotLabel(s))}</b>${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}${multi ? ` <span class="small muted">${esc(shortName(t))}</span>` : ""}</span>
+    <span class="fill-name" style="flex:1;min-width:0"><b>${esc(slotLabel(s))}</b>${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}${multi ? ` <span class="small muted">${esc(shortName(t))}</span>` : ""}${loose ? `<label class="small fill-loose"><input type="checkbox" class="fill-use" checked> Use my loose coin (${esc(gradeText(loose) || "no grade")})</label>` : ""}</span>
     <select class="fill-grade" aria-label="Grade for ${esc(slotLabel(s))}" style="flex:none;width:92px"><option value="">Grade?</option>${quickAddOk(a, s) ? `<option value="__circ">Circulated (not graded)</option>` : ""}${fillGradesFor(a, s).map((g) => `<option>${esc(g)}</option>`).join("")}</select>
-    ${loose ? `<label class="small" style="flex-basis:100%;padding-left:30px"><input type="checkbox" class="fill-use" checked> Use my loose coin (${esc(gradeText(loose) || "no grade")}) instead of adding a second one</label>` : ""}
     ${mode === "each" ? `<input type="number" class="fill-paid" inputmode="decimal" min="0" step="0.01" placeholder="$ paid" aria-label="Price paid for ${esc(slotLabel(s))}" style="flex:none;width:76px">` : ""}
   </div>`;
 }
@@ -63,8 +62,8 @@ function openFillAlbum(albumId, fresh) {
     <div class="btn-row" style="margin:6px 0"><button type="button" class="btn" data-act="fillTick" data-v="1">Tick all</button><button type="button" class="btn" data-act="fillTick" data-v="0">Untick all</button></div>
     ${fillGuideLink(a, spots)}
     <div class="small muted" id="fillCount" style="margin:6px 0"></div>
-    <div id="fillRows" style="max-height:50vh;overflow:auto">${spots.map((s, i) => fillRow(a, s, i, mode)).join("")}</div>
-    <div class="btn-row" style="margin-top:12px"><button class="btn primary" type="button" data-act="fillGo">Save coins</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
+    <div id="fillRows">${spots.map((s, i) => fillRow(a, s, i, mode)).join("")}</div>
+    <div class="btn-row fill-save" style="margin-top:12px"><button class="btn primary" type="button" data-act="fillGo">Save coins</button><button class="btn" type="button" data-act="closeSheet">Cancel</button></div>
   </div>`);
   if (keep) fillWrite(keep);
   fillCount();
@@ -157,3 +156,59 @@ Object.assign(actions, {
   fillSrc: (el) => { const i = $("#fillSource"); if (i) { i.value = el.dataset.v; fillCount(); } },
 });
 document.addEventListener("change", (e) => { if (e.target.classList && (e.target.classList.contains("fill-on") || e.target.classList.contains("fill-grade"))) fillCount(); });
+// E1-6: the whole row ticks the spot, not just the small box.
+document.addEventListener("click", (e) => {
+  const row = e.target.closest && e.target.closest("#fillRows .fill-row");
+  if (!row || e.target.closest("input, select, label, a, button")) return;
+  const box = row.querySelector(".fill-on"); box.checked = !box.checked; fillCount();
+});
+
+// E1-9: after making an album, offer the loose coins that fit. Nothing moves until the button is tapped.
+let looseOffer = null; // { albumId, thenFill }
+function looseFits(album) {
+  const { a, spots } = fillSpotsOf(album), taken = new Set(), out = [];
+  spots.forEach((s) => {
+    const c = s.blank ? null : fillLooseFor(a, s, taken);
+    if (c) { taken.add(c.id); out.push({ c, s }); }
+  });
+  return out;
+}
+function openLooseOffer(albumId, thenFill) {
+  const al = getAlbum(albumId), fits = al ? looseFits(al) : [];
+  if (!fits.length) return false;
+  looseOffer = { albumId, thenFill };
+  const n = fits.length;
+  openSheet(`<div class="sheet-head"><h2>${n} of your loose coin${n === 1 ? " fits" : "s fit"}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <p class="small muted">${esc(albumTitle(al))}: untick any you don't want in it. Nothing moves until you tap the button.</p>
+    <div id="looseRows">${fits.map(({ c, s }) => { const where = wasKeptIn(c); return `<label class="chk" style="min-height:48px;border-bottom:1px solid var(--line)"><input type="checkbox" checked data-loose="${esc(c.id)}" data-slot="${esc(s.id)}"><span style="flex:1"><b>${esc(slotLabel(s))}</b> <span class="small muted">${esc([gradeText(c), c.cid, where && "now in " + where].filter(Boolean).join(" · "))}</span></span></label>`; }).join("")}</div>
+    <div class="btn-row fill-save" style="margin-top:12px"><button class="btn primary" type="button" data-act="looseGo">Put ${n} coin${n === 1 ? "" : "s"} in</button><button class="btn" type="button" data-act="looseNo">Not now</button></div>`);
+  return true;
+}
+function looseDone() {
+  const o = looseOffer; looseOffer = null; closeSheet(); render();
+  if (o && o.thenFill && fillSpotsOf(getAlbum(o.albumId)).spots.length) { fillUi.fresh = true; openFillAlbum(o.albumId, true); }
+}
+Object.assign(actions, {
+  looseNo: () => looseDone(),
+  looseGo: () => {
+    if (!looseOffer) return;
+    const al = getAlbum(looseOffer.albumId), before = [];
+    const picks = $$("#looseRows [data-loose]").filter((x) => x.checked);
+    if (!picks.length) { toast("Tick at least one coin, or tap Not now."); return; }
+    picks.forEach((x) => {
+      const c0 = getCoin(x.dataset.loose);
+      if (!al || !c0 || c0.albumId) return;
+      const c = JSON.parse(JSON.stringify(c0));
+      applyKept(c, "a:" + al.id); c.slotId = x.dataset.slot;
+      before.push(c0); saveCoin(c);
+    });
+    looseDone();
+    toast("Put " + before.length + " coin" + (before.length === 1 ? "" : "s") + " in " + albumTitle(al) + ".", { label: "Undo", fn: () => { before.forEach((c) => put("c_" + c.id, c)); render(); toast("Undone."); } });
+  },
+});
+document.addEventListener("change", (e) => {
+  if (!e.target.dataset || !e.target.dataset.loose) return;
+  const n = $$("#looseRows [data-loose]").filter((x) => x.checked).length, b = $("[data-act=looseGo]");
+  if (b) b.textContent = "Put " + n + " coin" + (n === 1 ? "" : "s") + " in";
+});
+if (typeof SNAPSHOT_BLOCK !== "undefined") SNAPSHOT_BLOCK.add("looseGo");
