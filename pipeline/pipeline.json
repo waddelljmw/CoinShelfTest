@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-26 (E1d Edit one by one)",
+ "updated": "2026-11-26 (E1p plan)",
  "app": "v0.124.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 45,
+  "weekly_now": 52,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2569,8 +2569,8 @@
    "model": "Opus",
    "est": "~2",
    "time": "~45 min",
-   "actual": "",
-   "status": "next",
+   "actual": "~1 (reading pending)",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "his yes 11-25 (report 34)",
    "why": "Both change how coins are saved, so plan + sketch + 4-box check first, no build until your OK.",
@@ -2591,8 +2591,99 @@
     }
    ],
    "try": [
-    "Read the plan page."
-   ]
+    "Read the plan page (reviews/35) and answer Q1-Q3 in Questions for you."
+   ],
+   "started": "2026-11-26 17:28",
+   "ended": "2026-11-26 17:50",
+   "minutes": 22
+  },
+  {
+   "n": "E1q",
+   "stage": "now",
+   "name": "Build: wrong coin in a spot, break up a set",
+   "model": "Opus",
+   "est": "~3",
+   "time": "60-75 min",
+   "actual": "",
+   "status": "next",
+   "chat": "New Opus chat",
+   "when": "after his answers to Q1-Q3 (Questions for you)",
+   "why": "Record what really sits in a spot, and turn a proof set into album-ready coins in a few taps. New optional ticks, so merge waits for your OK.",
+   "items": [
+    {
+     "id": "E1-13",
+     "size": "M",
+     "what": "Something else is in this spot",
+     "change": "Spot menu choice: search any coin or type it yourself; coin keeps its type, saved with otherInSpot; orange ring; spot counts per Q1",
+     "affects": "Saved data (new tick)"
+    },
+    {
+     "id": "note 11-26",
+     "size": "S",
+     "what": "Take out of album asks where it goes",
+     "change": "Single take-out opens the where-to sheet, Loose picked",
+     "affects": "Nothing saved differently"
+    },
+    {
+     "id": "E1-14",
+     "size": "M",
+     "what": "Break up this set",
+     "change": "Suggested coins (U.S. Mint public facts only; empty list if unsure), cost split per Q2, matching spots offered not filled, set becomes Broken up, fromSet link, one Undo",
+     "affects": "Saved data (new tick + Broken up reason)"
+    },
+    {
+     "id": "note 11-26",
+     "size": "S",
+     "what": "Second blank spot after the same date refused (bug)",
+     "change": "Allow several blank spots after one date",
+     "affects": "Nothing saved differently"
+    }
+   ],
+   "try": [
+    "Albums > Morgan album > tap an empty spot > Something else is in this spot > type Token > Save: orange ring, spot still missing.",
+    "My Coins > a proof set > Break up this set > Make coins: 5 coins, cost adds up, Undo puts the set back."
+   ],
+   "chats": 1
+  },
+  {
+   "n": "E1r",
+   "stage": "now",
+   "name": "Fill-ins: Dansco 7181, Reading tab, project backup zip",
+   "model": "Sonnet",
+   "est": "~1-2",
+   "time": "30-45 min",
+   "actual": "",
+   "status": "ready",
+   "chat": "New Sonnet chat",
+   "when": "any time",
+   "why": "Small: Silver Eagle album number fills 36 spots; reports get a Done reading tick; a zip of the project goes to your Drive.",
+   "items": [
+    {
+     "id": "q7181",
+     "size": "S",
+     "what": "Dansco 7181 Silver Eagles",
+     "change": "36 spots, one per year 1986-2021, no proofs (shop listings agree)",
+     "affects": "Nothing saved differently"
+    },
+    {
+     "id": "idea 167",
+     "size": "S",
+     "what": "Reading tab on this page",
+     "change": "Done reading tick at the bottom of each report ticks its test box",
+     "affects": "Page only"
+    },
+    {
+     "id": "idea 165",
+     "size": "S",
+     "what": "Project backup zip",
+     "change": "Repo + page notes + memory summary zipped into Drive > coin app > project backup; repeat after each Opus review and weekly check-in",
+     "affects": "Nothing in the app"
+    }
+   ],
+   "try": [
+    "Albums > New album > number 7181: 36 spots appear."
+   ],
+   "chats": 1
   },
   {
    "n": "32",
@@ -3343,6 +3434,13 @@
    "ver": "v0.124.0",
    "cost": "pending",
    "change": "Select coins, then Edit one by one with Save + next."
+  },
+  {
+   "date": "11-26",
+   "name": "E1p plan",
+   "ver": "v0.124.0",
+   "cost": "pending",
+   "change": "Plan page: something else in a spot, break up a set (reviews/35)."
   }
  ],
  "modes": [
