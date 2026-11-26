@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-26 (E1b Fewer taps for big jobs)",
- "app": "v0.122.0",
+ "updated": "2026-11-26 (E1c Receipt backlog)",
+ "app": "v0.123.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 45,
@@ -2503,8 +2503,8 @@
     "Fill spots: Save stays at the bottom."
    ],
    "started": "2026-11-26 02:11",
-   "ended": "2026-11-26 02:15",
-   "minutes": 4
+   "ended": "2026-11-26 02:28",
+   "minutes": 17
   },
   {
    "n": "E1c",
@@ -2513,8 +2513,8 @@
    "model": "Sonnet",
    "est": "1–2",
    "time": "~45 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 34)",
    "why": "Makes your 100 old receipts fast: pick coins from an album instead of searching one by one.",
@@ -2529,7 +2529,10 @@
    ],
    "try": [
     "Purchases › New purchase › Find coins › pick an album, tick 3."
-   ]
+   ],
+   "started": "2026-11-26 02:29",
+   "ended": "2026-11-26 02:31",
+   "minutes": 2
   },
   {
    "n": "E1d",
@@ -2539,7 +2542,7 @@
    "est": "~1",
    "time": "~30 min",
    "actual": "",
-   "status": "ready",
+   "status": "next",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 34)",
    "why": "Fix the same thing on many coins: Select, then Save + next through each.",
@@ -3323,6 +3326,13 @@
    "ver": "v0.122.0",
    "cost": "pending",
    "change": "Quick grade grade-first, whole-row Fill spots, pinned Select bar, Select by grade, lot price, loose-coin offer, album search."
+  },
+  {
+   "date": "11-26",
+   "name": "E1c Receipt backlog",
+   "ver": "v0.123.0",
+   "cost": "pending",
+   "change": "Find coins by album on a receipt, Select › Put on a receipt, Save + next keeps date and store."
   }
  ],
  "modes": [

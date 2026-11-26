@@ -75,13 +75,36 @@ function coinPurchaseField(d) {
   return `<button type="button" class="link-btn" data-act="purchasePickForCoin">🧾 Add to a purchase</button>`;
 }
 
+// E1-11: pick coins straight from an album's pages. Ticks wait until "Add ticked coins" (or Save), so the list never jumps.
+const purchaseAlbums = () => albums().filter((a) => ownedCoins().some((c) => c.albumId === a.id));
+function purchaseAlbumCoins(aid) {
+  const al = getAlbum(aid); if (!al) return [];
+  const st = albumStats(al), out = [];
+  st.all.forEach((s) => { const c = st.filled.get(slotKey(s)); if (c) out.push({ c, spot: s.blank ? blankCoinLabel(c) : slotLabel(s) + (s.v ? " " + s.v : "") }); });
+  st.coins.filter((c) => !out.some((o) => o.c.id === c.id)).forEach((c) => out.push({ c, spot: labelOf(c) }));
+  return out;
+}
+function purchaseAlbumHtml() {
+  const have = new Set(pd.items.map((x) => x.id));
+  return purchaseAlbumCoins(pd._album).map(({ c, spot }) => {
+    const other = c.purchaseId && c.purchaseId !== pd.id && getPurchase(c.purchaseId);
+    const why = have.has(c.id) ? "On this receipt" : other ? "On " + purchaseName(other) : !purchaseOk(c) ? "Not bought (inherited, gift or pocket change)" : "";
+    return `<label class="chk" style="min-height:44px;border-bottom:1px solid var(--line)"><input type="checkbox" data-pa="${esc(c.id)}" ${have.has(c.id) || pd._ticked.has(c.id) ? "checked" : ""} ${why ? "disabled" : ""}><span style="flex:1"><b>${esc(spot)}</b> <span class="small muted">${esc([gradeText(c), why].filter(Boolean).join(" · "))}</span></span></label>`;
+  }).join("") || `<div class="small muted">No coins in that album.</div>`;
+}
+const purchaseTickText = () => (pd._ticked && pd._ticked.size ? "Add " + pd._ticked.size + " ticked coin" + (pd._ticked.size === 1 ? "" : "s") : "Done adding");
+function purchaseTakeTicked() {
+  (pd._ticked || new Set()).forEach((id) => { const c = store.docs.get("c_" + id); if (c && !pd.items.some((x) => x.id === id)) { pd.items.push({ id, price: c.paid == null ? "" : String(c.paid) }); formTouched = true; } });
+  pd._ticked = new Set();
+}
+
 /* ---------- the form ---------- */
 let pd = null; // the purchase being entered
 function purchaseFormOpen(p, firstCoin) {
   pd = p ? { ...JSON.parse(JSON.stringify(p)), items: purchaseCoins(p).map((c) => ({ id: c.id, price: c.paid == null ? "" : String(c.paid) })) }
     : { date: today(), source: "", seller: "", total: "", tax: "", ship: "", payMethod: "", receiptNo: "", notes: "", receiptPhotos: [], items: [] };
   if (firstCoin && !pd.items.some((x) => x.id === firstCoin.id)) pd.items.push({ id: firstCoin.id, price: firstCoin.paid == null ? "" : String(firstCoin.paid) });
-  pd._q = ""; pd._pick = false;
+  pd._q = ""; pd._pick = false; pd._album = ""; pd._ticked = new Set();
   renderPurchaseForm();
 }
 function purchaseSummary() {
@@ -131,8 +154,8 @@ function renderPurchaseForm() {
       <input type="number" inputmode="decimal" step="0.01" min="0" data-pi="${i}" value="${esc(x.price)}" placeholder="$" style="width:6.5em" aria-label="Price for ${esc(labelOf(c))}">
       <button type="button" class="x" data-act="purchaseRmCoin" data-i="${i}" aria-label="Take ${esc(labelOf(c))} off this receipt">✕</button></div>`).join("")}</div>` : `<div class="small muted">No coins yet.</div>`}
     <button type="button" class="btn block" style="margin-top:8px" data-act="purchaseNewCoin">+ New coin on this receipt</button>
-    ${pd._pick ? `<div class="card" style="margin-top:8px"><label class="f"><span>Find coins you already entered</span><input type="search" id="purchaseQ" value="${esc(pd._q)}" placeholder="1921 Morgan"></label><div id="purchasePick">${purchasePickerHtml()}</div>
-      <button type="button" class="btn block" style="margin-top:6px" data-act="purchasePickDone">Done adding</button></div>`
+    ${pd._pick ? `<div class="card" style="margin-top:8px">${purchaseAlbums().length ? `<label class="f"><span>Look in</span><select id="purchaseAlbum"><option value="">All coins (search)</option>${purchaseAlbums().map((a) => `<option value="${esc(a.id)}" ${pd._album === a.id ? "selected" : ""}>Album: ${esc(albumTitle(a))}</option>`).join("")}</select></label>` : ""}${pd._album ? `<div id="purchasePick">${purchaseAlbumHtml()}</div>` : `<label class="f"><span>Find coins you already entered</span><input type="search" id="purchaseQ" value="${esc(pd._q)}" placeholder="1921 Morgan"></label><div id="purchasePick">${purchasePickerHtml()}</div>`}
+      <button type="button" class="btn block" style="margin-top:6px" data-act="purchasePickDone">${purchaseTickText()}</button></div>`
       : `<button type="button" class="btn block" style="margin-top:8px" data-act="purchasePickOpen">🔍 Find coins I have</button>`}
     <div class="hint" id="purchaseSum" style="margin-top:10px">${purchaseSummary()}</div>
     <div class="btn-row sticky-save"><button type="button" class="btn primary" data-act="purchaseSave">Save</button>${pd.id ? "" : `<button type="button" class="btn" data-act="purchaseSave" data-next="1">Save + next receipt</button>`}</div>
@@ -152,6 +175,11 @@ document.addEventListener("input", (e) => {
 document.addEventListener("change", (e) => {
   if (!pd || !e.target.closest || !e.target.closest("#purchaseForm")) return;
   if (e.target.dataset.pf) pd[e.target.dataset.pf] = e.target.value;
+  if (e.target.id === "purchaseAlbum") { pd._album = e.target.value; pd._q = ""; renderPurchaseForm(); }
+  if (e.target.dataset.pa) {
+    if (e.target.checked) pd._ticked.add(e.target.dataset.pa); else pd._ticked.delete(e.target.dataset.pa);
+    formTouched = true; const b = $("[data-act=purchasePickDone]"); if (b) b.textContent = purchaseTickText();
+  }
   if (e.target.id === "purchaseReceipt") purchaseAddPhoto([...e.target.files]);
 });
 // Receipts are kept small (about 100 KB): a receipt only has to be readable.
@@ -209,6 +237,7 @@ function purchasePlan() {
 let purchaseReview = null;
 function purchaseSave(next) {
   if (!pd) return;
+  purchaseTakeTicked();
   if (!pd.date) { toast("Add the date from the receipt."); return; }
   const plan = purchasePlan();
   if (plan.some((x) => x.changes.length)) { purchaseReview = { plan, next }; renderPurchaseReview(); return; }
@@ -241,11 +270,13 @@ function purchaseCommit(plan, next) {
     if (!x.keep) x.changes.forEach((k) => { n[k] = String(x.want[k]); });
     put("c_" + x.c.id, n, true);
   });
+  const kept = { date: pd.date, source: pd.source, seller: pd.seller, _album: pd._album };
   formTouched = false; pd = null; purchaseReview = null;
   closeSheet();
   const n = plan.length;
   toast((old ? "Purchase saved" : "Purchase added") + (n ? " with " + n + " coin" + (n === 1 ? "" : "s") : "") + ".", { label: "Undo", fn: () => purchaseUndo(undo) });
-  if (next) purchaseFormOpen(null); else go("purchase-" + id);
+  if (next) { purchaseFormOpen(null); Object.assign(pd, kept); renderPurchaseForm(); } // E1-11: the next receipt keeps date and store
+  else go("purchase-" + id);
 }
 function purchaseUndo(u) {
   u.coins.forEach((c) => put("c_" + c.id, c, true));
@@ -257,7 +288,27 @@ Object.assign(actions, {
   purchaseNew: () => purchaseFormOpen(null),
   purchaseEdit: (el) => { const p = getPurchase(el.dataset.id); if (p) purchaseFormOpen(p); },
   purchasePickOpen: () => { pd._pick = true; pd._focusQ = true; renderPurchaseForm(); },
-  purchasePickDone: () => { pd._pick = false; pd._q = ""; renderPurchaseForm(); },
+  purchasePickDone: () => { purchaseTakeTicked(); pd._pick = false; pd._q = ""; renderPurchaseForm(); },
+  // E1-11: Select › Put on a receipt. Nothing is saved until the receipt itself is saved.
+  receiptOpen: () => {
+    if (!pickedCoins().length) return;
+    const ps = allPurchases().slice(0, 20);
+    openSheet(`<div class="sheet-head"><h2>Put ${pickedCoins().length} on a receipt</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <button class="btn primary block" data-act="receiptPick" data-id="">+ New receipt</button>
+      ${ps.length ? `<h3 style="margin:14px 0 4px">Or add to one you have</h3><div class="card">${ps.map((p) => `<div class="rowline"><span>${esc(purchaseName(p))}</span><button class="btn" data-act="receiptPick" data-id="${esc(p.id)}">Pick</button></div>`).join("")}</div>` : ""}`);
+  },
+  receiptPick: (el) => {
+    const p = el.dataset.id ? getPurchase(el.dataset.id) : null;
+    const picked = pickedCoins(), ok = picked.filter((c) => purchaseOk(c) && !(c.purchaseId && getPurchase(c.purchaseId) && !(p && c.purchaseId === p.id)));
+    const out = picked.length - ok.length;
+    const why = " left out: already on a receipt, or not bought (inherited, gift, pocket change).";
+    if (!ok.length) { toast("All " + out + why); return; }
+    listState.sel = null; render();
+    purchaseFormOpen(p);
+    ok.forEach((c) => { if (!pd.items.some((x) => x.id === c.id)) pd.items.push({ id: c.id, price: c.paid == null ? "" : String(c.paid) }); });
+    formTouched = true; renderPurchaseForm();
+    if (out) toast(out + why);
+  },
   purchaseAddCoin: (el) => { const c = store.docs.get("c_" + el.dataset.id); if (!c || !pd) return; pd.items.push({ id: c.id, price: c.paid == null ? "" : String(c.paid) }); formTouched = true; const box = $("#purchasePick"); renderPurchaseForm(); if (box) { const q = $("#purchaseQ"); if (q) q.focus(); } },
   // A new coin on this receipt: Add coin opens with date, where from, store and paid with filled in. After Save you are back here with it on the list.
   purchaseNewCoin: () => {
@@ -301,4 +352,4 @@ Object.assign(actions, {
     const c = store.docs.get("c_" + draft.id); closeSheet(); purchaseFormOpen(null, c);
   },
 });
-if (typeof SNAPSHOT_BLOCK !== "undefined") ["purchaseNew", "purchaseEdit", "purchaseDelete", "purchasePickForCoin"].forEach((a) => SNAPSHOT_BLOCK.add(a));
+if (typeof SNAPSHOT_BLOCK !== "undefined") ["receiptOpen", "receiptPick", "purchaseNew", "purchaseEdit", "purchaseDelete", "purchasePickForCoin"].forEach((a) => SNAPSHOT_BLOCK.add(a));
