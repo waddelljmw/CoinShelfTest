@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-25 (E1a backup decisions)",
- "app": "v0.116.2",
+ "updated": "2026-11-25 (E1a)",
+ "app": "v0.117.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 33,
+  "weekly_now": 42,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2218,7 +2218,7 @@
    "model": "Opus",
    "est": "5–8",
    "time": "~2 h",
-   "actual": "reading pending",
+   "actual": "~8",
    "status": "done",
    "started": "2026-11-25 19:12",
    "chat": "New Opus chat (report only)",
@@ -2248,8 +2248,8 @@
    "model": "Sonnet",
    "est": "~2",
    "time": "~1 h",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 34)",
    "why": "Stops a new coin quietly copying Inherited from the last one, plus small fixes from the tap check.",
@@ -2287,8 +2287,11 @@
     "Menu: Backup sits above Options.",
     "Backup › Save to this phone › 'Also send a copy somewhere else?' › Yes: the share menu opens.",
     "Home totals box: 'Last backup' line at the bottom.",
-    "Add an Inherited coin, then + Add coin: Where from is empty."
-   ]
+    "Open the menu, press the phone's Back: only the menu closes."
+   ],
+   "started": "2026-11-25 22:50",
+   "ended": "2026-11-25 23:35",
+   "minutes": 45
   },
   {
    "n": "33a",
@@ -2298,7 +2301,7 @@
    "est": "~1",
    "time": "~30 min",
    "actual": "",
-   "status": "ready",
+   "status": "next",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 31)",
    "why": "A second 'Semi-key' tag from a short checked list (1893-CC Morgan would be one). Public Mint data only.",
