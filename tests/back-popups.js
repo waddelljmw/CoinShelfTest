@@ -54,7 +54,7 @@ const { chromium } = require("./_compat");
   ok("next Back moves on (no wasted press)", (await hash()) !== "#album-alb1");
   // 5. v0.61.2: the two reported phone cases. Back must close only the top pop-up and never change the page behind it.
   await p.evaluate(() => go("home")); await p.waitForTimeout(150); await p.evaluate(() => go("options")); await p.waitForTimeout(250);
-  await p.click("[data-act=openBackup]"); await p.waitForTimeout(200);
+  await p.click("#view [data-act=openBackup]"); await p.waitForTimeout(200);
   ok("Back up/Restore pop-up open", !(await shut()));
   await p.goBack(); await p.waitForTimeout(300);
   ok("Back closes Back up/Restore, stays on Options", (await shut()) && (await hash()) === "#options");

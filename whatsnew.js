@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.117.0": [
+    "Backup is in the menu, with Save to this phone and Send a copy to…. Home shows your last backup.",
+    "A new coin never copies Inherited or Gift. What it does copy shows at the top of the form.",
+    "Edit from an album spot, + beside Grade, Bag holder, easier Plated and Colorized ticks, Shipping open on receipts.",
+  ],
   "0.116.2": [
     "A coin moved to another album no longer says it was original there. Blank spots you move with the arrows stay put. Only coins go in blank spots.",
     "Set for all > Grade fills Not graded coins too, and asks before replacing a grade.",

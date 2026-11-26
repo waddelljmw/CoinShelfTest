@@ -164,7 +164,7 @@ function shelfTop(t) {
       <button class="sh-pl big" data-go="value"><span class="k">Collection value${valueGapCoins().length ? " estimate*" : ""}</span><span class="v">${money(t.total, "$0.00")}</span></button>
       <button class="sh-pl" data-go="value"><span class="k">Melt value</span><span class="v">${money(t.melt, "$0.00")}</span></button>
       <button class="sh-pl" data-go="coins"><span class="k">Items counted</span><span class="v">${t.count}</span></button>
-    </div>${spot ? `<button class="sh-spot" data-go="options" data-open="spot-prices">${spot}</button>` : ""}${priceStatusLine()}${lowTotalNote()}${needInfoLine()}`;
+    </div>${spot ? `<button class="sh-spot" data-go="options" data-open="spot-prices">${spot}</button>` : ""}${priceStatusLine()}${lowTotalNote()}${needInfoLine()}${typeof backupLine === "function" ? backupLine() : ""}`;
 }
 function shelfHtml(owned, t) {
   const safe = shelfStyle() === "safe", L = shelfLayout();

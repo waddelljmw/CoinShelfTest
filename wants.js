@@ -489,7 +489,7 @@ function openSlotMenu(el) {
     ${!coin && (!ws.length || moreLists) ? `<button class="btn block btn-want" data-act="${ws.length ? "slotWant" : "slotWantQuick"}" ${sd}>★ ${ws.length ? "Add to another want list" : "Add to want list"}</button>
          ${ws.length ? "" : `<div class="hint">One tap: adds ${esc(label)} to "${esc(missingSuggest(a).name)}". You can set a target grade and price on the Want List later.</div>`}` : ""}
     <div class="btn-row">
-      ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button><button class="btn" data-act="slotTakeOut" data-id="${esc(coin.id)}">Take out of album</button>` : ""}
+      ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button><button class="btn" data-act="edit" data-id="${esc(coin.id)}">Edit</button><button class="btn" data-act="slotTakeOut" data-id="${esc(coin.id)}">Take out of album</button>` : ""}
       ${coin && albumMoveTargets(coin, a).length ? `<button class="btn" data-act="slotMoveList" data-id="${esc(coin.id)}" data-album="${esc(a.id)}">Move to another album</button>` : ""}
       <a class="btn" style="text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">eBay sold ↗</a>
     </div>`);

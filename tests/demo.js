@@ -77,7 +77,7 @@ const srv = http.createServer((q, r) => {
   ok("the real saved coin is not in the demo", !info.real);
   ok("banner says it's a demo with Exit demo", await p.evaluate(() => /PRACTICE DEMO: these aren't your real coins/.test($("#banner").textContent) && !$("#banner").hidden && !!$("#banner [data-act=exitDemo]")));
   for (const pg of ["home", "coins", "value", "options"]) { await p.evaluate((g) => go(g), pg); await p.waitForTimeout(150); }
-  ok("Backup and Import are hidden in the demo", await p.locator("[data-act=openBackup], [data-act=openImport]").count() === 0);
+  ok("Backup and Import are hidden in the demo", await p.locator("#view [data-act=openBackup], [data-act=openImport]").count() === 0);
   ok("banner still shows on another page", await p.evaluate(() => !$("#banner").hidden));
   await p.evaluate(() => go("home")); await p.waitForTimeout(200);
   ok("the Home page draws without errors", await p.evaluate(() => document.querySelector("main").textContent.length > 200));

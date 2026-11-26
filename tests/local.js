@@ -37,7 +37,7 @@ const srv = http.createServer((q, r) => {
   ok("Home shows a backup reminder", /backup/i.test(await p.textContent("#view")));
   // Save a backup
   await p.evaluate(() => go("options")); await p.waitForTimeout(100);
-  await p.click("[data-act=openBackup]");
+  await p.click("#view [data-act=openBackup]");
   const [dl] = await Promise.all([p.waitForEvent("download"), p.click("[data-act=doBackup]")]);
   const file = path.join("/tmp", "cc-backup-test.json"); await dl.saveAs(file); await p.waitForTimeout(200);
   const bk = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -53,7 +53,7 @@ const srv = http.createServer((q, r) => {
   const q = await ctx2.newPage(); q.on("pageerror", (e) => errors.push(e.message));
   await q.goto("http://localhost:8771/"); await q.waitForFunction(() => store.mode === "local", null, { timeout: 15000 });
   await q.evaluate(() => { saveCoin({ ...blankCoin(), id: "keep", typeId: "peace-dollar", typeName: "Peace Dollar", year: 1922, grade: "VF-20" }); go("options"); });
-  await q.waitForTimeout(150); await q.click("[data-act=openBackup]");
+  await q.waitForTimeout(150); await q.click("#view [data-act=openBackup]");
   await q.setInputFiles("#restoreFile", file); await q.waitForTimeout(300);
   ok("asks before restoring", /Restore this backup/.test(await q.textContent("#sheet")));
   await q.click("[data-act=confirmOk]"); await q.waitForFunction(() => ownedCoins().length === 2, null, { timeout: 15000 }).catch(() => {}); await q.waitForTimeout(300);
@@ -63,7 +63,7 @@ const srv = http.createServer((q, r) => {
   await q.reload(); await q.waitForTimeout(500);
   ok("restored data survives a reload", await q.evaluate(() => ownedCoins().length === 2 && !!getAlbum("al")));
   // bad file
-  await q.evaluate(() => { go("options"); }); await q.waitForTimeout(80); await q.click("[data-act=openBackup]");
+  await q.evaluate(() => { go("options"); }); await q.waitForTimeout(80); await q.click("#view [data-act=openBackup]");
   fs.writeFileSync("/tmp/cc-bad.json", "{\"hello\":1}"); await q.setInputFiles("#restoreFile", "/tmp/cc-bad.json"); await q.waitForTimeout(200);
   ok("a wrong file is refused", /isn't a Coin Cabinet backup/.test(await q.textContent("#restoreMsg")));
   await ctx2.close();
@@ -81,7 +81,7 @@ const srv = http.createServer((q, r) => {
   await c.evaluate(() => { saveCoin({ ...blankCoin(), id: "cl", typeId: "morgan-dollar", typeName: "Morgan Dollar", year: 1880, mint: "S", grade: "MS-64", photos: [{ id: "abc" }] }); go("options"); });
   await c.waitForTimeout(150);
   ok("Claude version explains moving to the phone app", /move your coins into the Coin Cabinet app/.test(await c.textContent("#view")));
-  await c.click("[data-act=openBackup]"); await c.click("[data-act=doBackup]"); await c.waitForTimeout(600);
+  await c.click("#view [data-act=openBackup]"); await c.click("[data-act=doBackup]"); await c.waitForTimeout(600);
   const cb = await c.evaluate(() => window.__saved && JSON.parse(window.__saved.data));
   ok("Claude backup includes the Claude-stored photo", cb && cb.photos["id:abc"] && cb.docs.some((d) => d.id === "c_cl"));
   fs.writeFileSync("/tmp/cc-claude.json", JSON.stringify(cb));
@@ -89,7 +89,7 @@ const srv = http.createServer((q, r) => {
   const ctx4 = await b.newContext({ viewport: { width: 390, height: 844 } }); await ctx4.route("**/api.gold-api.com/**", (r) => r.abort()); // no live prices in tests
   const d = await ctx4.newPage(); d.on("pageerror", (e) => errors.push(e.message));
   await d.goto("http://localhost:8771/"); await d.waitForTimeout(400);
-  await d.evaluate(() => go("options")); await d.waitForTimeout(80); await d.click("[data-act=openBackup]");
+  await d.evaluate(() => go("options")); await d.waitForTimeout(80); await d.click("#view [data-act=openBackup]");
   await d.setInputFiles("#restoreFile", "/tmp/cc-claude.json"); await d.waitForTimeout(200); await d.click("[data-act=confirmOk]"); await d.waitForTimeout(800);
   ok("Claude coins move into the phone app with their photo", await d.evaluate(() => { const c = getCoin("cl"); return c && c.photos.length === 1 && !!c.photos[0].lid && !!photoSrc(c.photos[0]); }));
   await ctx4.close();

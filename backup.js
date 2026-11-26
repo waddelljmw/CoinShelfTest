@@ -4,6 +4,29 @@
 
 const BACKUP_KIND = "coin-cabinet-backup";
 const BACKUP_REMIND_DAYS = 7;
+const BACKUP_REMIND_COINS = 25;
+
+// E1-3: note that something changed since the last backup. Kept in settings only (no coin data):
+// backupDirty (anything changed), changedOn (the day), changedCoins (how many coins).
+let trackOff = false, changePending = null;
+const changedSeen = new Set(); // one coin saved several times counts once
+function noteChange(key, body) {
+  if (trackOff || key === "settings" || key === "history" || key === "pricebook") return;
+  if (store.mode !== "local" && store.mode !== "db") return;
+  const old = store.docs.get(key);
+  if (body ? old && JSON.stringify(old) === JSON.stringify(body) : !old) return; // nothing really changed
+  if (!changePending) { changePending = { coins: 0 }; setTimeout(flushChanges, 0); } // a bulk edit writes settings once
+  if (key.startsWith("c_") && !changedSeen.has(key)) { changedSeen.add(key); changePending.coins++; }
+}
+function flushChanges() {
+  if (!changePending) return;
+  const n = changePending.coins;
+  changePending = null;
+  const s = settings(), total = (num(s.changedCoins) || 0) + n;
+  if (s.backupDirty === true && s.changedOn === today() && !n) return;
+  saveSettings({ backupDirty: true, changedOn: today(), changedCoins: total }, true);
+  const line = $(".sh-backup"); if (line) line.outerHTML = backupLine(); // only the line: no full redraw behind the caller's back
+}
 
 const blobToDataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(blob); });
 const dataUrlToBlob = async (u) => (await fetch(u)).blob();
@@ -36,36 +59,76 @@ async function buildBackup(onProgress) {
 }
 
 function openBackupSheet() {
+  if (store.mode === "demo") {
+    openSheet(`<div class="sheet-head"><h2>Backup and restore</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div><p>Backup is in your real app. Nothing in this demo is saved.</p>`);
+    return;
+  }
+  backupData = null;
   const s = settings();
   const n = allCoins().filter((c) => c.status !== "deleted").length;
   const inClaude = store.mode === "db";
   openSheet(`<div class="sheet-head"><h2>Backup and restore</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <div class="card"><b>Save a backup</b>
-      <p class="small">One file with all ${n} coin${n === 1 ? "" : "s"}, albums, want lists, settings and photos. Keep it somewhere safe, like Google Drive or email it to yourself.${inClaude ? " This is also how you move your coins into the Coin Cabinet app on your phone." : ""}</p>
+      <p class="small">One file with all ${n} coin${n === 1 ? "" : "s"}, albums, want lists, settings and photos. Keep one on this phone and a copy somewhere else.${inClaude ? " This is also how you move your coins into the Coin Cabinet app on your phone." : ""}</p>
       ${s.lastBackup ? `<div class="small muted">Last backup: ${esc(s.lastBackup)}</div>` : ""}
-      <div class="btn-row"><button class="btn primary" data-act="doBackup">Save backup file</button></div>
+      <button class="btn primary block" data-act="doBackup">Save to this phone</button>
+      <button class="btn block" data-act="sendBackup">Send a copy to…</button>
+      <div class="small muted">Drive, iCloud, email or another app. A sent copy's name ends in .txt; Restore takes it.</div>
       <div class="hint" id="backupMsg"></div></div>
     <div class="card"><b>Restore from a backup</b>
       <p class="small">Adds everything from a backup file to this ${inClaude ? "Claude version" : "device"}. Nothing here is deleted. If a coin is in both, the backup's copy replaces this one.</p>
-      <label class="btn block file-btn" style="display:block;text-align:center">Choose backup file<input type="file" accept=".json,application/json" id="restoreFile"></label>
-      <div class="hint">Takes a Coin Cabinet backup file (.json). For a spreadsheet use Import CSV in Options.</div>
+      <label class="btn block file-btn" style="display:block;text-align:center">Choose backup file<input type="file" accept=".json,application/json,.txt,text/plain" id="restoreFile"></label>
+      <div class="hint">Takes a Coin Cabinet backup file (.json, or .txt if you sent it as a copy). For a spreadsheet use Import CSV in Options.</div>
       <div class="hint" id="restoreMsg"></div></div>`);
 }
 
-async function doBackup() {
-  const msg = $("#backupMsg");
-  const say = (t) => { if (msg) msg.textContent = t; };
-  say("Making the backup…");
-  let data;
-  try { data = await buildBackup((i, n) => say("Adding photos (" + i + " of " + n + ")…")); }
-  catch (e) { say("Couldn't make the backup. Try again."); return; }
+let backupData = null; // the file made while this screen is open, so "also send / also keep" is one tap
+const backupSay = (html) => { const m = $("#backupMsg"); if (m) m.innerHTML = html; };
+async function makeBackup() {
+  if (backupData) return backupData;
+  backupSay("Making the backup…");
+  try { backupData = await buildBackup((i, n) => backupSay("Adding photos (" + i + " of " + n + ")…")); }
+  catch (e) { backupSay("Couldn't make the backup. Try again."); }
+  return backupData;
+}
+const backupSummary = (d) => d.counts.coins + " coins, " + d.counts.photos + " photos." + (backupSkipped ? " Warning: " + backupSkipped + " photo" + (backupSkipped === 1 ? "" : "s") + " couldn't be added." : "");
+// Remember what was made. A second copy of the same, unchanged data adds to the first.
+function recordBackup(kind) {
+  flushChanges();
+  const s = settings(), same = s.lastBackup === today() && s.backupDirty === false;
+  changedSeen.clear();
+  saveSettings({ lastBackup: today(), backupPhone: kind === "phone" || (same && !!s.backupPhone), backupCopy: kind === "copy" || (same && !!s.backupCopy), backupDirty: false, changedCoins: 0, backupSnooze: "" });
+}
+const offerOther = (act, question) => `<div style="margin-top:8px"><b>${question}</b><div class="btn-row"><button class="btn primary" data-act="${act}">Yes</button><button class="btn" data-act="closeSheet">No</button></div></div>`;
+async function doBackup(note) {
+  const data = await makeBackup();
+  if (!data) return;
   const name = "coin-cabinet-backup-" + today() + ".json";
-  if (!downloadsApi) { say("Saving files isn't available here."); return; }
+  if (!downloadsApi) { backupSay("Saving files isn't available here."); return; }
   try {
     await downloadsApi.save({ filename: name, data: JSON.stringify(data), type: "application/json" });
-  } catch (e) { say(e && e.code === "declined" ? "Not saved." : "Couldn't save the file. Try again."); return; }
-  saveSettings({ lastBackup: today() });
-  say("Saved " + name + " (" + data.counts.coins + " coins, " + data.counts.photos + " photos)." + (backupSkipped ? " Warning: " + backupSkipped + " photo" + (backupSkipped === 1 ? "" : "s") + " couldn't be added." : ""));
+  } catch (e) { backupSay(e && e.code === "declined" ? "Not saved." : "Couldn't save the file. Try again."); return; }
+  recordBackup("phone");
+  backupSay((note ? esc(note) + " " : "") + "Saved " + esc(name) + " (" + backupSummary(data) + ")" + (note || settings().backupCopy ? "" : offerOther("sendBackup", "Also send a copy somewhere else?")));
+}
+// The phone's share menu. Shared as .txt because phones refuse to share a .json file.
+async function sendBackup() {
+  const data = await makeBackup();
+  if (!data) return;
+  const file = new File([JSON.stringify(data)], "coin-cabinet-backup-" + today() + ".txt", { type: "text/plain" });
+  const cant = "This phone can't share the file from here, so it was saved to the phone instead.";
+  if (!navigator.share || !navigator.canShare || !navigator.canShare({ files: [file] })) return doBackup(cant);
+  try { await navigator.share({ files: [file], title: file.name }); }
+  catch (e) {
+    if (e && e.name === "AbortError") { backupSay("Not sent."); return; }
+    // Many photos can take so long that the phone wants a fresh tap before it opens the share menu.
+    if (e && e.name === "NotAllowedError" && !sendBackup.again) { sendBackup.again = true; backupSay(`The copy is ready. <button class="btn primary block" data-act="sendBackup">Send it now</button>`); return; }
+    sendBackup.again = false;
+    return doBackup(cant);
+  }
+  sendBackup.again = false;
+  recordBackup("copy");
+  backupSay("Copy sent (" + backupSummary(data) + ")" + (settings().backupPhone ? "" : offerOther("doBackup", "Also keep a copy on this phone?")));
 }
 
 // Settings and value history are combined with what's on this device, not replaced.
@@ -125,6 +188,10 @@ async function readRestoreFile(file) {
     "Restore", () => doRestore());
 }
 async function doRestore() {
+  trackOff = true;
+  try { await restoreAll(); } finally { trackOff = false; }
+}
+async function restoreAll() {
   const data = restorePending;
   restorePending = null;
   if (!data) return;
@@ -158,20 +225,40 @@ async function doRestore() {
   toast("Restored " + data.docs.filter((d) => d.data && d.data.kind === "coin").length + " coins." + (failed ? " " + failed + " photo" + (failed === 1 ? "" : "s") + " couldn't be restored." : "") + (restoreRenumbered ? " " + restoreRenumbered + " coin ID" + (restoreRenumbered === 1 ? " was" : "s were") + " already in use, so " + (restoreRenumbered === 1 ? "it got a new number." : "they got new numbers.") : ""));
 }
 
-// A gentle reminder on Home when the last backup is old (only once there are coins worth protecting).
+// Home: the reminder banner and the small "Last backup" line in the totals box.
+function backupState() {
+  if (store.mode !== "local" && store.mode !== "db") return null;
+  if (!allCoins().some((c) => c.status !== "deleted")) return null; // only once there are coins worth protecting
+  const s = settings(), last = s.lastBackup;
+  const days = last ? Math.max(0, Math.round((new Date(today() + "T12:00:00") - new Date(last + "T12:00:00")) / 86400000)) : Infinity;
+  // backupDirty is unset on phones from before this was tracked: treat as "may have changed".
+  return { s, last, days, dirty: !!changePending || s.backupDirty !== false, changed: (num(s.changedCoins) || 0) + (changePending ? changePending.coins : 0) };
+}
 function backupReminder() {
-  if (store.mode === "snapshot" || store.mode === "memory" || store.mode === "loading" || store.mode === "demo") return "";
-  const n = allCoins().filter((c) => c.status !== "deleted").length;
-  if (!n) return "";
-  const last = settings().lastBackup;
-  const days = last ? Math.floor((Date.now() - new Date(last + "T12:00:00").getTime()) / 86400000) : Infinity;
-  if (days < BACKUP_REMIND_DAYS) return "";
-  return `<div class="banner" style="margin:0 0 12px">${last ? "Your last backup was " + days + " days ago." : "You haven't saved a backup yet."} <button class="link-btn" data-act="openBackup">Back up now</button></div>`;
+  const b = backupState();
+  if (!b || !b.dirty || b.s.backupSnooze === today()) return "";
+  if (b.days < BACKUP_REMIND_DAYS && b.changed < BACKUP_REMIND_COINS) return "";
+  const why = !b.last ? "You haven't saved a backup yet." : b.days >= BACKUP_REMIND_DAYS ? "Your last backup was " + b.days + " days ago." : b.changed + " coins changed since your last backup.";
+  return `<div class="banner" style="margin:0 0 12px">${why} <button class="link-btn" data-act="openBackup">Back up now</button> · <button class="link-btn" data-act="backupLater">Not now</button></div>`;
+}
+function backupLine() {
+  const b = backupState();
+  if (!b) return "";
+  let text = "Not backed up yet";
+  if (b.last) {
+    const d = new Date(b.last + "T12:00:00");
+    const kind = b.s.backupCopy ? (b.s.backupPhone ? "phone + copy" : "copy only") : "phone only";
+    const state = b.dirty && b.s.backupDirty === undefined ? "" : b.dirty ? "changes not backed up" : "no changes since";
+    text = `Last backup: ${d.toLocaleDateString("en-US", { month: "short", day: "numeric" })} (${b.days === 0 ? "today" : b.days + " day" + (b.days === 1 ? "" : "s") + " ago"}) · ${kind}${state ? " · " + state : ""}`;
+  }
+  return `<button class="sh-backup" data-act="openBackup">${text} · <u>Back up</u></button>`;
 }
 
 Object.assign(actions, {
   openBackup: () => { closeMenu(); openBackupSheet(); },
   doBackup: () => doBackup(),
+  sendBackup: () => sendBackup(),
+  backupLater: () => saveSettings({ backupSnooze: today() }),
 });
 document.addEventListener("change", (e) => {
   if (e.target.id === "restoreFile" && e.target.files && e.target.files[0]) readRestoreFile(e.target.files[0]);

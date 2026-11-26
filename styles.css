@@ -416,3 +416,11 @@ body:has(#sheet:not([hidden])) .toast { bottom: auto; top: 12px; }
 /* A switched-off button must look off */
 .btn:disabled, .btn[disabled] { opacity: .45; }
 #albumCreate.needs { opacity: .6; }
+
+/* E1a: + beside Grade, bigger problem ticks, Last backup line */
+.grade-row { display: flex; gap: 10px; align-items: flex-end; }
+.grade-row > .f { flex: 1; min-width: 0; }
+.plus-box { display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 6px; font-size: 20px; margin-bottom: 8px; }
+.plus-box input, .chk-list input { width: 22px; height: 22px; accent-color: var(--accent); }
+.chk-list label { min-height: 44px; }
+.sh-backup { display: block; width: 100%; min-height: 44px; margin-top: 6px; padding: 4px 6px; border: 0; border-radius: 5px; background: rgba(0,0,0,.55); color: #d8cdb8; font-size: 12px; text-align: center; }

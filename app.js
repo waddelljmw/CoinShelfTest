@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.116.2";
+const APP_VERSION = "0.117.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 // Step 4c: mint "?" = "Can't tell". It finds no album spot, filter or mintage, but values use the plain-date (no mint mark) price.
@@ -222,6 +222,7 @@ function put(key, obj, quiet) {
   const body = JSON.parse(JSON.stringify(obj));
   if (tabChannel && key.startsWith("c_")) { try { tabChannel.postMessage({ k: key, status: body.status, qty: body.qty }); } catch (err) { /* not important */ } }
   if (key.startsWith("c_") && typeof caseOnPut === "function") caseOnPut(store.docs.get(key), body); // dealer case: remember the old place
+  if (typeof noteChange === "function") noteChange(key, body);
   store.docs.set(key, body);
   if (key === "pricebook" && usableBook(body)) PRICE_BOOK = { ...emptyBook(), ...body }; // first copy, restore, or (later) a loaded price file
   if (key !== "history" && typeof scheduleHistory === "function") scheduleHistory(); // value over time
@@ -265,6 +266,7 @@ function chainWrite(key, fn) {
 }
 function remove(key) {
   if (store.mode === "snapshot") return Promise.resolve();
+  if (typeof noteChange === "function") noteChange(key, null);
   store.docs.delete(key);
   render();
   if (store.mode === "local") return chainWrite(key, () => localRemove(key));
