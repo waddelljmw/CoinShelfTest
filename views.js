@@ -226,11 +226,13 @@ function viewValue() {
 
 /* --- Your Coins --- */
 /* --- Search that understands you (R4-33): every word must match; a lone letter is a mint mark --- */
+// "DDO" / "DDR" are the short forms collectors type for a doubled die.
+const doubledShort = (text) => (/doubled die obverse/i.test(text) ? "ddo " : "") + (/doubled die reverse/i.test(text) ? "ddr" : "");
 function coinMatchesQ(c, q) {
   q = (q || "").trim().toLowerCase();
   if (!q) return true;
   const inh = inheritanceOf(c), mint = (normMint(c.mint) || "p").toLowerCase();
-  const hay = [c.cid, (c.oldCids || []).join(" "), labelOf(c), gradeText(c), c.notes, c.source, c.seller, c.caseName, holderText(c), keptName(c), nickWords(c.typeId, c.year), c.metal, c.year, inh ? inhLabel(inh) : ""].map((x) => x || "").join(" ").toLowerCase();
+  const hay = [c.variety, c.knownVar, doubledShort(c.variety + " " + c.knownVar), c.cid, (c.oldCids || []).join(" "), labelOf(c), gradeText(c), c.notes, c.source, c.seller, c.caseName, holderText(c), keptName(c), nickWords(c.typeId, c.year), c.metal, c.year, inh ? inhLabel(inh) : ""].map((x) => x || "").join(" ").toLowerCase();
   return q.split(/\s+/).every((w) => (w.length === 1 && /[a-z]/.test(w) ? w === mint : hay.includes(w)));
 }
 

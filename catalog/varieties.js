@@ -5,6 +5,11 @@
 // design is for series with several designs a year (e.g. the state on a 50 States quarter).
 // Varieties that already have their own Red Book price row are picked in the Variety box instead (e.g. Washington quarter doubled dies).
 const KNOWN_VARIETIES = {
+  "washington-silver": [[1936, "", "Doubled Die Obverse"]],
+  "franklin-half": [[1955, "", "\"Bugs Bunny\" (die clash)"]],
+  "ike-clad": [[1972, "", "Type 2 Reverse"]],
+  "sba-dollar": [[1979, "", "Wide Rim (near date)"]],
+  "sacagawea-dollar": [[2000, "", "\"Cheerios\" (enhanced tail feathers)"]],
   "lincoln-wheat": [
     [1917, "", "Doubled Die Obverse"], [1922, null, "No D"], [1936, "", "Doubled Die Obverse"],
     [1955, "", "Doubled Die Obverse"], [1958, "", "Doubled Die Obverse"],
