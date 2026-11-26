@@ -257,7 +257,7 @@ const actions = {
     const c = getCoin(el.dataset.id);
     if (!c) return;
     openCoinForm(null);
-    Object.assign(draft, { _what: "us", holder: c.holder, caseName: c.caseName, source: c.source || "", acquired: c.acquired || "" });
+    Object.assign(draft, { _what: "us", holder: c.holder, caseName: c.caseName, source: carrySource(c.source), acquired: c.acquired || "" });
     delete draft._sourceKind;
     renderCoinForm();
   },
@@ -302,7 +302,7 @@ const actions = {
   srcChip: (el) => {
     const v = el.dataset.v, y = $(".sheet").scrollTop;
     if (v === "__more") draft._srcMore = !draft._srcMore;
-    else if (draft._sourceKind === v) { draft._sourceKind = ""; draft.source = ""; delete (draft._carry || {}).s; } // tap again to clear
+    else if (draft._sourceKind === v) { draft._sourceKind = ""; draft.source = ""; delete (draft._carry || {}).s; autoPaid(draft); } // tap again to clear
     else { applySourceKind(draft, v); delete (draft._carry || {}).s; }
     renderCoinForm(); $(".sheet").scrollTop = y;
   },
@@ -371,6 +371,7 @@ $("#menuBtn").addEventListener("click", () => {
   const m = $("#menu");
   m.hidden = !m.hidden;
   $("#menuBtn").setAttribute("aria-expanded", String(!m.hidden));
+  watchMenu();
 });
 $("#fab").addEventListener("click", () => openCoinForm(null));
 
@@ -521,7 +522,7 @@ Object.assign(actions, {
   discardYes: () => closeSheet(),
   carryClear: (el) => { // clear one thing the form carried over from the last coin
     const k = el.dataset.k, y = $(".sheet").scrollTop;
-    if (k === "source") { draft.source = ""; draft._sourceKind = ""; delete draft._carry.s; delete draft.boughtShowId; if (draft.payMethod && draft.payMethod === draft._payAuto) { draft.payMethod = ""; draft._payAuto = ""; } }
+    if (k === "source") { draft.source = ""; draft._sourceKind = ""; delete draft._carry.s; delete draft.boughtShowId; autoPaid(draft); if (draft.payMethod && draft.payMethod === draft._payAuto) { draft.payMethod = ""; draft._payAuto = ""; } }
     else if (k === "holder") draft._lastHolder = "";
     renderCoinForm(); $(".sheet").scrollTop = y;
   },

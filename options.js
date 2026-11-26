@@ -197,6 +197,7 @@ function optionsHtml() {
       <div class="hint">Restore takes a Coin Cabinet backup file (.json), not a spreadsheet or a price file.</div>
       <div class="hint" id="spaceMsg"></div></div>
 `}
+    ${store.mode === "demo" ? `<h2>Backup and restore</h2><div class="card">Backup is in your real app. Nothing in this demo is saved.</div>` : ""}
     <h2>Share Coin Cabinet</h2>
     <div class="card">${s.hideShare ? "" : `Send someone the link so they can install Coin Cabinet. They get their own, separate collection: they can't see your coins, and you can't see theirs.
       <div class="btn-row"><button class="btn" data-act="shareApp">Share the app</button></div>`}

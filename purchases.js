@@ -119,7 +119,7 @@ function renderPurchaseForm() {
     <div class="grid2"><label class="f"><span>Where from</span><select data-pf="source"><option value="">Choose…</option>${srcs.concat(pd.source && !srcs.includes(pd.source) ? [pd.source] : []).map((s) => `<option ${pd.source === s ? "selected" : ""}>${esc(s)}</option>`).join("")}</select></label>
     <label class="f"><span>Store or seller <span class="muted small">(optional)</span></span><input type="text" data-pf="seller" data-suggest="seller" value="${v("seller")}" placeholder="Main Street Coins" maxlength="60"></label></div>
     <div class="hint" style="margin-top:-4px">Each coin keeps its own Where from. The receipt fills it in only where a coin has none, and asks before changing one.</div>
-    <details ${num(pd.tax) != null || num(pd.ship) != null || pd.payMethod || pd.receiptNo || pd.notes ? "open" : ""}><summary class="small">Tax, shipping, paid with, receipt number</summary>
+    <details open><summary class="small">Tax, shipping, paid with, receipt number</summary>
       <div class="grid2">${money$("tax", "Tax on the coins")}${money$("ship", "Shipping for the coins")}</div>
       <div class="hint">Only the coins' part. Leave tax blank if there was none. Tax splits by price, shipping splits evenly.</div>
       <div class="grid2"><label class="f"><span>Paid with</span><select data-pf="payMethod"><option value="">Choose…</option>${PAY_METHODS.concat(pd.payMethod && !PAY_METHODS.includes(pd.payMethod) ? [pd.payMethod] : []).map((x) => `<option ${pd.payMethod === x ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></label>

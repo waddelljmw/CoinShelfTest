@@ -18,13 +18,15 @@ function restoreDraft() {
     draft = d; renderCoinForm(); toast("Picking up the coin you were adding."); return true;
   } catch (e) { clearStash(); return false; }
 }
+// E1-1: Inherited and Gift are never filled in from the last coin.
+const carrySource = (v) => (/^(inherited|gift)$/i.test(String(v || "").trim()) ? "" : v || "");
 let carryOpen = {}; // sections left open on the last new coin; the next new coin opens them too
 function openCoinForm(id) {
   if (typeof fixup !== "undefined" && fixup.on && !fixup.opening) fixup.on = false; // the Needs Attention run only continues for coins the run itself opened (Fix them button)
   const existing = id ? getCoin(id) : null;
   draft = existing ? JSON.parse(JSON.stringify(existing)) : blankCoin();
   draft._isNew = !existing;
-  if (!existing) { const s = settings(); draft.source = s.lastSource || ""; draft._lastHolder = s.lastHolder || ""; draft._carry = { s: 1 }; } // quick-add: remember last source and holder
+  if (!existing) { const s = settings(); draft.source = carrySource(s.lastSource); draft._lastHolder = s.lastHolder || ""; draft._carry = { s: 1 }; } // quick-add: remember last source and holder
   if (!existing) draft._open = { ...carryOpen };
   draft._newAlbum = { brand: "Whitman", number: "" };
   draft._status = statusKey(draft);
@@ -35,10 +37,11 @@ function openCoinForm(id) {
 }
 // Price paid for a new coin from a free or face-value source: Gift is $0, Pocket change / Coin roll hunting / Bank roll are face (you paid face at the bank). Only fills a blank or an earlier auto-fill.
 function autoPaid(d) {
-  if (!d._isNew || !(d.paid === "" || d.paid == null || d.paid === d._paidAuto)) return;
+  if (!d._isNew || !(d.paid === "" || d.paid == null || d.paid === d._paidAuto)) return; // a price you typed is never touched
   const v = String(d.source || "").trim().toLowerCase();
   const p = v === "gift" ? "0" : isFaceSource(d) && faceEach(d) != null ? moneyStr(faceEach(d)) : "";
   if (p !== "") { d.paid = p; d._paidAuto = p; }
+  else if (d._paidAuto && d.paid === d._paidAuto) { d.paid = ""; delete d._paidAuto; }
 }
 function sourceOptions() {
   const known = new Set(SOURCE_DEFAULTS.map((x) => x.toLowerCase()));
@@ -61,6 +64,14 @@ function boughtShowField(d) {
   if (d._sourceKind !== "Coin Show" || typeof showsOn !== "function" || !showsOn() || typeof allShows !== "function" || !allShows().length) return "";
   return `<label class="f"><span>Which show?</span><select data-f="boughtShowId" data-rerender><option value="">No show picked</option>${allShows().map((s) => `<option value="${esc(s.id)}" ${d.boughtShowId === s.id ? "selected" : ""}>${esc(s.name)} · ${esc(showDates(s))}</option>`).join("")}</select></label>`;
 }
+// Nothing is carried over silently: what was filled in from the last coin shows at the top of the form, one tap to clear.
+function carryChips(d) {
+  const cs = [];
+  if (d._isNew && d._carry && d._carry.s && d.source && d.source === (settings().lastSource || "")) cs.push(["source", "Where from: " + d.source]);
+  if (d._isNew && d._carry && !d.holder && !d.albumId && d.gradeMode !== "cert" && normHolder(d._lastHolder)) cs.push(["holder", "Holder: " + normHolder(d._lastHolder)]);
+  const carry = cs.length ? `<div class="f"><span class="muted small">Same as your last coin (tap to clear)</span><div class="chips wrap">${cs.map(([k, t]) => `<button type="button" class="chip on" data-act="carryClear" data-k="${k}" aria-label="Clear ${esc(t)}">Same as last: ${esc(t)} ✕</button>`).join("")}</div></div>` : "";
+  return carry;
+}
 function sourceChips(d) {
   const counts = {};
   allCoins().forEach((c) => { const s = (c.source || "").trim(); if (s && s !== "Inherited") counts[s] = (counts[s] || 0) + 1; });
@@ -70,12 +81,7 @@ function sourceChips(d) {
   if (d._srcMore) sourceOptions().forEach((x) => { if (!names.includes(x)) names.push(x); }); // More…: every source in the list shows as a chip
   const cur = d._sourceKind;
   if (cur && cur !== "Other" && !names.includes(cur)) names.push(cur); // a chosen source stays visible
-  // Nothing is carried over silently: what was filled in from the last coin shows as "Same as last: X ✕", one tap to clear.
-  const cs = [];
-  if (d._isNew && d._carry && d._carry.s && d.source && d.source === (settings().lastSource || "")) cs.push(["source", "Where from: " + d.source]);
-  if (d._isNew && d._carry && !d.holder && !d.albumId && d.gradeMode !== "cert" && normHolder(d._lastHolder)) cs.push(["holder", "Holder: " + normHolder(d._lastHolder)]);
-  const carry = cs.length ? `<div class="f"><span class="muted small">Same as your last coin (tap to clear)</span><div class="chips wrap">${cs.map(([k, t]) => `<button type="button" class="chip on" data-act="carryClear" data-k="${k}" aria-label="Clear ${esc(t)}">Same as last: ${esc(t)} ✕</button>`).join("")}</div></div>` : "";
-  return carry + `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">${d._srcMore ? "Fewer" : "More…"}</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}${typeof origAlbumField === "function" ? origAlbumField(d) : ""}</div>`;
+  return `<div class="f"><span>Where from <span class="muted small">(optional)</span></span><div class="chips wrap src-chips" style="flex-wrap:wrap">${names.map((n) => `<button type="button" class="chip ${cur === n ? "on" : ""}" data-act="srcChip" data-v="${esc(n)}" aria-pressed="${cur === n}">${esc(n)}</button>`).join("")}<button type="button" class="chip" data-act="srcChip" data-v="__more">${d._srcMore ? "Fewer" : "More…"}</button></div>${boughtShowField(d)}${typeof inhFields === "function" ? inhFields(d) : ""}${typeof origAlbumField === "function" ? origAlbumField(d) : ""}</div>`;
 }
 // First render of a coin: figure out whether its saved source is a known choice or custom text.
 function initSourceKind(d) {
@@ -162,6 +168,7 @@ function renderCoinForm() {
   ${typeof fixupBar === "function" ? fixupBar(d) : ""}
   <form id="coinForm" data-coin="${d.id}" autocomplete="off">
     ${typeof blankSpotOf === "function" && blankSpotOf(d) ? `<div class="hint" id="blankSpotNote">Going in a blank spot of ${esc(albumTitle(getAlbum(d.albumId)))}. Any coin fits${d.typeId && !albumHasType(getAlbum(d.albumId), d.typeId) ? `. <b style="color:var(--bad)">Heads up:</b> this album isn't for this coin type; it goes in the blank spot anyway` : ""}.</div>` : ""}
+    ${carryChips(d)}
     ${d._isNew && d._copiedFrom ? `<div class="hint" id="copiedNote">Copied from <b>${esc(d._copiedFrom)}</b>. Change what is different, then add it. Photos, the ID number and the album spot start empty; tax, shipping and fees are not copied.</div>` : ""}
     ${d._isNew && !d._replaces && !d._copiedFrom ? `<div class="hint" id="blankHint">Any field can be left blank. Fill in what you know; you can add the rest later.</div>` : ""}
     ${d._replaces ? `<div class="hint" id="readdNote">Copied from your old entry: year, grade, price, photos and notes. Album spot and variety are cleared. The old entry goes to Recently deleted.</div>` : ""}
@@ -187,10 +194,12 @@ function renderCoinForm() {
         <div class="hint">The ${d.service === "NGC" ? "NGC" : "PCGS"} coin number printed on the slab's label. Later it opens this exact coin in PCGS Photograde.</div>` : ""}
       <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
       ${!d.grade ? (quickCoinOk(d) ? `<label class="switch"><span>Circulated (not graded)<div class="small muted">An everyday coin from pocket change or a roll. No grade needed; valued at face. Fills Where from with Pocket change if it is blank.</div></span><input type="checkbox" data-act="circTick" ${d.noGrade ? "checked" : ""}></label>` : `<label class="switch"><span>Can't grade this one<div class="small muted">For common worn coins. They stop showing under Needs info.</div></span><input type="checkbox" data-fcheck="noGrade" ${d.noGrade ? "checked" : ""}></label>`) : ""}
+      <div class="grade-row">
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
+      ${d.gradeMode === "cert" ? `<label class="plus-box"><input type="checkbox" aria-label="Plus (+) on the label" data-fcheck="plus" ${d.plus ? "checked" : ""}><b>+</b></label>` : ""}</div>
+      ${d.gradeMode === "cert" ? `<div class="hint">Tick + if the label shows a plus. The value still uses the grade without it.</div>` : ""}
       <div class="hint">Not sure of the grade? Compare your coin with photos: <a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
-      ${d.gradeMode === "cert" && d.grade && d.grade !== "Other" ? `<label class="switch"><span>Plus (+) on the label<div class="small muted">Like ${esc(d.grade)}+. The value still uses ${esc(d.grade)}.</div></span><input type="checkbox" data-fcheck="plus" ${d.plus ? "checked" : ""}></label>` : ""}
       ${describedField(d)}
       ${d.grade === "Other" ? `<label class="f"><span>Custom grade</span><input type="text" data-f="customGrade" value="${esc(d.customGrade)}" placeholder="e.g. VF details, cleaned"></label>` : ""}
       ${isJunk(d) ? `<div class="hint">Junk coins are valued at melt.</div>` : ""}
@@ -216,6 +225,8 @@ function renderCoinForm() {
     ${sec("notes", "Notes", `<label class="f"><span>Notes</span><textarea data-f="notes">${esc(d.notes)}</textarea></label>`, d.notes)}
 
     ${typeof manyField === "function" ? manyField(d) : ""}
+    ${it === "coin" ? errorFields(d) : ""}
+
     <details data-sec="more" ${(draft._open && draft._open.more) ? "open" : ""}><summary>More details</summary>
     ${sec("value", "Quantity, value and metal", `<div class="grid2">
       <label class="f"><span>Quantity</span><input type="number" inputmode="numeric" min="1" data-f="qty" value="${esc(d.qty)}"></label>
@@ -231,8 +242,6 @@ function renderCoinForm() {
     <div class="hint" id="meltHint">${esc(meltHintText(d))}</div>`, num(d.qty) > 1 || d.value || (other && d.metal) || (typeof manyOn === "function" && manyOn(d)))}
 
     ${sec("status", "Status" + (d._status && d._status !== "owned" ? ` <span class="muted small">· ${esc(STATUS_TEXT[d._status] || "")}</span>` : ""), statusFields(d), (d._status && d._status !== "owned") || d.upgrade || d.status === "sold")}
-
-    ${it === "coin" ? errorFields(d) : ""}
 
     ${sec("photos", `Photos (${(d.photos || []).length})`, `<div class="photos">${(d.photos || []).map((p, i) => `<div class="ph"><img src="${esc(photoSrc(p))}" alt=""><button type="button" class="rm" data-act="rmPhoto" data-i="${i}" aria-label="Remove photo">✕</button></div>`).join("")}</div>
       <label class="btn file-btn" style="display:inline-block;margin-top:10px">Add photos<input type="file" accept="image/*" multiple id="photoInput"></label>
@@ -463,7 +472,8 @@ function varietyField(d) {
   const blank = vs.includes("") ? "Regular (no variety)" : "Not sure / not listed";
   const tt = TYPE_BY_ID[d.typeId];
   const needsDesign = tt && tt.varieties && tt.varieties[d.year + "|" + normMint(d.mint)] && !d.variety;
-  return `<label class="f"><span>Variety</span><select data-f="variety" data-rerender>${choices.map((v) => `<option value="${esc(v)}" ${(d.variety || "") === v ? "selected" : ""}>${esc(v || blank)}</option>`).join("")}</select></label>${needsDesign ? `<div class="hint">Pick the design so this coin fills its own spot in an album.</div>` : ""}`;
+  const isDesign = !!(tt && tt.varieties && tt.varieties[d.year + "|" + normMint(d.mint)]);
+  return `<label class="f"><span>${isDesign ? "Design" : "Variety"}</span><select data-f="variety" data-rerender>${choices.map((v) => `<option value="${esc(v)}" ${(d.variety || "") === v ? "selected" : ""}>${esc(v || blank)}</option>`).join("")}</select></label>${needsDesign ? `<div class="hint">Pick the design so this coin fills its own spot in an album.</div>` : ""}`;
 }
 function bookHintText(d) {
   if (itemOf(d) === "bullion") return "Leave value empty to use melt. For a collectible bar, type your own value.";

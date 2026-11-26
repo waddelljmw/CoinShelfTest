@@ -66,7 +66,7 @@ const { chromium } = require("./_compat");
   const at = (t) => order.findIndex((x) => x.startsWith(t));
   ok("order: year, grade, Purchase, Kept in, Notes, More details", at("year") < at("grade") && at("grade") < at("Purchase") && at("Purchase") < at("Holder") && at("Holder") < at("Notes") && at("Notes") < at("More details"));
   const more = await p.$$eval("#coinForm details[data-sec=more] details[data-sec]", (ds) => ds.map((d) => d.dataset.sec));
-  ok("More details holds value, status, errors, photos and label", ["value", "status", "errors", "photos", "label"].every((k) => more.includes(k)));
+  ok("More details holds value, status, photos and label", ["value", "status", "photos", "label"].every((k) => more.includes(k)));
   ok("Notes is not inside More details", !more.includes("notes") && !more.includes("purchase") && !more.includes("holder"));
   console.log("errors", JSON.stringify(errors));
   await b.close();

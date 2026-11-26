@@ -17,7 +17,7 @@ const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
   // Form: Described as + Plus on a slab
   await ev(() => openCoinForm(window._oldId)); await p.waitForSelector("#coinForm");
   const t = await p.textContent("#coinForm");
-  ok("form has Described as, Plus (slab) and Keeping for", /Described as/.test(t) && /Plus \(\+\) on the label/.test(t) && /Keeping for/.test(t));
+  ok("form has Described as, Plus (slab) and Keeping for", /Described as/.test(t) && await p.locator("[data-fcheck=plus]").count() === 1 && /Keeping for/.test(t));
   ok("section renamed and Plated / Colorized listed", /Errors, problems and changes/.test(t) && /Plated/.test(t) && /Colorized/.test(t));
   await p.selectOption("select[data-f=described]", "UNC"); await p.waitForTimeout(100);
   await p.click("[data-fcheck=plus]");

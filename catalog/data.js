@@ -294,7 +294,7 @@ const SPOT_METALS = [
   { key: "copper", label: "Copper", unit: "lb" },
 ];
 // How a coin is kept. "Album" and "Slab" are filled in on their own when a coin is in an album or certified.
-const HOLDERS = ["Album", "Slab", "Hard case", "Capsule", "2x2 cardboard flip", "Plastic flip", "Plastic holder", "Mint box", "Envelope", "Roll", "Loose", "GSA holder", "Other"];
+const HOLDERS = ["Album", "Slab", "Hard case", "Capsule", "2x2 cardboard flip", "Plastic flip", "Plastic holder", "Mint box", "Envelope", "Bag", "Roll", "Loose", "GSA holder", "Other"];
 // Older coins saved "2x2" and "Flip"; they are shown under the new names (the saved value changes only when the coin is edited).
 const HOLDER_RENAMES = { "2x2": "2x2 cardboard flip", "Flip": "Plastic flip" };
 const normHolder = (h) => HOLDER_RENAMES[h] || h || "";

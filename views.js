@@ -44,7 +44,15 @@ function coinBackLink() {
   if (!name && h === "purchases") name = "Purchases";
   return `<button class="link-btn" data-go="${esc(name ? h : "coins")}">← ${esc(name || "My Coins")}</button>`;
 }
-function closeMenu() { $("#menu").hidden = true; $("#menuBtn").setAttribute("aria-expanded", "false"); }
+// Phone Back with the menu open closes the menu (CloseWatcher: Android Chrome; other phones are unchanged).
+let menuWatcher = null;
+function watchMenu() {
+  if (menuWatcher) { menuWatcher.destroy(); menuWatcher = null; }
+  if ($("#menu").hidden || !window.CloseWatcher) return;
+  menuWatcher = new CloseWatcher();
+  menuWatcher.onclose = () => { menuWatcher = null; closeMenu(); };
+}
+function closeMenu() { if (menuWatcher) { menuWatcher.destroy(); menuWatcher = null; } $("#menu").hidden = true; $("#menuBtn").setAttribute("aria-expanded", "false"); }
 
 /* ---------- rendering ---------- */
 function render() {
@@ -54,6 +62,7 @@ function render() {
   if (store.mode === "loading") { main.innerHTML = `<div class="empty">Opening your cabinet…</div>`; return; }
   if (typeof ensureIds === "function") ensureIds(); // Step 7.0: every coin gets its ID
   const menuKey = r.view === "coin" || r.view === "forsale" ? "coins" : r.view === "album" ? "albums" : r.view === "box" ? "boxes" : r.view === "show" ? "shows" : r.view === "purchase" ? "purchases" : r.view;
+  $("#menuBackup").hidden = store.mode === "snapshot";
   $$("#menu button").forEach((b) => b.classList.toggle("on", b.dataset.go === menuKey));
   if (typeof applyShelfStyle === "function") applyShelfStyle();
   if (typeof applyTextSize === "function") applyTextSize();
