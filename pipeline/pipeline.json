@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25 (E1a–E1p queued)",
+ "updated": "2026-11-25 (E1a backup decisions)",
  "app": "v0.116.2",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
@@ -2246,8 +2246,8 @@
    "stage": "now",
    "name": "Safe carry + small fixes",
    "model": "Sonnet",
-   "est": "1–2",
-   "time": "~45 min",
+   "est": "~2",
+   "time": "~1 h",
    "actual": "",
    "status": "next",
    "chat": "New Sonnet chat",
@@ -2270,10 +2270,10 @@
     },
     {
      "id": "E1-3",
-     "size": "S",
-     "what": "Backup in the main menu + 'Last backed up' on Home",
-     "change": "One tap to back up; the demo says Backup is in your real app",
-     "affects": "Screens only"
+     "size": "M",
+     "what": "Backup: main menu item above Options, 'Last backup' line, smarter reminder, two-way copies",
+     "change": "Decided 11-25: (1) Menu item Backup above Options. (2) Home totals box, bottom row, small gray: 'Last backup: Nov 20 (5 days ago) · Back up', with 'phone + copy' / 'phone only' / 'no changes since' / 'changes not backed up'. (3) App records the last change date (once a day) and a count of changed coins since the last backup, in settings only (no coin data). Big bulk edits count each coin. (4) Reminder banner at the top of Home (existing one) only when there are changes since the last backup AND (7+ days OR 25+ changed coins); never a pop-up mid-entry; 'Not now' hides it until tomorrow. No changes = never nags. (5) Backup screen: two buttons, 'Save to this phone' and 'Send a copy to…' (small gray line: Drive, iCloud, email or another app; opens the phone's share menu with the file; if sharing files isn't possible, says so and saves to phone). After either finishes, offer the other: 'Also send a copy somewhere else?' / 'Also keep a copy on this phone?' (one tap). Record which copies were made. (6) Demo: says 'Backup is in your real app'. Restore unchanged (file picker shows Drive).",
+     "affects": "Settings only"
     },
     {
      "id": "E1-4",
@@ -2284,8 +2284,10 @@
     }
    ],
    "try": [
-    "Add an Inherited coin, then + Add coin: Where from is empty.",
-    "Menu: Backup sits above Options."
+    "Menu: Backup sits above Options.",
+    "Backup › Save to this phone › 'Also send a copy somewhere else?' › Yes: the share menu opens.",
+    "Home totals box: 'Last backup' line at the bottom.",
+    "Add an Inherited coin, then + Add coin: Where from is empty."
    ]
   },
   {
