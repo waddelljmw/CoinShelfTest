@@ -404,3 +404,17 @@ function mintWarning(typeId, year, mint) {
   if (!hit) return t.name + " has no listing for " + y + " in this app's date list. Check the year (you can still save).";
   return hit[1].split(" ").includes(m) ? "" : "A " + y + " " + t.name + " was struck at " + hit[1].replace(/\bP\b/, "P (no mark)").split(" ").join(", ") + ", not " + m + ". Check the mint mark (you can still save).";
 }
+
+// Semi-key dates (step 33a): a short hand-checked list, "year|mint" (P = no mint mark). A date is here only when
+// two public sources call it key or semi-key. The Key date tag (a mintage rule, coincard.js) wins over this one.
+const SEMI_KEYS = {
+  "morgan-dollar": ["1879|CC", "1892|S", "1893|CC"],
+  "peace-dollar": ["1928|P"],
+  "walking-liberty-half": ["1916|S", "1938|D"],
+  "franklin-half": ["1949|D", "1953|P", "1955|P"],
+  "barber-half": ["1913|P"],
+  "barber-dime": ["1895|O"],
+  "buffalo-nickel": ["1913|S", "1921|S", "1926|S"],
+  "liberty-nickel": ["1886|P"],
+  "lincoln-wheat": ["1922|D"],
+};
