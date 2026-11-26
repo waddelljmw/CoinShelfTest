@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E1p plan: wrong coin in a spot, break up a set</title>
+<style>
+:root{--bg:#1b1a19;--card:#2a2522;--wood:#4a3424;--gold:#d9b25a;--tx:#f2ede6;--mu:#b9ada0;--ok:#6fbf73;--bad:#e0734f;--or:#f0a03c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,sans-serif;padding:14px;max-width:760px;margin:auto}
+h1{font-size:22px;margin:4px 0 2px}h2{font-size:18px;color:var(--gold);margin:22px 0 8px}
+.card{background:var(--card);border-radius:12px;padding:12px 14px;margin:10px 0}
+.verdict{border:2px solid var(--gold)}.push{border-left:5px solid var(--or);background:#33281c}
+.chip{display:inline-block;font-size:12px;font-weight:700;border-radius:10px;padding:1px 8px;margin:1px 2px}
+.g{background:#24432a;color:#9fe0a3}.r{background:#4a2420;color:#f3a08c}.o{background:#4a3517;color:#ffc77a}.b{background:#22374a;color:#9cc8f0}
+.phone{background:#111;border:3px solid #444;border-radius:22px;padding:10px;max-width:320px;margin:10px auto}
+.scr{background:#1f1c1a;border-radius:12px;padding:10px;font-size:14px}
+.spot{display:inline-block;width:64px;height:64px;border-radius:50%;border:2px dashed #666;margin:4px;text-align:center;font-size:11px;padding-top:20px;vertical-align:top}
+.spot.have{border:2px solid var(--gold);background:#3a2f22}.spot.odd{border:2px solid var(--or);background:#3a2a18}
+.btn{display:block;background:#3a332d;border-radius:10px;padding:10px;margin:6px 0;text-align:center}.btn.p{background:var(--gold);color:#1b1a19;font-weight:700}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid #3a332d;padding:6px 0}
+.arrow{font-size:20px;font-weight:800;color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid #3a332d;padding:6px 4px;text-align:left;vertical-align:top}
+.small{font-size:13px;color:var(--mu)}.q{background:#22374a;border-radius:10px;padding:10px;margin:8px 0}
+</style></head><body>
+<h1>Plan E1p: wrong coin in a spot, break up a set</h1>
+<div class="small">Coin Cabinet · Opus plan, 11-26 · nothing built yet · from report 34 (E1-13, E1-14)</div>
+
+<div class="card verdict"><b>Verdict:</b> both are doable with a few new optional labels on a coin. No old coin changes, no conversion. One Opus build chat (~3 weekly points, ~1 h), merge waits for your OK. <b>3 questions</b> below need your answer first.</div>
+
+<h2>Where we are</h2>
+<div class="card">Plan (this page) <span class="arrow">➜ YOU ARE HERE</span> → your 3 answers → Opus build E1q (merge waits) → you try it in ?demo → merge</div>
+
+<h2>1. "Something else is in this spot" (E1-13)</h2>
+<div class="card">Today a token in a Morgan spot can't be recorded: the app says "that album is for a different coin type". Blank spots already take any coin, but a dated spot doesn't.</div>
+<div class="phone"><div class="scr">
+<b>Morgan album · page 3</b><br>
+<span class="spot have">1890-S<br>VF-20</span><span class="spot odd">1891<br>token</span><span class="spot">1891-O</span>
+<div class="small" style="margin-top:6px">Tap the 1891 spot:</div>
+<div class="btn">Add the 1891 coin</div>
+<div class="btn p">Something else is in this spot</div>
+<div class="btn">Add to want list</div>
+</div></div>
+<div class="phone"><div class="scr">
+<b>What's in the 1891 spot?</b>
+<div class="btn" style="text-align:left">🔍 Search any coin… <span class="small">(e.g. "1964 Nevada")</span></div>
+<div class="btn" style="text-align:left">✎ Or type it yourself <span class="small">(token, medal…)</span></div>
+<div class="row"><span>Original to the album</span><span>☐</span></div>
+<div class="btn p">Next: grade, cost…</div>
+</div></div>
+<div class="card"><b>How it works</b>
+<ul><li>The coin keeps its own true type (Nevada Centennial stays a Nevada coin); it just sits in that spot. Saved: the album, the spot, and one new tick <code>otherInSpot</code>.</li>
+<li>The spot shows the coin with an orange "something else" ring, so you know the 1891 is still missing.</li>
+<li>If the spot already has a coin, the app first asks where that coin goes (loose, a box, a stack). Never thrown loose silently.</li>
+<li><b>Take out of album</b> on a single spot will ask the same "where does it go?" (Loose is picked, one more tap). Your 11-26 note.</li></ul></div>
+
+<h2>2. "Break up this set" (E1-14)</h2>
+<div class="card">Today a proof set is one entry. You break sets open to fill album spots, so you re-type ~5 coins by hand (~45 taps).</div>
+<div class="phone"><div class="scr">
+<b>1964 Proof set · paid $30</b><br><span class="small">Break up into coins</span>
+<div class="row"><span>☑ 1964 cent, Proof</span><span>$6.00 · <u>Lincoln album, 1964 spot</u></span></div>
+<div class="row"><span>☑ 1964 nickel, Proof</span><span>$6.00 · Loose</span></div>
+<div class="row"><span>☑ 1964 dime, Proof</span><span>$6.00 · Loose</span></div>
+<div class="row"><span>☑ 1964 quarter, Proof</span><span>$6.00 · <u>Wash. album, 1964 spot?</u></span></div>
+<div class="row"><span>☑ 1964 half, Proof</span><span>$6.00 · Loose</span></div>
+<div class="small">Cost adds up to $30 ✓ (change any line)</div>
+<div class="btn p">Make 5 coins</div>
+</div></div>
+<div class="card"><b>How it works</b>
+<ul><li>The app suggests the coins (year, Proof ticked, mint mark) and the cost split; you check and change them.</li>
+<li>Matching empty album spots are <b>offered</b>, never filled by themselves; with 2 of the same album it asks which (your 11-24 rule).</li>
+<li>Each new coin copies the set's Where from, date, seller, purchase receipt, Inherited / Keeping for. New tick <code>fromSet</code> links it back.</li>
+<li>The set entry is not deleted: it becomes "Broken up" (gone, like Traded), linked to its coins, so cost history stays. One Undo reverses it all.</li></ul></div>
+<div class="card push"><b>Push back:</b> I won't trust built-in set contents I haven't checked. The build looks up which coins each set held by year from the U.S. Mint's public facts only. Where it isn't sure, the list starts empty and you pick the coins. <span class="chip r">GUESS until checked</span></div>
+
+<h2>Your 3 questions</h2>
+<div class="q"><b>Q1. Does a spot with "something else" count as filled?</b><br>Recommend <b>No</b>: the album says 29 of 30, the 1891 stays on want lists, and the token still counts in your totals.</div>
+<div class="q"><b>Q2. Cost split when breaking a set?</b><br>Recommend <b>equal shares</b> (you change any line; it must add up). Other choice: split by each coin's value (more exact, but values change).</div>
+<div class="q"><b>Q3. Break up only part of a set?</b><br>Recommend <b>No, the whole set</b> always. Coins you don't place go loose or into the set's box. Simpler, and totals stay right.</div>
+
+<h2>4-box check (saved coin data)</h2>
+<div class="card">
+<span class="chip g">1 Backup/restore ✓</span> backup saves every coin field whole, so the new ticks ride along (code checked).<br>
+<span class="chip g">2 Data version ✓</span> version 1 exists; no conversion, so it stays 1 (old coins just lack the ticks).<br>
+<span class="chip o">3 Tried on ?demo</span> done in the build chat before merge.<br>
+<span class="chip o">4 Counts and totals match</span> scripted before/after in the build chat; set break-up must keep total cost equal.
+<div class="small">Boxes 3 and 4 can only be run on built code; merge waits until all 4 are green.</div></div>
+
+<h2>Build size</h2>
+<table><tr><th>Item</th><th>Size</th><th>Saved data</th></tr>
+<tr><td>Something else is in this spot</td><td>M</td><td>new tick</td></tr>
+<tr><td>Take out of album asks where it goes</td><td>S</td><td>no</td></tr>
+<tr><td>Break up this set</td><td>M</td><td>new tick + "Broken up"</td></tr>
+<tr><td>Blank spot refused a second blank spot after 1938-D (your test note, a bug)</td><td>S</td><td>no</td></tr></table>
+<div class="card">Estimate: <span class="chip b">B</span> Opus build ~3 weekly points, ~60–75 min (based on steps 29 and 24, each ~2–3).</div>
+
+<h2>One-page summary</h2>
+<div class="card">Two new optional ticks on a coin (<code>otherInSpot</code>, <code>fromSet</code>) plus a "Broken up" reason. Old coins untouched. Answer Q1–Q3 in the pipeline page's <b>Questions for you</b> box (or in chat), then run E1q on Opus.</div>
+</body></html>
