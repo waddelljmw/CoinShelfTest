@@ -1,0 +1,63 @@
+// Shelf fix: metal color, zip bag (optional color), tube/other shapes, 4 boxes a shelf, set stacks, year set holders on Sets.
+const { chromium } = require("./_compat");
+const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
+const path = require("path"), shot = process.argv.includes("--shots");
+(async () => {
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 360, height: 780 } });
+  const errors = []; p.on("pageerror", (e) => errors.push(e.message));
+  await p.goto("file://" + path.resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
+  await p.evaluate(() => {
+    const mk = (id, o) => put("b_" + id, { kind: "box", id, name: id, rows: 0, perRow: 0, spots: false, type: "storage", createdAt: id.charCodeAt(0), ...o });
+    mk("a-steel", { name: "Red lock box", look: "metal", color: "red", locked: true });
+    mk("b-oldmetal", { name: "Old metal", look: "metal", color: "clear" });
+    mk("c-bag", { name: "Quarters", look: "bag" });
+    mk("d-clear", { name: "Clear tub", look: "plastic", color: "clear" });
+    mk("e-tube", { name: "Dimes", look: "tube" });
+    mk("f-other", { name: "Jewelry box", look: "other" });
+    mk("g-black", { name: "Black box with a very long name here", look: "black" });
+    mk("h-ys", { name: "1964 set", type: "yearset", setYear: 1964, look: "black", spots: true, rows: 1, perRow: 5 });
+    for (let i = 0; i < 6; i++) mk("i" + i, { name: "Case " + i, type: "display", look: "black" });
+    ["mint", "proof", "silver-proof", "sms", "bicentennial", "other"].forEach((k, i) => put("c_s" + i, { ...blankCoin(), id: "s" + i, item: "set", setKind: k, typeName: k, year: "1976", value: "10", qty: i ? 1 : 3, status: "owned" }));
+    go("home");
+  });
+  await p.waitForTimeout(250);
+  const totals = () => p.evaluate(() => { const t = ownedCoins(); return JSON.stringify([t.length, sum(t, qtyOf), sum(t, (c) => (num(c.value) || 0) * qtyOf(c)), allBoxes().length]); });
+  const before = await totals();
+  ok("metal shows its color", await p.evaluate(() => getComputedStyle(document.querySelector('[data-go="box-a-steel"] .sh-box.metal')).backgroundColor === "rgb(154, 42, 42)"));
+  ok("saved clear metal shows black, record untouched", await p.evaluate(() => getComputedStyle(document.querySelector('[data-go="box-b-oldmetal"] .sh-box.metal')).backgroundColor === "rgb(28, 28, 28)" && store.docs.get("b_b-oldmetal").color === "clear" && boxLookText(getBox("b-oldmetal")) === "Metal · black"));
+  ok("bag, tube and other have their own shapes", await p.evaluate(() => !!document.querySelector(".sh-bag .sh-zip") && !!document.querySelector(".sh-bag .sh-incoins") && !!document.querySelector(".sh-tube") && !!document.querySelector(".sh-other")));
+  ok("old bag gains no saved color", await p.evaluate(() => !("color" in store.docs.get("b_c-bag"))));
+  const layout = await p.evaluate(() => [...document.querySelectorAll(".sh-shelf.boxes")].map((s) => { const g = [...s.querySelectorAll(".sh-group")].map((e) => e.getBoundingClientRect()), r = s.getBoundingClientRect(); return { n: g.length, inside: g.every((x) => x.left >= r.left - 0.5 && x.right <= r.right + 0.5), level: new Set(g.map((x) => Math.round(x.bottom))).size <= 1, caps: new Set([...s.querySelectorAll(".sh-cap")].map((e) => Math.round(e.getBoundingClientRect().height))).size <= 1 }; }));
+  ok("at most 4 a shelf, inside, level, equal labels", layout.length >= 5 && layout.every((x) => x.n <= 4 && x.inside && x.level && x.caps));
+  ok("no page side-scroll", await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  ok("all display boxes drawn, no +more", await p.evaluate(() => document.querySelectorAll(".sh-case").length === 6));
+  ok("one stack per set kind with counts", await p.evaluate(() => [...document.querySelectorAll('[data-act=seeSets]')].map((e) => e.getAttribute("aria-label")).join("|") === "Mint sets, 3|Proof sets, 1|Silver proof sets, 1|Special Mint sets, 1|Other sets, 2"));
+  ok("year set holder sits on Sets, not Storage", await p.evaluate(() => { const lab = (el) => { let name = ""; for (const n of document.querySelector(".sh-cab").children) { if (n.classList.contains("sh-lab") && n.textContent) name = n.textContent; if (n.contains(el)) return name; } return ""; }; return lab(document.querySelector('[data-go="box-h-ys"]')) === "Sets"; }));
+  if (shot) await p.screenshot({ path: "/tmp/shelf-fix.png", fullPage: true });
+  await p.click('[data-act=seeSets][data-v=other]'); await p.waitForTimeout(200);
+  ok("tapping a stack shows only that kind", await p.evaluate(() => listState._shown.length === 2 && listState._shown.every((c) => ["bicentennial", "other"].includes(c.setKind))) && /Other sets only/.test(await p.textContent("main")));
+  // bag color through the form
+  const edit = async (id) => { await p.evaluate((i) => boxForm(getBox(i)), id); };
+  await p.evaluate(() => { go("boxes"); boxForm(null); });
+  await p.selectOption("#boxLook", "metal");
+  ok("metal: no Clear, black by default", await p.evaluate(() => { const c = document.querySelector("#boxForm [name=color]"); return c.value === "black" && ![...c.options].some((o) => o.value === "clear"); }));
+  await p.selectOption("#boxLook", "bag");
+  ok("bag: Clear by default", await p.inputValue("#boxForm [name=color]") === "clear");
+  await edit("c-bag"); await p.selectOption("#boxForm [name=color]", "red"); await p.click("#boxForm button[type=submit]"); await p.waitForTimeout(200);
+  ok("bag color saved", await p.evaluate(() => getBox("c-bag").color === "red" && boxLookText(getBox("c-bag")) === "Bag · red"));
+  // backup then restore keeps it
+  const file = await p.evaluate(async () => JSON.stringify(await buildBackup()));
+  await p.evaluate(() => put("b_c-bag", { ...getBox("c-bag"), color: "orange" }));
+  const restored = await p.evaluate((t) => { const d = JSON.parse(t); return { v: d.dataVersion, text: t.includes('"color":"red"') }; }, file);
+  ok("backup holds the bag color and data version", restored.text && restored.v === 1);
+  require("fs").writeFileSync("/tmp/shelffix-backup.json", file);
+  const p2 = await b.newPage(); p2.on("pageerror", (e) => errors.push(e.message));
+  await p2.goto("file://" + path.resolve(__dirname, "../index.html")); await p2.waitForTimeout(300);
+  await p2.evaluate(async (t) => { restorePending = JSON.parse(t); await doRestore(); }, file); await p2.waitForTimeout(600);
+  ok("restore on a fresh app brings the bag color back", await p2.evaluate(() => getBox("c-bag").color === "red" && getBox("b-oldmetal").color === "clear"));
+  ok("restored counts and totals match", before === await p2.evaluate(() => { const t = ownedCoins(); return JSON.stringify([t.length, sum(t, qtyOf), sum(t, (c) => (num(c.value) || 0) * qtyOf(c)), allBoxes().length]); }));
+  ok("counts and totals match before and after", before === await totals());
+  await edit("c-bag"); await p.selectOption("#boxForm [name=color]", "clear"); await p.click("#boxForm button[type=submit]"); await p.waitForTimeout(200);
+  ok("back to Clear removes the saved color", await p.evaluate(() => !("color" in store.docs.get("b_c-bag"))));
+  console.log("errors", errors); await b.close();
+})();

@@ -29,6 +29,7 @@ function extraFilter(c) {
   if (f.biz === "business" && !c.biz) return false;
   if (f.biz === "personal" && c.biz) return false;
   if (f.item && itemOf(c) !== f.item) return false;
+  if (f.setKind && (itemOf(c) !== "set" || setStackOf(c) !== f.setKind)) return false; // the shelf's set stacks
   if (f.holder && holderText(c) !== f.holder) return false;
   if (f.src && (c.source || "").trim().toLowerCase() !== f.src.toLowerCase()) return false; // R4-37: where it came from
   if (f.kept && !fltKept(c, f.kept)) return false;
@@ -90,7 +91,7 @@ function fltChips() {
   if (f.group) add("group", "Group: " + f.group);
   if (f.stack) add("stack", "Stack: " + f.stack);
   if (f.biz) add("biz", f.biz === "business" ? "Business stock" : "Personal");
-  if (f.item) add("item", f.item === "roll" ? "Rolls only" : "Sets only");
+  if (f.item) add("item", f.item === "roll" ? "Rolls only" : f.setKind ? (SET_STACKS.find((x) => x[0] === f.setKind) || ["", "Other"])[1] + " sets only" : "Sets only");
   if (f.holder) add("holder", "Holder: " + f.holder);
   if (f.src) add("src", "Where from: " + f.src);
   if (f.kept) add("kept", "Kept in: " + fltKeptName(f.kept));
@@ -106,7 +107,7 @@ function fltChips() {
   if ((f.probs || []).length) add("probs", FLT_PROBS.filter(([k]) => f.probs.includes(k)).map(([, l]) => l).join(" or "));
   return out;
 }
-const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"], ng: ["ng"], value: ["vFrom", "vTo"], probs: ["probs"], inc: ["inc"] };
+const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"], ng: ["ng"], value: ["vFrom", "vTo"], probs: ["probs"], inc: ["inc"], item: ["item", "setKind"] };
 
 // The Select bar (shared by My Coins, album pages and box pages): count, Select all / Clear, and the bulk buttons.
 function selBarHtml(picked, shown, onAlbum) {
@@ -242,6 +243,9 @@ function fltRead() {
   ["group", "stack", "biz", "holder", "src", "kept", "kf", "yFrom", "yTo", "mint", "gFrom", "gTo", "gCustom", "ng", "vFrom", "vTo", "inc", "fav"].forEach((k) => { const x = v(k); if (x) f[k] = x; });
   const probs = [...document.querySelectorAll("#sheet [data-flt-prob]:checked")].map((e) => e.dataset.fltProb);
   if (probs.length) f.probs = probs;
+  const was = listState.f || {}; // set by the shelf, with no box in the panel: keep it when the panel is applied
+  if (was.item) f.item = was.item;
+  if (was.setKind) f.setKind = was.setKind;
   listState.f = f;
 }
 const fltSnap = () => JSON.parse(JSON.stringify({ family: listState.family, metal: listState.metal, cert: listState.cert, status: listState.status, f: listState.f || {} }));
@@ -381,6 +385,7 @@ Object.assign(actions, {
 /* ---------- actions ---------- */
 Object.assign(actions, {
   fltOpen: () => openFilterPanel(),
+  seeSets: (el) => { Object.assign(listState, { family: null, status: "owned", metal: "", cert: "", stage: "", q: "", f: { item: "set", setKind: el.dataset.v } }); go("coins"); },
   seeItems: (el) => { Object.assign(listState, { family: null, status: "owned", metal: "", cert: "", stage: "", q: "", f: { item: el.dataset.v } }); go("coins"); }, // the shelf's Rolls and Sets open just those
   fltApply: () => { fltRead(); closeSheet(); render(); },
   fltClear: () => { listState.metal = ""; listState.cert = ""; listState.f = {}; closeSheet(); render(); },
