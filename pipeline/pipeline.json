@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-26 (33a Semi-key tag)",
- "app": "v0.119.0",
+ "updated": "2026-11-26 (33b Store-listed albums)",
+ "app": "v0.120.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 45,
@@ -2376,8 +2376,8 @@
     "Search 1893-CC Morgan: it shows Semi-key."
    ],
    "started": "2026-11-26 01:12",
-   "ended": "2026-11-26 01:19",
-   "minutes": 7
+   "ended": "2026-11-26 01:31",
+   "minutes": 19
   },
   {
    "n": "33b",
@@ -2386,8 +2386,8 @@
    "model": "Sonnet",
    "est": "~1",
    "time": "~30 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 32)",
    "why": "Add the 8 albums report 32 confirmed from public store listings, so picking the number fills its spots.",
@@ -2402,7 +2402,10 @@
    ],
    "try": [
     "New album: type one of the new album numbers; the years fill in."
-   ]
+   ],
+   "started": "2026-11-26 01:32",
+   "ended": "2026-11-26 01:32",
+   "minutes": 0
   },
   {
    "n": "33c",
@@ -2412,7 +2415,7 @@
    "est": "~1",
    "time": "~20 min",
    "actual": "",
-   "status": "ready",
+   "status": "next",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 31)",
    "why": "Add the varieties report 31 found missing (like the 1955 'Bugs Bunny' Franklin).",
@@ -3293,6 +3296,13 @@
    "ver": "v0.119.0",
    "cost": "pending",
    "change": "A Semi-key tag on 16 dates that two public sources call key or semi-key."
+  },
+  {
+   "date": "11-26",
+   "name": "33b Store-listed albums",
+   "ver": "v0.120.0",
+   "cost": "pending",
+   "change": "7 album numbers from public store listings now fill their years (Dansco 7181 waits on a question)."
   }
  ],
  "modes": [
