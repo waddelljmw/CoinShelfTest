@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-25 (R10f done)",
+ "updated": "2026-11-25 (E1 done)",
  "app": "v0.116.2",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 32,
+  "weekly_now": 33,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2212,6 +2212,36 @@
    "minutes": 18
   },
   {
+   "n": "E1",
+   "stage": "now",
+   "name": "Efficiency check (taps at real size)",
+   "model": "Opus",
+   "est": "5–8",
+   "time": "~2 h",
+   "actual": "reading pending",
+   "status": "done",
+   "started": "2026-11-25 19:12",
+   "chat": "New Opus chat (report only)",
+   "when": "his ask 11-25",
+   "why": "Count real taps, scrolls and screens for 15+ everyday jobs at real size (~500 coins, 30 albums, one 100-spot album), plus a fresh-eyes helper who doesn't know the app climbing an 8-level ladder. Report only: nothing is changed.",
+   "items": [
+    {
+     "id": "E1",
+     "size": "L",
+     "what": "Tap-count report + fresh-eyes ladder",
+     "change": "Nothing in the app; a ranked fix list with taps saved",
+     "affects": "Report only"
+    }
+   ],
+   "try": [
+    "Open the report page and read the top 5 fixes."
+   ],
+   "ended": "2026-11-25 19:36",
+   "minutes": 24,
+   "report": "reviews/34-E1-efficiency-check-2026-11-25.md",
+   "page": "https://claude.ai/artifact/3146NHNJ5pHWpKdPkTMSXd"
+  },
+  {
    "n": "33a",
    "stage": "now",
    "name": "Filler: Semi-key tag",
@@ -2979,6 +3009,13 @@
    "ver": "v0.116.2",
    "cost": "pending",
    "change": "Moved coins lose the wrong \"original\" mark, blank spots stay put, only coins go in blank spots, clearer Remove-spot words, Set grade fills Not graded and asks before replacing, Select bar shows only buttons that fit."
+  },
+  {
+   "date": "11-25",
+   "name": "E1 efficiency check",
+   "ver": "v0.116.2",
+   "cost": "pending",
+   "change": "Report only (34): 22 jobs timed at real size, fresh-eyes helper ladder, 2 data-safety fixes and a suggested queue E1a–E1d + E1p waiting for his yes."
   }
  ],
  "modes": [
