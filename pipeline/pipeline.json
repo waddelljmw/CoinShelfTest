@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-25 (E1a)",
- "app": "v0.117.0",
+ "updated": "2026-11-26 (Shelf fix)",
+ "app": "v0.118.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 42,
+  "weekly_now": 44,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2248,7 +2248,7 @@
    "model": "Sonnet",
    "est": "~2",
    "time": "~1 h",
-   "actual": "reading pending",
+   "actual": "~2",
    "status": "done",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 34)",
@@ -2292,6 +2292,64 @@
    "started": "2026-11-25 22:50",
    "ended": "2026-11-25 23:35",
    "minutes": 45
+  },
+  {
+   "n": "SF",
+   "stage": "now",
+   "name": "Shelf fix",
+   "model": "Sonnet",
+   "est": "~2",
+   "time": "~45 min",
+   "actual": "reading pending",
+   "status": "done",
+   "chat": "New Sonnet chat",
+   "when": "his OK 11-25",
+   "why": "The Home shelf shows boxes and sets the way they really look.",
+   "items": [
+    {
+     "id": "SF-1",
+     "size": "S",
+     "what": "Metal boxes show their color",
+     "change": "No Clear for metal; saved clear shows black",
+     "affects": "Screens only"
+    },
+    {
+     "id": "SF-2",
+     "size": "M",
+     "what": "Zip-top bag shape with a color choice",
+     "change": "Default Clear; a color is saved on the bag",
+     "affects": "Saved data (4-box green)"
+    },
+    {
+     "id": "SF-3",
+     "size": "S",
+     "what": "Tube and Other shapes",
+     "change": "No longer plain black boxes",
+     "affects": "Screens only"
+    },
+    {
+     "id": "SF-4",
+     "size": "S",
+     "what": "4 boxes per shelf, level",
+     "change": "Adds shelves instead of spilling",
+     "affects": "Screens only"
+    },
+    {
+     "id": "SF-5",
+     "size": "M",
+     "what": "Sets shelf: one stack per set kind",
+     "change": "Tap to see that kind; year set holders moved here",
+     "affects": "Screens only"
+    }
+   ],
+   "try": [
+    "Home: boxes sit 4 to a shelf, bottoms level.",
+    "Menu > Storage > edit a bag, pick a color, Save: the zip strip changes on Home.",
+    "Home > Sets: tap one stack, only that kind shows."
+   ],
+   "started": "2026-11-25 23:56",
+   "ended": "2026-11-26 00:10",
+   "minutes": 14
   },
   {
    "n": "33a",
@@ -3218,6 +3276,13 @@
    "ver": "v0.116.2",
    "cost": "pending",
    "change": "Report only (34): 22 jobs timed at real size, fresh-eyes helper ladder, 2 data-safety fixes and a suggested queue E1a–E1d + E1p waiting for his yes."
+  },
+  {
+   "date": "11-26",
+   "name": "Shelf fix",
+   "ver": "v0.118.0",
+   "cost": "pending",
+   "change": "Metal colors, zip-top bags with a color choice, tube and Other shapes, 4 boxes a shelf, set stacks and year set holders on the Sets shelf."
   }
  ],
  "modes": [
@@ -3697,6 +3762,15 @@
   },
   "s32-0": {
    "where": "The report sent in chat"
+  },
+  "sSF-0": {
+   "where": "Home"
+  },
+  "sSF-1": {
+   "where": "Menu > Storage"
+  },
+  "sSF-2": {
+   "where": "Home"
   }
  }
 }
