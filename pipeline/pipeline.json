@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-26 (E1c Receipt backlog)",
- "app": "v0.123.0",
+ "updated": "2026-11-26 (E1d Edit one by one)",
+ "app": "v0.124.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 45,
@@ -2531,8 +2531,8 @@
     "Purchases › New purchase › Find coins › pick an album, tick 3."
    ],
    "started": "2026-11-26 02:29",
-   "ended": "2026-11-26 02:31",
-   "minutes": 2
+   "ended": "2026-11-26 02:44",
+   "minutes": 15
   },
   {
    "n": "E1d",
@@ -2541,8 +2541,8 @@
    "model": "Sonnet",
    "est": "~1",
    "time": "~30 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 34)",
    "why": "Fix the same thing on many coins: Select, then Save + next through each.",
@@ -2557,7 +2557,10 @@
    ],
    "try": [
     "Select 3 coins › Edit one by one › change a year › Save + next."
-   ]
+   ],
+   "started": "2026-11-26 02:45",
+   "ended": "2026-11-26 02:46",
+   "minutes": 1
   },
   {
    "n": "E1p",
@@ -2567,7 +2570,7 @@
    "est": "~2",
    "time": "~45 min",
    "actual": "",
-   "status": "ready",
+   "status": "next",
    "chat": "New Opus chat",
    "when": "his yes 11-25 (report 34)",
    "why": "Both change how coins are saved, so plan + sketch + 4-box check first, no build until your OK.",
@@ -3333,6 +3336,13 @@
    "ver": "v0.123.0",
    "cost": "pending",
    "change": "Find coins by album on a receipt, Select › Put on a receipt, Save + next keeps date and store."
+  },
+  {
+   "date": "11-26",
+   "name": "E1d Edit one by one",
+   "ver": "v0.124.0",
+   "cost": "pending",
+   "change": "Select coins, then Edit one by one with Save + next."
   }
  ],
  "modes": [

@@ -136,7 +136,7 @@ function renderCoinForm() {
   const d = draft;
   const it = itemOf(d);
   const noun = it === "set" ? "set" : it === "roll" ? "roll" : it === "bullion" ? bullionNoun(d) : "coin";
-  const saveWord = !d._isNew ? "Save changes" : noun === "coin" ? "Add coin" : "Save " + noun; // 30b: name what's being added
+  const saveWord = !d._isNew ? (typeof fixup !== "undefined" && fixup.on && fixup.list ? "Save + next" : "Save changes") : noun === "coin" ? "Add coin" : "Save " + noun; // 30b: name what's being added
   if (d._isNew && !d.typeId && !d.typeName && !d._what) return whatPicker();
   document.querySelectorAll(`#coinForm[data-coin="${d.id}"] details[data-sec]`).forEach((x) => { (d._open = d._open || {})[x.dataset.sec] = x.open; }); // keep sections as you left them
   if (d._isNew) carryOpen = { ...d._open }; // the next new coin starts with the same sections open (R5-14)

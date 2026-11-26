@@ -344,7 +344,7 @@ function deleteAlbumNow(a, dropWants) {
   closeSheet(); go("albums");
   toast("Album deleted. Its coins are still in your collection.", { label: "Undo", fn: () => { put("a_" + a.id, a); inAlbum.forEach((c) => saveCoin(c)); if (dropList) saveWantList(dropList); ws.forEach(saveWant); render(); } });
 }
-const SNAPSHOT_BLOCK = new Set(("pocketNew fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd boxAddNew boxHave slotMoveList slotMoveGo newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot slotWantQuick slotTakeOut swapGo delAlbumGo " +
+const SNAPSHOT_BLOCK = new Set(("editEach pocketNew fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd boxAddNew boxHave slotMoveList slotMoveGo newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot slotWantQuick slotTakeOut swapGo delAlbumGo " +
   "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale textSize shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd lookupWant slotUnwant missing missingQuick missQuickAdd missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup savePriceFile reorderAlbums sortAlbumsDate autoOrder autoOrderOn moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
