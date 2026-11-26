@@ -10,7 +10,7 @@ function normBox(b) {
     if (b.type === "pocket") b.spots = true; // a pocket album (Step 9.7d) always has numbered pockets; its pages are the trays
     if (b.type === "dealer") b.forSale = b.forSale !== false; else delete b.forSale;
     if (!BOX_LOOKS.includes(b.look)) b.look = "black";
-    if (lookHasColor(b.look) && !BOX_COLORS.some((x) => x[0] === b.color)) b.color = b.look === "metal" ? "black" : "clear";
+    if ((b.look === "plastic" || b.look === "metal") && !BOX_COLORS.some((x) => x[0] === b.color)) b.color = b.look === "metal" ? "black" : "clear";
     if (b.spots !== false) b.spots = true;
     // Trays (Step 9.6b): b.trays = [{ rows, perRow }, ...]. rows/perRow always mirror tray 1, so old readers keep working.
     if (Array.isArray(b.trays) && b.trays.length > 1 && b.spots && b.type !== "dealer") {
@@ -23,7 +23,9 @@ function normBox(b) {
 const hasSpots = (b) => !!b && b.spots !== false;
 // Step 29 (idea 147/148): more container looks, a Lockable tick, and the year set holder. All optional fields; old boxes read as before.
 const BOX_LOOKS = ["black", "cardboard", "plastic", "wood", "metal", "bag", "tube", "other"];
-const lookHasColor = (look) => look === "plastic" || look === "metal";
+const lookHasColor = (look) => look === "plastic" || look === "metal" || look === "bag";
+// The color a box shows. Metal is never clear (a saved clear one shows black); a bag with no saved color is clear.
+const shownColor = (b) => { const known = BOX_COLORS.some((x) => x[0] === b.color); return b.look === "metal" ? (known && b.color !== "clear" ? b.color : "black") : known ? b.color : "clear"; };
 const YS_SLOTS = ["Half", "Quarter", "Dime", "Nickel", "Cent"];
 const YS_DENOMS = ["50C", "25C", "10C", "5C", "1C"];
 const lockMark = (b) => (b && b.locked ? ` <span title="Lockable" aria-label="Lockable">\u{1F512}</span>` : "");
@@ -196,7 +198,7 @@ const boxCountText = (b) => { const st = boxStats(b), na = boxAlbumCount(b); ret
 // Storage card: the albums number sits on its own line under the coin count.
 const boxCountHtml = (b) => { const na = boxAlbumCount(b), t = boxCountText(b); return na ? esc(t.split(" · ")[0]) + `<span style="display:block;text-align:right;white-space:nowrap">${na} album${na === 1 ? "" : "s"}</span>` : esc(t); };
 const boxKindText = (b) => (b.type === "yearset" ? "Year set holder" + (b.setYear ? " · " + b.setYear : "") : b.type === "pocket" ? "Pocket album" : b.type === "dealer" ? "Dealer case" : b.type === "display" ? "Display box" : "Storage box");
-const boxLookText = (b) => b.type === "yearset" ? (b.locked ? "Lockable" : "") : (b.type === "pocket" ? "Spine " + (b.color && b.color !== "clear" ? b.color : "black") : b.look === "plastic" ? (b.color === "clear" ? "Clear plastic" : "Plastic · " + b.color) : b.look === "metal" ? "Metal · " + (b.color || "black") : b.look === "bag" ? "Bag" : b.look === "tube" ? "Tube" : b.look === "other" ? b.lookName || "Other container" : b.look === "cardboard" ? "Cardboard" : b.look === "wood" ? "Wooden" : "Black") + (b.locked ? " · Lockable" : "");
+const boxLookText = (b) => b.type === "yearset" ? (b.locked ? "Lockable" : "") : (b.type === "pocket" ? "Spine " + (b.color && b.color !== "clear" ? b.color : "black") : b.look === "plastic" ? (b.color === "clear" ? "Clear plastic" : "Plastic · " + b.color) : b.look === "metal" ? "Metal · " + shownColor(b) : b.look === "bag" ? (shownColor(b) === "clear" ? "Bag" : "Bag · " + shownColor(b)) : b.look === "tube" ? "Tube" : b.look === "other" ? b.lookName || "Other container" : b.look === "cardboard" ? "Cardboard" : b.look === "wood" ? "Wooden" : "Black") + (b.locked ? " · Lockable" : "");
 function boxCard(b) {
   const st = boxStats(b);
   return `<button class="card" style="display:block;width:100%;text-align:left" data-go="box-${esc(b.id)}">
@@ -277,6 +279,8 @@ function backFromBox(ret, id) {
   if (f) [...f.elements].forEach((e, i) => { const v = ret.stash.vals[i]; if (v === undefined) return; if (e.type === "checkbox" || e.type === "radio") e.checked = v; else e.value = v; });
   const k = $("#sheet [name=keptBox]"); if (k && id) k.value = id;
 }
+// Color choices for a look: metal has no Clear.
+const boxColorOptions = (look, sel) => BOX_COLORS.filter((x) => look !== "metal" || x[0] !== "clear").map((x) => `<option value="${x[0]}" ${(look === "metal" && sel === "clear" ? "black" : sel) === x[0] ? "selected" : ""}>${x[1]}</option>`).join("");
 function boxForm(b) {
   const back = boxReturn ? "boxBack" : "closeSheet";
   const cur = b ? b : { type: "storage", look: "black", color: "clear", spots: true };
@@ -289,7 +293,7 @@ function boxForm(b) {
     <label class="f" id="setYearRow" ${cur.type === "yearset" ? "" : "hidden"}><span>Year of the set</span><input type="number" inputmode="numeric" name="setYear" min="1793" max="2100" value="${esc(cur.setYear || "")}" placeholder="e.g. 1925"><div class="hint">5 spots: Half, Quarter, Dime, Nickel, Cent. Any coin can go in any spot.</div></label>
     <label class="switch"><span>Lockable<div class="small muted">Has a lock or key. Shows a small lock; nothing else changes.</div></span><input type="checkbox" name="locked" ${cur.locked ? "checked" : ""}></label>
     <label class="switch" id="caseSaleRow" ${cur.type === "dealer" ? "" : "hidden"}><span>For sale case<div class="small muted">On: coins you move in switch to For sale. Turning this off later doesn't change coins already inside.</div></span><input type="checkbox" name="forSale" ${cur.forSale !== false ? "checked" : ""}></label>
-    <label class="f"><span>Color <span class="muted small">(plastic or metal)</span></span><select name="color">${BOX_COLORS.map((x) => `<option value="${x[0]}" ${cur.color === x[0] ? "selected" : ""}>${x[1]}</option>`).join("")}</select></label>
+    <label class="f"><span>Color <span class="muted small">(plastic, metal or bag)</span></span><select name="color">${boxColorOptions(cur.look, lookHasColor(cur.look) ? shownColor(cur) : "clear")}</select></label>
     <div id="spotSettings" ${cur.type === "yearset" ? "hidden" : ""}><label class="switch"><span>Numbered spots<div class="small muted">Rows and slots, one per coin. Turn off to just list what's inside.</div></span><input type="checkbox" name="spots" id="boxSpots" ${cur.spots !== false ? "checked" : ""}></label>
     <label class="f"><span>Spots run in</span><select name="dir"><option value="rows" ${!cur.cols ? "selected" : ""}>Rows (across)</option><option value="cols" ${cur.cols ? "selected" : ""}>Columns (front to back)</option></select></label>
     <label class="f" id="trayCountRow"><span>How many trays? <span class="muted small">(pullout drawers inside the box)</span></span><input type="number" inputmode="numeric" name="trays" min="1" max="12" value="${trayCount(cur.rows ? cur : { rows: 1, perRow: 1 })}"></label>
@@ -371,7 +375,11 @@ function saveBoxForm(form) {
   if (!old) id = uid();
   const look = BOX_LOOKS.includes(f.get("look")) ? f.get("look") : "black";
   const rec = { ...(old || { kind: "box", id, createdAt: Date.now() }), name, rows, perRow, type: ["display", "dealer", "yearset"].includes(f.get("type")) ? f.get("type") : "storage", look, spots, inside: String(f.get("inside") || "").trim() };
-  if (lookHasColor(look)) rec.color = BOX_COLORS.some((x) => x[0] === f.get("color")) ? f.get("color") : look === "metal" ? "black" : "clear"; else delete rec.color;
+  const col = BOX_COLORS.some((x) => x[0] === f.get("color")) ? f.get("color") : "clear";
+  if (look === "plastic") rec.color = col;
+  else if (look === "metal") rec.color = col === "clear" ? "black" : col;
+  else if (look === "bag" && col !== "clear") rec.color = col; // a clear bag saves no color
+  else delete rec.color;
   const ln = String(f.get("lookName") || "").trim(); if (look === "other" && ln) rec.lookName = ln; else delete rec.lookName;
   if (f.get("locked") === "on") rec.locked = true; else delete rec.locked;
   if (ys) rec.setYear = setYear; else delete rec.setYear;
@@ -476,6 +484,12 @@ document.addEventListener("change", (e) => { // more or fewer trays: keep the on
   if (e.target.id === "boxLook" && e.target.closest("#boxForm")) { // a new cardboard box starts with numbered spots off (a pile needs no rows); an untouched switch follows the look
     const form = e.target.closest("#boxForm"), sp = $("#boxSpots");
     if (sp && !form.dataset.id && !form.dataset.spotsTouched) { sp.checked = !["cardboard", "bag", "tube", "other"].includes(e.target.value); ["trayCountRow", "trayRows"].forEach((id) => { const x = $("#" + id); if (x) x.hidden = !sp.checked; }); }
+  }
+  if (e.target.name === "color" && e.target.closest("#boxForm")) e.target.closest("#boxForm").dataset.colorPicked = "1";
+  if (e.target.id === "boxLook" && e.target.closest("#boxForm")) { // the color list follows the look: metal has no Clear and starts black; a new bag or plastic starts clear
+    const form = e.target.closest("#boxForm"), c = form.elements.color;
+    const keep = form.dataset.id || form.dataset.colorPicked ? c.value : e.target.value === "metal" ? "black" : "clear";
+    c.innerHTML = boxColorOptions(e.target.value, keep);
   }
   if (e.target.id === "boxSpots" && e.target.closest("#boxForm")) { e.target.closest("#boxForm").dataset.spotsTouched = "1"; const off = !e.target.checked; ["trayCountRow", "trayRows"].forEach((id) => { const x = $("#" + id); if (x) x.hidden = off; }); }
   if (e.target.name === "type" && e.target.closest("#boxForm")) {

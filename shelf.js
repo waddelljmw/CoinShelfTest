@@ -126,6 +126,8 @@ function boxDrawing(b) {
   const st = boxStats(b), name = esc(b.name || "Box");
   const cap = (b.type === "dealer" ? "Dealer" : b.type === "display" ? "Display" : "Storage") + " · " + boxCountText(b);
   let art;
+  const tint = () => { const k = shownColor(b); return { k, hex: colorHex(k, "black"), ink: LIGHT_COLORS.includes(k) ? "#222" : "#fff" }; };
+  const coins3 = `<span class="sh-incoins"><i></i><i></i><i></i></span>`;
   if (b.type === "dealer") { // a glass-top show case with green felt
     art = `<span class="sh-case dealer"><span class="sh-case-coins">${["ag", "ag", "au", "cu", "ni"].map((k) => `<i class="sh-coin ${k}"></i>`).join("")}</span><b>${name}</b></span>`;
   } else if (b.type === "display" && b.look === "wood") { // a wooden display box is a solid wood case
@@ -133,24 +135,51 @@ function boxDrawing(b) {
   } else if (b.type === "display") {
     const coins = ["ag", "cu", "ni", "ag", "au"].slice(0, 5).map((k) => `<i class="sh-coin ${k}"></i>`).join("");
     art = `<span class="sh-case"><span class="sh-case-coins">${coins}</span><b>${name}</b></span>`;
+  } else if (b.look === "metal") { // painted steel: the chosen color under a shine, with rivets and a latch
+    const t = tint();
+    art = `<span class="sh-box metal" style="background-color:${t.hex};color:${t.ink}"><i class="sh-latch"></i><b>${name}</b></span>`;
+  } else if (b.look === "bag") { // zip-top bag: colored zip strip, see-through body, white label, soft bottom with coins
+    const k = shownColor(b), zip = k === "clear" ? "#4d86c6" : colorHex(k, "clear");
+    art = `<span class="sh-bag"><i class="sh-zip" style="background:${zip}"></i><b>${name}</b>${coins3}</span>`;
+  } else if (b.look === "tube") {
+    art = `<span class="sh-tube"><i class="sh-tcap"></i><span class="sh-tbody"></span><b>${name}</b></span>`;
+  } else if (b.look === "other") { // a lidded keepsake case
+    art = `<span class="sh-other"><i class="sh-lid"></i><b>${name}</b></span>`;
   } else if (b.look === "plastic") {
     const clear = b.color === "clear", hex = colorHex(b.color, "clear");
-    art = `<span class="sh-box plastic ${clear ? "clear" : ""}" ${clear ? "" : `style="background:${hex};color:${LIGHT_COLORS.includes(b.color) ? "#222" : "#eee"}"`}>${clear ? `<span class="sh-incoins"><i></i><i></i><i></i></span>` : ""}<b>${name}</b></span>`;
+    art = `<span class="sh-box plastic ${clear ? "clear" : ""}" ${clear ? "" : `style="background:${hex};color:${LIGHT_COLORS.includes(b.color) ? "#222" : "#eee"}"`}>${clear ? coins3 : ""}<b>${name}</b></span>`;
   } else art = `<span class="sh-box ${b.look === "cardboard" ? "cardboard" : b.look === "wood" ? "wooden" : ""}"><b>${name}</b></span>`;
   return `<button class="sh-group" data-go="box-${esc(b.id)}">${art}<span class="sh-cap">${cap}</span></button>`;
 }
-function shelfBoxes() {
-  if (!storageBoxes().length) return `<button class="sh-ghost" data-go="boxes">No storage boxes yet<br>Tap to add a box</button>`;
-  return limitGroups(storageBoxes().filter((b) => itemShown(b.id)).map(boxDrawing), "boxes", "Storage").join("");
+// Box shelves hold 4 across and add shelves as needed, so nothing spills past the cabinet.
+const BOXES_PER_SHELF = 4;
+function inRows(items) {
+  const rows = [];
+  for (let i = 0; i < items.length; i += BOXES_PER_SHELF) rows.push(items.slice(i, i + BOXES_PER_SHELF).join(""));
+  return rows;
 }
-function shelfDisplay() { return limitGroups(displayBoxes().filter((b) => itemShown(b.id)).map(boxDrawing), "boxes", "Storage").join(""); }
-function shelfDealer() { return limitGroups(dealerBoxes().filter((b) => itemShown(b.id)).map(boxDrawing), "boxes", "Storage").join(""); }
-// Sets get their own shelf (only drawn when you own one).
+// Year set holders are drawn on the Sets shelf, not with the storage boxes.
+const shelfStorageBoxes = () => storageBoxes().filter((b) => b.type !== "yearset");
+function shelfBoxes() {
+  if (!shelfStorageBoxes().length) return [`<button class="sh-ghost" data-go="boxes">No storage boxes yet<br>Tap to add a box</button>`];
+  return inRows(shelfStorageBoxes().filter((b) => itemShown(b.id)).map(boxDrawing));
+}
+function shelfDisplay() { return inRows(displayBoxes().filter((b) => itemShown(b.id)).map(boxDrawing)); }
+function shelfDealer() { return inRows(dealerBoxes().filter((b) => itemShown(b.id)).map(boxDrawing)); }
+// Sets get their own shelf (only drawn when you own one): one stack per kind of set, then any year set holders.
+const SET_STACKS = [["mint", "Mint"], ["proof", "Proof"], ["silver-proof", "Silver proof"], ["sms", "Special Mint"], ["other", "Other"]];
+const setStackOf = (c) => (SET_STACKS.some(([k]) => k === c.setKind) ? c.setKind : "other");
 function shelfSets(owned) {
   const sets = owned.filter((c) => itemOf(c) === "set");
-  if (!sets.length) return "";
-  const cases = sets.slice(0, 2).map((c, i) => `<i class="sh-set ${i ? "r" : ""}">${esc(labelOf(c).slice(0, 18))}</i>`).join("");
-  return `<button class="sh-group" data-act="seeItems" data-v="set"><span class="sh-sets">${cases}</span><span class="sh-cap">Sets · ${sum(sets, qtyOf)}</span></button>`;
+  const stacks = SET_STACKS.map(([k, label]) => {
+    const cs = sets.filter((c) => setStackOf(c) === k);
+    if (!cs.length) return "";
+    const n = sum(cs, qtyOf);
+    return `<button class="sh-group" data-act="seeSets" data-v="${k}" aria-label="${label} sets, ${n}"><span class="sh-sets ${k}">${"<i></i>".repeat(Math.min(3, n))}</span><span class="sh-cap">${label}<br>${n}</span></button>`;
+  }).filter(Boolean);
+  const holders = storageBoxes().filter((b) => b.type === "yearset" && itemShown(b.id)).map((b) =>
+    `<button class="sh-group" data-go="box-${esc(b.id)}"><span class="sh-yearset"><b>${esc(b.setYear || b.name)}</b><span><i></i><i></i><i></i><i></i><i></i></span></span><span class="sh-cap">${esc(b.name)}<br>${boxCountText(b)}</span></button>`);
+  return inRows(stacks.concat(holders));
 }
 // The totals plaques and metal prices on the top shelf.
 function shelfTop(t) {
@@ -169,13 +198,14 @@ function shelfTop(t) {
 function shelfHtml(owned, t) {
   const safe = shelfStyle() === "safe", L = shelfLayout();
   const row = (label, inner, cls) => `<div class="sh-lab">${label}</div><div class="sh-shelf ${cls || ""}">${inner}</div><div class="sh-board"></div>`;
+  const boxRows = (label, list) => list.map((r, i) => row(i ? "" : label, r, "boxes")).join("");
   const draw = {
     albums: () => shelfAlbums().map((r, i) => row(i ? "" : "Albums", r, "albums")).join(""),
     stacks: () => row("Stacks and coins", shelfStacks(owned), "spread"),
-    storage: () => { const h = shelfBoxes(); return h ? row("Storage boxes", h, "spread") : ""; },
-    display: () => { const h = shelfDisplay(); return h ? row("Display boxes", h, "spread") : ""; },
-    dealer: () => { if (!sellerOn()) return ""; const h = shelfDealer(); return h ? row("Dealer cases", h, "spread") : ""; },
-    sets: () => { const h = shelfSets(owned); return h ? row("Sets", h, "spread") : ""; },
+    storage: () => boxRows("Storage boxes", shelfBoxes()),
+    display: () => boxRows("Display boxes", shelfDisplay()),
+    dealer: () => (sellerOn() ? boxRows("Dealer cases", shelfDealer()) : ""),
+    sets: () => boxRows("Sets", shelfSets(owned)),
   };
   const rows = shelfOrder().filter((k) => !L.hidden[k]).map((k) => draw[k]()).join("");
   return `${safe ? `<div class="sh-door"><i class="sh-dial"></i>Coin vault · open<i class="sh-handle"></i></div>` : ""}

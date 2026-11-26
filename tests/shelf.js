@@ -34,7 +34,7 @@ const shots = process.argv.includes("--shots");
   ok("album spine", (await p.$$(".sh-spine")).length === 1);
   ok("stack shows a bar and ounces", !!(await p.$(".sh-bar.b")) && /My Silver Stack/.test(txt));
   ok("my coins stack has silver and gold", !!(await p.$(".sh-coin.ag")) && !!(await p.$(".sh-coin.au")));
-  ok("rolls, box and sets shown", !!(await p.$(".sh-roll")) && /Storage · 0\/100/.test(txt) && /Sets · 1/.test(txt));
+  ok("rolls, box and sets shown", !!(await p.$(".sh-roll")) && /Storage · 0\/100/.test(txt) && /Other1/.test(txt));
   ok("cost and gain kept", /Cost/.test(txt) && /Gain/.test(txt));
   ok("stack chip above shelf", !!(await p.$(".home-chips [data-act=toggleStack]")));
   if (shots) await p.screenshot({ path: "/tmp/shelf-bookcase.png", fullPage: true });
@@ -44,7 +44,7 @@ const shots = process.argv.includes("--shots");
   await p.evaluate(() => go("home")); await p.waitForTimeout(150);
   await p.click(".sh-box"); await p.waitForTimeout(150);
   ok("box opens box", (await p.evaluate(() => location.hash)) === "#box-bx1");
-  // Full shelf: 30 albums -> 2 shelves (17 spines + "+N more"); 8 boxes -> 1 shelf + "+N more"
+  // Full shelf: 30 albums and 8 boxes
   await p.evaluate(() => {
     for (let i = 0; i < 29; i++) put("a_f" + i, { kind: "album", id: "f" + i, name: "Franklin " + i, typeId: "franklin", start: 1948, end: 1963 });
     for (let i = 0; i < 7; i++) put("b_f" + i, { kind: "box", id: "f" + i, name: "Box " + i, rows: 10, perRow: 10, createdAt: 10 + i });
@@ -54,7 +54,7 @@ const shots = process.argv.includes("--shots");
   ok("30 albums: every spine shown, no +N more", (await p.$$("button.sh-spine")).length === 30 && !(await p.$(".sh-spine.more")));
   ok("every shelf looks full (9 books)", await p.evaluate(() => [...document.querySelectorAll(".sh-shelf.albums")].every((e) => e.querySelectorAll(".sh-spine").length === 9)));
   ok("no sideways scroll on shelves", await p.evaluate(() => [...document.querySelectorAll(".sh-shelf")].every((e) => e.scrollWidth <= e.clientWidth + 1)));
-  ok("boxes: 1 shelf with +N more", (await p.$$(".sh-group.more")).length === 1 && /\+/.test(await p.textContent(".sh-group.more")));
+  ok("8 boxes: 2 shelves of 4, no +N more", (await p.$$(".sh-shelf.boxes .sh-box")).length === 8 && !(await p.$(".sh-group.more")));
   if (shots) await p.screenshot({ path: "/tmp/shelf-full.png", fullPage: true });
   await p.evaluate(() => { for (let i = 0; i < 29; i++) remove("a_f" + i); for (let i = 0; i < 7; i++) remove("b_f" + i); go("home"); }); await p.waitForTimeout(150);
   // A long box name stays below the lid line and inside the box

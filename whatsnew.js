@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.118.0": [
+    "Home shelf: metal boxes show their color, bags look like zip-top bags (you can pick a color), tubes and Other have their own shapes.",
+    "Boxes sit 4 to a shelf, level. Sets shows one stack per kind (tap to see them) and your year set holders.",
+  ],
   "0.117.0": [
     "Backup is in the menu, with Save to this phone and Send a copy to…. Home shows your last backup.",
     "A new coin never copies Inherited or Gift. What it does copy shows at the top of the form.",

@@ -259,10 +259,36 @@ body.safe { --bg: #1c1e21; --card: #26292d; --ink: #e6e8ea; --muted: #9aa3ad; --
 .sh-case-coins { display: flex; gap: 3px; }
 .sh-case-coins .sh-coin { width: 11px; height: 11px; margin: 0; }
 .sh-sets { display: flex; }
-.sh-set { display: flex; width: 44px; height: 58px; border-radius: 3px; align-items: center; justify-content: center; font-size: 12px; font-style: normal; text-align: center; padding: 2px; overflow: hidden;
-  transform: rotate(-6deg); background: linear-gradient(135deg, #dfe6ee, #9fb0c2); color: #223; box-shadow: 0 2px 3px rgba(0,0,0,.5); }
-.sh-set.r { transform: rotate(4deg); margin-left: 4px; }
 .sh-cab .sh-ghost { flex: 1; align-self: center; font-size: 12px; padding: 14px 8px; border: 1px dashed rgba(255,255,255,.35); border-radius: 8px; opacity: .85; }
+
+/* Box shelves: 4 across, bottoms level, labels the same height. */
+.sh-shelf.boxes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; justify-items: center; gap: 4px; padding-left: 2px; padding-right: 2px; }
+.sh-shelf.boxes .sh-group { min-width: 0; width: 100%; align-self: end; }
+.sh-shelf.boxes .sh-cap { height: 3.5em; overflow: hidden; max-width: 100%; }
+.sh-shelf.boxes .sh-box, .sh-shelf.boxes .sh-case { width: 100%; max-width: 76px; box-sizing: border-box; }
+.sh-shelf.boxes > .sh-ghost { grid-column: 1 / -1; justify-self: stretch; }
+.sh-box.metal { background-image: linear-gradient(115deg, rgba(0,0,0,.35), rgba(255,255,255,.05) 25%, rgba(255,255,255,.55) 42%, rgba(255,255,255,.08) 55%, rgba(0,0,0,.4)); border: 2px solid #b9bec4; box-shadow: inset 0 0 0 1px rgba(0,0,0,.5); text-shadow: 0 0 3px rgba(128,128,128,.6); }
+.sh-box.metal::before { top: 3px; height: 4px; left: 4px; right: 4px; background: radial-gradient(circle, #eef0f2 1.5px, transparent 2px) left / 8px 4px no-repeat, radial-gradient(circle, #eef0f2 1.5px, transparent 2px) right / 8px 4px no-repeat; }
+.sh-latch { position: absolute; top: 3px; left: 50%; width: 14px; height: 8px; margin-left: -7px; border-radius: 2px; background: linear-gradient(#f2f3f5, #8d9298); }
+.sh-bag, .sh-tube, .sh-other { display: flex; flex-direction: column; align-items: center; position: relative; box-sizing: border-box; font-size: 12px; line-height: 1.1; width: 100%; max-width: 68px; }
+.sh-bag { height: 70px; justify-content: space-between; padding: 0 3px 4px; border: 1px solid rgba(230,240,248,.75); border-radius: 3px 3px 22px 22px; background: linear-gradient(105deg, rgba(255,255,255,.28), rgba(255,255,255,.06) 40%, rgba(255,255,255,.18)); }
+.sh-zip { display: block; width: calc(100% + 8px); height: 9px; margin: 3px -4px 0; border-radius: 2px; box-shadow: inset 0 3px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(0,0,0,.25); }
+.sh-bag > b, .sh-tube > b, .sh-other > b { background: #fff; color: #222; font-weight: 600; border-radius: 2px; padding: 1px 3px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-sizing: border-box; }
+.sh-bag .sh-incoins { position: static; }
+.sh-bag > b, .sh-tube > b, .sh-other > b { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: center; }
+.sh-tube { width: 40px; height: 74px; }
+.sh-tcap { display: block; width: 38px; height: 10px; border-radius: 3px; background: linear-gradient(90deg, #555a60, #c9ced3 50%, #555a60); }
+.sh-tbody { display: block; width: 30px; flex: 1; border-radius: 0 0 8px 8px; border: 1px solid rgba(230,240,248,.7); background: repeating-linear-gradient(180deg, rgba(214,170,100,.95) 0 4px, rgba(120,85,40,.95) 4px 5px) bottom / 100% 80% no-repeat, rgba(220,235,242,.18); }
+.sh-tube > b { position: absolute; bottom: 12px; width: 62px; max-width: none; }
+.sh-other { height: 56px; justify-content: center; padding: 8px 4px 2px; border-radius: 8px; border: 1px solid #c9a04a; background: linear-gradient(#6d3550, #4a2236); }
+.sh-lid { position: absolute; left: -1px; right: -1px; top: 11px; height: 2px; background: #c9a04a; }
+.sh-other > b { margin-top: 10px; }
+.sh-sets { flex-direction: column-reverse; align-items: center; }
+.sh-sets i { display: block; width: 58px; height: 17px; margin-top: 1px; border-radius: 3px; border: 1px solid rgba(255,255,255,.55); box-shadow: 0 2px 2px rgba(0,0,0,.4); background: radial-gradient(circle, #e8eaed 4px, transparent 5px) center / 12px 100% repeat-x, var(--set, #555); }
+.sh-sets.mint { --set: #c9bfa6; } .sh-sets.proof { --set: #223a66; } .sh-sets.silver-proof { --set: #6b7480; } .sh-sets.sms { --set: #2f6b52; } .sh-sets.other { --set: #6b4a6e; }
+.sh-yearset { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; width: 100%; max-width: 74px; height: 50px; border-radius: 4px; border: 2px solid #3d4a63; background: #1d2740; color: #f2e3c8; font-size: 12px; }
+.sh-yearset > span { display: flex; gap: 2px; }
+.sh-yearset i { width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(#f2f2f2, #9a9ea4); }
 
 /* Bookcase: warm wood (the same by day and night; only the page around it changes). */
 .sh-cab.wood { background: linear-gradient(#5a3a1e, #4a2f17); box-shadow: inset 0 0 0 6px #6e4824, inset 0 0 18px rgba(0,0,0,.6); color: #f2e3c8; }
