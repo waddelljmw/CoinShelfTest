@@ -238,6 +238,13 @@ function moveAlbum(id, d, whole) {
   saveSettings({ albumOrder: units.flatMap((u) => u.items.map((a) => a.id)) });
 }
 const albumSub = (a) => [a.name ? [a.brand !== "Other" ? a.brand : "", a.number].filter(Boolean).join(" ") : "", isSetAlbum(a) ? "Type set" : albumTypeText(a)].filter(Boolean).join(" · ");
+// E1-7: search box on My Albums. Hides cards as you type, without redrawing the page.
+const albumHit = (find) => String(albumsView.q || "").toLowerCase().split(/\s+/).every((w) => find.includes(w));
+function albumFilter() {
+  $$(".album-card").forEach((x) => { x.hidden = !albumHit(x.dataset.find); });
+  $$(".series-box").forEach((b) => { b.hidden = !!b.querySelector(".album-card") && !b.querySelector(".album-card:not([hidden])"); });
+}
+document.addEventListener("input", (e) => { if (e.target.id === "albumSearch") { albumsView.q = e.target.value; albumFilter(); } });
 function viewAlbums() {
   const list = albums();
   const units = albumUnits();
@@ -256,7 +263,8 @@ function viewAlbums() {
     const st = albumStats(a);
     const done = st.total && st.owned === st.total;
     const numLine = a.name && (a.brand !== "Other" || a.number) ? [a.brand !== "Other" ? a.brand : "", a.number && "No. " + a.number].filter(Boolean).join(" ") : "";
-    return `<button class="card" style="display:block;width:100%;text-align:left" data-go="album-${esc(a.id)}">
+    const find = [albumTitle(a), numLine, albumTypeText(a), a.brand, a.number].join(" ").toLowerCase();
+    return `<button class="card album-card" data-find="${esc(find)}" ${albumHit(find) ? "" : "hidden"} style="display:block;width:100%;text-align:left" data-go="album-${esc(a.id)}">
         <div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(albumTitle(a))}${a.inherited ? `<span class="chip" style="margin-left:6px;font-weight:normal">Inherited</span>` : ""}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</b><span class="num">${st.owned}/${st.total}</span></div>
         ${numLine ? `<div class="small">${esc(numLine)}</div>` : ""}
         <div class="small muted">${esc(isSetAlbum(a) ? "Type set · " + albumTypes(a).length + " types" : albumTypeText(a))}${a.start ? " · " + a.start + "–" + a.end : ""} · ${money(st.value, "$0.00")}</div>
@@ -265,6 +273,7 @@ function viewAlbums() {
   return `<h1>My Albums</h1>
     <button class="btn primary block" data-act="newAlbum">+ New album</button>
     <button class="btn block" style="margin-top:8px" data-act="pocketNew">+ New pocket album (flips or capsules)</button>
+    ${list.length > 3 ? `<input type="search" id="albumSearch" placeholder="Search your albums" aria-label="Search your albums" value="${esc(albumsView.q || "")}" style="width:100%;margin-top:10px">` : ""}
     ${list.length > 1 ? `<label class="switch" style="margin-top:10px"><span>Auto order (coin value, coin type, year)</span><input type="checkbox" data-act="autoOrder" ${settings().autoOrder !== false ? "checked" : ""}></label><div style="text-align:right;margin-top:4px"><button class="link-btn" data-act="reorderAlbums">Reorder albums</button></div>` : ""}
     <div style="margin-top:12px">${list.length ? units.map((u) => u.key ? `<div class="series-box"><div class="series-head"><b>${esc(seriesTitle(u.items))}</b></div>${u.items.map(card).join("")}</div>` : card(u.items[0])).join("") : pocketAlbums().length ? "" : `<div class="card empty">No albums yet. Make one here, or pick an album number when you add a coin.</div>`}${pocketCards()}</div>`;
 }

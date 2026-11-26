@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-26 (33c Missing varieties)",
- "app": "v0.121.0",
+ "updated": "2026-11-26 (E1b Fewer taps for big jobs)",
+ "app": "v0.122.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 45,
@@ -2439,8 +2439,8 @@
     "Add a 1955 Franklin: the variety list has the new one."
    ],
    "started": "2026-11-26 01:57",
-   "ended": "2026-11-26 01:57",
-   "minutes": 1
+   "ended": "2026-11-26 02:10",
+   "minutes": 13
   },
   {
    "n": "E1b",
@@ -2449,8 +2449,8 @@
    "model": "Sonnet",
    "est": "~2",
    "time": "~1 h",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 34)",
    "why": "Cuts scrolling and taps on jobs you repeat hundreds of times.",
@@ -2501,7 +2501,10 @@
    "try": [
     "Album › Quick grade: pick a grade, the next coin opens.",
     "Fill spots: Save stays at the bottom."
-   ]
+   ],
+   "started": "2026-11-26 02:11",
+   "ended": "2026-11-26 02:15",
+   "minutes": 4
   },
   {
    "n": "E1c",
@@ -2511,7 +2514,7 @@
    "est": "1–2",
    "time": "~45 min",
    "actual": "",
-   "status": "ready",
+   "status": "next",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 34)",
    "why": "Makes your 100 old receipts fast: pick coins from an album instead of searching one by one.",
@@ -3313,6 +3316,13 @@
    "ver": "v0.121.0",
    "cost": "pending",
    "change": "5 more known varieties in the coin form; search finds DDO and DDR."
+  },
+  {
+   "date": "11-26",
+   "name": "E1b Fewer taps for big jobs",
+   "ver": "v0.122.0",
+   "cost": "pending",
+   "change": "Quick grade grade-first, whole-row Fill spots, pinned Select bar, Select by grade, lot price, loose-coin offer, album search."
   }
  ],
  "modes": [

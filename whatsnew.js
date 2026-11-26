@@ -1,5 +1,13 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.122.0": [
+    "Quick grade: the grades are first. Tap one and the next coin opens.",
+    "Fill spots: tap anywhere on a row, and Save stays at the bottom.",
+    "The Select bar stays on screen. Albums have Select by grade.",
+    "Sell together: price each coin, give one price for the lot, or use asking prices.",
+    "After making an album, it offers your loose coins that fit. Nothing moves until you tap.",
+    "My Albums has a search box (with 4 or more albums).",
+  ],
   "0.121.0": [
     "New known varieties: 1936 quarter Doubled Die, 1955 Franklin Bugs Bunny, 1972 Eisenhower Type 2, 1979-P Anthony Wide Rim, 2000-P Cheerios dollar.",
     "Coin search finds varieties, including the short forms DDO and DDR.",

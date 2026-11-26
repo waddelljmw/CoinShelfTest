@@ -112,10 +112,11 @@ const fltDropKeys = { year: ["yFrom", "yTo"], grade: ["gFrom", "gTo", "gCustom"]
 // The Select bar (shared by My Coins, album pages and box pages): count, Select all / Clear, and the bulk buttons.
 function selBarHtml(picked, shown, onAlbum) {
   const dis = picked.length ? "" : "disabled";
-  return `<div class="card selbar"><div class="selrow"><b>${picked.length} selected</b><button class="btn" data-act="selAll">Select all (${shown})</button><button class="btn" data-act="selNone">Clear</button></div></div>
-      <div class="card selacts"><div class="btn-row" style="margin-top:8px"><button class="btn" data-act="saOpen" ${dis}>Set for all…</button><button class="btn" data-act="mvOpen" ${dis}>Move to…</button>${onAlbum ? `<button class="btn" data-act="toOpen" ${dis}>Take out of album…</button>` : ""}${sellerOn() ? `<button class="btn" data-act="orderOpen" ${dis}>Sell together…</button>` : ""}</div>
-      ${sellerOn() ? `<div class="btn-row" style="margin-top:8px"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button><button class="btn" data-act="selAsk" ${dis}>Suggested asking price</button></div>` : ""}</div>`;
+  return `<div class="selstick"><div class="card selbar"><div class="selrow"><b>${picked.length} selected</b><button class="btn" data-act="selAll">Select all (${shown})</button><button class="btn" data-act="selNone">Clear</button></div></div>
+      <div class="card selacts"><div class="btn-row">${onAlbum ? `<button class="btn" data-act="selGradeOpen">Select by grade…</button>` : ""}<button class="btn" data-act="saOpen" ${dis}>Set for all…</button><button class="btn" data-act="mvOpen" ${dis}>Move to…</button>${onAlbum ? `<button class="btn" data-act="toOpen" ${dis}>Take out of album…</button>` : ""}${sellerOn() ? `<button class="btn" data-act="orderOpen" ${dis}>Sell together…</button>` : ""}</div></div></div>
+      ${sellerOn() ? `<div class="card selacts"><div class="btn-row" style="margin-top:0"><button class="btn" data-act="bizBulk" ${dis}>Move to Business</button><button class="btn" data-act="bizBulkBack" ${dis}>Move to Personal</button><button class="btn" data-act="selAsk" ${dis}>Suggested asking price</button></div></div>` : ""}`;
 }
+const selGradeKey = (c) => (c.grade === "Other" ? c.customGrade || "Other" : c.grade || "No grade");
 // Bottom copy of Select all · Clear for long lists.
 const selFootHtml = () => listState.sel ? `<div class="small muted" style="text-align:center;margin:10px 0"><button type="button" class="link-btn" data-act="selAll">Select all</button> · <button type="button" class="link-btn" data-act="selNone">Clear</button></div>` : "";
 /* Long-press (38, 132): hold a coin on any page that has a Select button to start Select with it ticked. A shortcut only. */
@@ -427,6 +428,11 @@ Object.assign(actions, {
     openFilterPanel();
     toast("Deleted saved filter “" + gone.name + "”.", { label: "Undo", fn: () => { saveSettings({ savedFilters: before }); toast("Back again."); } });
   },
+  quickPick: (el) => {
+    if (!draft || Date.now() - quickPickAt < 500) return; // a double tap must not grade the next coin too
+    quickPickAt = Date.now();
+    draft.grade = el.dataset.g; delete draft.noGrade; saveDraft();
+  },
   fixupStart: () => { fixup.on = true; fixup.skip = []; fixup.hist = []; fixup.album = null; fixupNext(); },
   fixupQuick: (el) => { fixup.on = true; fixup.skip = []; fixup.hist = []; fixup.album = el.dataset.id; closeSheet(); fixupNext(); }, // 140: Quick grade from an album page
   fixupSkip: () => { if (draft && draft.id) fixup.skip.push(draft.id); closeSheet(); fixupNext(); },
@@ -435,6 +441,21 @@ Object.assign(actions, {
   fixupAlbum: (el) => { const id = el.dataset.id; closeSheet(); go("album-" + id); }, // 134: from the Needs Attention card straight to the coin's album
   needFix: () => { actions.needInfo(); actions.fixupStart(); }, // 4c: the Home button goes straight into the Needs Attention run
   needInfo: () => { Object.assign(listState, { family: null, metal: "", cert: "", status: "owned", stage: "", q: "", f: { inc: "home" } }); go("coins"); },
+  selGradeOpen: () => { // E1-10: tick every coin on this page that has one of the picked grades
+    const counts = new Map();
+    (listState._shown || []).forEach((c) => { const g = selGradeKey(c); counts.set(g, (counts.get(g) || 0) + 1); });
+    const rank = (g) => (g === "No grade" ? -1 : GRADES.indexOf(g) < 0 ? 999 : GRADES.indexOf(g));
+    openSheet(`<div class="sheet-head"><h2>Select by grade</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+      <p class="small muted">Tick the grades you want. The coins with those grades get selected.</p>
+      ${[...counts.keys()].sort((a, b) => rank(a) - rank(b)).map((g) => `<label class="chk" style="min-height:44px"><input type="checkbox" data-selg="${esc(g)}"> <span style="flex:1">${esc(g)}</span> <span class="muted small">${counts.get(g)}</span></label>`).join("")}
+      <div class="btn-row" style="margin-top:10px"><button class="btn primary block" data-act="selGradeGo">Select them</button></div>`);
+  },
+  selGradeGo: () => {
+    const want = new Set([...document.querySelectorAll("#sheet [data-selg]:checked")].map((x) => x.dataset.selg));
+    if (!want.size) { toast("Tick at least one grade."); return; }
+    listState.sel = new Set((listState._shown || []).filter((c) => want.has(selGradeKey(c))).map((c) => c.id));
+    closeSheet(); render();
+  },
   selStart: () => { listState.sel = new Set(); render(); },
   slotNoSel: () => toast("That spot is empty, so there is nothing to select. Tap Done selecting to add a coin to it."), // 122
   selDone: () => { listState.sel = null; render(); },
@@ -526,11 +547,21 @@ function fixupBackGo() {
   closeSheet(); fixupOpen(prev);
 }
 // Small bar at the top of the edit form while a run is going.
+// E1-5: in Quick grade the grades come first; tapping one saves and opens the next coin.
+let quickPickAt = 0;
+function quickGradeButtons(d) {
+  const al = d.albumId && getAlbum(d.albumId), sl = al && (al.slots || []).find((x) => x.id === d.slotId);
+  const proof = !!(d._proof || (sl && sl.pf));
+  const grades = (d.gradeMode === "cert" ? CERT_GRADES : GRADES).filter((g) => isProofGrade(g) === proof);
+  return `<div class="quick-grades">${grades.map((g) => `<button type="button" class="btn ${d.grade === g ? "primary" : ""}" data-act="quickPick" data-g="${esc(g)}">${esc(g)}</button>`).join("")}</div>`;
+}
 function fixupBar(d) {
   if (!fixup.on || d._isNew) return "";
   const left = fixupQueue().length + (fixupQueue().some((c) => c.id === d.id) ? 0 : 1), alb = d.albumId && getAlbum(d.albumId); // idea 134: say which album the coin is in; tap opens it
   const albLine = alb ? `<div class="small" style="color:#4a4130;margin-top:2px">\u{1F4D6} In <button type="button" class="link-btn" style="color:#6b4a00;text-decoration:underline" data-act="fixupAlbum" data-id="${esc(alb.id)}">${esc(albumTitle(alb))}</button></div>` : "";
   const quick = !!fixup.album, canBack = (fixup.hist || []).some((x) => x !== d.id && getCoin(x));
   const guide = `<a class="link-btn" style="color:#6b4a00;text-decoration:underline" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} \u2197</a>`;
-  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b style="color:#2a2418">${quick ? "Quick grade" : "Needs Attention"}: ${left} ${left === 1 ? "coin" : "coins"} left</b>${albLine}<div class="small" style="color:#4a4130">${quick ? "Pick a grade (or Can't grade this one). Save moves to the next coin." : `${esc(needsText(d) || "Nothing missing")}.${needsOf(d).includes("check mint") ? " Pick the mint: No mint mark, P only if the coin shows a P, or Can't tell." : ""} Save moves to the next coin.`}</div>${quick || needsOf(d).includes("grade") ? `<div class="small" style="margin-top:4px">${guide}</div>` : ""}<div class="row" style="gap:8px;margin-top:6px">${canBack ? `<button type="button" class="btn" data-act="fixupBack">\u2039 Back</button>` : ""}<button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div></div>`;
+  return `<div class="card" style="background:#fff7e0;margin-bottom:10px"><b style="color:#2a2418">${quick ? "Quick grade" : "Needs Attention"}: ${left} ${left === 1 ? "coin" : "coins"} left</b>${albLine}<div class="small" style="color:#4a4130">${quick ? "Tap a grade: it saves and the next coin opens." : `${esc(needsText(d) || "Nothing missing")}.${needsOf(d).includes("check mint") ? " Pick the mint: No mint mark, P only if the coin shows a P, or Can't tell." : ""} Save moves to the next coin.`}</div>${quick || needsOf(d).includes("grade") ? `<div class="small" style="margin-top:4px">${guide}</div>` : ""}<div class="row" style="gap:8px;margin-top:6px">${canBack ? `<button type="button" class="btn" data-act="fixupBack">\u2039 Back</button>` : ""}<button type="button" class="btn" data-act="fixupSkip">Skip this one</button><button type="button" class="btn" data-act="fixupStop">Stop</button></div>${quick ? quickGradeButtons(d) : ""}</div>`;
 }
+// E1-7: the pinned Select bar sits right under the top bar, whatever its height is on this phone.
+if (typeof ResizeObserver !== "undefined" && document.querySelector(".topbar")) new ResizeObserver(() => document.documentElement.style.setProperty("--topbar-h", document.querySelector(".topbar").offsetHeight + "px")).observe(document.querySelector(".topbar"));

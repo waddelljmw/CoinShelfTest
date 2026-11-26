@@ -32,6 +32,9 @@ function openOrder(list) {
   openSheet(`<div class="sheet-head"><h2>Sell together</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
   <p class="small muted">${cs.length} coins, one order. Type each coin's price. Shipping and fees are for the whole order.</p>
   <form id="orderForm" data-ids="${esc(cs.map((c) => c.id).join(","))}">
+    <div class="chips" style="margin:6px 0"><button type="button" class="chip on" data-act="orderMode" data-v="each" aria-pressed="true">Price each</button><button type="button" class="chip" data-act="orderMode" data-v="lot" aria-pressed="false">One price for the lot</button><button type="button" class="chip" data-act="orderAsk">Use asking prices</button></div>
+    <label class="f" id="oLotRow" hidden><span>Price for the whole lot</span><input type="number" inputmode="decimal" step="0.01" min="0" name="lot" placeholder="$"></label>
+    <div class="hint" id="oLotHint" hidden>Split between the coins by what each is worth. Check the prices below.</div>
     ${rows}
     <label class="f"><span>Date sold</span><input type="date" name="date" value="${date0}"></label>
     ${typeof showPicker === "function" ? showPicker(first, {}, false) : ""}
@@ -47,6 +50,20 @@ function openOrder(list) {
   </form>`);
   orderRecalc($("#orderForm"));
 }
+// E1-8: one price for the lot is split between the coins by what each is worth.
+function orderSplit(f) {
+  const ids = (f.dataset.ids || "").split(","), lot = f.elements.lot.value === "" ? null : num(f.elements.lot.value);
+  const parts = shareMoney(lot, ids.map((id) => { const c = getCoin(id); return (bestEach(c) || 0) * qtyOf(c); }));
+  ids.forEach((id, i) => { f.elements["p_" + id].value = parts[i] == null ? "" : parts[i]; });
+}
+function orderSetMode(f, mode) {
+  f.dataset.mode = mode;
+  f.querySelectorAll("[data-act=orderMode]").forEach((b) => { const on = b.dataset.v === mode; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+  f.querySelector("#oLotRow").hidden = f.querySelector("#oLotHint").hidden = mode !== "lot";
+  (f.dataset.ids || "").split(",").forEach((id) => { f.elements["p_" + id].readOnly = mode === "lot"; });
+  if (mode === "lot" && f.elements.lot.value !== "") orderSplit(f);
+  orderRecalc(f);
+}
 const orderPrices = (f) => (f.dataset.ids || "").split(",").map((id) => [id, num((f.elements["p_" + id] || {}).value)]);
 function orderRecalc(f, fromFees) {
   if (!f) return;
@@ -60,7 +77,7 @@ function orderRecalc(f, fromFees) {
   const p = total + v("shipCharged") - cost - v("fees") - v("shipping") - v("insurance");
   const o = $("#oProfit"); if (o) o.innerHTML = `Order total ${money(total, "$0.00")} · Profit: <b class="${signCls(p)}">${money(r2(p), "$0.00")}</b> <span class="muted small">after what you paid (${money(cost, "$0.00")}), fees and shipping.</span>`;
 }
-document.addEventListener("input", (e) => { const f = e.target.closest && e.target.closest("#orderForm"); if (f) orderRecalc(f, e.target.name === "fees"); });
+document.addEventListener("input", (e) => { const f = e.target.closest && e.target.closest("#orderForm"); if (!f) return; if (e.target.name === "lot") orderSplit(f); orderRecalc(f, e.target.name === "fees"); });
 document.addEventListener("change", (e) => {
   const f = e.target.closest && e.target.closest("#orderForm");
   if (!f) return;
@@ -113,6 +130,15 @@ function orderCard(c) {
 }
 Object.assign(actions, {
   orderOpen: () => openOrder(pickedCoins()),
+  orderMode: (el) => orderSetMode(el.closest("form"), el.dataset.v),
+  orderAsk: (el) => {
+    const f = el.closest("form"), ids = f.dataset.ids.split(",");
+    orderSetMode(f, "each");
+    let none = 0;
+    ids.forEach((id) => { const a = num(getCoin(id).ask); if (a == null) none++; else f.elements["p_" + id].value = r2(a); });
+    orderRecalc(f);
+    toast(none === ids.length ? "None of these coins has an asking price." : none ? "Asking prices filled in. " + none + " had none, so type those." : "Asking prices filled in.");
+  },
   refundOrder: (el) => {
     const c = getCoin(el.dataset.id), cs = c && c.sold ? orderCoins(c.sold.orderId) : [];
     if (!cs.length) return;

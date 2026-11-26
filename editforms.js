@@ -117,7 +117,9 @@ function doNewAlbum(form) {
   closeSheet();
   go("album-" + a.id);
   if (twin) toast("Same number as another album, so this one is called " + a.name + ". You can rename it.");
-  if (fd.get("fill") === "has" && typeof openFillAlbum === "function") { fillUi.fresh = true; openFillAlbum(a.id, true); } // already has coins: open the quick list
+  const hasCoins = fd.get("fill") === "has";
+  if (typeof openLooseOffer === "function" && openLooseOffer(a.id, hasCoins)) return; // E1-9: loose coins that fit are offered first
+  if (hasCoins && typeof openFillAlbum === "function") { fillUi.fresh = true; openFillAlbum(a.id, true); } // already has coins: open the quick list
 }
 // "Part of a series" in Edit album: link this album with another, or unlink it.
 function seriesField(a) {
