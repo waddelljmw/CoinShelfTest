@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-25 (R10f done)",
+ "updated": "2026-11-25 (E1a–E1p queued)",
  "app": "v0.116.2",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 32,
+  "weekly_now": 33,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2212,6 +2212,83 @@
    "minutes": 18
   },
   {
+   "n": "E1",
+   "stage": "now",
+   "name": "Efficiency check (taps at real size)",
+   "model": "Opus",
+   "est": "5–8",
+   "time": "~2 h",
+   "actual": "reading pending",
+   "status": "done",
+   "started": "2026-11-25 19:12",
+   "chat": "New Opus chat (report only)",
+   "when": "his ask 11-25",
+   "why": "Count real taps, scrolls and screens for 15+ everyday jobs at real size (~500 coins, 30 albums, one 100-spot album), plus a fresh-eyes helper who doesn't know the app climbing an 8-level ladder. Report only: nothing is changed.",
+   "items": [
+    {
+     "id": "E1",
+     "size": "L",
+     "what": "Tap-count report + fresh-eyes ladder",
+     "change": "Nothing in the app; a ranked fix list with taps saved",
+     "affects": "Report only"
+    }
+   ],
+   "try": [
+    "Open the report page and read the top 5 fixes."
+   ],
+   "ended": "2026-11-25 19:36",
+   "minutes": 24,
+   "report": "reviews/34-E1-efficiency-check-2026-11-25.md",
+   "page": "https://claude.ai/artifact/3146NHNJ5pHWpKdPkTMSXd"
+  },
+  {
+   "n": "E1a",
+   "stage": "now",
+   "name": "Safe carry + small fixes",
+   "model": "Sonnet",
+   "est": "1–2",
+   "time": "~45 min",
+   "actual": "",
+   "status": "next",
+   "chat": "New Sonnet chat",
+   "when": "his yes 11-25 (report 34)",
+   "why": "Stops a new coin quietly copying Inherited from the last one, plus small fixes from the tap check.",
+   "items": [
+    {
+     "id": "E1-1",
+     "size": "S",
+     "what": "Never copy Inherited or Gift",
+     "change": "Copied values show at the top of the form",
+     "affects": "Screens only"
+    },
+    {
+     "id": "E1-2",
+     "size": "S",
+     "what": "Clearing a copied source clears its price",
+     "change": "No leftover $1.00",
+     "affects": "Screens only"
+    },
+    {
+     "id": "E1-3",
+     "size": "S",
+     "what": "Backup in the main menu + 'Last backed up' on Home",
+     "change": "One tap to back up; the demo says Backup is in your real app",
+     "affects": "Screens only"
+    },
+    {
+     "id": "E1-4",
+     "size": "S",
+     "what": "Small fixes",
+     "change": "Back closes the menu, Shipping shown on receipts, + beside Grade, Bag holder, Plated one level up with bigger ticks, Edit on the spot pop-up, 'Design' for state/park designs",
+     "affects": "Screens only"
+    }
+   ],
+   "try": [
+    "Add an Inherited coin, then + Add coin: Where from is empty.",
+    "Menu: Backup sits above Options."
+   ]
+  },
+  {
    "n": "33a",
    "stage": "now",
    "name": "Filler: Semi-key tag",
@@ -2219,7 +2296,7 @@
    "est": "~1",
    "time": "~30 min",
    "actual": "",
-   "status": "next",
+   "status": "ready",
    "chat": "New Sonnet chat",
    "when": "his yes 11-25 (report 31)",
    "why": "A second 'Semi-key' tag from a short checked list (1893-CC Morgan would be one). Public Mint data only.",
@@ -2280,10 +2357,160 @@
      "what": "5 varieties",
      "change": "Show on the coin card and variety picker.",
      "affects": "Coin facts"
+    },
+    {
+     "id": "E1-15",
+     "size": "S",
+     "what": "Search finds DDO / DDR",
+     "change": "Short forms for doubled die",
+     "affects": "Search"
     }
    ],
    "try": [
     "Add a 1955 Franklin: the variety list has the new one."
+   ]
+  },
+  {
+   "n": "E1b",
+   "stage": "now",
+   "name": "Fewer taps for big jobs",
+   "model": "Sonnet",
+   "est": "~2",
+   "time": "~1 h",
+   "actual": "",
+   "status": "ready",
+   "chat": "New Sonnet chat",
+   "when": "his yes 11-25 (report 34)",
+   "why": "Cuts scrolling and taps on jobs you repeat hundreds of times.",
+   "items": [
+    {
+     "id": "E1-5",
+     "size": "S",
+     "what": "Quick grade: grade first, picking it saves and moves on",
+     "change": "About 1 tap per coin",
+     "affects": "Screens only"
+    },
+    {
+     "id": "E1-6",
+     "size": "S",
+     "what": "Fill spots: Save pinned, tap the whole row, rows don't jump",
+     "change": "No scrolling to save",
+     "affects": "Screens only"
+    },
+    {
+     "id": "E1-7",
+     "size": "S",
+     "what": "Select bar stays on screen; My Albums search box",
+     "change": "Fewer scrolls",
+     "affects": "Screens only"
+    },
+    {
+     "id": "E1-8",
+     "size": "S",
+     "what": "Sell together: price each, one price for the lot, or use asking prices",
+     "change": "Lot price splits by value",
+     "affects": "Screens only"
+    },
+    {
+     "id": "E1-9",
+     "size": "S",
+     "what": "After making an album: list of loose coins that fit, all ticked",
+     "change": "Untick the ones you don't want",
+     "affects": "Screens only"
+    },
+    {
+     "id": "E1-10",
+     "size": "S",
+     "what": "Album Select: Select by grade",
+     "change": "Fast upgrade lists",
+     "affects": "Screens only"
+    }
+   ],
+   "try": [
+    "Album › Quick grade: pick a grade, the next coin opens.",
+    "Fill spots: Save stays at the bottom."
+   ]
+  },
+  {
+   "n": "E1c",
+   "stage": "now",
+   "name": "Receipt backlog",
+   "model": "Sonnet",
+   "est": "1–2",
+   "time": "~45 min",
+   "actual": "",
+   "status": "ready",
+   "chat": "New Sonnet chat",
+   "when": "his yes 11-25 (report 34)",
+   "why": "Makes your 100 old receipts fast: pick coins from an album instead of searching one by one.",
+   "items": [
+    {
+     "id": "E1-11",
+     "size": "M",
+     "what": "Find coins by album on a receipt; Select › Put on a receipt; Save + next keeps date and store",
+     "change": "~1,600 fewer taps",
+     "affects": "Screens only"
+    }
+   ],
+   "try": [
+    "Purchases › New purchase › Find coins › pick an album, tick 3."
+   ]
+  },
+  {
+   "n": "E1d",
+   "stage": "now",
+   "name": "Edit one by one",
+   "model": "Sonnet",
+   "est": "~1",
+   "time": "~30 min",
+   "actual": "",
+   "status": "ready",
+   "chat": "New Sonnet chat",
+   "when": "his yes 11-25 (report 34)",
+   "why": "Fix the same thing on many coins: Select, then Save + next through each.",
+   "items": [
+    {
+     "id": "E1-12",
+     "size": "M",
+     "what": "Select › Edit one by one",
+     "change": "~58 fewer taps per 20 coins",
+     "affects": "Screens only"
+    }
+   ],
+   "try": [
+    "Select 3 coins › Edit one by one › change a year › Save + next."
+   ]
+  },
+  {
+   "n": "E1p",
+   "stage": "now",
+   "name": "Plan: wrong coin in a spot, break up a set",
+   "model": "Opus",
+   "est": "~2",
+   "time": "~45 min",
+   "actual": "",
+   "status": "ready",
+   "chat": "New Opus chat",
+   "when": "his yes 11-25 (report 34)",
+   "why": "Both change how coins are saved, so plan + sketch + 4-box check first, no build until your OK.",
+   "items": [
+    {
+     "id": "E1-13",
+     "size": "M",
+     "what": "Something else is in this spot",
+     "change": "Plan only",
+     "affects": "Saved data"
+    },
+    {
+     "id": "E1-14",
+     "size": "M",
+     "what": "Break up a proof set into coins and spots",
+     "change": "Plan only",
+     "affects": "Saved data"
+    }
+   ],
+   "try": [
+    "Read the plan page."
    ]
   },
   {
@@ -2979,6 +3206,13 @@
    "ver": "v0.116.2",
    "cost": "pending",
    "change": "Moved coins lose the wrong \"original\" mark, blank spots stay put, only coins go in blank spots, clearer Remove-spot words, Set grade fills Not graded and asks before replacing, Select bar shows only buttons that fit."
+  },
+  {
+   "date": "11-25",
+   "name": "E1 efficiency check",
+   "ver": "v0.116.2",
+   "cost": "pending",
+   "change": "Report only (34): 22 jobs timed at real size, fresh-eyes helper ladder, 2 data-safety fixes and a suggested queue E1a–E1d + E1p waiting for his yes."
   }
  ],
  "modes": [
