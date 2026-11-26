@@ -1,7 +1,7 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
   "0.120.0": [
-    "8 more album numbers fill in their years: Whitman 9004, 9030, 9000, 9149, 3394, H.E. Harris 2673 and 2674, Dansco 7181.",
+    "7 more album numbers fill in their years: Whitman 9004, 9030, 9000, 9149, 3394, H.E. Harris 2673 and 2674.",
   ],
   "0.119.0": [
     "A Semi-key tag marks 16 well-known dates the Key date rule missed (like the 1893-CC Morgan). Search 1893-CC Morgan to see it.",

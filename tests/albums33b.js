@@ -1,4 +1,4 @@
-// Step 33b (v0.120.0): 8 more album numbers from store listings.
+// Step 33b (v0.120.0): 7 more album numbers from store listings (Dansco 7181 waits on a question).
 const { chromium } = require("./_compat");
 const path = require("path");
 const ok = (name, v) => { console.log((v ? "PASS " : "FAIL ") + name); if (!v) process.exitCode = 1; };
@@ -7,7 +7,7 @@ const ok = (name, v) => { console.log((v ? "PASS " : "FAIL ") + name); if (!v) p
   const errors = []; p.on("pageerror", (e) => errors.push(e.message));
   await p.goto("file://" + path.resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
   const want = [["Whitman", "9004", 1909, 1940], ["Whitman", "9030", 1941, 1974], ["Whitman", "9000", 1959, 1998], ["H.E. Harris", "2673", 1941, 1974],
-    ["H.E. Harris", "2674", 1975, 2013], ["Whitman", "9149", 1979, 1981], ["Whitman", "3394", 1946, 2022], ["Dansco", "7181", 1986, 2021]];
+    ["H.E. Harris", "2674", 1975, 2013], ["Whitman", "9149", 1979, 1981], ["Whitman", "3394", 1946, 2022]];
   const r = await p.evaluate((want) => want.map(([br, n]) => {
     const i = lookupAlbum(br, n); if (!i) return null;
     const s = buildAlbumSlots(i.types, "dates", i.start, i.end, "");

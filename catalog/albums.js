@@ -55,7 +55,6 @@ const ALBUM_DB = {
   "Dansco|7176": { name: "Eisenhower Dollars 1971–1978", types: ["ike-clad", "ike-40"], start: 1971, end: 1978 },
   "Dansco|7178": { name: "Morgan Dollars 1878–1890", types: ["morgan-dollar"], start: 1878, end: 1890 },
   "Dansco|7179": { name: "Morgan Dollars 1891–1921", types: ["morgan-dollar"], start: 1891, end: 1921 },
-  "Dansco|7181": { name: "American Silver Eagles 1986–2021", types: ["silver-eagle"], start: 1986, end: 2021 },
   // Littleton Coin Company albums (numbers from retailer listings; "LCA" is part of the number)
   "Littleton|LCA24": { name: "Flying Eagle and Indian Head Cents 1856–1909", types: ["flying-eagle-cent", "indian-cent"], start: 1856, end: 1909 },
   "Littleton|LCA1": { name: "Lincoln Cents Vol. 1, 1909–1958", types: ["lincoln-wheat"], start: 1909, end: 1958 },
