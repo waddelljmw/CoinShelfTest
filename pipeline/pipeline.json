@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-26 (E1p plan)",
+ "updated": "2026-11-26 (E1q built, merge waits)",
  "app": "v0.124.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 52,
+  "weekly_now": 54,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2569,7 +2569,7 @@
    "model": "Opus",
    "est": "~2",
    "time": "~45 min",
-   "actual": "~1 (reading pending)",
+   "actual": "~2",
    "status": "done",
    "chat": "New Opus chat",
    "when": "his yes 11-25 (report 34)",
@@ -2640,10 +2640,14 @@
     }
    ],
    "try": [
-    "Albums > Morgan album > tap an empty spot > Something else is in this spot > type Token > Save: orange ring, spot still missing.",
-    "My Coins > a proof set > Break up this set > Make coins: 5 coins, cost adds up, Undo puts the set back."
+    "Albums > any album > tap an empty spot > Something else is in this spot > + New coin, token or medal > Medal, token or foreign coin > Kind Token, tick Never had a date > Add coin: orange ring, Missing count unchanged.",
+    "Tap the orange spot > Take out of album: it asks where (Loose picked) > Take out.",
+    "Add coin > Proof or mint set > Proof set, 1964, paid 30 > save > on its page Break up this set: 5 coins, cost adds up to $30 > Make 5 coins > Undo puts the set back."
    ],
-   "chats": 1
+   "chats": 1,
+   "started": "2026-11-26 18:42",
+   "built": "v0.125.0",
+   "waits": "Built and tested (v0.125.0). Merge waits for your OK after you try it in ?demo."
   },
   {
    "n": "E1r",
@@ -3439,7 +3443,7 @@
    "date": "11-26",
    "name": "E1p plan",
    "ver": "v0.124.0",
-   "cost": "pending",
+   "cost": "~2",
    "change": "Plan page: something else in a spot, break up a set (reviews/35)."
   }
  ],

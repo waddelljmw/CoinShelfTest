@@ -109,6 +109,8 @@ function blankSpotOf(c) {
   const s = a && c.slotId && (a.slots || []).find((x) => x.id === c.slotId);
   return s && s.blank ? s : null;
 }
+// E1q: a coin that sits in a blank spot, or in a dated spot as "something else", may be any coin type.
+const anyTypeSpot = (c) => !!(c && (c.otherInSpot || blankSpotOf(c)));
 // Put a dated spot next to its year in an album kept in your own order (after the last spot of that year or earlier).
 function insertByYear(slots, spot) {
   let at = -1;
@@ -154,6 +156,12 @@ function albumStats(a) {
     const hit = coins.find((c) => !used.has(c.id) && c.slotId === s.id);
     if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); blankFilled++; }
   });
+  // 0b) E1q: "Something else is in this spot" (a token in the 1891 spot). It sits there, but the spot still counts as missing.
+  const others = new Map();
+  slots.forEach((s) => {
+    const hit = s.id && coins.find((c) => !used.has(c.id) && c.otherInSpot && c.slotId === s.id);
+    if (hit) { others.set(slotKey(s), hit); used.add(hit.id); }
+  });
   const multi = albumTypes(a).length > 1 || isSetAlbum(a);
   // Does this coin fit this spot? Type sets match by type; date spots by date (and type, if the album has several).
   const pfOk = (c, s) => (s.pf ? isProofGrade(c.grade) : !(a.proofs && isProofGrade(c.grade)));
@@ -175,7 +183,7 @@ function albumStats(a) {
     if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
   });
   return {
-    coins, slots, filled, all, blanks, blankFilled,
+    coins, slots, filled, others, all, blanks, blankFilled,
     owned: filled.size - blankFilled, total: slots.length,
     value: sum(coins.filter((c) => !c.biz), (c) => (bestEach(c) || 0) * qtyOf(c)), // Business stock is counted apart, as on Home
     melt: sum(coins.filter((c) => !c.biz), (c) => (meltEach(c) || 0) * qtyOf(c)),
@@ -284,7 +292,7 @@ function viewAlbum(r) {
   const st = albumStats(a);
   const done = st.total && st.owned === st.total;
   const editing = albumEdit.id === a.id;
-  const extras = st.coins.filter((c) => ![...st.filled.values()].includes(c));
+  const extras = st.coins.filter((c) => ![...st.filled.values()].includes(c) && ![...st.others.values()].includes(c));
   return `<button class="link-btn" data-go="albums">← My Albums</button>
     <h1 style="margin-top:10px">${esc(albumTitle(a))}${done ? `<span class="check" aria-label="Complete">✓</span>` : ""}</h1>
     <div class="small muted" style="margin:-8px 0 12px">${esc([a.brand, a.number && "No. " + a.number, isSetAlbum(a) ? "Type set" : albumTypeText(a)].filter(Boolean).join(" · "))}${a.start ? " · " + a.start + "–" + a.end : ""}</div>
@@ -297,7 +305,7 @@ function viewAlbum(r) {
     </div>
     ${(a.removed || []).length && !editing ? `<div class="small muted" style="margin:-4px 0 10px">${(a.removed || []).length} spot${(a.removed || []).length > 1 ? "s" : ""} hidden · <button class="link-btn" data-act="editSlots" data-id="${esc(a.id)}">Show</button></div>` : ""}
     <div class="bar" style="margin:12px 0 16px"><i style="width:${st.total ? (st.owned / st.total) * 100 : 0}%"></i></div>
-    ${!editing && typeof pageSelHtml === "function" ? pageSelHtml([...st.filled.values(), ...extras], true) : ""}
+    ${!editing && typeof pageSelHtml === "function" ? pageSelHtml([...st.filled.values(), ...st.others.values(), ...extras], true) : ""}
     <div class="btn-row" style="margin:0 0 12px">
       <button class="btn" data-act="addSpot" data-id="${esc(a.id)}">+ Add a spot</button>
       ${!editing && st.total > st.owned && typeof openFillAlbum === "function" ? `<button class="btn" data-act="fillSpots" data-id="${esc(a.id)}">Fill spots</button>` : ""}
@@ -325,6 +333,8 @@ function viewAlbum(r) {
       const sw = spotWants(a, s);
       const tag = sw.length ? `<span class="g" style="color:var(--accent)">★ ${spotTag(sw)}</span>` : "";
       if (s.blank && !hit) return `<button class="slot blank-spot${listState.sel ? " dim" : ""}" data-act="${listState.sel ? "slotNoSel" : "slotMenu"}" ${data} aria-label="Blank spot"><span class="blank-ring"></span></button>`;
+      const oth = !hit && st.others.get(k);
+      if (oth) return `<button class="slot other-spot${listState.sel ? " sel" + (listState.sel.has(oth.id) ? " on" : "") : ""}" ${listState.sel ? `data-act="selToggle" data-id="${esc(oth.id)}" aria-pressed="${listState.sel.has(oth.id)}"` : `data-act="slotMenu" ${data} data-coin="${esc(oth.id)}"`} aria-label="${esc(lab)}: something else is here">${esc(lab)}${vLine}<span class="g other-what">${esc(blankCoinLabel(oth))}</span>${tag}</button>`;
       const labH = s.blank ? blankCoinLabel(hit) : lab;
       return hit
         ? `<button class="slot have${listState.sel ? " sel" + (listState.sel.has(hit.id) ? " on" : "") : ""}" ${listState.sel ? `data-act="selToggle" data-id="${esc(hit.id)}" aria-pressed="${listState.sel.has(hit.id)}"` : `data-act="slotMenu" ${data} data-coin="${esc(hit.id)}"`}>${slotPhotoHtml(hit)}${esc(labH)}${vLine}<span class="g">${esc(slotGrade(hit))}</span>${hit.origAlbum ? `<span class="g" style="color:var(--accent)">original</span>` : ""}${tag}</button>`
@@ -450,7 +460,8 @@ function saveSpot(form) {
     else if (at === "after") {
       const t = findSpotByText(a, fd.get("after"));
       if (!t) { toast("No " + String(fd.get("after") || "").trim() + " spot in this album. Type it like 1963-D."); return; }
-      const k = slots.indexOf(t) + 1;
+      let k = slots.indexOf(t) + 1;
+      while (k < slots.length && slots[k].blank) k++; // E1q: a second batch of blank spots after the same date goes after the first
       slots = [...slots.slice(0, k), ...add, ...slots.slice(k)]; free = true;
     } else slots = [...slots, ...add];
     put("a_" + a.id, { ...a, slots, ...(free ? { freeOrder: true } : {}) });
@@ -490,8 +501,17 @@ function saveSpot(form) {
   if ((a.slots || []).some((x) => slotKey(x) === k)) {
     const wasHidden = (a.removed || []).includes(k);
     if (wasHidden) put("a_" + a.id, { ...a, removed: (a.removed || []).filter((x) => x !== k) });
-    closeSheet();
-    toast(wasHidden ? "That spot was hidden. It's back now." : "That spot is already in the album.");
+    if (wasHidden) { closeSheet(); toast("That spot was hidden. It's back now."); return; }
+    // E1q bug fix: an exact twin of a dated spot isn't added, but an empty blank spot right after it is offered (as many as you like).
+    const twin = (a.slots || []).filter((x) => slotKey(x) === k).pop();
+    confirmSheet("That spot is already in the album", "This album already has a " + slotLabel(spot) + (spot.v ? " " + spot.v : "") + " spot. Add an empty blank spot right after it instead? Any coin can go there.", "Add a blank spot", () => {
+      const cur = getAlbum(a.id), list = (cur.slots || []).slice(), at = list.findIndex((x) => x.id === twin.id);
+      let k2 = at + 1; while (k2 < list.length && list[k2].blank) k2++; // after any blank spots already there, so the newest goes last
+      const add = newBlankSpot();
+      put("a_" + a.id, { ...cur, slots: [...list.slice(0, k2), add, ...list.slice(k2)], freeOrder: true });
+      closeSheet(); render();
+      toast("Blank spot added after " + slotLabel(twin) + ".", { label: "Undo", fn: () => { put("a_" + a.id, cur); render(); } });
+    });
     return;
   }
   const at = fd.get("at") || "year", cur = a.slots || [];

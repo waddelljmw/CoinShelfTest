@@ -492,12 +492,9 @@ Object.assign(actions, {
   toOpen: () => { // "Take out of album": loose by default, or into a box / stack; coins are never deleted
     const picked = pickedCoins();
     if (!picked.length) return;
-    const opt = (v, l) => `<option value="${esc(v)}">${esc(l)}</option>`;
     openSheet(`<div class="sheet-head"><h2>Take out of album</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
       <p class="small">${picked.length} selected. They stay in your collection.</p>
-      <label class="f"><span>Where do they go?</span><select data-flt="to"><option value="none">Loose (not kept anywhere special)</option>
-        ${storageBoxes().map((b) => opt("b:" + b.id, "Storage box: " + b.name)).join("")}${displayBoxes().map((b) => opt("b:" + b.id, "Display box: " + b.name)).join("")}${pocketAlbums().map((b) => opt("b:" + b.id, "Pocket album: " + b.name)).join("")}${(sellerOn() ? dealerBoxes() : []).map((b) => opt("b:" + b.id, "Dealer case: " + b.name)).join("")}
-        ${stackNames().map((s) => opt("s:" + s, "Stack: " + s)).join("")}</select></label>
+      <label class="f"><span>Where do they go?</span><select data-flt="to">${placeOptionsHtml("none")}</select></label>
       <div class="hint">Coins not in an album are skipped and listed. One Undo puts everything back.</div>
       <button class="btn primary block" data-act="toGo" style="margin-top:10px">Take out</button>`);
   },

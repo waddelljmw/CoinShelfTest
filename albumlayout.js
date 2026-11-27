@@ -155,7 +155,86 @@ function blankHave(el) {
   toast("Put in " + albumTitle(a) + ", " + blankName(aa, s) + ".", { label: "Undo", fn: () => { saveCoin(before); render(); } });
 }
 
+/* --- E1q: "Something else is in this spot" (E1-13) and Take out of album asks where it goes (note 11-26) --- */
+// Where a coin leaving an album can go: loose, a box, a stack. Same list as Select › Take out of album.
+function placeOptionsHtml(sel) {
+  const opt = (v, l) => `<option value="${esc(v)}" ${sel === v ? "selected" : ""}>${esc(l)}</option>`;
+  return opt("none", "Loose (not kept anywhere special)") + storageBoxes().map((b) => opt("b:" + b.id, (b.type === "yearset" ? "Year set: " : "Storage box: ") + b.name)).join("") + displayBoxes().map((b) => opt("b:" + b.id, "Display box: " + b.name)).join("")
+    + pocketAlbums().map((b) => opt("b:" + b.id, "Pocket album: " + b.name)).join("") + (sellerOn() ? dealerBoxes() : []).map((b) => opt("b:" + b.id, "Dealer case: " + b.name)).join("") + stackNames().map((s) => opt("s:" + s, "Stack: " + s)).join("");
+}
+// The spot name of a coin sitting in a dated spot as "something else" ("1891", "1891-O").
+function otherSpotName(d) {
+  const a = d && getAlbum(d.albumId), s = a && (a.slots || []).find((x) => x.id === d.slotId);
+  return s ? slotLabel(s) + (s.v ? " " + s.v : "") : "album";
+}
+function openTakeOut(c, then) {
+  const a = getAlbum(c.albumId);
+  openSheet(`<div class="sheet-head"><h2>Take out of album</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <p class="small"><b>${esc(labelOf(c))}</b> leaves ${esc(a ? albumTitle(a) : "the album")}. It stays in your collection.</p>
+    <label class="f"><span>Where does it go?</span><select data-flt="toOne">${placeOptionsHtml("none")}</select></label>
+    <button class="btn primary block" data-act="takeOutGo" data-id="${esc(c.id)}"${then ? ` data-then="${esc(then)}"` : ""} style="margin-top:10px">Take out</button>
+    <div class="hint">One Undo puts it back.</div>`);
+}
+function takeOutGo(el) {
+  const c = getCoin(el.dataset.id), sel = document.querySelector('#sheet [data-flt="toOne"]');
+  if (!c) return;
+  const a = getAlbum(c.albumId), sid = c.slotId, next = JSON.parse(JSON.stringify(c));
+  const why = movePlace(next, sel ? sel.value : "none", new Set());
+  if (why) { toast("It can't go there: " + why + "."); return; }
+  saveCoin(next); closeSheet(); render();
+  toast("Taken out of the album. It's still in your collection.", { label: "Undo", fn: () => { saveCoin(c); render(); } });
+  const s = el.dataset.then && a && (a.slots || []).find((x) => x.id === sid);
+  if (s) openElseMenu(a, s); // "Something else is in this spot" on a filled spot: the old coin went first, now say what is there
+}
+function openElseMenu(a0, s) {
+  const a = withSlotIds(a0), spot = (a.slots || []).find((x) => x.id === s.id) || (a.slots || []).find((x) => slotKey(x) === slotKey(s));
+  if (!spot) return;
+  const have = blankCandidates(), lab = slotLabel(spot) + (spot.v ? " " + spot.v : "");
+  const at = `data-album="${esc(a.id)}" data-sid="${esc(spot.id)}"`;
+  openSheet(`<div class="sheet-head"><h2>What's in the ${esc(lab)} spot?</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+    <div class="small muted" style="margin:-4px 0 12px">${esc(albumTitle(a))}. It keeps its own type. The ${esc(lab)} still counts as missing and stays on want lists.</div>
+    <button class="btn primary block btn-addcoin" data-act="slotElseNew" ${at}>＋ New coin, token or medal</button>
+    <div class="hint">Search any coin type, or pick <b>Medal, token or foreign coin</b> to type it yourself.</div>
+    ${have.length ? `<label class="f" style="margin-top:14px"><span>A coin I have</span><select data-flt="elseHave"><option value="">Pick a coin…</option>${have.map((c) => `<option value="${esc(c.id)}">${esc(labelOf(c))}</option>`).join("")}</select></label>
+    <button class="btn block" data-act="slotElseHave" ${at} style="margin-top:8px">Put it here</button>
+    <div class="hint">Only single coins that are not in an album. It leaves where it was kept. One Undo.</div>` : ""}`);
+}
+function slotElse(el) {
+  const a = getAlbum(el.dataset.album);
+  if (!a) return;
+  const aa = withSlotIds(a), s0 = spotFromEl(aa, el);
+  const spot = (s0.id && (aa.slots || []).find((x) => x.id === s0.id)) || (aa.slots || []).find((x) => slotKey(x) === slotKey(s0));
+  if (!spot) return;
+  const c = el.dataset.id && getCoin(el.dataset.id);
+  if (c) return openTakeOut(c, "else"); // the coin in the spot goes somewhere first, never thrown loose silently
+  openElseMenu(aa, spot);
+}
+function slotElseNew(el) {
+  const a = getAlbum(el.dataset.album), s = a && (a.slots || []).find((x) => x.id === el.dataset.sid);
+  if (!s) return;
+  openCoinForm(null);
+  Object.assign(draft, { albumId: a.id, slotId: s.id, otherInSpot: true, year: "", mint: "" });
+  if (a.inherited) applySourceKind(draft, "Inherited");
+  draft._stay = true; draft._short = true;
+  renderCoinForm();
+}
+function slotElseHave(el) {
+  const a = getAlbum(el.dataset.album), sel = document.querySelector('#sheet [data-flt="elseHave"]');
+  const c = sel && sel.value ? getCoin(sel.value) : null;
+  if (!a) return;
+  if (!c) { toast("Pick a coin first."); return; }
+  const s = (a.slots || []).find((x) => x.id === el.dataset.sid), st = albumStats(a);
+  if (!s || st.filled.has(slotKey(s)) || st.others.has(slotKey(s))) { toast("That spot just got filled."); return; }
+  const before = JSON.parse(JSON.stringify(c)), next = JSON.parse(JSON.stringify(c));
+  applyKept(next, "a:" + a.id, true);
+  next.slotId = s.id; next.otherInSpot = true;
+  saveCoin(next); closeSheet(); render();
+  toast("Put in the " + slotLabel(s) + " spot as something else.", { label: "Undo", fn: () => { saveCoin(before); render(); } });
+}
+
 Object.assign(actions, {
+  slotElse, slotElseNew, slotElseHave, takeOutGo,
+  slotTakeOut: (el) => { const c = getCoin(el.dataset.id); if (c) openTakeOut(c); },
   spotPickStart: (el) => { spotPickReset(); spotPick.id = el.dataset.id; render(); },
   spotPickCancel: () => { spotPickReset(); render(); },
   spotPickTog: (el) => { const i = spotPick.ids.indexOf(el.dataset.sid); if (i >= 0) spotPick.ids.splice(i, 1); else spotPick.ids.push(el.dataset.sid); render(); },
@@ -180,7 +259,7 @@ Object.assign(actions, {
   spotYearOrder: (el) => putBackYearOrder(el.dataset.id),
   blankHave,
 });
-["spotPickStart", "spotMoveOpen", "spotMoveEdge", "spotPlaceMode", "spotPutHere", "spotHideGo", "spotYearOrder", "blankHave"].forEach((x) => SNAPSHOT_BLOCK.add(x));
+["spotPickStart", "spotMoveOpen", "spotMoveEdge", "spotPlaceMode", "spotPutHere", "spotHideGo", "spotYearOrder", "blankHave", "slotElse", "slotElseNew", "slotElseHave", "takeOutGo"].forEach((x) => SNAPSHOT_BLOCK.add(x));
 
 document.addEventListener("submit", (e) => { if (e.target.id === "spotMoveForm") { e.preventDefault(); saveSpotMove(e.target); } });
 // Add a spot: switch between a dated spot and blank spots; "After a spot" shows its box.

@@ -106,7 +106,7 @@ function applyKept(d, v, keepStack) { // keepStack: a move changes where the coi
   const toCase = String(v).startsWith("b:") && (getBox(v.slice(2)) || {}).type === "dealer";
   if (d.origAlbum && v !== "a:" + d.albumId && !toCase) delete d.origAlbum;
   if (itemOf(d) !== "bullion" && !keepStack && !String(v).startsWith("b:")) d.stack = ""; // bullion always belongs to a stack; step 29: junk silver keeps its stack inside a box
-  if (d.albumId) delete d.slotId;
+  if (d.albumId) { delete d.slotId; delete d.otherInSpot; } // E1q: "something else" belongs to that one spot
   delete d._newStack;
   d.albumId = ""; d.boxId = ""; d.boxRow = ""; d.boxSlot = ""; d.boxTray = ""; delete d._boxFor;
   if (normHolder(d.holder) === "Album" && !v.startsWith("a:") && v !== "__new") d.holder = ""; // "Holder: Album" only while it is in an album

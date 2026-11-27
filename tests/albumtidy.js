@@ -31,6 +31,8 @@ const { chromium } = require("./_compat");
   ok("coin leaves its box slot when put in an album", c2.albumId === "A1" && !c2.boxId && !c2.boxRow && !c2.boxSlot);
   // take out from the spot menu
   await ev(() => actions.slotTakeOut({ dataset: { id: "c1" } })); await p.waitForTimeout(100);
+  ok("Take out asks where it goes (E1q), Loose picked", (await p.inputValue('#sheet [data-flt="toOne"]')) === "none");
+  await p.click("#sheet [data-act=takeOutGo]"); await p.waitForTimeout(100);
   const c1 = await ev(() => getCoin("c1"));
   ok("Take out frees the coin", !c1.albumId && c1.status !== "deleted");
   ok("Holder: Album cleared after leaving", (await ev(() => holderOf(getCoin("c1")))) !== "Album");
