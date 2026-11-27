@@ -132,7 +132,7 @@ const actions = {
   idStyle: (el) => saveSettings({ idStyle: ["own", "running", "off"].includes(el.dataset.v) ? el.dataset.v : "app" }),
   idRenumber: () => idRenumberAsk(),
   idUndoRenumber: () => { undoRenumber(); render(); toast("Back to the old IDs."); },
-  textSize: (el) => { saveSettings({ textSize: ["large", "xl"].includes(el.dataset.v) ? el.dataset.v : "normal" }); applyTextSize(); },
+  textSize: (el) => { saveSettings({ textSize: ["large", "xl"].includes(el.dataset.v) ? el.dataset.v : "normal" }); applyTextSize(); $$("#sheet .text-chips").forEach((c) => { c.outerHTML = textSizeChips(); }); },
   shelfStyle: (el) => saveSettings({ shelfStyle: el.dataset.v === "safe" ? "safe" : "bookcase" }),
   hideValues: () => saveSettings({ hideValues: !settings().hideValues }),
   optSec: (el) => { const o = { ...(settings().optOpen || {}) }; if (o[el.dataset.v]) delete o[el.dataset.v]; else o[el.dataset.v] = true; saveSettings({ optOpen: o }); },

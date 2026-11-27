@@ -43,7 +43,7 @@ function savePocketForm(form) {
 const pocketValue = (b) => sum(boxCoins(b).filter((c) => !c.biz), (c) => (bestEach(c) || 0) * qtyOf(c));
 function pocketGrades(b) {
   const g = {};
-  boxCoins(b).forEach((c) => { const k = itemOf(c) !== "coin" ? gradeText(c) : c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? noGradeWord(c) : "No grade"); g[k] = (g[k] || 0) + qtyOf(c); });
+  boxCoins(b).forEach((c) => { const k = itemOf(c) !== "coin" ? gradeText(c) : c.grade === "Other" ? c.customGrade || "Other" : gradeWord(c.grade) || (c.noGrade ? noGradeWord(c) : "No grade"); g[k] = (g[k] || 0) + qtyOf(c); });
   const all = Object.entries(g).sort((x, y) => y[1] - x[1]);
   return all.slice(0, 4).map(([k, n]) => (n > 1 ? n + "× " + k : k)).join(", ") + (all.length > 4 ? " + " + (all.length - 4) + " more" : "");
 }

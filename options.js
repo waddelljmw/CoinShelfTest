@@ -1,5 +1,6 @@
 // Step 9: text size. A setting (settings.textSize) that only changes how big the words look; no coin or other saved data is touched.
 const TEXT_SIZES = [["normal", "Normal"], ["large", "Large"], ["xl", "Extra large"]];
+const textSizeChips = () => `<div class="chips text-chips">${TEXT_SIZES.map(([k, n]) => { const on = textSizeKey() === k; return `<button class="chip ${on ? "on" : ""}" data-act="textSize" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>`;
 const textSizeKey = () => { const k = settings().textSize; return k === "large" || k === "xl" ? k : "normal"; };
 function applyTextSize() { const k = textSizeKey(); if (k === "normal") document.documentElement.removeAttribute("data-text"); else document.documentElement.setAttribute("data-text", k); }
 // Photo guide page, Options page, live metal prices, pop-up sheet (split from app.js; plain script, shares the page's global names)
@@ -10,7 +11,7 @@ function viewGuide() {
       <div class="btn-row"><a class="btn primary" style="text-align:center;text-decoration:none" href="https://www.pcgs.com/photograde" target="_blank" rel="noopener">Open PCGS Photograde ↗</a></div>
       <div class="hint">Opens in your browser.</div></div>
     <h2>Grades at a glance</h2>
-    <div class="card">${GRADE_GUIDE.map(([g, d]) => `<div class="rowline" style="display:block"><b>${esc(g)}</b><div class="small muted">${esc(d)}</div></div>`).join("")}</div>`;
+    <div class="card">${GRADE_GUIDE.map(([g, d]) => `<div class="rowline" style="display:block"><b>${esc(gradeWord(g))}</b><div class="small muted">${esc(d)}</div></div>`).join("")}</div>`;
 }
 
 /* --- Options --- */
@@ -88,17 +89,18 @@ function askMetalPrice(c) {
 function bookStatusLine() {
   const n = Object.keys(PRICE_BOOK.series || {}).length, name = bookName(), rec = store.docs.get("pricebook");
   if (store.mode === "snapshot") return name + " values in this file were worked out when it was made.";
-  if (!n) return "No " + name + " prices on this phone.";
+  const what = name === "price list" ? "Prices" : name + " prices";
+  if (!n) return "No " + (name === "price list" ? "price list" : name + " prices") + " on this phone.";
   const head = [PRICE_BOOK.edition, n + " series"].filter(Boolean).join(" · ");
-  if (!rec || (store.mode !== "local" && store.mode !== "db")) return name + " prices in this window (not saved): " + head;
+  if (!rec || (store.mode !== "local" && store.mode !== "db")) return what + " in this window (not saved): " + head;
   const d = rec.savedAt ? new Date(rec.savedAt) : null;
-  return name + " prices on this phone: " + head + (d && !isNaN(d) ? " · saved " + d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "");
+  return what + " on this phone: " + head + (d && !isNaN(d) ? " · saved " + d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "");
 }
 function redBookHtml() {
   const s = settings(), name = esc(bookName());
-  return `<h2>${name} values</h2>
+  return `<h2>${esc(bookTitle())} values</h2>
     <div class="card"><div class="small" id="bookStatus" style="margin-bottom:8px"><b>${esc(bookStatusLine())}</b></div>${Object.keys(PRICE_BOOK.series).map((id) => `<div class="rowline"><span>${esc(TYPE_BY_ID[id] ? TYPE_BY_ID[id].name : id)}</span><span class="muted small">${Object.keys(PRICE_BOOK.series[id]).map((k) => ({ circ: "regular", fbl: "FBL", proof: "proof", sms: "SMS" }[k] || k)).join(" · ")}</span></div>`).join("")}
-      <label class="f"><span>${name} edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
+      <label class="f"><span>${esc(bookTitle())} edition</span><input type="text" data-setting="bookEdition" value="${esc(s.bookEdition || PRICE_BOOK.edition || "")}" placeholder="e.g. 2026"></label>
       <div class="hint">A coin with no value typed in uses its ${name} ${wi("redbook")} value. Coins below the lowest listed grade use melt.</div>
       ${store.mode === "snapshot" ? "" : `<div class="btn-row" style="margin-top:8px"><label class="btn file-btn" style="display:inline-block;text-align:center">Load a price file<input type="file" accept=".json,application/json" id="priceFile"></label><button class="btn" data-act="savePriceFile">Save price file</button></div><div class="hint">Load takes a price file (.json) you saved here with Save price file. Not a backup, not a spreadsheet.</div>
       <div class="btn-row" style="margin-top:8px"><label class="btn file-btn" style="display:inline-block;text-align:center">Load your own values<input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" id="ownValuesFile"></label><button class="btn" data-act="ovHelp">How it works</button></div><div class="hint">Takes a spreadsheet saved as CSV (.csv) with your own values, not a backup.</div>
@@ -162,7 +164,7 @@ function optionsHtml() {
     </div>
     ${typeof valueSourcesOptionsHtml === "function" ? valueSourcesOptionsHtml() : ""}
     <h2>Text size</h2>
-    <div class="card"><div class="chips">${TEXT_SIZES.map(([k, n]) => { const on = textSizeKey() === k; return `<button class="chip ${on ? "on" : ""}" data-act="textSize" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>
+    <div class="card">${textSizeChips()}
       <div class="hint">Makes all the words in the app bigger. This works the same on iPhone and Android. Only how the app looks changes, nothing saved.</div></div>
     <h2>Shelf style</h2>
     <div class="card"><div class="chips">${(typeof SHELF_STYLES !== "undefined" ? SHELF_STYLES : []).map(([k, n]) => { const on = shelfStyle() === k; return `<button class="chip ${on ? "on" : ""}" data-act="shelfStyle" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>

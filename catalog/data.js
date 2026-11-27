@@ -258,6 +258,7 @@ const GRADES = [
   "MS-60", "MS-61", "MS-62", "MS-63", "MS-64", "MS-65", "MS-66", "MS-67", "MS-68", "MS-69", "MS-70",
   "PR-60", "PR-62", "PR-63", "PR-64", "PR-65", "PR-66", "PR-67", "PR-68", "PR-69", "PR-70",
 ];
+const gradeWord = (g) => (g === "Junk" ? "Cull" : g); // shown word only; the saved grade stays "Junk"
 const CERT_GRADES = GRADES.filter((g) => g !== "Junk");
 // PCGS Photograde page codes (https://www.pcgs.com/photograde#/<Code>/Grades). Codes are PCGS's own; copied from the real pages.
 // One code can cover several app types. Types not listed open the general Photograde page.

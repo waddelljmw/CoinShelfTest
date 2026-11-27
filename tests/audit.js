@@ -31,7 +31,7 @@ const { chromium } = require("playwright");
   // No Red Book value note + face label
   const id = await ev(() => allCoins()[0].id);
   await ev((i) => go("coin-" + i), id); await p.waitForTimeout(250);
-  if (!/Add a grade to get a Red Book value/.test(await p.textContent("main"))) console.log("FAIL no-grade Red Book note");
+  if (!/Add a grade to get a (Red Book|price list) value/.test(await p.textContent("main"))) console.log("FAIL no-grade Red Book note");
   await ev(async (i) => { await saveCoin({ ...getCoin(i), grade: "VF-20", typeId: "indian-cent", metal: "Copper-nickel" }); go("coin-" + i); }, id); await p.waitForTimeout(250);
   if (!/No price list loaded yet|No Red Book value for this date and grade/.test(await p.textContent("main"))) console.log("FAIL no Red Book value note");
   if (!(await p.locator("[data-act=addAnother]").count())) console.log("FAIL Add another button");
@@ -53,7 +53,7 @@ const { chromium } = require("playwright");
   if (groups.join("|") !== "Prices and selling|Backup and your data|Reports and sharing|Look and Home|Adding coins|Demo and help") console.log("FAIL Options group order: " + groups.join("|"));
   if (await p.locator('[data-v="red-book-values"]').count()) console.log("FAIL Red Book table should not be in Options");
   await ev(() => go("value")); await p.waitForTimeout(250);
-  if (!/Red Book edition/.test(await p.textContent("main"))) console.log("FAIL Red Book table should be on Coin Value");
+  if (!/(Red Book|Price list) edition/.test(await p.textContent("main"))) console.log("FAIL Red Book table should be on Coin Value");
 
   // My Stacks menu item: hidden until a stack-type item exists
   await ev(() => render()); 

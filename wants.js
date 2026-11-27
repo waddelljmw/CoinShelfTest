@@ -322,7 +322,7 @@ function swapCandidate(c) {
   }
   return null;
 }
-const swapGrade = (x) => (x.gradeMode === "cert" ? gradeText(x) : x.grade || "coin");
+const swapGrade = (x) => (x.gradeMode === "cert" ? gradeText(x) : gradeWord(x.grade) || "coin");
 function openSwapSheet(c, sw) {
   const boxes = allBoxes();
   const idAttr = `data-id="${esc(c.id)}" data-old="${esc(sw.old.id)}"`;

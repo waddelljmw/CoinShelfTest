@@ -123,7 +123,7 @@ function applyOv() {
   if (!p.cells.length) return;
   ov = null;
   const before = store.docs.get("pricebook");
-  const back = before ? JSON.parse(JSON.stringify(before)) : { kind: "pricebook", format: 1, source: "Red Book", edition: "", series: {}, mintage: {}, savedAt: "" };
+  const back = before ? JSON.parse(JSON.stringify(before)) : { kind: "pricebook", format: 1, source: "", edition: "", series: {}, mintage: {}, savedAt: "" };
   put("pricebook", ovMerge(before, p.cells, name.slice(0, 40)));
   closeSheet(); render();
   toast(p.cells.length.toLocaleString("en-US") + " values added.", { label: "Undo", fn: () => { put("pricebook", back); render(); toast("Undone. The earlier prices are back."); } });

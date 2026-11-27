@@ -365,7 +365,7 @@ function openSpotEdit(id, i) {
     <form id="spotEditForm" data-id="${esc(a.id)}" data-i="${i}">
       ${s.blank ? `<p class="small muted">A blank spot has no name. Any coin fits it.</p>` : `<label class="f"><span>Variety or label (optional)</span><input type="text" name="v" id="spotV" list="spotVList" value="${esc(s.v || "")}" placeholder="e.g. 7 Tail Feathers" maxlength="60"></label>`}
       <datalist id="spotVList">${opts.map((o) => `<option value="${esc(o)}">`).join("")}</datalist>
-      ${opts.length ? `<div class="hint">Red Book varieties for this date: ${opts.map((o) => `<button type="button" class="link-btn" data-act="pickSpotV" data-v="${esc(o)}">${esc(o)}</button>`).join(", ")}</div>` : ""}
+      ${opts.length ? `<div class="hint">Known varieties for this date: ${opts.map((o) => `<button type="button" class="link-btn" data-act="pickSpotV" data-v="${esc(o)}">${esc(o)}</button>`).join(", ")}</div>` : ""}
       <div class="btn-row">${s.blank ? "" : `<button class="btn primary" type="submit">Save</button>`}
         ${s.custom
           ? `<button class="btn danger" type="button" data-act="deleteSpot" data-id="${esc(a.id)}" data-k="${esc(k)}">Remove spot</button>`
@@ -445,7 +445,7 @@ function refreshSpotHints() {
   if (!$("#spotY")) return;
   const opts = spotVarietyOptions(a, num($("#spotY").value), $("#spotM").value);
   $("#spotVList").innerHTML = opts.map((o) => `<option value="${esc(o)}">`).join("");
-  $("#spotHint").innerHTML = opts.length ? "Red Book varieties for this date: " + opts.map((o) => `<button type="button" class="link-btn" data-act="pickSpotV" data-v="${esc(o)}">${esc(o)}</button>`).join(", ") : "";
+  $("#spotHint").innerHTML = opts.length ? "Known varieties for this date: " + opts.map((o) => `<button type="button" class="link-btn" data-act="pickSpotV" data-v="${esc(o)}">${esc(o)}</button>`).join(", ") : "";
 }
 function saveSpot(form) {
   const a0 = getAlbum(form.dataset.id);

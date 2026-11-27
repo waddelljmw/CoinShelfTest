@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.127.0";
+const APP_VERSION = "0.128.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 // Step 4c: mint "?" = "Can't tell". It finds no album spot, filter or mintage, but values use the plain-date (no mint mark) price.
@@ -83,12 +83,13 @@ function stampDataVersion(canSave) {
    { kind: "pricebook", format: 1, source, edition, series, mintage, savedAt }.
    Since Step 11.3 no prices ship with the app: you load a price file in Options (pricefile.js). A starting copy
    (SHIPPED_PRICE_BOOK) can only be supplied by a test page (tests/_compat.js); the real app has none. */
-const emptyBook = () => ({ source: "Red Book", edition: "", series: {}, mintage: {} });
+const emptyBook = () => ({ source: "", edition: "", series: {}, mintage: {} });
 let PRICE_BOOK = emptyBook();
 const shippedBook = () => (typeof SHIPPED_PRICE_BOOK !== "undefined" && SHIPPED_PRICE_BOOK && Object.keys(SHIPPED_PRICE_BOOK.series || {}).length ? SHIPPED_PRICE_BOOK : null);
 const usableBook = (r) => !!(r && r.series && typeof r.series === "object");
 // The name printed next to a value ("Red Book" today). Another value source later only changes the record.
-const bookName = () => PRICE_BOOK.source || "Red Book";
+const bookName = () => PRICE_BOOK.source || "price list"; // his own name for it when he gave one; the app never names a publisher
+const bookTitle = () => bookName().replace(/^./, (x) => x.toUpperCase());
 // Called at the end of every start path. canSave is false while the Claude copy has only shown its cached records.
 function loadPriceBook(canSave) {
   stampDataVersion(canSave);
@@ -103,7 +104,7 @@ function loadPriceBook(canSave) {
     // ...and only a whole copy: if one of the two shipped files didn't arrive, save nothing and try again next time.
     if (ship && ship.complete && canSave !== false && !store.bookCopyTried) {
       store.bookCopyTried = true;
-      put("pricebook", { kind: "pricebook", format: 1, source: ship.source || "Red Book", edition: ship.edition || "", series: ship.series, mintage: ship.mintage || {}, savedAt: new Date().toISOString() }, true);
+      put("pricebook", { kind: "pricebook", format: 1, source: ship.source || "", edition: ship.edition || "", series: ship.series, mintage: ship.mintage || {}, savedAt: new Date().toISOString() }, true);
       return; // put() sets PRICE_BOOK
     }
   }

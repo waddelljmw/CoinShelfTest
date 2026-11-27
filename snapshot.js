@@ -23,7 +23,7 @@ function openSnapshotForm() {
     <p class="small">Saves one file you can send to anyone. They can look around but can't change anything. Deleted coins are never included.</p>
     <div class="card"><b>Include private details?</b>
       ${SNAP_PRIVATE.map(([k, l]) => `<label class="switch"><span>${l}</span><input type="checkbox" name="${k}"></label>`).join("")}
-      <label class="switch"><span>Coin values<div class="small muted">Red Book prices from your price file. Off by default.</div></span><input type="checkbox" name="values"></label>
+      <label class="switch"><span>Coin values<div class="small muted">Prices from your price file. Off by default.</div></span><input type="checkbox" name="values"></label>
       <label class="switch"><span>Coin photos<div class="small muted">Makes the file bigger.</div></span><input type="checkbox" name="photos" checked></label>
     </div>
     <div class="hint" id="snapMsg"></div>

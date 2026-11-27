@@ -117,10 +117,15 @@ function viewHome() {
   const count = sum(owned, qtyOf);
   const total = sum(owned, (c) => (bestEach(c) || 0) * qtyOf(c));
   const melt = sum(owned, (c) => (meltEach(c) || 0) * qtyOf(c));
-  const gainCoins = owned.filter((c) => !isInherited(c) && costOf(c) != null);
-  const paid = sum(gainCoins, costOf); // price paid plus tax, shipping and fees
+  const costCoins = owned.filter((c) => !isInherited(c) && costOf(c) != null);
+  // Gain needs both a cost and a value. A coin only counted at melt for lack of a value is left out (melt picked on purpose, junk and bullion do have a value).
+  const hasValue = (c) => valueSource(c) === "entered" || valueSource(c) === "book" || ((isJunk(c) || itemOf(c) === "bullion" || c.valueFrom === "melt") && meltEach(c) != null);
+  const gainCoins = costCoins.filter(hasValue);
+  const paid = sum(costCoins, costOf); // price paid plus tax, shipping and fees
+  const gainPaid = sum(gainCoins, costOf);
   const gainVal = sum(gainCoins, (c) => (bestEach(c) || 0) * qtyOf(c));
-  const gain = gainCoins.length ? gainVal - paid : null;
+  const gain = gainCoins.length ? gainVal - gainPaid : null;
+  const gainOf = `Gain on ${sum(gainCoins, qtyOf)} of ${count} coins`;
   const noValue = owned.filter((c) => valueSource(c) === "melt" && !isJunk(c) && itemOf(c) !== "bullion" && c.valueFrom !== "melt").length;
   const fromBook = owned.filter((c) => valueSource(c) === "book").length;
 
@@ -139,7 +144,7 @@ function viewHome() {
     noValue ? `${noValue} coin${noValue > 1 ? "s" : ""} without a value ${noValue > 1 ? "are" : "is"} counted at melt.` : ""].filter(Boolean).join(" ")}</div>` : ""}
   ${owned.length && owned.every(isInherited) ? "" : `<div class="stats">
     <div class="stat"><div class="k">Cost</div><div class="v">${money(paid, "$0.00")}</div><div class="small muted">Paid, with tax, shipping and fees</div></div>
-    <div class="stat"><div class="k">Gain</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Add prices paid" : pct(paid ? gain / paid : null) + " · inherited not counted"}</div></div>
+    <div class="stat"><div class="k">${gainOf}</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Needs a price paid and a value" : pct(gainPaid ? gain / gainPaid : null) + " · inherited not counted"}</div></div>
   </div>`}${typeof bizPlaqueHtml === "function" ? bizPlaqueHtml() : ""}`;
   if (s.showHistory !== false && levelAtLeast("collector") && typeof historyCard === "function") html += historyCard();
 
@@ -377,7 +382,7 @@ function viewCoin(r) {
     ${(c.photos || []).length ? `<div class="detail-photos">${c.photos.map((p) => `<img src="${esc(photoSrc(p))}" alt="Coin photo">`).join("")}</div>` : ""}
     <div class="card">
       ${row("Status", esc(STATUS_TEXT[statusKey(c)] || "") + (c.upgrade && c.status === "owned" ? " · Upgrade wanted" : ""))}
-      ${itemOf(c) === "coin" ? row("Grade", esc(gradeText(c)) + cacBadge(c) + (photoGuideCode(c) ? ` <a class="small" href="${esc(photoGuideUrl(c))}" target="_blank" rel="noopener">PCGS photos ↗</a>` : "")) : ""}
+      ${itemOf(c) === "coin" ? row("Grade", esc(gradeText(c)) + cacBadge(c) + (photoGuideCode(c) ? ` <a class="btn photo-link" href="${esc(photoGuideUrl(c))}" target="_blank" rel="noopener">PCGS photos ↗</a>` : "")) : ""}
       ${itemOf(c) === "coin" && c.described ? row("Described as", esc(c.described)) : ""}
       ${itemOf(c) === "set" ? row("Set", esc(c.typeName)) : ""}
       ${itemOf(c) === "bullion" ? row("Type", esc(shapeName(c.bShape))) + (c.bShape === "Junk" ? row("Silver kind", junkKindOf(c)[0] + "%") + row("Face value", num(c.jFace) ? "$" + num(c.jFace) : null) + row("Pure silver", num(c.bWeight) ? esc(barWeightText(c)) : null) : row("Maker", esc(c.bMaker)) + row("Serial number", esc(c.bSerial)) + row("Weight", num(c.bWeight) ? esc(barWeightText(c)) : null) + row("Purity", esc(c.bPurity))) : ""}

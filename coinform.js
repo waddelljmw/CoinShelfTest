@@ -128,7 +128,7 @@ function whatPicker() {
   <button type="button" class="btn block what-btn" data-act="what" data-v="roll"><b>Roll of coins</b><small>Bank roll, tube or mint-sealed roll</small></button>
   <button type="button" class="btn block what-btn" data-act="what" data-v="junk"><b>Junk silver (90%, 40%, 35%)</b><small>Type the face value, like $20 of dimes</small></button>
   <button type="button" class="btn block what-btn" data-act="what" data-v="bullion"><b>Silver bar, round or other item</b><small>Bullion that goes in a stack</small></button>
-  <button type="button" class="btn block what-btn" data-act="what" data-v="other"><b>Medal, token or foreign coin</b><small>Anything that isn't a US coin from the Red Book</small></button>`, "sheet-75");
+  <button type="button" class="btn block what-btn" data-act="what" data-v="other"><b>Medal, token or foreign coin</b><small>Anything that isn't a regular US coin</small></button>`, "sheet-75");
 }
 function renderCoinForm() {
   if (typeof wordsReset === "function") wordsReset(); // the form redraws often; keep its ⓘ help
@@ -197,7 +197,7 @@ function renderCoinForm() {
       ${!d.grade ? (quickCoinOk(d) ? `<label class="switch"><span>Circulated (not graded)<div class="small muted">An everyday coin from pocket change or a roll. No grade needed; valued at face. Fills Where from with Pocket change if it is blank.</div></span><input type="checkbox" data-act="circTick" ${d.noGrade ? "checked" : ""}></label>` : `<label class="switch"><span>Can't grade this one<div class="small muted">For common worn coins. They stop showing under Needs info.</div></span><input type="checkbox" data-fcheck="noGrade" ${d.noGrade ? "checked" : ""}></label>`) : ""}
       <div class="grade-row">
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
-        <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option ${d.grade === g ? "selected" : ""}>${g}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
+        <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option value="${g}" ${d.grade === g ? "selected" : ""}>${gradeWord(g)}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
       ${d.gradeMode === "cert" ? `<label class="plus-box"><input type="checkbox" aria-label="Plus (+) on the label" data-fcheck="plus" ${d.plus ? "checked" : ""}><b>+</b></label>` : ""}</div>
       ${d.gradeMode === "cert" ? `<div class="hint">Tick + if the label shows a plus. The value still uses the grade without it.</div>` : ""}
       <div class="hint">Not sure of the grade? Compare your coin with photos: <a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
@@ -215,6 +215,13 @@ function renderCoinForm() {
     <div class="hint">\u{1F512} Locked: it can't go For sale, and Mark as sold asks first. It still counts in your totals.</div>
     ${purchaseFields(d)}
 
+    ${sec("worth", "Value", `<div class="grid2">
+      <label class="f"><span>Value${eachWord(d)}</span><input type="number" inputmode="decimal" step="0.01" data-f="value" value="${esc(isJunk(d) ? "" : d.value)}" placeholder="${isJunk(d) ? "melt" : "$"}" ${isJunk(d) ? "disabled" : ""}></label>
+      ${valueFromField(d)}
+    </div>
+    ${compareFields(d)}
+    <div class="hint" id="bookHint">${esc(bookHintText(d))}</div>`, d.value || d.valueFrom === "melt" || (d.compare || []).length)}
+
     ${sec("holder", (it === "set" ? "Packaging and Kept in" : "Holder and Kept in") + (h ? ` <span class="muted small">· ${esc(h)}</span>` : ""), `${keptInFields(d)}
     ${d.albumId === "__new" ? `<div class="grid2">
       <label class="f"><span>Brand</span><select data-na="brand">${ALBUM_BRANDS.map((b) => `<option ${d._newAlbum.brand === b ? "selected" : ""}>${b}</option>`).join("")}</select></label>
@@ -229,19 +236,15 @@ function renderCoinForm() {
     ${it === "coin" ? errorFields(d) : ""}
 
     <details data-sec="more" ${(draft._open && draft._open.more) ? "open" : ""}><summary>More details</summary>
-    ${sec("value", "Quantity, value and metal", `<div class="grid2">
+    ${sec("value", "Quantity and metal", `<div class="grid2">
       <label class="f"><span>Quantity</span><input type="number" inputmode="numeric" min="1" data-f="qty" value="${esc(d.qty)}"></label>
-      <label class="f"><span>Value${eachWord(d)}</span><input type="number" inputmode="decimal" step="0.01" data-f="value" value="${esc(isJunk(d) ? "" : d.value)}" placeholder="${isJunk(d) ? "melt" : "$"}" ${isJunk(d) ? "disabled" : ""}></label>
-      ${valueFromField(d)}
     </div>
-    ${compareFields(d)}
-    <div class="hint" id="bookHint">${esc(bookHintText(d))}</div>
     ${it === "bullion" ? "" : `<div class="grid2">
       ${it === "set" ? "" : `<label class="f"><span>Metal</span><select data-f="metal" data-rerender><option value="">Choose…</option>${METALS.map((m) => `<option ${d.metal === m ? "selected" : ""}>${m}</option>`).join("")}</select></label>`}
       <label class="f"><span>${it === "set" ? "Silver in the set (oz)" : it === "roll" ? "Metal content per coin (oz)" : "Metal content (oz)"}</span><input type="number" inputmode="decimal" step="0.00001" data-f="oz" value="${esc(d.oz)}" placeholder="0.77344"></label>
     </div>`}
     ${other ? gramsHelper(d) : ""}
-    <div class="hint" id="meltHint">${esc(meltHintText(d))}</div>`, num(d.qty) > 1 || d.value || (other && d.metal) || (typeof manyOn === "function" && manyOn(d)))}
+    <div class="hint" id="meltHint">${esc(meltHintText(d))}</div>`, num(d.qty) > 1 || (other && d.metal) || (typeof manyOn === "function" && manyOn(d)))}
 
     ${sec("status", "Status" + (d._status && d._status !== "owned" ? ` <span class="muted small">· ${esc(STATUS_TEXT[d._status] || "")}</span>` : ""), statusFields(d), (d._status && d._status !== "owned") || d.upgrade || d.status === "sold")}
 
@@ -338,7 +341,7 @@ function errorFields(d) {
       ${checks("mintErrors", MINT_ERRORS, errs)}
       <div class="small"><b>Problems</b> <span class="muted">(damage or changes after it left the Mint: cleaned, plated, colorized…)</span></div>
       ${checks("problems", COIN_PROBLEMS, probs)}
-      <div class="hint">Any problem makes it a "Details" coin. Red Book prices are for coins without problems, so they aren't used for it.</div>
+      <div class="hint">Any problem makes it a "Details" coin. Price list values are for coins without problems, so they aren't used for it.</div>
       <label class="f"><span>Describe (optional)</span><textarea data-f="errorNote" placeholder="e.g. 10% off-center at 3 o'clock">${esc(d.errorNote || "")}</textarea></label>`, d.knownVar || errs.length || probs.length || d.errorNote);
 }
 // The holder the form shows: what was picked, else Album / Slab when that fits, else (new coins) the last holder used.

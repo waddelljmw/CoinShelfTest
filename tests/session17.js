@@ -69,8 +69,8 @@ const ok = (name, v) => console.log((v ? "ok   " : "FAIL ") + name);
 
   // Purchase details sit between Grade and Quantity
   await ev(() => openCoinForm(null)); await p.waitForTimeout(100);
-  ok("Purchase details come before Quantity, value and metal", await ev(() => {
-    const h = $("#sheet").innerHTML; const a = h.indexOf("Purchase details"), q = h.indexOf("Quantity, value and metal"), g = h.indexOf("My estimated grade");
+  ok("Purchase details come before Quantity and metal", await ev(() => {
+    const h = $("#sheet").innerHTML; const a = h.indexOf("Purchase details"), q = h.indexOf("Quantity and metal"), g = h.indexOf("My estimated grade");
     return g > -1 && a > g && q > a;
   }));
 
