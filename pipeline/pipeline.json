@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-27 (step 44b built)",
- "app": "v0.127.0",
+ "updated": "2026-11-27 (step 34 built)",
+ "app": "v0.128.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 75,
+  "weekly_now": 78,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2816,12 +2816,19 @@
    "model": "Sonnet",
    "est": "~1–2",
    "time": "45 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "now",
    "why": "Small fixes from report 37 plus your 11-27 answers. No saved data changes.",
    "items": [
+    {
+     "id": "V-1",
+     "size": "S",
+     "what": "Value section",
+     "change": "Value, Value from and compare values have their own section under Purchase details",
+     "affects": "Display only"
+    },
     {
      "id": "S1-1",
      "size": "S",
@@ -2874,9 +2881,12 @@
    ],
    "try": [
     "Open ?demo=big: Home shows \"Gain on N of M coins\".",
-    "Add coin: grade list says Cull; no \"Red Book\" words anywhere.",
+    "Add coin: grade list says Cull; Value has its own section; no publisher names anywhere.",
     "Options: Text size shows on a fresh app (private window)."
-   ]
+   ],
+   "started": "11-27 16:39",
+   "ended": "11-27 17:00",
+   "minutes": 21
   },
   {
    "n": "35",
@@ -2886,7 +2896,7 @@
    "est": "~1–2",
    "time": "45–60 min",
    "actual": "",
-   "status": "todo",
+   "status": "next",
    "chat": "New Sonnet chat",
    "when": "any time",
    "why": "Plan OK'd by you in chat 11-27 (reviews/39). Add coin gets one \"What do you have?\" box: type \"1885 cc mo\", tap the match, type, year and mint fill in. No saved data changes.",
@@ -3219,7 +3229,7 @@
    "model": "Opus",
    "est": "3–4",
    "time": "90 min",
-   "actual": "~2 (est, reading pending)",
+   "actual": "~3",
    "status": "done",
    "chat": "New Opus chat",
    "when": "when you have 5 min to OK the saved-data change",
@@ -4016,8 +4026,15 @@
    "date": "11-27",
    "name": "Step 44b: Value sources",
    "ver": "v0.127.0",
-   "cost": "~2",
+   "cost": "~3",
    "change": "Value from: your own named sources and Melt (follows silver). + Compare another value (never in totals). Coin Value: load up to 3 price lists, pick which fills blank coins."
+  },
+  {
+   "date": "11-27",
+   "name": "Step 34: S1 quick fixes + plain names",
+   "ver": "v0.128.0",
+   "cost": "reading pending",
+   "change": "Value section on Add/Edit coin; Gain only on coins with a cost and a value; 'price list' instead of publisher names; Junk shows as Cull; text size on first run; bigger photos link; no big inherit-date banner on a just-added coin; backup count counts a coin once."
   }
  ],
  "modes": [

@@ -103,7 +103,7 @@ const record = () => store.docs.get("pricebook");
   const demo = await dp.evaluate(() => ({ mode: store.mode, coins: allCoins().length, book: allCoins().filter((c) => bookPrice(c) != null).length, rec: !!store.docs.get("pricebook"), total: sum(countedCoins(), (c) => (bestEach(c) || 0) * qtyOf(c)), home: document.querySelector("#view").innerText, line: bookStatusLine() }));
   ok("demo has coins but no book values", demo.mode === "demo" && demo.coins > 10 && demo.book === 0 && !demo.rec);
   ok("demo still shows a total (melt and face)", demo.total > 0 && !/valued from the/.test(demo.home));
-  ok("demo Options line: " + demo.line, demo.line === "No Red Book prices on this phone.");
+  ok("demo Options line: " + demo.line, demo.line === "No price list on this phone.");
   ok("no page errors in the demo", derr.length === 0);
   await dp.close();
   await open();

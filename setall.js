@@ -17,7 +17,7 @@ const SA_FIELDS = {
   grade: {
     title: "grade",
     why: (c) => (itemOf(c) !== "coin" ? "only coins have a grade" : isSlab(c) ? "slabbed; its grade is on the label" : ""),
-    now: (c) => (c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? "Not graded" : "")),
+    now: (c) => (c.grade === "Other" ? c.customGrade || "Other" : gradeWord(c.grade) || (c.noGrade ? "Not graded" : "")),
     blank: (c) => !c.grade, // R10-4: Not graded counts as blank
     set: (c, v) => {
       if (v !== "Not graded" && c.grade && c.grade !== "Other" && isProofGrade(c.grade) !== isProofGrade(v)) return isProofGrade(c.grade) ? "it's a proof; pick a PR grade" : "not a proof; pick a non-PR grade";
@@ -57,7 +57,7 @@ const saCountText = (list) => { const m = new Map(); list.forEach((x) => m.set(x
 const saPlural = (n) => n + " coin" + (n === 1 ? "" : "s");
 
 function saInput(key, f) {
-  if (key === "grade") return `<select id="saVal" data-sa><option value="">Pick a grade…</option><option>Not graded</option>${GRADES.map((g) => `<option>${esc(g)}</option>`).join("")}</select>`;
+  if (key === "grade") return `<select id="saVal" data-sa><option value="">Pick a grade…</option><option>Not graded</option>${GRADES.map((g) => `<option value="${esc(g)}">${esc(gradeWord(g))}</option>`).join("")}</select>`;
   if (key === "described") return `<select id="saVal" data-sa><option value="">Pick one…</option>${DESCRIBED_WORDS.map((w) => `<option>${w}</option>`).join("")}<option value="__own">Your own words…</option></select>
     <input type="text" id="saOwn" data-sa maxlength="30" placeholder="Gem BU" hidden style="margin-top:6px">`;
   if (key === "holder") return `<select id="saVal" data-sa><option value="">Pick a holder…</option>${HOLDERS.filter((h) => h !== "Album" && h !== "Slab" && h !== "Other").map((h) => `<option>${esc(h)}</option>`).join("")}</select>`;

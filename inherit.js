@@ -145,9 +145,12 @@ Object.assign(actions, {
 });
 
 /* ---------- Coin page ---------- */
+const justAdded = new Set(); // coins added since the app was opened: no "inherit date" banner while typing a run of them
 function coinInhHtml(c) {
-  const miss = missingOf(c);
-  const banner = miss.length ? `<div class="banner miss-banner"><b>Missing: ${esc(miss.join(", "))}</b> <button class="btn" data-act="edit" data-id="${esc(c.id)}">Fill in</button></div>` : "";
+  const all = missingOf(c), quiet = justAdded.has(c.id) && all.includes("inherit date");
+  const miss = quiet ? all.filter((x) => x !== "inherit date") : all;
+  const banner = (miss.length ? `<div class="banner miss-banner"><b>Missing: ${esc(miss.join(", "))}</b> <button class="btn" data-act="edit" data-id="${esc(c.id)}">Fill in</button></div>` : "")
+    + (quiet ? `<div class="small muted" style="margin:0 0 8px">Inherit date not set yet. <button class="link-btn" data-act="edit" data-id="${esc(c.id)}">Add it</button></div>` : "");
   if (!isInherited(c)) return banner + (c.origAlbum && c.albumId ? `<div class="card"><div class="rowline"><span class="muted">Album</span><span>Original to the album</span></div></div>` : "");
   const later = c.sellLater ? `<div class="small muted" style="margin:0 0 6px">You plan to sell this one eventually.</div>` : "";
   const i = inheritanceOf(c), v = inhValueOf(c);

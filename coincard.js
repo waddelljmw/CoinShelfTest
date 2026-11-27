@@ -80,7 +80,7 @@ function ownCountOf(c) { return ownedSame(c).reduce((s, o) => s + qtyOf(o), 0); 
 // "You own 2: F-12, G-4" / "2× F-12" / "no grade" (a blank grade); one entry per coin, repeats grouped. Other kinds: ", also 1 Doubled Die".
 function ownGradesText(c) {
   const g = {}, order = [];
-  ownedSame(c).forEach((o) => { const k = o.grade || "no grade"; if (!(k in g)) { g[k] = 0; order.push(k); } g[k] += qtyOf(o); });
+  ownedSame(c).forEach((o) => { const k = gradeWord(o.grade) || "no grade"; if (!(k in g)) { g[k] = 0; order.push(k); } g[k] += qtyOf(o); });
   const n = order.reduce((s, k) => s + g[k], 0);
   const oth = {};
   ownedOther(c).forEach((o) => { const k = o.variety || (c.grade && isProofGrade(o.grade) !== isProofGrade(c.grade) ? (isProofGrade(o.grade) ? "Proof" : "non-proof") : o.metal || "other"); oth[k] = (oth[k] || 0) + qtyOf(o); });

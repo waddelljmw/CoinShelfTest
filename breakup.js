@@ -88,7 +88,7 @@ function renderBreakUp() {
     const t = TYPE_BY_ID[l.typeId], spots = buSpots(set, l);
     const to = `<option value="">Where the others go (below)</option>${spots.map((s) => opt("spot:" + s.album.id + ":" + s.spot.id, albumTitle(s.album) + ": " + slotLabel(s.spot) + " spot", l.to)).join("")}${placeOptionsHtml(l.to)}`;
     return `<div class="bu-line"><div class="rowline"><b>${esc((y || "") + (l.mint ? "-" + l.mint : "") + " " + (t ? shortName(t) : "Coin") + (proof ? " Proof" : ""))}</b><button class="link-btn" style="color:var(--bad)" data-act="buDel" data-i="${i}">Remove</button></div>
-      <div class="grid2"><label class="f"><span>${proof ? "Proof grade" : "Grade"}</span><select data-bu="grade" data-i="${i}">${opt("", "Grade later", l.grade)}${grades.map((g) => opt(g, g, l.grade)).join("")}</select></label>
+      <div class="grid2"><label class="f"><span>${proof ? "Proof grade" : "Grade"}</span><select data-bu="grade" data-i="${i}">${opt("", "Grade later", l.grade)}${grades.map((g) => opt(g, gradeWord(g), l.grade)).join("")}</select></label>
       <label class="f"><span>Cost</span><input type="number" inputmode="decimal" step="0.01" min="0" data-bu="cost" data-i="${i}" value="${esc(l.cost)}"></label></div>
       <label class="f"><span>Goes to${spots.length ? ` <span class="small muted">(${spots.length} matching spot${spots.length === 1 ? "" : "s"})</span>` : ""}</span><select data-bu="to" data-i="${i}">${to}</select></label></div>`;
   }).join("");

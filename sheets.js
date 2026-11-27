@@ -52,7 +52,7 @@ const SHEET_COLS = [
   { key: "qty", head: "Qty", names: ["qty", "quantity", "count", "number", "amount"] },
   { key: "paid", head: "Paid each", names: ["paideach", "paid", "pricepaid", "cost", "purchaseprice", "price"] },
   { key: "value", head: "Value each", names: ["valueeach", "value", "estimatedvalue", "worth", "currentvalue", "marketvalue"] },
-  { key: "redBook", head: "Red Book each", names: ["redbookeach", "redbook", "redbookvalue"], exportOnly: true },
+  { key: "redBook", head: "Price list each", names: ["redbookeach", "redbook", "redbookvalue"], exportOnly: true },
   { key: "meltEach", head: "Melt each", names: ["melteach", "melt", "meltvalue"], exportOnly: true },
   { key: "source", head: "Source", names: ["source", "from", "acquiredfrom", "boughtfrom", "origin"] },
   { key: "seller", head: "Seller", names: ["seller", "sellername", "vendor", "dealer"] },
@@ -183,7 +183,7 @@ const yesish = (v) => /^(y|yes|true|1|x|✓)$/i.test(String(v || "").trim());
 function parseGrade(raw) {
   let g = String(raw || "").trim();
   if (!g) return { grade: "" };
-  if (/^junk$/i.test(g)) return { grade: "Junk" };
+  if (/^(junk|cull)$/i.test(g)) return { grade: "Junk" };
   let m = g.toUpperCase().replace(/\s+/g, " ").match(/^(PO|P|FR|AG|G|VG|F|VF|EF|XF|AU|MS|PF|PR|SP)\s*-?\s*(\d{1,2})(\+)?$/);
   if (m) {
     let pre = m[1];

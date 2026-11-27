@@ -5,7 +5,7 @@
 const WORDS = {
   melt: ["Melt value", "What the metal in a coin would be worth by weight if it were melted. It only applies to silver, gold and other metal coins."],
   spot: ["Spot price", "Today's market price for a metal: per ounce for gold, silver and platinum, per pound for copper. The app uses it to work out melt values."],
-  redbook: ["Red Book", "The yearly price guide for U.S. coins. The app uses its values for a coin unless you type in your own."],
+  redbook: ["Price list", "A list of coin values you load yourself. The app uses it for a coin unless you type in your own value."],
   rawslab: ["Raw / Slab", "Raw means a coin that is not in a sealed holder. A slab is a coin graded and sealed in hard plastic by a service such as PCGS or NGC."],
   keptin: ["Kept in", "Where the coin physically is: an album, a storage box, a display box, or loose in a flip."],
   seller: ["Seller Mode", "Extra tools for people who buy and sell coins: business stock, shows and sales reports. Leave it off if you only collect."],
@@ -13,7 +13,7 @@ const WORDS = {
   keydate: ["Key date", "A date with a very low mintage: 10% or less of a typical year for that coin, and under 1.5 million struck. The app works it out from U.S. Mint records. It's the app's own rule, not anyone's official list."],
   semikey: ["Semi-key", "A date collectors look for more than most, though not as scarce as the main key dates. It comes from a short list checked against public coin sources. It's not anyone's official list."],
   valuesrc: ["Value sources", "Your own names for where a value came from, like a price guide you own. The app ships none. Only a coin\u2019s main Value counts in your totals; compare values are for looking. A coin with no value uses the price list that fills blank coins, then melt, then face value. It never borrows a price from another list."],
-  details: ["Details coin", "A coin with a problem (cleaned, damaged, repaired). It has no Red Book value because the book prices undamaged coins."],
+  details: ["Details coin", "A coin with a problem (cleaned, damaged, repaired). It has no price list value because price lists are for undamaged coins."],
 };
 let shownWords = new Set();
 const wordsReset = () => { shownWords = new Set(); }; // the ⓘ shows only where a word first appears on a page
@@ -108,6 +108,7 @@ Object.assign(actions, {
   wordBack: () => { if (sheetLayers.length && sheetMarks) { sheetMarks--; sheetPopping = true; sheetPopCb = () => sheetLayerBack(); history.back(); } else closeSheet(); },
   startCollection: () => { if (store.mode === "demo") return actions.guideStart(); return openSheet(`<div class="sheet-head"><h2>Add your first coin</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
     <p><b>How much do you want to see?</b> You can change this later in Options.</p>${levelChips()}
+    <p><b>Text size</b></p>${textSizeChips()}
     <p>Want a one-minute walk-through? Small tips appear over the real form. You can skip at any time.</p>
     <div class="btn-row"><button class="btn primary block" data-act="guideStart">Show me how (1 minute)</button><button class="btn block" data-act="guideNoThanks">Skip</button></div>`); },
   guideNoThanks: () => { closeSheet(); openCoinForm(null); },

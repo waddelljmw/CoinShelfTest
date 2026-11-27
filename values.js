@@ -171,7 +171,7 @@ function noBookNote(c) {
   if (!c.grade || c.grade === "Other") return "Add a grade to get a " + bookName() + " value.";
   const b = bookLookup(c);
   if (b && b.price != null) return "";
-  if (!(PRICE_BOOK && Object.keys(PRICE_BOOK.series || {}).length)) return "No price list loaded yet, so this coin has no " + bookName() + " value. Load one in Options > Red Book values."; // not a checked answer
+  if (!(PRICE_BOOK && Object.keys(PRICE_BOOK.series || {}).length)) return "No price list loaded yet, so this coin has no " + bookName() + " value. Load one on the Coin Value page."; // not a checked answer
   return "No " + bookName() + " value for this date and grade.";
 }
 const bookPrice = (c) => { const b = bookLookup(c); return b && b.price != null ? b.price : null; };
@@ -368,7 +368,7 @@ function gradeText(c) {
   if (itemOf(c) === "bullion") return [shapeName(c.bShape), barWeightText(c), num(c.bPurity) ? String(num(c.bPurity)).replace(/^0/, "") : ""].filter(Boolean).join(" · ");
   if (itemOf(c) === "set") return holderText(c) || "Set";
   if (itemOf(c) === "roll") return ["Roll of " + rollCountOf(c), c.rollCond, c.bankWrap ? "bank wrap" : ""].filter(Boolean).join(" · ");
-  const g = c.grade === "Other" ? c.customGrade || "Other" : c.grade || (c.noGrade ? noGradeWord(c) : "");
+  const g = c.grade === "Other" ? c.customGrade || "Other" : gradeWord(c.grade) || (c.noGrade ? noGradeWord(c) : "");
   const extra = (c.sms && !isProofGrade(c.grade) && hasSms(c) ? " SMS" : "") + (c.fbl && !isProofGrade(c.grade) && bookFactRows(c.typeId, "fbl") ? " " + fbTag(c.typeId) : "")
     + (nifcOf(c) ? " · NIFC" : "") + (hasProblems(c) ? " Details" : "") + (c.variety ? " · " + c.variety : "") + (c.knownVar ? " · " + c.knownVar : "");
   if (c.gradeMode === "cert") return [c.service === "Other" ? c.customService || "Other" : c.service, g && c.plus && c.grade !== "Other" ? g + "+" : g].filter(Boolean).join(" ") + extra;

@@ -26,7 +26,7 @@ function fillRow(a, s, i, mode) {
   return `<div class="fill-row" data-i="${i}" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line,#ddd)">
     <input type="checkbox" class="fill-on" aria-label="Have ${esc(slotLabel(s))}" style="flex:none;width:22px;height:22px">
     <span class="fill-name" style="flex:1;min-width:0"><b>${esc(slotLabel(s))}</b>${s.v ? ` <span class="small muted">${esc(s.v)}</span>` : ""}${multi ? ` <span class="small muted">${esc(shortName(t))}</span>` : ""}${loose ? `<label class="small fill-loose"><input type="checkbox" class="fill-use" checked> Use my loose coin (${esc(gradeText(loose) || "no grade")})</label>` : ""}</span>
-    <select class="fill-grade" aria-label="Grade for ${esc(slotLabel(s))}" style="flex:none;width:92px"><option value="">Grade?</option>${quickAddOk(a, s) ? `<option value="__circ">Circulated (not graded)</option>` : ""}${fillGradesFor(a, s).map((g) => `<option>${esc(g)}</option>`).join("")}</select>
+    <select class="fill-grade" aria-label="Grade for ${esc(slotLabel(s))}" style="flex:none;width:92px"><option value="">Grade?</option>${quickAddOk(a, s) ? `<option value="__circ">Circulated (not graded)</option>` : ""}${fillGradesFor(a, s).map((g) => `<option value="${esc(g)}">${esc(gradeWord(g))}</option>`).join("")}</select>
     ${mode === "each" ? `<input type="number" class="fill-paid" inputmode="decimal" min="0" step="0.01" placeholder="$ paid" aria-label="Price paid for ${esc(slotLabel(s))}" style="flex:none;width:76px">` : ""}
   </div>`;
 }

@@ -223,7 +223,7 @@ function openFilterPanel() {
     ${pastKeepFor().length ? field("Keeping for", sel("kf", "Anyone or no one", pastKeepFor(), f.kf || "")) : ""}
     <div class="grid2">${field("Year from", `<input type="number" inputmode="numeric" data-flt="yFrom" value="${esc(f.yFrom || "")}">`)}${field("Year to", `<input type="number" inputmode="numeric" data-flt="yTo" value="${esc(f.yTo || "")}">`)}</div>
     ${field("Mint mark", sel("mint", "Any", FLT_MINTS, f.mint || ""))}
-    <div class="grid2">${field("Grade from", sel("gFrom", "Any", GRADES, f.gFrom || ""))}${field("Grade to", sel("gTo", "Any", GRADES, f.gTo || ""))}</div>
+    <div class="grid2">${field("Grade from", sel("gFrom", "Any", GRADES.map((g) => [g, gradeWord(g)]), f.gFrom || ""))}${field("Grade to", sel("gTo", "Any", GRADES.map((g) => [g, gradeWord(g)]), f.gTo || ""))}</div>
     ${field("Grading", sel("ng", "All coins", [["1", "Not graded only"]], f.ng || ""))}
     ${customGrades.length ? field("Custom grade", sel("gCustom", "Any", customGrades, f.gCustom || "")) : ""}
     <div class="grid2">${field("Value from ($)", `<input type="number" inputmode="decimal" data-flt="vFrom" value="${esc(f.vFrom || "")}">`)}${field("Value to ($)", `<input type="number" inputmode="decimal" data-flt="vTo" value="${esc(f.vTo || "")}">`)}</div>
@@ -455,7 +455,7 @@ Object.assign(actions, {
     const rank = (g) => (g === "No grade" ? -1 : GRADES.indexOf(g) < 0 ? 999 : GRADES.indexOf(g));
     openSheet(`<div class="sheet-head"><h2>Select by grade</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
       <p class="small muted">Tick the grades you want. The coins with those grades get selected.</p>
-      ${[...counts.keys()].sort((a, b) => rank(a) - rank(b)).map((g) => `<label class="chk" style="min-height:44px"><input type="checkbox" data-selg="${esc(g)}"> <span style="flex:1">${esc(g)}</span> <span class="muted small">${counts.get(g)}</span></label>`).join("")}
+      ${[...counts.keys()].sort((a, b) => rank(a) - rank(b)).map((g) => `<label class="chk" style="min-height:44px"><input type="checkbox" data-selg="${esc(g)}"> <span style="flex:1">${esc(gradeWord(g))}</span> <span class="muted small">${counts.get(g)}</span></label>`).join("")}
       <div class="btn-row" style="margin-top:10px"><button class="btn primary block" data-act="selGradeGo">Select them</button></div>`);
   },
   selGradeGo: () => {
@@ -559,7 +559,7 @@ function quickGradeButtons(d) {
   const al = d.albumId && getAlbum(d.albumId), sl = al && (al.slots || []).find((x) => x.id === d.slotId);
   const proof = !!(d._proof || (sl && sl.pf));
   const grades = (d.gradeMode === "cert" ? CERT_GRADES : GRADES).filter((g) => isProofGrade(g) === proof);
-  return `<div class="quick-grades">${grades.map((g) => `<button type="button" class="btn ${d.grade === g ? "primary" : ""}" data-act="quickPick" data-g="${esc(g)}">${esc(g)}</button>`).join("")}</div>`;
+  return `<div class="quick-grades">${grades.map((g) => `<button type="button" class="btn ${d.grade === g ? "primary" : ""}" data-act="quickPick" data-g="${esc(g)}">${esc(gradeWord(g))}</button>`).join("")}</div>`;
 }
 function fixupBar(d) {
   if (!fixup.on || d._isNew) return "";

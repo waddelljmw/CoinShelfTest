@@ -1,5 +1,12 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.128.0": [
+    "Add and Edit coin have their own Value section under Purchase details.",
+    "Home's Gain counts only coins with both a price paid and a value, and says how many.",
+    "The grade Junk now shows as Cull. Nothing saved changes.",
+    "Values are called your price list, unless your price file has its own name.",
+    "Text size is on the first-run sheet, the PCGS photos link is bigger, and a new inherited coin no longer shows a big Missing banner right away.",
+  ],
   "0.127.0": [
     "Value from has your own sources (+ Name a new source…) and Melt, which follows the metal price. Add + Compare another value to see other prices on a coin; only the main Value counts. Load up to 3 price lists on Coin Value and pick which fills blank coins.",
   ],
@@ -290,7 +297,7 @@ const WHATS_NEW = {
     "Adding a coin: the Year box now comes first, and the coin type list then shows only coins made that year. A new coin needs a year, or tick \u201CUnreadable / too worn\u201D if you can't read it (a token or medal can also tick \u201CNever had a date\u201D). Coins you already saved are not changed.",
   ],
   "0.65.0": [
-    "Red Book prices are no longer inside the app's public files. They stay on your phone. To move them to another phone, tap Save price file on the Coin Value page, then Load a price file on the other phone. Your coins and values here are unchanged.",
+    "Price list prices are no longer inside the app's public files. They stay on your phone. To move them to another phone, tap Save price file on the Coin Value page, then Load a price file on the other phone. Your coins and values here are unchanged.",
   ],
   "0.63.0": [
     "Fix a typo in a coin type you typed yourself: open the coin, tap Edit, and change its name, kind or face value. The ID number, photos and where it is kept stay. Coin types from the list still can't change.",
@@ -299,13 +306,13 @@ const WHATS_NEW = {
     "The Back button now closes just the pop-up you are in (like the ⓘ help) and keeps what you typed. Back after + in an album returns to the album.",
   ],
   "0.60.0": [
-    "New coin types on Add coin: half cent, large cent, two-cent, three-cent (silver and nickel), half dimes, Capped Bust and Seated Liberty coins, twenty-cent, Trade dollar, Westward Journey nickels (2004–05) and American Innovation dollars. They have no Red Book values yet. For anything else, pick Medal, token or foreign coin.",
+    "New coin types on Add coin: half cent, large cent, two-cent, three-cent (silver and nickel), half dimes, Capped Bust and Seated Liberty coins, twenty-cent, Trade dollar, Westward Journey nickels (2004–05) and American Innovation dollars. They have no price list values yet. For anything else, pick Medal, token or foreign coin.",
   ],
   "0.59.0": [
-    "Red Book prices are now kept on this phone with your coins, and go into your backups. Options, Coin Value shows the line \"Red Book prices on this phone\". Your values stay the same.",
+    "Price list prices are now kept on this phone with your coins, and go into your backups. the Coin Value page shows a line saying your prices are on this phone. Your values stay the same.",
   ],
   "0.58.0": [
-    "Mercury dimes now have Red Book values.",
+    "Mercury dimes now have price list values.",
   ],
   "0.56.0": [
     "Pocket albums: on My Albums, tap New pocket album for an album with flips or capsules. Pick pages, pockets across and pockets down; any coin can go in any pocket. It has page tabs, a spine color (black too) and Kept in, and shows on the Home shelf.",
@@ -359,14 +366,14 @@ const WHATS_NEW = {
   "0.46.0": [
     "New app, new look at the start: an empty Coin Cabinet now opens with a welcome card. Start your collection, or try the sample coins.",
     "Optional one-minute guide to adding your first coin (also in Options, \u201CGuided first coin\u201D). Skip it any time.",
-    "Tap the small \u24D8 next to a hard word (Melt value, Spot price, Red Book, Raw / Slab, Seller Mode, Snapshot, Details coin) for a one-line meaning."
+    "Tap the small \u24D8 next to a hard word (Melt value, Spot price, Price list, Raw / Slab, Seller Mode, Snapshot, Details coin) for a one-line meaning."
   ],
   "0.45.0": [
     "Change many coins at once: tap Select (on My Coins, an album page or a box page), pick coins, then \u201CSet purchase info\u201D to fill in date, where from and price for all of them. Split a total evenly if you like. One Undo puts everything back.",
     "The Update button now always installs the newest version, and the Missing list has Select all at the top too."
   ],
   "0.44.0": [
-    "Asking price now has three suggestions: Red Book, melt, and your cost plus a minimum markup. The highest is highlighted, so it never goes below what you need. Set the minimum markup in Options.",
+    "Asking price now has three suggestions: price list, melt, and your cost plus a minimum markup. The highest is highlighted, so it never goes below what you need. Set the minimum markup in Options.",
     "Reports: \u201CTax records\u201D saves a year-end list of every sale (cost, fees, gain, held over a year, inherited) for your tax preparer. Not tax advice."
   ],
   "0.43.0": [

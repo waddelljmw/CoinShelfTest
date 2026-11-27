@@ -53,11 +53,11 @@ function applyPriceFile() {
   const d = pricePending; pricePending = null;
   if (!d) return;
   const before = store.docs.get("pricebook");
-  const make = (b) => ({ kind: "pricebook", format: 1, source: String(b.source || "Red Book"), edition: String(b.edition || ""), series: b.series || {}, mintage: b.mintage || {}, savedAt: new Date().toISOString() });
+  const make = (b) => ({ kind: "pricebook", format: 1, source: String(b.source || ""), edition: String(b.edition || ""), series: b.series || {}, mintage: b.mintage || {}, savedAt: new Date().toISOString() });
   put("pricebook", make(d));
   render();
   // Undo puts back exactly what was there (same savedAt). With nothing before, an empty list dated "" so any backup with prices still wins.
-  const back = before ? JSON.parse(JSON.stringify(before)) : { kind: "pricebook", format: 1, source: "Red Book", edition: "", series: {}, mintage: {}, savedAt: "" };
+  const back = before ? JSON.parse(JSON.stringify(before)) : { kind: "pricebook", format: 1, source: "", edition: "", series: {}, mintage: {}, savedAt: "" };
   toast("Prices replaced.", { label: "Undo", fn: () => { put("pricebook", back); render(); toast("Undone. The earlier prices are back."); } });
 }
 async function savePriceFile() {

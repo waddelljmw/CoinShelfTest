@@ -9,22 +9,22 @@ const BACKUP_REMIND_COINS = 25;
 // E1-3: note that something changed since the last backup. Kept in settings only (no coin data):
 // backupDirty (anything changed), changedOn (the day), changedCoins (how many coins).
 let trackOff = false, changePending = null;
-const changedSeen = new Set(); // one coin saved several times counts once
+// One coin saved several times counts once, even after the app is reopened: settings.changedIds lists the coins counted so far.
+const newChanged = (s) => { const had = new Set(s.changedIds || []); return [...(changePending ? changePending.ids : [])].filter((k) => !had.has(k)); };
 function noteChange(key, body) {
   if (trackOff || key === "settings" || key === "history" || /^pricebook[23]?$/.test(key)) return;
   if (store.mode !== "local" && store.mode !== "db") return;
   const old = store.docs.get(key);
   if (body ? old && JSON.stringify(old) === JSON.stringify(body) : !old) return; // nothing really changed
-  if (!changePending) { changePending = { coins: 0 }; setTimeout(flushChanges, 0); } // a bulk edit writes settings once
-  if (key.startsWith("c_") && !changedSeen.has(key)) { changedSeen.add(key); changePending.coins++; }
+  if (!changePending) { changePending = { ids: new Set() }; setTimeout(flushChanges, 0); } // a bulk edit writes settings once
+  if (key.startsWith("c_")) changePending.ids.add(key);
 }
 function flushChanges() {
   if (!changePending) return;
-  const n = changePending.coins;
+  const s = settings(), fresh = newChanged(s), n = fresh.length, total = (num(s.changedCoins) || 0) + n;
   changePending = null;
-  const s = settings(), total = (num(s.changedCoins) || 0) + n;
   if (s.backupDirty === true && s.changedOn === today() && !n) return;
-  saveSettings({ backupDirty: true, changedOn: today(), changedCoins: total }, true);
+  saveSettings({ backupDirty: true, changedOn: today(), changedCoins: total, changedIds: [...(s.changedIds || []), ...fresh] }, true);
   const line = $(".sh-backup"); if (line) line.outerHTML = backupLine(); // only the line: no full redraw behind the caller's back
 }
 
@@ -96,8 +96,7 @@ const backupSummary = (d) => d.counts.coins + " coins, " + d.counts.photos + " p
 function recordBackup(kind) {
   flushChanges();
   const s = settings(), same = s.lastBackup === today() && s.backupDirty === false;
-  changedSeen.clear();
-  saveSettings({ lastBackup: today(), backupPhone: kind === "phone" || (same && !!s.backupPhone), backupCopy: kind === "copy" || (same && !!s.backupCopy), backupDirty: false, changedCoins: 0, backupSnooze: "" });
+  saveSettings({ lastBackup: today(), backupPhone: kind === "phone" || (same && !!s.backupPhone), backupCopy: kind === "copy" || (same && !!s.backupCopy), backupDirty: false, changedIds: [], changedCoins: 0, backupSnooze: "" });
 }
 const offerOther = (act, question) => `<div style="margin-top:8px"><b>${question}</b><div class="btn-row"><button class="btn primary" data-act="${act}">Yes</button><button class="btn" data-act="closeSheet">No</button></div></div>`;
 async function doBackup(note) {
@@ -237,7 +236,7 @@ function backupState() {
   const s = settings(), last = s.lastBackup;
   const days = last ? Math.max(0, Math.round((new Date(today() + "T12:00:00") - new Date(last + "T12:00:00")) / 86400000)) : Infinity;
   // backupDirty is unset on phones from before this was tracked: treat as "may have changed".
-  return { s, last, days, dirty: !!changePending || s.backupDirty !== false, changed: (num(s.changedCoins) || 0) + (changePending ? changePending.coins : 0) };
+  return { s, last, days, dirty: !!changePending || s.backupDirty !== false, changed: (num(s.changedCoins) || 0) + newChanged(s).length };
 }
 function backupReminder() {
   const b = backupState();
