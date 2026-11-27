@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-26 (E1p plan)",
- "app": "v0.124.0",
+ "updated": "2026-11-26 (E1r fill-ins)",
+ "app": "v0.124.1",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 52,
+  "weekly_now": 57,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2652,8 +2652,8 @@
    "model": "Sonnet",
    "est": "~1-2",
    "time": "30-45 min",
-   "actual": "",
-   "status": "ready",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "any time",
    "why": "Small: Silver Eagle album number fills 36 spots; reports get a Done reading tick; a zip of the project goes to your Drive.",
@@ -2683,7 +2683,10 @@
    "try": [
     "Albums > New album > number 7181: 36 spots appear."
    ],
-   "chats": 1
+   "chats": 1,
+   "started": "2026-11-26 20:28",
+   "ended": "2026-11-26 20:45",
+   "minutes": 17
   },
   {
    "n": "32",
@@ -3441,6 +3444,13 @@
    "ver": "v0.124.0",
    "cost": "pending",
    "change": "Plan page: something else in a spot, break up a set (reviews/35)."
+  },
+  {
+   "date": "11-26",
+   "name": "E1r: Dansco 7181, Reading tab, project backup zip",
+   "ver": "v0.124.1",
+   "cost": "pending",
+   "change": "Silver Eagle album number 7181 fills 36 spots. Reports open and tick off on the new Reading tab. Project backup zip goes to Drive."
   }
  ],
  "modes": [
@@ -3930,5 +3940,42 @@
   "sSF-2": {
    "where": "Home"
   }
- }
+ },
+ "reading": [
+  {
+   "id": "sR8-0",
+   "title": "Solo Opus review (due: 8 steps since R7)",
+   "file": "report-28.md"
+  },
+  {
+   "id": "s15c-0",
+   "title": "Fix check before testers",
+   "file": "report-29.md"
+  },
+  {
+   "id": "sR9-0",
+   "title": "Solo safety review before Purchases",
+   "file": "report-30.md"
+  },
+  {
+   "id": "s31b-0",
+   "title": "Album research (Whitman, Dansco, H.E. Harris and others)",
+   "file": "report-32.md"
+  },
+  {
+   "id": "sR10-0",
+   "title": "Solo review of steps 30–31 before testers",
+   "file": "report-33.md"
+  },
+  {
+   "id": "sE1-0",
+   "title": "Efficiency check (taps at real size)",
+   "file": "report-34.md"
+  },
+  {
+   "id": "s32-0",
+   "title": "Reports: key dates + varieties scan (153, 152)",
+   "file": "report-31.md"
+  }
+ ]
 }

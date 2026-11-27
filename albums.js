@@ -53,7 +53,8 @@ function buildAlbumSlots(types, layout, start, end, proofs, extra) {
   types.forEach((id) => {
     const t = TYPE_BY_ID[id];
     if (!t) return;
-    buildSlots(id, Math.max(start, t.start), Math.min(end, typeLastYear(t)), extra && extra[id]).forEach((s) => {
+    // oneMint (an album with one hole per year, like Dansco 7181): keep only the plain spot.
+    buildSlots(id, Math.max(start, t.start), Math.min(end, typeLastYear(t)), extra && extra[id]).filter((s) => !(extra && extra.oneMint) || !s.m).forEach((s) => {
       const k = s.y + "|" + s.m;
       out.push(seen.has(k) ? { ...s, t: id, tx: true } : { ...s, t: id });
       seen.add(k);

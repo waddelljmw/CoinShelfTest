@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.124.1": [
+    "Album number Dansco 7181 (Silver Eagles 1986–2021) now fills 36 spots, one per year.",
+  ],
   "0.124.0": [
     "Select coins, then Edit one by one: change each, tap Save + next, and the next one opens.",
   ],
