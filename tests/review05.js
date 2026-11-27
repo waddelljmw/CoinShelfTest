@@ -5,8 +5,8 @@ const { chromium } = require("./_compat");
   await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
   const ok = (n, c) => console.log((c ? "PASS " : "FAIL ") + n);
   const L = (types, s, e) => p.evaluate(([t, s, e]) => buildAlbumSlots(t, "dates", s, e).map((x) => x.y + (x.m ? "-" + x.m : "") + (x.v ? " " + x.v : "")), [types, s, e]);
-  // 1. every type used by the lookup has exact dates
-  const missing = await p.evaluate(() => { const m = new Set(); Object.values(ALBUM_DB).forEach((e) => e.types.forEach((t) => { if (!EXACT_SLOTS[t]) m.add(t); })); return [...m]; });
+  // 1. every type used by the lookup has exact dates (one-hole-per-year albums need none; albums33b counts their spots)
+  const missing = await p.evaluate(() => { const m = new Set(); Object.values(ALBUM_DB).filter((e) => !(e.spotVarieties && e.spotVarieties.oneMint)).forEach((e) => e.types.forEach((t) => { if (!EXACT_SLOTS[t]) m.add(t); })); return [...m]; });
   ok("every lookup type has exact dates", missing.length === 0); if (missing.length) console.log(missing);
   const k = await L(["kennedy-90", "kennedy-40", "kennedy-clad"], 1964, 2002);
   ok("Kennedy: 1964 P D, 1965–67 one each, 1968–70 D only, no 1975, no S", k.includes("1964-D") && k.includes("1965") && !k.includes("1965-D") && k.includes("1968-D") && !k.includes("1968") && !k.some((x) => /^1975/.test(x)) && !k.some((x) => /-S/.test(x)));

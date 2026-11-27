@@ -51,12 +51,12 @@ textarea{min-height:84px}.btn{font:inherit;font-weight:700;padding:10px 14px;bor
 .tile b{font-size:24px;display:block}.small{font-size:13px;color:var(--muted)}.pill{display:inline-block;font-size:12px;font-weight:800;padding:2px 8px;border-radius:99px;border:2px solid var(--now);color:var(--now);margin-left:4px}
 .chip.newreply{background:var(--gold);color:#222;font-weight:700}
 .reply{background:var(--bg);border-left:4px solid var(--gold);padding:8px 10px;border-radius:8px;margin:6px 0;font-size:15px}
-.tabs button{font-size:14px;padding:0 2px}.guess{background:#c0392b;color:#fff}
+.tabs{gap:4px}.tabs button{font-size:12px;padding:0;min-width:0}.guess{background:#c0392b;color:#fff}
 .bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--ok)}
 </style></head><body><main>
 <div class="sub" id="upd"></div>
 <h1>Coin Cabinet pipeline</h1>
-<div class="tabs"><button data-t="h" class="on">Now</button><button data-t="q">Queue</button><button data-t="d">Done</button><button data-t="w">Waiting</button><button data-t="t">Test</button><button data-t="n">Notes</button></div>
+<div class="tabs"><button data-t="h" class="on">Now</button><button data-t="q">Queue</button><button data-t="d">Done</button><button data-t="w">Waiting</button><button data-t="t">Test</button><button data-t="r">Reading</button><button data-t="n">Notes</button></div>
 <div id="tab-h">
 <div class="card q" id="qbox"></div>
 <div class="card" id="qlow" style="border:3px solid var(--test)" hidden></div>
@@ -78,6 +78,7 @@ textarea{min-height:84px}.btn{font:inherit;font-weight:700;padding:10px 14px;bor
 <div id="tab-d" hidden><div id="done"></div></div>
 <div id="tab-w" hidden><div id="waiting"></div></div>
 <div id="tab-t" hidden><div id="test"></div></div>
+<div id="tab-r" hidden><div id="reading"></div></div>
 <div id="tab-n" hidden><div id="notes"></div></div>
 <div class="card sub" id="note"></div>
 </main>
@@ -164,6 +165,19 @@ function renderTest(){
  $("test").querySelectorAll("input[data-id]").forEach(c=>c.onchange=()=>tickSet(c.dataset.id,c.checked));
  $("test").querySelectorAll("[data-react]").forEach(bt=>bt.onclick=e=>{e.preventDefault();e.stopPropagation();const b=+bt.dataset.react;items.slice(b*5,b*5+5).forEach(i=>tickSet(i.id,false))});
 }
+// Reading: each report opens in place, with Done reading at the bottom; the tick is the same one as in the Test checklist.
+const REPORTS={};
+function renderReading(){
+ const box=$("reading"),list=D.reading||[];
+ if(!box.dataset.built){box.dataset.built=1;
+  box.innerHTML=`<div class="card"><b>Reading</b> <span class="small" id="rcount"></span><div class="sub">Open a report. Tap Done reading at the bottom.</div></div>`+list.map(r=>`<details class="step" data-r="${esc(r.id)}"><summary><div class="st-top"><div class="st-name">${esc(r.title)}</div><div class="st-cost"></div></div></summary><div style="padding:0 14px 10px"><div class="rtext" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px">Loading…</div><button class="btn" data-done="${esc(r.id)}">Done reading</button></div></details>`).join("");
+  box.querySelectorAll("details").forEach(d=>d.ontoggle=()=>{const r=list.find(x=>x.id===d.dataset.r),t=d.querySelector(".rtext");if(!d.open||REPORTS[r.id])return;
+   fetch(r.file).then(x=>{if(!x.ok)throw 0;return x.text()}).then(s=>{REPORTS[r.id]=1;t.textContent=s.replace(/\*\*/g,"").replace(/^#+ /gm,"")}).catch(()=>{t.textContent="Couldn't load this report. Close it and open it again."})});
+  box.querySelectorAll("[data-done]").forEach(b=>b.onclick=()=>tickSet(b.dataset.done,!S.ticks[b.dataset.done]));
+ }
+ box.querySelectorAll("details").forEach(d=>{const done=!!S.ticks[d.dataset.r];d.querySelector(".st-cost").textContent=done?"✓ read":"to read";d.querySelector("[data-done]").textContent=done?"Read ✓ (tap to undo)":"Done reading"});
+ $("rcount").textContent=list.filter(r=>S.ticks[r.id]).length+" of "+list.length+" read";
+}
 // "New reply": a reply that was not there the last time you opened this page (remembered in this browser only).
 const SEEN_KEY="coinPipeSeenReplies";let seenAtOpen;
 function readSeen(){try{return JSON.parse(localStorage.getItem(SEEN_KEY))}catch(e){return null}}
@@ -214,7 +228,7 @@ function renderCheckin(){
  <div class="sub">${early}. Skip if above about 93%; then fill-ins up to ${D.week.fill_cap}%.</div>
  <div class="sub">Last check-in: ${esc(c.last||"not run yet")} · Sonnet, about 15 min.</div>`;
 }
-function renderAll(){if(!D)return;renderCheckin();renderQ();renderStart();renderRoad();renderTiles();renderTest();renderNotes()}
+function renderAll(){if(!D)return;renderCheckin();renderQ();renderStart();renderRoad();renderTiles();renderTest();renderReading();renderNotes()}
 function renderStatic(){
  $("upd").textContent="Updated "+D.updated+" · app "+D.app;
  const w=D.week;const nowHi=D.steps.filter(s=>s.stage==="now"&&s.status!=="done").reduce((a,s)=>a+hi(s.est),0);
@@ -228,7 +242,7 @@ function renderStatic(){
  $("done").innerHTML=D.done.map(x=>`<div class="card"><div class="st-top"><div><span class="chip done">✓ ${esc(x.date)}</span><b>${esc(x.name)}</b></div><div class="st-cost">${x.ver?esc(x.ver)+"<br>":""}real <b>${esc(x.cost)}</b> wk pts</div></div><div class="why">${esc(x.change)}</div></div>`).join("");
  const ct=D.cost_table.map(r=>`<tr><td>${esc(r.what)}</td><td>${esc(r.points)}</td><td>${esc(r.time)}</td><td>${r.basis==="guess"?'<span class="chip guess">guess</span>':esc(r.basis)}</td></tr>`).join("");
  $("note").innerHTML=`<b>Sizes:</b> <span class="chip S">S</span>small fix · <span class="chip M">M</span>a feature · <span class="chip L">L</span>big, or changes how coins are saved (asks you first).<br><b>Cost table</b> (weekly points, time):<table style="width:100%;font-size:13px;margin-top:4px"><tr><th align=left>Work</th><th align=left>Pts</th><th align=left>Time</th><th></th></tr>${ct}</table><br>${esc(D.cost_note)}`;
- document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["h","q","d","w","t","n"].forEach(t=>$("tab-"+t).hidden=t!==b.dataset.t);if(b.dataset.t==="n")markSeen()});
+ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["h","q","d","w","t","r","n"].forEach(t=>$("tab-"+t).hidden=t!==b.dataset.t);if(b.dataset.t==="n")markSeen()});
  renderWaiting();
 }
 async function startDb(){
