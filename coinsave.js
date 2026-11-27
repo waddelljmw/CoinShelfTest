@@ -27,7 +27,7 @@ async function saveDraft() {
     else { c.status = "owned"; c.stage = k === "owned" ? "" : k; delete c.gone; }
   }
   c.upgrade = !!c.upgrade;
-  if (num(c.value) == null || !valueFromText(c.valueFrom)) delete c.valueFrom; // no Value, or a word we don't know: nothing saved
+  tidyValueFields(c); // valuesrc.js: no Value (unless Melt), or a word we don't know: nothing saved; compare values tidied
   if (!c.fav) delete c.fav;
   if (typeof bizNormalize === "function") bizNormalize(c);
   if (c.stage === "forsale") c.ask = num(c.ask) == null ? "" : String(Math.max(0, num(c.ask))); // asking price only matters while for sale

@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-27 (step 43b built)",
- "app": "v0.126.0",
+ "updated": "2026-11-27 (step 44b built)",
+ "app": "v0.127.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 70,
+  "weekly_now": 75,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -3161,7 +3161,7 @@
    "model": "Opus",
    "est": "3",
    "time": "90 min",
-   "actual": "~3 (est, reading pending)",
+   "actual": "~2",
    "status": "done",
    "chat": "New Opus chat",
    "when": "when you have 10 min to OK the plan",
@@ -3187,15 +3187,15 @@
   {
    "n": "44",
    "stage": "now",
-   "name": "Default value source + per-coin choice (idea 154)",
+   "name": "Value sources: talk (idea 154)",
    "model": "Opus",
    "est": "2–3",
    "time": "60 min",
-   "actual": "",
-   "status": "todo",
+   "actual": "~2",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "when you have 20–30 min",
-   "why": "Needs a short talk first. One default value source in Options plus a per-coin override; you name your own lists, the app ships no publisher names.",
+   "why": "Done 11-27: plan locked in reviews/41 (named sources, compare-only values, up to 3 price lists, which value counts). Build is 44b.",
    "items": [
     {
      "id": "154",
@@ -3206,8 +3206,41 @@
     }
    ],
    "try": [
-    "Talk it through in chat."
-   ]
+    "Read reviews/41 (Reading tab)."
+   ],
+   "started": "2026-11-27 14:32",
+   "ended": "2026-11-27 15:14",
+   "minutes": 42
+  },
+  {
+   "n": "44b",
+   "stage": "now",
+   "name": "Value sources: build",
+   "model": "Opus",
+   "est": "3–4",
+   "time": "90 min",
+   "actual": "~2 (est, reading pending)",
+   "status": "done",
+   "chat": "New Opus chat",
+   "when": "when you have 5 min to OK the saved-data change",
+   "why": "Done 11-27 (v0.127.0): name your own value sources, Melt (follows silver) in Value from, + Compare another value, up to 3 price lists with Fill blank coins from.",
+   "items": [
+    {
+     "id": "154",
+     "size": "M",
+     "what": "Value sources",
+     "change": "+ Name a new source in Value from, Melt (follows silver), + Compare another value, Options › Value sources, up to 3 price lists with Fill blank coins from",
+     "affects": "Saved data: coin valueFrom + compare, settings valueSources + fillFrom, records pricebook2/3 (old coins unchanged)"
+    }
+   ],
+   "try": [
+    "Add coin: Value from › + Name a new source… type 'Blue Book', save a value.",
+    "Same coin: + Compare another value, pick eBay sold, $20. Coin page shows it; Home total doesn't change.",
+    "Value from › Melt (follows silver) on a silver coin: Value box clears, coin page shows melt."
+   ],
+   "started": "2026-11-27 15:33",
+   "ended": "2026-11-27 15:43",
+   "minutes": 10
   },
   {
    "n": "45",
@@ -3971,6 +4004,20 @@
    "ver": "v0.126.0",
    "cost": "~3",
    "change": "Want List became What I need: Albums tab fills itself (Need / Upgrade), Lists tab, album Aim for grade, priority star, pay up to with an old-price hint, Home button."
+  },
+  {
+   "date": "11-27",
+   "name": "Step 44: Value sources talk",
+   "ver": "",
+   "cost": "~2",
+   "change": "Plan locked (reviews/41): your own named value sources, compare-only values, up to 3 price lists, Melt as a Value from choice. Build is 44b."
+  },
+  {
+   "date": "11-27",
+   "name": "Step 44b: Value sources",
+   "ver": "v0.127.0",
+   "cost": "~2",
+   "change": "Value from: your own named sources and Melt (follows silver). + Compare another value (never in totals). Coin Value: load up to 3 price lists, pick which fills blank coins."
   }
  ],
  "modes": [

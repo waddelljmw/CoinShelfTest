@@ -1,5 +1,8 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.127.0": [
+    "Value from has your own sources (+ Name a new source…) and Melt, which follows the metal price. Add + Compare another value to see other prices on a coin; only the main Value counts. Load up to 3 price lists on Coin Value and pick which fills blank coins.",
+  ],
   "0.126.0": [
     "Want List is now What I need (menu and a button on Home). The Albums tab fills itself from your albums: empty spots show Need, coins you want better show Upgrade. The Lists tab is your want lists, as before.",
     "Edit album has Aim for: pick a grade (like AU-50) and every coin below it, or not graded, shows Upgrade. Inherited coins never do; original coins only with Upgrade original coins too.",

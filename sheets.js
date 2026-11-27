@@ -62,6 +62,7 @@ const SHEET_COLS = [
   { key: "totalCost", head: "Total cost", names: ["totalcost"], exportOnly: true },
   { key: "payMethod", head: "Paid with", names: ["paidwith", "paymentmethod", "payment"] },
   { key: "valueFrom", head: "Value from", names: ["valuefrom", "valuesource"] },
+  ...[1, 2, 3].flatMap((n) => [{ key: "cmp" + n + "From", head: "Compare " + n + " from", names: ["compare" + n + "from"] }, { key: "cmp" + n + "Value", head: "Compare " + n + " value", names: ["compare" + n + "value"] }]), // step 44b: compare-only values
   { key: "fav", head: "Favorite", names: ["favorite", "favourite", "fav"] },
   { key: "trackCarrier", head: "Carrier", names: ["carrier", "shippingcarrier"] },
   { key: "trackNo", head: "Tracking number", names: ["trackingnumber", "tracking", "trackingno"] },
@@ -100,6 +101,22 @@ function csvCell(v) {
   const s = String(v ?? "");
   return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
+// Step 44b: compare values go out as Compare 1-3 from / value (names, not ids).
+function cmpCols(c) {
+  const o = {}, list = Array.isArray(c.compare) ? c.compare : [];
+  [0, 1, 2].forEach((i) => { const x = list[i]; o["cmp" + (i + 1) + "From"] = x ? valueFromText(x.from) : ""; o["cmp" + (i + 1) + "Value"] = x ? x.value : ""; });
+  return o;
+}
+// A typed "Value from" word: a built-in choice, one of his sources, or a new source made from the name.
+function fromWord(t) {
+  const w = String(t || "").trim(), lw = w.toLowerCase();
+  if (!w) return "";
+  const hit = VALUE_FROM.find((x) => x[0] === lw || x[1].toLowerCase() === lw); if (hit) return hit[0];
+  if (/^melt/.test(lw)) return "";
+  const have = typeof valueSources === "function" ? valueSources().find((s) => s.name.toLowerCase() === lw) : null;
+  return have ? "s:" + have.id : "n:" + w.slice(0, 40); // "n:" = a new name, made into a source only when the import is saved
+}
+const fromReal = (k) => (String(k || "").startsWith("n:") ? (typeof addSource === "function" ? "s:" + addSource(k.slice(2)) : "") : k);
 const meltValued = (c) => num(c.value) == null && meltEach(c) != null && bestEach(c) === meltEach(c);
 function coinToRow(c) {
   const a = c.albumId ? getAlbum(c.albumId) : null;
@@ -108,7 +125,7 @@ function coinToRow(c) {
   const rb = bookPrice(c);
   return {
     cid: c.cid || "", label: labelOf(c), item: itemOf(c) === "set" ? "Set" : itemOf(c) === "roll" ? "Roll" : itemOf(c) === "bullion" ? shapeName(c.bShape) : "Coin", bWeight: itemOf(c) === "bullion" ? c.bWeight || "" : "", bPurity: itemOf(c) === "bullion" ? c.bPurity || "" : "", bMaker: c.bMaker || "", bSerial: c.bSerial || "", stack: stackOf(c), kind: !c.typeId && itemOf(c) === "coin" && OTHER_KINDS.includes(c.family) ? c.family : "", group: String(c.group || "").trim(), caseName: c.caseName || "", box: c.boxId && typeof getBox === "function" && getBox(c.boxId) ? getBox(c.boxId).name : "", boxTray: c.boxId && c.boxTray ? c.boxTray : "", boxRow: c.boxId ? c.boxRow || "" : "", boxSlot: c.boxId ? c.boxSlot || "" : "", trackCarrier: c.trackCarrier || "", goneReason: c.status === "gone" && c.gone ? c.gone.reason || "" : "", goneDate: c.status === "gone" && c.gone ? c.gone.date || "" : "", rollCount: itemOf(c) === "roll" ? rollCountOf(c) : "", rollCond: itemOf(c) === "roll" ? c.rollCond || "" : "", bankWrap: itemOf(c) === "roll" && c.bankWrap ? "Yes" : "", status: STATUS_TEXT[statusKey(c)] || "In collection", knownVar: c.knownVar || "", mintErrors: listOf(c.mintErrors).join("; "), problems: listOf(c.problems).join("; "), upgrade: c.upgrade ? "Yes" : "",
-    catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", valueFrom: meltValued(c) ? "Melt" : valueFromText(c.valueFrom), fav: c.fav ? "Yes" : "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint === CANT_TELL ? "Can't tell" : !c.mint && c.mintOk ? "None" : c.mint, typeName: c.typeName, denom: c.denom,
+    catNo: c.gradeMode === "cert" ? c.catNo || "" : "", seller: c.seller || "", valueFrom: c.valueFrom === "melt" ? "Melt (follows metal)" : meltValued(c) ? "Melt" : valueFromText(c.valueFrom), ...cmpCols(c), fav: c.fav ? "Yes" : "", buyTax: c.buyTax || "", buyShip: c.buyShip || "", buyFees: c.buyFees || "", totalCost: costOf(c) ?? "", payMethod: c.payMethod || "", receiptNo: c.receiptNo || "", trackNo: c.trackNo || "", year: c.year, mint: c.mint === CANT_TELL ? "Can't tell" : !c.mint && c.mintOk ? "None" : c.mint, typeName: c.typeName, denom: c.denom,
     variety: c.variety, gradeMode: c.gradeMode === "cert" ? "Certified" : "Raw",
     grade: (c.grade === "Other" ? c.customGrade : c.grade) || (c.noGrade ? (isFaceSource(c) ? "Circulated" : "Not graded") : ""), service: c.gradeMode === "cert" ? (c.service === "Other" ? c.customService : c.service) : "",
     cert: c.cert, cac: cacOf(c), holder: holderOf(c), keptIn: keptName(c), coa: c.coa ? "Yes" : "", packaging: c.packaging || "", fbl: c.fbl ? "Yes" : "", sms: c.sms ? "Yes" : "", noDate: c.noDate === "worn" ? "Too worn" : c.noDate === "none" ? "Never had a date" : "", metal: c.metal, oz: c.oz, qty: qtyOf(c), paid: c.paid, value: meltValued(c) ? meltEach(c).toFixed(2) : c.value, // R4-29: a coin worth its melt shows that number in Value each (re-import sees it is melt and keeps it live)
@@ -255,7 +272,9 @@ function rowToCoin(get) {
   c.source = String(get("source") || "").trim();
   const txt = (k) => String(get(k) || "").trim();
   const listIn = (k, all) => txt(k).split(/[;,]/).map((x) => x.trim()).filter(Boolean).map((x) => all.find((a) => a.toLowerCase() === x.toLowerCase()) || x);
-  { const vf = txt("valueFrom").toLowerCase(), hit = VALUE_FROM.find((x) => x[0] === vf || x[1].toLowerCase() === vf); if (hit && num(c.value) != null && String(c.value) !== "0") c.valueFrom = hit[0]; }
+  if (/^melt \(follows/i.test(txt("valueFrom"))) c.valueFrom = "melt"; // step 44b: picked Melt on the coin
+  else if (num(c.value) != null && String(c.value) !== "0") { const k = fromWord(txt("valueFrom")); if (k) c.valueFrom = k; }
+  { const cmp = [1, 2, 3].map((n) => ({ from: num(get("cmp" + n + "Value")) != null ? fromWord(txt("cmp" + n + "From")) : "", value: String(money2(get("cmp" + n + "Value"))) })).filter((x) => x.from && num(x.value) != null); if (cmp.length) c.compare = cmp; }
   if (yesish(get("fav"))) c.fav = true;
   c.seller = txt("seller"); c.payMethod = txt("payMethod"); c.receiptNo = txt("receiptNo"); c.trackNo = txt("trackNo").replace(/\s+/g, ""); c.knownVar = txt("knownVar");
   ["buyTax", "buyShip", "buyFees"].forEach((k) => { c[k] = String(money2(get(k))); });
@@ -315,7 +334,7 @@ function rowToCoin(get) {
   if (/^business/i.test(txt("bizGroup"))) c.biz = true; // R4-29
   // R4-29: a Value each that is only the melt value goes back to being worked out from melt (so it follows the silver price).
   // R8-1: the export marks a melt coin with Value from = "Melt", so it follows the silver price even if the price moved since the export.
-  if (num(c.value) != null && (txt("valueFrom").toLowerCase() === "melt" || (!txt("valueFrom") && (isJunk(c) || (meltEach(c) != null && Math.abs(num(c.value) - meltEach(c)) < 0.005))))) c.value = "";
+  if (num(c.value) != null && (/^melt/i.test(txt("valueFrom")) || (!txt("valueFrom") && (isJunk(c) || (meltEach(c) != null && Math.abs(num(c.value) - meltEach(c)) < 0.005))))) c.value = "";
   // R4-29: "Inherited from" and "Value when inherited" (only for coins whose Where from is Inherited).
   if (isInherited(c)) {
     const who = txt("inhFrom");
@@ -449,6 +468,8 @@ async function doImport() {
   for (const c of chosen) {
     const an = c._albumName; delete c._albumName;
     const inhName = c._inhName; delete c._inhName;
+    if (c.valueFrom) c.valueFrom = fromReal(c.valueFrom); // step 44b
+    if (Array.isArray(c.compare)) c.compare = c.compare.map((x) => ({ ...x, from: fromReal(x.from) })).filter((x) => x.from);
     if (inhName) c.inhId = inhIdForName(inhName, inhMade);
     // Only into an album made for this coin's type.
     if (an && albumByName.has(squash(an)) && albumHasType(getAlbum(albumByName.get(squash(an))), c.typeId)) c.albumId = albumByName.get(squash(an));

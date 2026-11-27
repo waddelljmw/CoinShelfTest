@@ -102,12 +102,13 @@ function redBookHtml() {
       <div class="hint">A coin with no value typed in uses its ${name} ${wi("redbook")} value. Coins below the lowest listed grade use melt.</div>
       ${store.mode === "snapshot" ? "" : `<div class="btn-row" style="margin-top:8px"><label class="btn file-btn" style="display:inline-block;text-align:center">Load a price file<input type="file" accept=".json,application/json" id="priceFile"></label><button class="btn" data-act="savePriceFile">Save price file</button></div><div class="hint">Load takes a price file (.json) you saved here with Save price file. Not a backup, not a spreadsheet.</div>
       <div class="btn-row" style="margin-top:8px"><label class="btn file-btn" style="display:inline-block;text-align:center">Load your own values<input type="file" accept=".csv,.tsv,.txt,text/csv,text/plain" id="ownValuesFile"></label><button class="btn" data-act="ovHelp">How it works</button></div><div class="hint">Takes a spreadsheet saved as CSV (.csv) with your own values, not a backup.</div>
-      <div class="hint" id="priceMsg">${Object.keys(PRICE_BOOK.series || {}).length ? "Keep a saved price file somewhere safe, like Google Drive." : "No prices yet. Tap Load a price file and pick the file you saved from this app. Typed values and melt still work."}</div>`}</div>`;
+      <div class="hint" id="priceMsg">${Object.keys(PRICE_BOOK.series || {}).length ? "Keep a saved price file somewhere safe, like Google Drive." : "No prices yet. Tap Load a price file and pick the file you saved from this app. Typed values and melt still work."}</div>`}</div>
+    ${typeof priceListsHtml === "function" ? priceListsHtml() : ""}`;
 }
 // Options: every section folds shut (closed by default, remembered). Splits the page at each heading.
 // Options sections sit under six group headings, most-used first (step 15). Each section still folds on its own.
 const OPT_GROUPS = [
-  ["Prices and selling", ["spot-prices", "selling", "photo-fill", "seller-mode"]],
+  ["Prices and selling", ["spot-prices", "value-sources", "selling", "photo-fill", "seller-mode"]],
   ["Backup and your data", ["backup-and-restore", "spreadsheet", "recently-deleted"]],
   ["Reports and sharing", ["insurance-report", "share-a-snapshot", "share-coin-cabinet"]],
   ["Look and Home", ["text-size", "shelf-style", "home-shelf", "show-on-home"]],
@@ -159,6 +160,7 @@ function optionsHtml() {
       <div class="btn-row"><button class="btn" id="spotFetch" data-act="fetchSpot">Get live prices</button><button class="btn" data-go="melt">Melt table</button></div>
       <div class="hint">Filled in for you when the app opens, or tap the button. You can also type prices. <span id="spotStamp">${s.spotUpdated ? "Last updated " + esc(stampText(s.spotUpdated)) + "." : ""}</span> <a href="https://www.kitco.com/" target="_blank" rel="noopener">Look up current prices ↗</a></div>
     </div>
+    ${typeof valueSourcesOptionsHtml === "function" ? valueSourcesOptionsHtml() : ""}
     <h2>Text size</h2>
     <div class="card"><div class="chips">${TEXT_SIZES.map(([k, n]) => { const on = textSizeKey() === k; return `<button class="chip ${on ? "on" : ""}" data-act="textSize" data-v="${k}" aria-pressed="${on}">${on ? "✓ " : ""}${n}</button>`; }).join("")}</div>
       <div class="hint">Makes all the words in the app bigger. This works the same on iPhone and Android. Only how the app looks changes, nothing saved.</div></div>

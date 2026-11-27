@@ -12,6 +12,7 @@ const WORDS = {
   snapshot: ["Snapshot", "A view-only copy of your collection saved as one file. Friends can look at it but can't change anything."],
   keydate: ["Key date", "A date with a very low mintage: 10% or less of a typical year for that coin, and under 1.5 million struck. The app works it out from U.S. Mint records. It's the app's own rule, not anyone's official list."],
   semikey: ["Semi-key", "A date collectors look for more than most, though not as scarce as the main key dates. It comes from a short list checked against public coin sources. It's not anyone's official list."],
+  valuesrc: ["Value sources", "Your own names for where a value came from, like a price guide you own. The app ships none. Only a coin\u2019s main Value counts in your totals; compare values are for looking. A coin with no value uses the price list that fills blank coins, then melt, then face value. It never borrows a price from another list."],
   details: ["Details coin", "A coin with a problem (cleaned, damaged, repaired). It has no Red Book value because the book prices undamaged coins."],
 };
 let shownWords = new Set();
