@@ -7,7 +7,7 @@
 
 const getPurchase = (id) => (id ? store.docs.get("pu_" + id) : null);
 const allPurchases = () => [...store.docs.values()].filter((d) => d && d.kind === "purchase").sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) || (b.createdAt || 0) - (a.createdAt || 0));
-const purchaseCoins = (p) => (p ? allCoins().filter((c) => c.status !== "deleted" && c.purchaseId === p.id) : []);
+const purchaseCoins = (p) => (p ? allCoins().filter((c) => c.status !== "deleted" && c.purchaseId === p.id && !(typeof isBrokenSet === "function" && isBrokenSet(c))) : []);
 const purchaseCoinTotal = (cs) => r2(sum(cs, (c) => (num(c.paid) || 0) * qtyOf(c)));
 // Plain date ("Nov 24, 2026"). A receipt with no store is named "Receipt, <date>".
 const plainDate = (v) => { if (!v) return ""; const d = new Date(/^\d{4}-\d\d-\d\d$/.test(v) ? v + "T12:00:00" : v); return isNaN(d) ? String(v) : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };

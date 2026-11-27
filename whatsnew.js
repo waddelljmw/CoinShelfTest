@@ -1,5 +1,11 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.125.0": [
+    "Tap an album spot, then Something else is in this spot: record a token or other coin that really sits there. It gets an orange ring and the spot still counts as missing.",
+    "Take out of album now asks where the coin goes (Loose is picked).",
+    "On a proof or mint set: Break up this set makes its coins, splits the cost by value, and offers matching album spots. One Undo.",
+    "You can add another blank spot after the same date.",
+  ],
   "0.124.1": [
     "Album number Dansco 7181 (Silver Eagles 1986–2021) now fills 36 spots, one per year.",
   ],

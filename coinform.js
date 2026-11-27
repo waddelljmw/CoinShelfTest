@@ -167,6 +167,7 @@ function renderCoinForm() {
   ${store.mode === "snapshot" ? `<div class="banner" style="margin:0 0 6px">Try it out. This copy doesn't save, so coins added here disappear when the page is closed.</div>` : ""}
   ${typeof fixupBar === "function" ? fixupBar(d) : ""}
   <form id="coinForm" data-coin="${d.id}" autocomplete="off">
+    ${d.otherInSpot && d.albumId && getAlbum(d.albumId) ? `<div class="hint" id="otherSpotNote">Something else in the ${esc(otherSpotName(d))} spot of ${esc(albumTitle(getAlbum(d.albumId)))}. It keeps its own type; the spot still counts as missing.</div>` : ""}
     ${typeof blankSpotOf === "function" && blankSpotOf(d) ? `<div class="hint" id="blankSpotNote">Going in a blank spot of ${esc(albumTitle(getAlbum(d.albumId)))}. Any coin fits${d.typeId && !albumHasType(getAlbum(d.albumId), d.typeId) ? `. <b style="color:var(--bad)">Heads up:</b> this album isn't for this coin type; it goes in the blank spot anyway` : ""}.</div>` : ""}
     ${carryChips(d)}
     ${d._isNew && d._copiedFrom ? `<div class="hint" id="copiedNote">Copied from <b>${esc(d._copiedFrom)}</b>. Change what is different, then add it. Photos, the ID number and the album spot start empty; tax, shipping and fees are not copied.</div>` : ""}
@@ -543,7 +544,7 @@ function pickType(id) {
   draft.oz = t.oz || "";
   if (draft.mint && !t.mints.includes(draft.mint) && draft.mint !== CANT_TELL) { draft.mint = ""; delete draft.mintOk; }
   const al = draft.albumId && getAlbum(draft.albumId);
-  if (al && !albumHasType(al, t.id) && !blankSpotOf(draft)) { draft.albumId = ""; delete draft.slotId; delete draft.origAlbum; } // that album is for other types
+  if (al && !albumHasType(al, t.id) && !anyTypeSpot(draft)) { draft.albumId = ""; delete draft.slotId; delete draft.origAlbum; } // that album is for other types
   applyYearMetal(draft);
   autoPaid(draft); // a face-value source fills Price paid once the coin type is known
   if (itemOf(draft) === "roll" && !draft._countEdited) draft.rollCount = ROLL_COUNTS[t.denom] || "";

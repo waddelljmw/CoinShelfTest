@@ -41,7 +41,7 @@ const MINT_ERRORS = ["Off-center", "Clipped planchet", "Double struck", "Broadst
 // Damage after it left the Mint. Any of these makes it a "Details" coin, worth less than the Red Book price.
 const COIN_PROBLEMS = ["Cleaned", "Scratched", "Holed", "Bent", "Corroded", "Environmental damage", "Polished", "Tooled", "Repaired", "Rim damage", "Plated", "Colorized", "Other"];
 // Ways a coin can be gone from the collection without being sold.
-const GONE_REASONS = ["Traded", "Gifted", "Lost", "Spent", "Other"];
+const GONE_REASONS = ["Traded", "Gifted", "Lost", "Spent", "Broken up", "Other"];
 // How a purchase was paid for.
 const PAY_METHODS = ["Cash", "Card", "PayPal", "Check", "Venmo", "Zelle", "Trade", "Other"];
 // Where an entered Value came from (idea 83). Saved as the short key; the words live only here.

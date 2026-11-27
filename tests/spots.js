@@ -31,7 +31,9 @@ const { chromium } = require("./_compat");
   console.log("filled:", await p.$$eval(".album-grid .slot", (x) => x.slice(0, 5).map((e) => e.innerText.replace(/\n/g, " / "))), "| owned:", (await total()).trim());
   // duplicate spot
   await p.click("[data-act=addSpot]"); await p.fill("#spotY", "1878"); await p.fill("#spotV", "8 Tail Feathers"); await p.click("#spotForm button[type=submit]"); await p.waitForTimeout(200);
-  console.log("dup toast:", await p.textContent("#toast"));
+  console.log("dup sheet:", await p.textContent("#sheet h2")); // E1q: a dated twin offers a blank spot instead
+  if (!/already in the album/.test(await p.textContent("#sheet h2"))) console.log("FAIL duplicate spot not caught");
+  await p.click("#sheet .btn-row [data-act=closeSheet]"); await p.waitForTimeout(150);
   // want from a variety spot
   await p.click("[data-act=missing]");
   await p.click("[data-missck] >> nth=0"); await p.click("[data-act=missAdd]"); await p.waitForTimeout(150);

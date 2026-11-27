@@ -46,7 +46,7 @@ async function saveDraft() {
     if (c.typeName !== prev.typeName && c.family === prev.typeName) c.family = ""; // a kind that was just the old name follows the new name
   }
   const al0 = c.albumId && c.albumId !== "__new" && getAlbum(c.albumId);
-  if (al0 && albumTypes(al0).length && !albumHasType(al0, c.typeId) && !(prev && prev.albumId === c.albumId) && !blankSpotOf(c)) { toast("That album is for a different coin type."); return; }
+  if (al0 && albumTypes(al0).length && !albumHasType(al0, c.typeId) && !(prev && prev.albumId === c.albumId) && !anyTypeSpot(c)) { toast("That album is for a different coin type."); return; }
   c.year = num(c.year) ?? "";
   c.qty = Math.max(1, num(c.qty) || 1);
   delete c._ozEdited; delete c._countEdited;
@@ -106,8 +106,8 @@ async function saveDraft() {
   if (c.slotId) {
     const sl = getAlbum(c.albumId) && (getAlbum(c.albumId).slots || []).find((x) => x.id === c.slotId);
     const al = getAlbum(c.albumId);
-    if (sl && sl.pf && d._isNew && !isProofGrade(c.grade)) { toast("This is a proof spot. Pick a proof grade (PR-60 to PR-70)."); return; }
-    if (sl && d._isNew && proofOnlySpot(al, sl) && !isProofGrade(c.grade)) { toast(sl.y + " " + (c.typeName || "coin") + " was only made as a proof. Pick a proof grade (PR-60 to PR-70)."); return; }
+    if (sl && sl.pf && d._isNew && !c.otherInSpot && !isProofGrade(c.grade)) { toast("This is a proof spot. Pick a proof grade (PR-60 to PR-70)."); return; }
+    if (sl && d._isNew && !c.otherInSpot && proofOnlySpot(al, sl) && !isProofGrade(c.grade)) { toast(sl.y + " " + (c.typeName || "coin") + " was only made as a proof. Pick a proof grade (PR-60 to PR-70)."); return; }
     // Changed the variety of a coin in a variety spot: it moves to the matching spot (or back to the plain one).
     if (sl && prev && !sl.set && String(prev.variety || "") !== String(c.variety || "")) {
       if (c.variety) delete c.spotVariety;
@@ -118,9 +118,10 @@ async function saveDraft() {
       }
     }
     // The spot is gone, or the coin no longer fits it (date, mint, type, or proof vs. regular), so it finds its right spot.
-    const fitsSpot = sl && (sl.blank || (sl.set ? c.typeId === sl.t : num(c.year) === sl.y && normMint(c.mint) === sl.m && (sl.pf ? isProofGrade(c.grade) : !isProofGrade(c.grade) || !prev || isProofGrade(prev.grade))));
+    const fitsSpot = sl && (sl.blank || c.otherInSpot || (sl.set ? c.typeId === sl.t : num(c.year) === sl.y && normMint(c.mint) === sl.m && (sl.pf ? isProofGrade(c.grade) : !isProofGrade(c.grade) || !prev || isProofGrade(prev.grade))));
     if (!fitsSpot) delete c.slotId;
   }
+  if (c.otherInSpot && !(itemOf(c) === "coin" && c.albumId && c.slotId)) delete c.otherInSpot; // E1q: only a coin sitting in one dated spot
   if (c.albumId === "__new") {
     const na = d._newAlbum;
     const t = TYPE_BY_ID[c.typeId];
@@ -175,7 +176,7 @@ async function saveDraft() {
     }
   }
   const wantAsk = isNew && !d._fromWant && typeof askWantRemove === "function"; // a normal Add coin that matches a want asks after the page changes
-  const swapAsk = isNew && typeof swapCandidate === "function" ? swapCandidate(c) : null; // a better coin for a spot that is already filled asks to swap
+  const swapAsk = isNew && !c.otherInSpot && typeof swapCandidate === "function" ? swapCandidate(c) : null; // a better coin for a spot that is already filled asks to swap
   if (isNew && d._stay) { toast("Added to " + (getAlbum(c.albumId) ? albumTitle(getAlbum(c.albumId)) : "the album") + "."); if (swapAsk) openSwapSheet(c, swapAsk); else if (wantAsk) askWantRemove(c); return; } // stay on the album
   if (!isNew && typeof fixup !== "undefined" && fixup.on) { if (fixupStill(c)) fixup.skip.push(c.id); toast("Saved."); fixupNext(); return; } // fix-up run: on to the next coin
   toast(isNew ? (firstEver ? "Coin added. Tap the + button to add the next one." : "Coin added.") : "Saved.");

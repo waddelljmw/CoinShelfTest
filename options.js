@@ -281,6 +281,7 @@ function sheetUnsaved() {
   if ($("#fillForm")) return "list";
   if ($("#albumForm")) return "album";
   if ($("#purchaseForm")) return "purchase";
+  if ($("#buForm")) return "break-up";
   return "";
 }
 function askDiscard(kind) {

@@ -466,7 +466,9 @@ function openSlotMenu(el) {
   const a = getAlbum(el.dataset.album);
   if (!a) return;
   const s = spotFromEl(a, el);
-  const coin = el.dataset.coin ? getCoin(el.dataset.coin) : null;
+  let coin = el.dataset.coin ? getCoin(el.dataset.coin) : null;
+  const other = coin && coin.otherInSpot && !s.blank ? coin : null; // E1q: something else sits here; the spot is still missing
+  if (other) coin = null;
   if (s.blank && !coin && typeof openBlankMenu === "function") return openBlankMenu(a, s); // step 31: an empty blank spot takes any coin
   const y = s.set || s.blank ? "" : s.y, m = s.m || "", v = s.v || "";
   const t = TYPE_BY_ID[s.blank && coin ? coin.typeId : slotType(a, s)];
@@ -479,10 +481,14 @@ function openSlotMenu(el) {
   const upG = coin ? upgradeGrade(coin) : "";
   const moreLists = wantLists().some((l) => listAccepts(l, slotType(a, s)) && !ws.some((w) => (w.listId || DEFAULT_LIST_ID) === l.id));
   openSheet(`<div class="sheet-head"><h2>${esc(label)}</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
-    <div class="small muted" style="margin:-4px 0 12px">${coin ? "In this album · " + esc(gradeText(coin)) : "Not in this album yet"}${mt ? " · Mintage " + esc(mt.text) + (mt.note ? " (" + esc(mt.note) + ")" : "") : ""}</div>
+    <div class="small muted" style="margin:-4px 0 12px">${coin ? "In this album · " + esc(gradeText(coin)) : other ? "Still missing: something else is in this spot" : "Not in this album yet"}${mt ? " · Mintage " + esc(mt.text) + (mt.note ? " (" + esc(mt.note) + ")" : "") : ""}</div>
     ${coinCardHtml({ ...fake, grade: s.pf ? "PR-65" : "VF-20" }, { spot: !s.set, inAlbum: !!coin })}
-    ${coin ? "" : `<button class="btn block btn-addcoin" data-act="slotHave" ${sd}>＋ Add coin to this spot</button>`}
-    ${!coin && spotCandidates(a, { y, m, v, pf: s.pf, set: s.set, t: s.t, id: s.id }).length ? `<button class="btn block" data-act="slotUseList" ${sd}>Put a coin I already have here</button>` : ""}
+    ${other ? `<div class="card" style="border:2px solid #e07a1f"><div class="small muted">Something else is in this spot</div><b>${esc(labelOf(other))}</b> <span class="small muted">${esc(gradeText(other))}</span>
+      <div class="btn-row" style="margin-top:8px"><button class="btn" data-go="coin-${esc(other.id)}">View it</button><button class="btn" data-act="edit" data-id="${esc(other.id)}">Edit</button><button class="btn" data-act="slotTakeOut" data-id="${esc(other.id)}">Take out of album</button></div>
+      <div class="hint">To put the ${esc(label)} here, take this out first.</div></div>` : ""}
+    ${coin || other ? "" : `<button class="btn block btn-addcoin" data-act="slotHave" ${sd}>＋ Add coin to this spot</button>`}
+    ${!other ? `<button class="btn block" data-act="slotElse" ${sd}${coin ? ` data-id="${esc(coin.id)}"` : ""}>Something else is in this spot</button>` : ""}
+    ${!coin && !other && spotCandidates(a, { y, m, v, pf: s.pf, set: s.set, t: s.t, id: s.id }).length ? `<button class="btn block" data-act="slotUseList" ${sd}>Put a coin I already have here</button>` : ""}
     ${ws.length ? `<div class="card small">${ws.map((w) => `<div class="rowline"><span>★ ${esc(listNameOf(w))}${w.grade ? " · target " + esc(w.grade) : ""}${num(w.maxPrice) != null ? " · up to " + money(num(w.maxPrice)) : ""}</span><button class="link-btn" style="color:var(--bad)" data-act="slotUnwant" data-id="${esc(w.id)}">Remove</button></div>`).join("")}</div>
          <div class="btn-row"><button class="btn" data-go="wants">View want list</button></div>` : ""}
     ${coin && upG ? `<button class="btn block btn-want" data-act="slotWant" data-upgrade="1" ${sd}>★ Want an upgrade (above ${esc(coin.grade)})</button>` : ""}
@@ -758,15 +764,6 @@ Object.assign(actions, {
     toast("Added to " + wl.name + ".", { label: "Undo", fn: () => { remove("w_" + x.id); if (newListId) remove("wl_" + newListId); render(); } });
   },
   swapGo: (el) => swapGo(el),
-  slotTakeOut: (el) => {
-    const c = getCoin(el.dataset.id);
-    if (!c) return;
-    const x = { ...c };
-    applyKept(x, "");
-    saveCoin(x);
-    closeSheet(); render();
-    toast("Taken out of the album. The coin is still in your collection.", { label: "Undo", fn: () => { saveCoin(c); render(); } });
-  },
   delAlbumGo: (el) => deleteAlbumNow(getAlbum(el.dataset.id), el.dataset.w === "1"),
   // Cancelling a new list goes back to the form you came from, with nothing lost.
   wlCancel: () => {
