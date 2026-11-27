@@ -1,5 +1,10 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.126.0": [
+    "Want List is now What I need (menu and a button on Home). The Albums tab fills itself from your albums: empty spots show Need, coins you want better show Upgrade. The Lists tab is your want lists, as before.",
+    "Edit album has Aim for: pick a grade (like AU-50) and every coin below it, or not graded, shows Upgrade. Inherited coins never do; original coins only with Upgrade original coins too.",
+    "Tap the star on a row to move it to Priority at the top. Tap a row for its card: Pay up to, eBay sold, Bought it, Open in album. A price older than 3 months says how old.",
+  ],
   "0.125.0": [
     "Tap an album spot, then Something else is in this spot: record a token or other coin that really sits there. It gets an orange ring and the spot still counts as missing.",
     "Take out of album now asks where the coin goes (Loose is picked).",

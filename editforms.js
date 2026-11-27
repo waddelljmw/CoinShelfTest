@@ -166,6 +166,7 @@ function openEditAlbum(id) {
     <label class="f"><span>Name (optional)</span><input type="text" name="name" value="${esc(a.name || "")}"></label>
     ${albumColorField(a.color)}
     <label class="f inline-check"><input type="checkbox" name="inherited" ${a.inherited ? "checked" : ""}> <span>This album was inherited</span></label>
+    ${typeof albumAimField === "function" ? albumAimField(a) : ""}
     ${typeof albumKeptField === "function" ? albumKeptField(a) : ""}
     ${seriesField(a)}
     <div class="small muted" style="margin-top:10px">${isSetAlbum(a) ? "Type set (one coin of each type)" : "Dates and mint marks"}</div>
@@ -218,10 +219,11 @@ function saveEditAlbum(form) {
   }
   const removed = a.removed || [];
   const edited = applyAlbumKept({ ...a, color: String(fd.get("color") || a.color || "red"), brand: fd.get("brand"), number: String(fd.get("number") || "").trim(), name: String(fd.get("name") || "").trim(), start, end, typeId: types[0] || a.typeId, typeIds: types, inherited: !!fd.get("inherited"), proofs, slots, removed, ...seriesFromForm(a, fd) }, fd);
-  const twin = uniqueAlbumName(edited);
-  put("a_" + a.id, edited);
+  const aimed = typeof readAlbumAim === "function" ? readAlbumAim(fd, edited) : edited; // step 43b: Aim for grade
+  const twin = uniqueAlbumName(aimed);
+  put("a_" + a.id, aimed);
   closeSheet();
-  toast(twin ? "Same number as another album, so this one is called " + edited.name + ". You can rename it." : "Album saved.");
+  toast(twin ? "Same number as another album, so this one is called " + aimed.name + ". You can rename it." : "Album saved.");
 }
 
 // New album: the years follow the coin types picked (earliest start to latest end).

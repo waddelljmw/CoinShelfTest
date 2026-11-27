@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-27 (P12 planning locked)",
- "app": "v0.125.1",
+ "updated": "2026-11-27 (step 43b built)",
+ "app": "v0.126.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 67,
+  "weekly_now": 70,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2758,7 +2758,7 @@
    "model": "Opus",
    "est": "1–3",
    "time": "30–45 min",
-   "actual": "reading pending",
+   "actual": "~3 (with P12 prep)",
    "status": "done",
    "chat": "Same Opus chat as P12 prep",
    "when": "11-27 overnight",
@@ -3133,11 +3133,11 @@
    "model": "Opus",
    "est": "1–2",
    "time": "30 min",
-   "actual": "",
-   "status": "todo",
+   "actual": "~1 (est, reading pending)",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "when you have 20–30 min",
-   "why": "Needs you (20–30 min, sketches). About 13 want-list ideas (99, 101, 103, 105, 129, 133, 159 and your notes). No code until you OK a sketch.",
+   "why": "Done 11-27: 'What I need' page locked (reviews/40). Replaces the Want List page; Albums and Lists tabs; Need/Upgrade tags, pay up to, priority star, album target grade.",
    "items": [
     {
      "id": "shop",
@@ -3149,7 +3149,40 @@
    ],
    "try": [
     "Talk it through in chat."
-   ]
+   ],
+   "ended": "2026-11-27 12:18",
+   "started": "2026-11-27 11:37",
+   "minutes": 41
+  },
+  {
+   "n": "43b",
+   "stage": "now",
+   "name": "What I need: plan + build",
+   "model": "Opus",
+   "est": "3",
+   "time": "90 min",
+   "actual": "~3 (est, reading pending)",
+   "status": "done",
+   "chat": "New Opus chat",
+   "when": "when you have 10 min to OK the plan",
+   "why": "Done 11-27 (v0.126.0): Want List is now What I need. Albums tab (Need / Upgrade from your albums), Lists tab, Edit album Aim for, priority star, pay up to with 'mo old' hint.",
+   "items": [
+    {
+     "id": "168",
+     "size": "M",
+     "what": "What I need page",
+     "change": "Want List becomes What I need: Albums and Lists tabs, Need/Upgrade tags, pay up to with old-price hint, priority star, eBay sold, Home button",
+     "affects": "Saved data: album target grade + 2 small want fields"
+    }
+   ],
+   "try": [
+    "Home: tap What I need under the search box; open an album card.",
+    "Edit album: Aim for AU-50; coins below it (or not graded) show Upgrade.",
+    "Tap a star: the row moves to Priority. Tap a row: set Pay up to."
+   ],
+   "started": "2026-11-27 13:14",
+   "ended": "2026-11-27 13:54",
+   "minutes": 40
   },
   {
    "n": "44",
@@ -3924,6 +3957,20 @@
    "ver": "",
    "cost": "~1–2",
    "change": "14 steps lined up: no-attention work first (34–39), then steps that stop for your OK (40–42), R12, then talks that need you (43–44) and bars beyond silver."
+  },
+  {
+   "date": "11-27",
+   "name": "Step 43: What I need talk and sketch",
+   "ver": "",
+   "cost": "~1",
+   "change": "Want List will become 'What I need': Albums and Lists tabs, Need/Upgrade tags, pay up to (with an old-price hint), priority star, eBay sold, album target grade. Build is step 43b (Opus, plan first)."
+  },
+  {
+   "date": "11-27",
+   "name": "Step 43b: What I need",
+   "ver": "v0.126.0",
+   "cost": "~3",
+   "change": "Want List became What I need: Albums tab fills itself (Need / Upgrade), Lists tab, album Aim for grade, priority star, pay up to with an old-price hint, Home button."
   }
  ],
  "modes": [

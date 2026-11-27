@@ -22,7 +22,7 @@ const { chromium } = require("./_compat");
   check("R4-1: this album counts only its own wants (not the other album's)", await p.evaluate(() => { const a = getAlbum("m1"); const s = albumStats(a).slots.find((x) => x.y === 1881 && x.m === "S"); return spotWants(a, s).length === 2; }));
 
   // want list page shows the tag and which lists
-  await p.evaluate(() => go("wants")); await p.waitForTimeout(150);
+  await p.evaluate(() => go((winState.tab = "lists", "wants"))); await p.waitForTimeout(150);
   check("want row has ×2 tag", (await p.textContent("main")).includes("wanted ×2"));
   await p.click("[data-act=wantWhere] >> nth=0"); await p.waitForTimeout(100);
   const sheet = await p.textContent(".sheet");
@@ -63,7 +63,7 @@ const { chromium } = require("./_compat");
   check("upgradeGrade edges", await p.evaluate(() => upgradeGrade({ grade: "MS-70" }) === "" && upgradeGrade({ grade: "PR-70" }) === "" && upgradeGrade({ grade: "AU-58" }) === "MS-60" && upgradeGrade({ grade: "XF-45" }) === "AU-50"));
 
   // album wish list
-  await p.evaluate(() => go("wants")); await p.waitForTimeout(150);
+  await p.evaluate(() => go((winState.tab = "lists", "wants"))); await p.waitForTimeout(150);
   await p.click("[data-act=awNew]");
   await p.selectOption("#awForm [name=brand]", "Dansco"); await p.fill("#awForm [name=number]", "7070");
   await p.fill("#awForm [name=name]", "Lincoln Cents");

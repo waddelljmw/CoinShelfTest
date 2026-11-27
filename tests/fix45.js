@@ -7,7 +7,7 @@ const { chromium } = require("./_compat");
   const val = (sel) => p.evaluate((s) => (document.querySelector(s) || {}).value, sel);
   await p.evaluate(() => { ensureDefaultList(); saveWantList({ kind: "wantlist", id: "peace", name: "Peace only", scope: "type", typeId: "peace-dollar", createdAt: 1 });
     saveWantList({ kind: "wantlist", id: "pms63", name: "Peace MS-63", scope: "type-grade", typeId: "peace-dollar", grade: "MS-63", createdAt: 2 });
-    saveWant(newWant({ typeId: "morgan-dollar", year: 1893, mint: "S", grade: "MS-63", notes: "old note" })); go("wants"); });
+    saveWant(newWant({ typeId: "morgan-dollar", year: 1893, mint: "S", grade: "MS-63", notes: "old note" })); go((winState.tab = "lists", "wants")); });
   await p.waitForTimeout(200);
   // --- Fix 4: edit want, change grade + notes, make a new list: edits survive and new list is chosen
   await p.click("[data-act=wantEdit]");
