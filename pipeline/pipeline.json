@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-26 (E1r fill-ins)",
+ "updated": "2026-11-26 (R11 review)",
  "app": "v0.124.1",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 57,
+  "weekly_now": 59,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2598,6 +2598,34 @@
    "minutes": 22
   },
   {
+   "n": "R11",
+   "stage": "now",
+   "name": "Solo review of E1a–E1r + PR #48 (E1q)",
+   "model": "Opus",
+   "est": "1–3",
+   "time": "25–45 min",
+   "actual": "pending",
+   "status": "done",
+   "chat": "New Opus chat",
+   "when": "11-26",
+   "why": "10 steps since R10 plus the unmerged E1q (saved-data change). Done: report 36, 4 findings. Main is fine; PR #48 waits: a broken-up set from a receipt counts tax and shipping twice (R11-1). Nothing fixed; you decide first.",
+   "items": [
+    {
+     "id": "review",
+     "size": "S",
+     "what": "Review E1a–E1r and PR #48",
+     "change": "No app change. Report reviews/36 with the 4-box check (box 4 red until R11-1 is fixed).",
+     "affects": "Nothing"
+    }
+   ],
+   "try": [
+    "Read report 36 on the Reading tab."
+   ],
+   "started": "22:37",
+   "ended": "22:52",
+   "minutes": 15
+  },
+  {
    "n": "E1q",
    "stage": "now",
    "name": "Build: wrong coin in a spot, break up a set",
@@ -2719,46 +2747,6 @@
    "try": [
     "Read the report."
    ]
-  },
-  {
-   "n": "4b",
-   "stage": "now",
-   "name": "Private tester copy (plan, then build)",
-   "model": "Opus",
-   "est": "2–4",
-   "actual": "",
-   "status": "ready",
-   "chat": "New Opus chat",
-   "when": "after the improvements (moved back 11-24)",
-   "why": "Only the testers you invite can open the app, and your code stops being public, so nobody passes it around before you sell it.",
-   "items": [
-    {
-     "id": "plan first",
-     "size": "S",
-     "what": "Decide the details with you",
-     "change": "Questions for that chat: tester emails, the tester-copy name, and whether your own app stays on its current address (recommended for now, because your coins live on your phone at that address).",
-     "affects": "Nothing until you agree"
-    },
-    {
-     "id": "build",
-     "size": "M",
-     "what": "Tester copy behind sign-in",
-     "change": "Tester copy on Cloudflare Pages (free) behind Cloudflare Access (free up to 50 users): testers sign in with an email code; you can remove anyone. Shows \"Tester copy for [name]\". Code made private only once your own app no longer depends on the public GitHub site (making it private now would take your phone app offline).",
-     "affects": "Where testers open the app; your own app is not moved without a backup and your OK"
-    },
-    {
-     "id": "note 11-20",
-     "size": "S",
-     "what": "Share buttons off, no switch, in the tester copy",
-     "change": "The tester copy has Share the app and Share a snapshot hidden from the start, and the Hide Share switch is taken out of Options so testers can't turn Share back on. Your own copy keeps Share.",
-     "affects": "Tester copy, Options"
-    }
-   ],
-   "try": [
-    "Open the tester link in a private window: it asks for an email code.",
-    "Try an email that isn't on the list: it is refused."
-   ],
-   "needs": "4"
   }
  ],
  "parked": [
@@ -2778,6 +2766,10 @@
   {
    "group": "Later",
    "items": [
+    {
+     "t": "Private tester copy (4b): parked 11-26 until you're closer to testers (Cloudflare Pages + Access, Share hidden in the tester copy). Opus, est 2–4",
+     "size": "M"
+    },
     {
      "t": "\"Skip in Needs attention\" tick (split from 4c, 11-22): a tick on a coin stops it nagging, leaves a small skipped mark, totals stay estimates. Changes saved data (Opus)",
      "size": "M"
@@ -3451,6 +3443,13 @@
    "ver": "v0.124.1",
    "cost": "pending",
    "change": "Silver Eagle album number 7181 fills 36 spots. Reports open and tick off on the new Reading tab. Project backup zip goes to Drive."
+  },
+  {
+   "date": "11-26",
+   "name": "R11 solo review",
+   "ver": "v0.124.1",
+   "cost": "pending",
+   "change": "Report only: 4 findings, PR #48 waits for R11-1 (tax and shipping counted twice after a break-up)."
   }
  ],
  "modes": [
@@ -3541,8 +3540,8 @@
  },
  "checkin": {
   "last": "2026-11-24 (Tue 1pm, Opus weekly planning)",
-  "last_review": "2026-11-25 (R10 solo review, report 33)",
-  "review_baseline": 53,
+  "last_review": "2026-11-26 (R11 solo review, report 36)",
+  "review_baseline": 66,
   "saved_data_ahead": false,
   "note": "Review due when 8-10 steps are done since the last review, a change to how coins are saved is coming up, or before testers/buyers. Steps since review = done steps minus review_baseline."
  },
@@ -3976,6 +3975,11 @@
    "id": "s32-0",
    "title": "Reports: key dates + varieties scan (153, 152)",
    "file": "report-31.md"
+  },
+  {
+   "id": "sR11-0",
+   "title": "R11 solo review (E1a–E1r + PR #48)",
+   "file": "report-36.md"
   }
  ]
 }
