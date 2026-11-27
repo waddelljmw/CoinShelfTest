@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-27 (P12 planning locked)",
+ "updated": "2026-11-27 (step 43 locked)",
  "app": "v0.125.1",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 67,
+  "weekly_now": 68,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2758,7 +2758,7 @@
    "model": "Opus",
    "est": "1–3",
    "time": "30–45 min",
-   "actual": "reading pending",
+   "actual": "~3 (with P12 prep)",
    "status": "done",
    "chat": "Same Opus chat as P12 prep",
    "when": "11-27 overnight",
@@ -3133,7 +3133,7 @@
    "model": "Opus",
    "est": "1–2",
    "time": "30 min",
-   "actual": "~1",
+   "actual": "~1 (est, reading pending)",
    "status": "done",
    "chat": "New Opus chat",
    "when": "when you have 20–30 min",
@@ -3150,7 +3150,9 @@
    "try": [
     "Talk it through in chat."
    ],
-   "ended": "12:18pm 11-27"
+   "ended": "2026-11-27 12:18",
+   "started": "2026-11-27 11:37",
+   "minutes": 41
   },
   {
    "n": "43b",
@@ -3952,6 +3954,13 @@
    "ver": "",
    "cost": "~1–2",
    "change": "14 steps lined up: no-attention work first (34–39), then steps that stop for your OK (40–42), R12, then talks that need you (43–44) and bars beyond silver."
+  },
+  {
+   "date": "11-27",
+   "name": "Step 43: What I need talk and sketch",
+   "ver": "",
+   "cost": "~1",
+   "change": "Want List will become 'What I need': Albums and Lists tabs, Need/Upgrade tags, pay up to (with an old-price hint), priority star, eBay sold, album target grade. Build is step 43b (Opus, plan first)."
   }
  ],
  "modes": [
