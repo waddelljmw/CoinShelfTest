@@ -3133,11 +3133,11 @@
    "model": "Opus",
    "est": "1–2",
    "time": "30 min",
-   "actual": "",
-   "status": "todo",
+   "actual": "~1",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "when you have 20–30 min",
-   "why": "Needs you (20–30 min, sketches). About 13 want-list ideas (99, 101, 103, 105, 129, 133, 159 and your notes). No code until you OK a sketch.",
+   "why": "Done 11-27: 'What I need' page locked (reviews/40). Replaces the Want List page; Albums and Lists tabs; Need/Upgrade tags, pay up to, priority star, album target grade.",
    "items": [
     {
      "id": "shop",
@@ -3149,6 +3149,34 @@
    ],
    "try": [
     "Talk it through in chat."
+   ],
+   "ended": "12:18pm 11-27"
+  },
+  {
+   "n": "43b",
+   "stage": "now",
+   "name": "What I need: plan + build",
+   "model": "Opus",
+   "est": "3",
+   "time": "90 min",
+   "actual": "",
+   "status": "todo",
+   "chat": "New Opus chat",
+   "when": "when you have 10 min to OK the plan",
+   "why": "Builds the page we sketched (reviews/40). Changes saved data (album target grade, priority, pay-up-to date), so a short plan and your OK come first.",
+   "items": [
+    {
+     "id": "168",
+     "size": "M",
+     "what": "What I need page",
+     "change": "Want List becomes What I need: Albums and Lists tabs, Need/Upgrade tags, pay up to with old-price hint, priority star, eBay sold, Home button",
+     "affects": "Saved data: album target grade + 2 small want fields"
+    }
+   ],
+   "try": [
+    "Home: tap What I need under the search box.",
+    "Franklin album: Edit album, Aim for AU-50; below-AU coins show Upgrade.",
+    "Star a coin: it moves to Priority."
    ]
   },
   {
