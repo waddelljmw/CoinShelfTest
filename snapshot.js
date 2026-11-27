@@ -2,7 +2,7 @@
 // Private details are left out unless you tick them. Loaded after app.js.
 "use strict";
 
-const SNAP_FILES = ["styles.css", "catalog/data.js", "catalog/bookfacts.js", "catalog/mintages.js", "catalog/albums.js", "catalog/varieties.js", "app.js", "values.js", "views.js", "albums.js", "options.js", "coinform.js", "coinsave.js", "editforms.js", "actions.js", "sheets.js", "seller.js", "photofill.js", "history.js", "wants.js", "whatineed.js", "albumlayout.js", "boxes.js", "pockets.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "pricefile.js", "ownvalues.js", "coincard.js", "meltpage.js", "whatsnew.js", "inherit.js", "breakup.js", "welcome.js", "levels.js"];
+const SNAP_FILES = ["styles.css", "catalog/data.js", "catalog/bookfacts.js", "catalog/mintages.js", "catalog/albums.js", "catalog/varieties.js", "app.js", "values.js", "views.js", "albums.js", "options.js", "coinform.js", "coinsave.js", "editforms.js", "actions.js", "sheets.js", "seller.js", "photofill.js", "history.js", "wants.js", "whatineed.js", "albumlayout.js", "boxes.js", "pockets.js", "report.js", "snapshot.js", "albumdb.js", "local.js", "backup.js", "pricefile.js", "ownvalues.js", "valuesrc.js", "coincard.js", "meltpage.js", "whatsnew.js", "inherit.js", "breakup.js", "welcome.js", "levels.js"];
 const SNAP_PRIVATE = [
   ["paid", "What you paid"],
   ["source", "Where you got each coin"],
@@ -13,7 +13,7 @@ const SNAP_PRIVATE = [
 ];
 
 // Settings a viewer needs to display coins. Everything else (seller details, inheritances, fees, counters, backups...) stays out.
-const SNAP_SETTINGS = ["kind", "spot", "spotUpdated", "hideSpot", "hideValues", "homeClosed", "hiddenGroups", "hiddenStacks", "showSold", "showHistory", "showAdded", "showSoldList", "showMeltSec", "bookEdition", "shelfStyle", "textSize", "shelfLayout", "level", "albumOrder", "autoOrder"];
+const SNAP_SETTINGS = ["kind", "spot", "spotUpdated", "hideSpot", "hideValues", "homeClosed", "hiddenGroups", "hiddenStacks", "showSold", "showHistory", "showAdded", "showSoldList", "showMeltSec", "bookEdition", "valueSources", "shelfStyle", "textSize", "shelfLayout", "level", "albumOrder", "autoOrder"];
 // Coin fields that never go into a snapshot, whatever the switches say.
 const SNAP_COIN_DROP = ["inhId", "inhValue", "origAlbum", "sellLater", "ask", "biz", "caseName"];
 
@@ -36,7 +36,7 @@ const SNAP_KEEP = ["c_", "a_", "aw_", "b_", "w_", "wl_", "settings", "history"];
 async function snapshotDocs(inc) {
   const out = [];
   for (const [id, d0] of store.docs) {
-    if (!d0 || id === "pricebook") continue; // the price list never goes into a shared file
+    if (!d0 || /^pricebook[23]?$/.test(id)) continue; // the price list never goes into a shared file
     if (!SNAP_KEEP.some((k) => id === k || id.startsWith(k))) continue; // R9-1: only what a view-only file needs (no purchases, shows or anything added later)
     if (id === "history" && !inc.values) continue; // value-over-time holds dollar totals
     const d = JSON.parse(JSON.stringify(d0));

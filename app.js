@@ -20,7 +20,7 @@ const localDate = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padSta
 const today = () => localDate(new Date());
 const TYPE_BY_ID = Object.fromEntries(COIN_TYPES.map((t) => [t.id, t]));
 // The app's version. Goes up with every merged change (see CLAUDE.md), and shows at the bottom of Options.
-const APP_VERSION = "0.126.0";
+const APP_VERSION = "0.127.0";
 const shortName = (t) => t.name.replace(/\s*\(.*\)\s*$/, "");
 const normMint = (m) => (m === "P" ? "" : m || "");
 // Step 4c: mint "?" = "Can't tell". It finds no album spot, filter or mintage, but values use the plain-date (no mint mark) price.
@@ -55,6 +55,8 @@ const DEFAULT_SETTINGS = {
   showMeltSec: true,
   soldAutoDone: false,
   bookEdition: "",
+  valueSources: [], // step 44b: his own value source names [{id, name}]
+  fillFrom: "", // step 44b: which price list fills blank coins ("" = list 1)
   shelfStyle: "bookcase", // Home look: "bookcase" or "safe"
   shelfLayout: { order: [], hidden: {}, hiddenItems: {}, pins: {} }, // Step 4.4: shelf order, hidden shelves/items, pins
 };
@@ -94,6 +96,8 @@ function loadPriceBook(canSave) {
   if (m === "demo") { PRICE_BOOK = emptyBook(); return; } // the demo shows no book values
   if (m === "snapshot") { PRICE_BOOK = { ...emptyBook(), ...((window.COIN_SNAPSHOT && window.COIN_SNAPSHOT.book) || {}) }; return; } // values are stamped on each coin
   if (m === "local" || m === "db") {
+    const act = typeof activeBookKey === "function" ? activeBookKey() : "pricebook"; // step 44b: up to 3 lists, one fills blank coins
+    if (act !== "pricebook") { PRICE_BOOK = { ...emptyBook(), ...store.docs.get(act) }; return; }
     if (usableBook(rec)) { PRICE_BOOK = { ...emptyBook(), ...rec }; return; }
     // Copy ONLY when there is no record. Never overwrite one, so a price file loaded later always wins.
     // ...and only a whole copy: if one of the two shipped files didn't arrive, save nothing and try again next time.
@@ -224,7 +228,7 @@ function put(key, obj, quiet) {
   if (key.startsWith("c_") && typeof caseOnPut === "function") caseOnPut(store.docs.get(key), body); // dealer case: remember the old place
   if (typeof noteChange === "function") noteChange(key, body);
   store.docs.set(key, body);
-  if (key === "pricebook" && usableBook(body)) PRICE_BOOK = { ...emptyBook(), ...body }; // first copy, restore, or (later) a loaded price file
+  if (key === (typeof activeBookKey === "function" ? activeBookKey() : "pricebook") && usableBook(body)) PRICE_BOOK = { ...emptyBook(), ...body }; // first copy, restore, a loaded price file (only the list that fills blank coins, step 44b)
   if (key !== "history" && typeof scheduleHistory === "function") scheduleHistory(); // value over time
   // Queue the save BEFORE redrawing: the redraw may add a coin ID (ensureIds) and queue its own save of this coin,
   // which must come after this one or the plain copy would overwrite the ID on disk.

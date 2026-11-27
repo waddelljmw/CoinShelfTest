@@ -186,7 +186,9 @@ function bookText(b) {
 }
 
 // Red Book prices are for coins without problems, so a "Details" coin uses your value, else melt.
+const meltPicked = (c) => c.valueFrom === "melt" && num(c.value) == null && meltEach(c) != null; // step 44b: Value from › Melt
 function valueEach(c) {
+  if (meltPicked(c)) return meltEach(c);
   if (itemOf(c) === "bullion") return num(c.value) ?? meltEach(c);
   if (itemOf(c) === "roll") return num(c.value) ?? (Math.max(rollFace(c) || 0, meltEach(c) || 0) || null);
   if (itemOf(c) === "set") return num(c.value);
@@ -194,6 +196,7 @@ function valueEach(c) {
   return num(c.value) ?? (hasProblems(c) ? null : bookPrice(c));
 }
 function valueSource(c) {
+  if (meltPicked(c)) return "melt";
   if (itemOf(c) === "bullion") return num(c.value) != null ? "entered" : meltEach(c) != null ? "melt" : null;
   if (itemOf(c) === "roll") return num(c.value) != null ? "entered" : (meltEach(c) || 0) > (rollFace(c) || 0) ? "melt" : rollFace(c) ? "face" : null;
   if (itemOf(c) === "set") return num(c.value) != null ? "entered" : meltEach(c) != null ? "melt" : null;

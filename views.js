@@ -121,7 +121,7 @@ function viewHome() {
   const paid = sum(gainCoins, costOf); // price paid plus tax, shipping and fees
   const gainVal = sum(gainCoins, (c) => (bestEach(c) || 0) * qtyOf(c));
   const gain = gainCoins.length ? gainVal - paid : null;
-  const noValue = owned.filter((c) => valueSource(c) === "melt" && !isJunk(c) && itemOf(c) !== "bullion").length;
+  const noValue = owned.filter((c) => valueSource(c) === "melt" && !isJunk(c) && itemOf(c) !== "bullion" && c.valueFrom !== "melt").length;
   const fromBook = owned.filter((c) => valueSource(c) === "book").length;
 
   // Chips first (what counts in the totals), then the shelf, then cost and gain.
@@ -393,6 +393,7 @@ function viewCoin(r) {
       ${row(itemOf(c) === "bullion" && valueSource(c) === "melt" ? "Value (melt)" : isJunk(c) ? "Value (junk = melt)" : valueSource(c) === "book" ? (bookLookup(c) && bookLookup(c).atLeast ? "Value each (at least, " + bookName() + ")" : "Value each (" + bookName() + ")") : valueSource(c) === "face" ? (meltKey(c) && num(c.oz) && spotPerOz(meltKey(c)) == null ? "Value each (face value, no " + meltKey(c) + " price yet)" : "Value each (face value)") : "Value" + eachWord(c) + (valueFromText(c.valueFrom) ? " (" + valueFromText(c.valueFrom) + ")" : ""), money(v))}
       ${noBookNote(c) ? `<div class="small muted" style="margin:2px 0 6px">${esc(noBookNote(c))}</div>` : ""}
       ${valueSource(c) === "entered" && bookPrice(c) != null ? row(bookName(), money(bookPrice(c)) + ` <span class="muted small">${esc(bookLookup(c).grade.replace(/^PR/, "PF"))}</span>`) : ""}
+      ${typeof compareLinesHtml === "function" ? compareLinesHtml(c, row) : ""}
       ${row("Melt" + eachWord(c) + wi("melt"), m == null ? (meltKey(c) ? "Enter spot price" : null) : money(m))}
       ${q > 1 ? row("Total value", money((bestEach(c) || 0) * q)) : ""}
       ${row("Metal", esc([c.metal, num(c.oz) ? num(c.oz) + " oz" + (itemOf(c) === "roll" ? " per coin" : itemOf(c) === "set" ? " in the set" : itemOf(c) === "bullion" ? " pure" : "") : ""].filter(Boolean).join(" · ")))}

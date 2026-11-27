@@ -11,7 +11,7 @@ const BACKUP_REMIND_COINS = 25;
 let trackOff = false, changePending = null;
 const changedSeen = new Set(); // one coin saved several times counts once
 function noteChange(key, body) {
-  if (trackOff || key === "settings" || key === "history" || key === "pricebook") return;
+  if (trackOff || key === "settings" || key === "history" || /^pricebook[23]?$/.test(key)) return;
   if (store.mode !== "local" && store.mode !== "db") return;
   const old = store.docs.get(key);
   if (body ? old && JSON.stringify(old) === JSON.stringify(body) : !old) return; // nothing really changed
@@ -146,7 +146,7 @@ function mergeRestored(id, body) {
   }
   if (!here) return body;
   // Price list: a list with prices beats an empty one; otherwise the later-saved one wins, so an old backup can't put older prices over newer ones.
-  if (id === "pricebook") return body && !Object.keys(here.series || {}).length && Object.keys(body.series || {}).length ? body : body && body.savedAt && String(body.savedAt) > String(here.savedAt || "") ? body : here;
+  if (/^pricebook[23]?$/.test(id)) return body && !Object.keys(here.series || {}).length && Object.keys(body.series || {}).length ? body : body && body.savedAt && String(body.savedAt) > String(here.savedAt || "") ? body : here;
   if (id === "history") return { ...body, ...here, days: { ...(body.days || {}), ...(here.days || {}) } };
   if (id === "settings") {
     const out = { ...body };
@@ -161,6 +161,10 @@ function mergeRestored(id, body) {
     const inh = new Map();
     [...(body.inheritances || []), ...(here.inheritances || [])].forEach((i) => { if (i && i.id) inh.set(i.id, i); });
     if (inh.size) out.inheritances = [...inh.values()];
+    // Value sources (step 44b): keep both lists, joined by id, so restored coins keep their source names.
+    const vs = new Map();
+    [...(body.valueSources || []), ...(here.valueSources || [])].forEach((v) => { if (v && v.id) vs.set(v.id, v); });
+    if (vs.size) out.valueSources = [...vs.values()];
     out.inhDefault = here.inhDefault || body.inhDefault;
     out.dataVersion = Math.max(num(here.dataVersion) || 0, num(body.dataVersion) || 0) || DATA_VERSION; // never goes down
     return out;
@@ -221,6 +225,7 @@ async function restoreAll() {
     await put(id, mergeRestored(id, body));
   }
   if (store.mode === "local") cleanUnusedPhotos();
+  if (typeof loadPriceBook === "function") loadPriceBook(); // step 44b: the restored settings may pick another list to fill blank coins
   go("home");
   toast("Restored " + data.docs.filter((d) => d.data && d.data.kind === "coin").length + " coins." + (failed ? " " + failed + " photo" + (failed === 1 ? "" : "s") + " couldn't be restored." : "") + (restoreRenumbered ? " " + restoreRenumbered + " coin ID" + (restoreRenumbered === 1 ? " was" : "s were") + " already in use, so " + (restoreRenumbered === 1 ? "it got a new number." : "they got new numbers.") : ""));
 }
