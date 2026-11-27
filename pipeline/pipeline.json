@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-27 (step 43 locked)",
- "app": "v0.125.1",
+ "updated": "2026-11-27 (step 43b built)",
+ "app": "v0.126.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 68,
+  "weekly_now": 70,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -3161,11 +3161,11 @@
    "model": "Opus",
    "est": "3",
    "time": "90 min",
-   "actual": "",
-   "status": "todo",
+   "actual": "~3 (est, reading pending)",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "when you have 10 min to OK the plan",
-   "why": "Builds the page we sketched (reviews/40). Changes saved data (album target grade, priority, pay-up-to date), so a short plan and your OK come first.",
+   "why": "Done 11-27 (v0.126.0): Want List is now What I need. Albums tab (Need / Upgrade from your albums), Lists tab, Edit album Aim for, priority star, pay up to with 'mo old' hint.",
    "items": [
     {
      "id": "168",
@@ -3176,10 +3176,13 @@
     }
    ],
    "try": [
-    "Home: tap What I need under the search box.",
-    "Franklin album: Edit album, Aim for AU-50; below-AU coins show Upgrade.",
-    "Star a coin: it moves to Priority."
-   ]
+    "Home: tap What I need under the search box; open an album card.",
+    "Edit album: Aim for AU-50; coins below it (or not graded) show Upgrade.",
+    "Tap a star: the row moves to Priority. Tap a row: set Pay up to."
+   ],
+   "started": "2026-11-27 13:14",
+   "ended": "2026-11-27 13:54",
+   "minutes": 40
   },
   {
    "n": "44",
@@ -3961,6 +3964,13 @@
    "ver": "",
    "cost": "~1",
    "change": "Want List will become 'What I need': Albums and Lists tabs, Need/Upgrade tags, pay up to (with an old-price hint), priority star, eBay sold, album target grade. Build is step 43b (Opus, plan first)."
+  },
+  {
+   "date": "11-27",
+   "name": "Step 43b: What I need",
+   "ver": "v0.126.0",
+   "cost": "~3",
+   "change": "Want List became What I need: Albums tab fills itself (Need / Upgrade), Lists tab, album Aim for grade, priority star, pay up to with an old-price hint, Home button."
   }
  ],
  "modes": [

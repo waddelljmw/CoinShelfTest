@@ -59,7 +59,7 @@ function listSubtitle(wl) {
 const wantsView = { listId: DEFAULT_LIST_ID };
 
 /* ---------- page ---------- */
-function viewWants() {
+function wantListsHtml() { // the Lists tab of What I need (step 43b)
   ensureDefaultList();
   const lists = wantLists();
   if (!lists.find((l) => l.id === wantsView.listId)) wantsView.listId = DEFAULT_LIST_ID;
@@ -67,8 +67,7 @@ function viewWants() {
   const list = wantsIn(wantsView.listId).sort((a, b) => (a.family || "").localeCompare(b.family || "") || (+a.year || 0) - (+b.year || 0) || normMint(a.mint).localeCompare(normMint(b.mint)));
   const totalMax = sum(list, (w) => num(w.maxPrice));
   const counts = Object.fromEntries(lists.map((l) => [l.id, wantsIn(l.id).length]));
-  return `<h1>Want List</h1>
-    <div class="chips" style="margin-bottom:10px">
+  return `<div class="chips" style="margin-bottom:10px">
       ${lists.map((l) => `<button class="chip ${wantsView.listId === l.id ? "on" : ""}" data-act="wantsPickList" data-id="${esc(l.id)}">${esc(l.name)}${counts[l.id] ? " · " + counts[l.id] : ""}</button>`).join("")}
       <button class="chip" data-act="wlNew">+ New list</button>
     </div>
@@ -293,6 +292,7 @@ function saveWantForm(form) {
   saveWant(w);
   touchType(typeId);
   wantsView.listId = w.listId;
+  if (typeof winState !== "undefined") winState.tab = "lists"; // you just saved to a list: show it
   closeSheet();
   toast(old ? "Saved." : "Added to your want list.");
   if (currentRoute().view !== "wants") go("wants");
@@ -493,7 +493,7 @@ function openSlotMenu(el) {
          <div class="btn-row"><button class="btn" data-go="wants">View want list</button></div>` : ""}
     ${coin && upG ? `<button class="btn block btn-want" data-act="slotWant" data-upgrade="1" ${sd}>★ Want an upgrade (above ${esc(coin.grade)})</button>` : ""}
     ${!coin && (!ws.length || moreLists) ? `<button class="btn block btn-want" data-act="${ws.length ? "slotWant" : "slotWantQuick"}" ${sd}>★ ${ws.length ? "Add to another want list" : "Add to want list"}</button>
-         ${ws.length ? "" : `<div class="hint">One tap: adds ${esc(label)} to "${esc(missingSuggest(a).name)}". You can set a target grade and price on the Want List later.</div>`}` : ""}
+         ${ws.length ? "" : `<div class="hint">One tap: adds ${esc(label)} to "${esc(missingSuggest(a).name)}". You can set a target grade and price on What I need later.</div>`}` : ""}
     <div class="btn-row">
       ${coin ? `<button class="btn" data-go="coin-${esc(coin.id)}">View coin</button><button class="btn" data-act="edit" data-id="${esc(coin.id)}">Edit</button><button class="btn" data-act="slotTakeOut" data-id="${esc(coin.id)}">Take out of album</button>` : ""}
       ${coin && albumMoveTargets(coin, a).length ? `<button class="btn" data-act="slotMoveList" data-id="${esc(coin.id)}" data-album="${esc(a.id)}">Move to another album</button>` : ""}

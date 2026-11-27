@@ -5,7 +5,7 @@ const { chromium } = require("./_compat");
   await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
 
   // From the Add-to-want-list form
-  await p.click("#menuBtn"); await p.click("#menu [data-go=wants]");
+  await p.click("#menuBtn"); await p.click("#menu [data-go=wants]"); await p.evaluate(() => { winState.tab = "lists"; render(); });
   await p.click("[data-act=wantNew]");
   await p.evaluate(() => { document.querySelector("[name=typeId]").value = "morgan-dollar"; });
   await p.fill("[name=year]", "1884"); await p.selectOption("[name=mint]", "CC");
@@ -44,7 +44,7 @@ const { chromium } = require("./_compat");
   console.log("toast:", await p.textContent("#toast"));
 
   // Fresh "+ New list" from chips doesn't resurrect a stale want form
-  await p.evaluate(() => go("wants")); await p.waitForTimeout(150);
+  await p.evaluate(() => go((winState.tab = "lists", "wants"))); await p.waitForTimeout(150);
   await p.click("[data-act=wlNew]");
   await p.fill("#wlForm [name=name]", "Plain List");
   await p.click("#wlForm button[type=submit]"); await p.waitForTimeout(200);

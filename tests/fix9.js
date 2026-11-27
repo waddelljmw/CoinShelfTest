@@ -33,7 +33,7 @@ const srv = http.createServer((q, r) => { const f = path.join(root, q.url.split(
   await q.goto("file:///tmp/snap.html"); await q.waitForTimeout(400);
   ok("opens in snapshot mode", await q.evaluate(() => store.mode === "snapshot" && document.body.classList.contains("readonly")));
   ok("coins visible", await q.evaluate(() => ownedCoins().length === 1));
-  await q.evaluate(() => go("wants")); await q.waitForTimeout(150);
+  await q.evaluate(() => go((winState.tab = "lists", "wants"))); await q.waitForTimeout(150);
   ok("want-list tabs visible", await q.evaluate(() => { const t = document.querySelector("[data-act=wantsPickList]"); return !!t && getComputedStyle(t).display !== "none"; }));
   const blocked = await q.evaluate(() => {
     const before = store.docs.size; const res = [];

@@ -9,7 +9,7 @@ const { chromium } = require("./_compat");
   await p.click("[data-act=closeSheet] >> nth=0");
 
   // Multi want lists
-  await p.click("#menuBtn"); await p.click("#menu [data-go=wants]");
+  await p.click("#menuBtn"); await p.click("#menu [data-go=wants]"); await p.evaluate(() => { winState.tab = "lists"; render(); });
   console.log("default chips:", await p.$$eval(".chips .chip", (x) => x.map((e) => e.textContent)));
   await p.click("[data-act=wlNew]");
   await p.fill("#wlForm [name=name]", "Morgan Dollars I Need");
@@ -55,7 +55,7 @@ const { chromium } = require("./_compat");
   await p.screenshot({ path: "/tmp/wantlist-page.png" });
 
   // delete list blocked while it has items
-  await p.evaluate(() => go("wants")); await p.waitForTimeout(150);
+  await p.evaluate(() => go((winState.tab = "lists", "wants"))); await p.waitForTimeout(150);
   await p.click(".chip:has-text('Morgan Dollars I Need')"); await p.waitForTimeout(100);
   await p.click("[data-act=wlDelete]"); await p.waitForTimeout(100);
   console.log("delete blocked toast:", await p.textContent("#toast"));

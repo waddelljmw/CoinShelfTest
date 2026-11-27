@@ -468,3 +468,16 @@ body:has(#sheet:not([hidden])) .toast { bottom: auto; top: 12px; }
 .bu-line .grid2 { gap: 8px; }
 .bu-sum { font-weight: 600; margin: 8px 0; }
 .bu-sum.bad { color: var(--bad); }
+/* step 43b: What I need */
+.win-tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 999px; color: #fff; }
+.win-tag.need { background: #217346; }
+.win-tag.up { background: #2f6fd6; }
+.win-star { flex: 0 0 auto; min-width: 44px; min-height: 44px; border: 0; background: none; font-size: 22px; color: var(--muted, #999); }
+.win-star.on { color: #e0a800; }
+.win-main { flex: 1 1 auto; display: flex; flex-direction: column; align-items: flex-start; text-align: left; background: none; border: 0; padding: 4px 0; font: inherit; color: inherit; min-height: 44px; }
+.win-old { color: #a85a12; }
+@media (prefers-color-scheme: dark) { .win-old { color: #e0a060; } }
+body.safe .win-old { color: #e0a060; }
+.win-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; }
+.win-body .win-main { width: 100%; }
+.win-body .coin-label { white-space: normal; }

@@ -164,6 +164,7 @@ async function saveDraft() {
     renderPurchaseForm(); toast("Coin added to this receipt.");
     return;
   }
+  if (typeof aimCleanup === "function") aimCleanup(c); // step 43b: reached the album's Aim for grade, so its quiet upgrade want goes
   if (typeof syncUpgradeMark === "function") syncUpgradeMark(c, prev); // the coin's "Upgrade wanted" tick and the spot's upgrade want stay one mark
   if (d._replaces) {
     const old = getCoin(d._replaces);

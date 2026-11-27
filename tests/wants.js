@@ -5,7 +5,7 @@ const { chromium } = require("./_compat");
   await p.goto("file://" + require("path").resolve(__dirname, "../index.html")); await p.waitForTimeout(300);
   await p.click("#menuBtn");
   console.log("menu:", await p.$$eval("#menu button", (x) => x.map((b) => b.textContent)));
-  await p.click("#menu [data-go=wants]");
+  await p.click("#menu [data-go=wants]"); await p.evaluate(() => { winState.tab = "lists"; render(); });
   console.log("empty:", (await p.textContent(".card.empty")).trim());
   // add by hand
   await p.click("[data-act=wantNew]");
@@ -25,7 +25,7 @@ const { chromium } = require("./_compat");
   console.log("one added via checkbox:", await p.evaluate(() => wants().length));
   await p.click("[data-act=missing]"); await p.click("[data-act=missAll]"); await p.click("[data-act=missAdd]"); await p.waitForTimeout(300);
   console.log("wants total:", await p.evaluate(() => wants().length), "(1 Morgan + 24 Peace)");
-  await p.evaluate(() => go("wants")); await p.waitForTimeout(200);
+  await p.evaluate(() => go((winState.tab = "lists", "wants"))); await p.waitForTimeout(200);
   console.log("summary:", (await p.textContent("main .small.muted")).trim());
   await p.screenshot({ path: "/tmp/wants.png" });
   // Got it → form prefilled → saving removes the want
@@ -37,7 +37,7 @@ const { chromium } = require("./_compat");
   console.log("coin added:", await p.textContent("h1"), "| want gone:", await p.evaluate((id) => !getWant(id), morganId));
   // Got it for an album want keeps the album
   const peace = await p.evaluate(() => wants().find((w) => w.year === 1922 && w.mint === "S").id);
-  await p.evaluate((id) => { wantsView.listId = getWant(id).listId; go("wants"); }, peace); await p.waitForTimeout(150);
+  await p.evaluate((id) => { wantsView.listId = getWant(id).listId; go((winState.tab = "lists", "wants")); }, peace); await p.waitForTimeout(150);
   await p.click(`[data-act=wantGot][data-id="${peace}"]`); await p.waitForTimeout(200);
   console.log("album kept:", await p.evaluate(() => draft.albumId));
   await p.click("[data-act=closeSheet] >> nth=0");

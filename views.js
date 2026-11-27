@@ -37,7 +37,7 @@ window.addEventListener("hashchange", (e) => {
 const coinBackTarget = () => coinBackTo || "coins";
 function coinBackLink() {
   const h = coinBackTo || "coins";
-  let name = { home: "My Cabinet", value: "Coin Value", albums: "My Albums", wants: "Want List", coins: "My Coins", stacks: "My Stacks", boxes: "Storage", guide: "PCGS Photograde", options: "Options" }[h];
+  let name = { home: "My Cabinet", value: "Coin Value", albums: "My Albums", wants: "What I need", coins: "My Coins", stacks: "My Stacks", boxes: "Storage", guide: "PCGS Photograde", options: "Options" }[h];
   if (!name && h.startsWith("box-")) { const b = getBox(h.slice(4)); name = b ? b.name : "Boxes"; }
   if (!name && h.startsWith("album-")) { const a = getAlbum(h.slice(6)); name = a ? albumTitle(a) : "My Albums"; }
   if (!name && h.startsWith("purchase-") && typeof getPurchase === "function") { const p = getPurchase(h.slice(9)); name = p ? purchaseName(p) : "Purchases"; }
@@ -74,6 +74,7 @@ function render() {
   HIDE_NOW = !!settings().hideValues && !["options", "guide", "reports"].includes(r.view); // R4-27: every page that shows amounts, melt included
   try { main.innerHTML = fn(r); } finally { HIDE_NOW = false; }
   if (keepSearch != null) { const s = $("#coinSearch"); if (s) { s.focus(); s.setSelectionRange(keepSearch, keepSearch); } }
+  else if (typeof winFocus !== "undefined" && winFocus) { const s = $("#winQ"); if (s) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); } winFocus = false; }
   else if (focusCoinSearch) { const s = $("#coinSearch"); if (s) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); focusCoinSearch = false; } }
 }
 
@@ -129,7 +130,7 @@ function viewHome() {
     ...stacksPresent().map((n) => { const on = !hiddenStacks().includes(n); return `<button class="chip ${on ? "on" : ""}" data-act="toggleStack" data-v="${esc(n)}" aria-pressed="${on}">${on ? "✓ " : ""}${esc(n)} · ${sum(everything.filter((c) => stackOf(c) === n), qtyOf)}</button>`; }),
   ];
   let html = `${typeof backupReminder === "function" ? backupReminder() : ""}${(store.mode === "local" || store.mode === "demo") && !allCoins().some((c) => c.status !== "deleted") ? `${welcomeCard()}` : ""}<h1 class="sr-only">Your cabinet</h1>
-  ${homeSearchBox()}${eyeButton()}
+  ${homeSearchBox()}${levelAtLeast("collector") && albums().length ? `<button class="btn block" style="margin:-2px 0 10px" data-go="wants">What I need</button>` : ""}${eyeButton()}
   ${chips.length ? `<div class="chips home-chips" aria-label="Count in the totals">${chips.join("")}</div>` : ""}
   ${typeof shelfHtml === "function" ? shelfHtml(owned, { total, melt, count }) : ""}
   ${fromBook || leftOut().length || noValue ? `<div class="small muted home-notes">${[
