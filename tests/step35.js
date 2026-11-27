@@ -33,7 +33,5 @@ const ok = (name, v) => { console.log((v ? "PASS " : "FAIL ") + name); if (!v) p
   ok("no page errors", errors.length === 0);
   if (errors.length) console.log(errors);
   await p.evaluate(() => { openCoinForm(null); }); await p.waitForTimeout(200);
-  await p.fill("#typeSearch", "1885 morgan"); await p.screenshot({ path: "/home/claude/s35-list.png" });
-  await p.click('[data-act=whatPick]'); await p.waitForTimeout(200); await p.screenshot({ path: "/home/claude/s35-picked.png" });
   await b.close();
 })();
