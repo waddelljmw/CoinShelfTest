@@ -158,8 +158,8 @@ function renderCoinForm() {
       <div class="grid2">
       <label class="f"><span>What is it called?</span><input type="text" data-f="typeName" value="${esc(d.typeName)}" placeholder="e.g. Casino token"></label>
       <label class="f"><span>Face value</span><input type="text" data-f="denom" value="${esc(d.denom)}" placeholder="$1"></label></div>`
-      : `<div class="f typeahead"><span>Coin type</span>
-      <input type="search" id="typeSearch" placeholder="Search by name, e.g. Morgan" value="${esc(t ? t.name : d._typeQ || "")}">
+      : `<div class="f typeahead"><span>${yearFirst ? "What do you have?" : "Coin type"}</span>
+      <input type="search" id="typeSearch" placeholder="${yearFirst ? "e.g. 1885 CC Morgan" : "Search by name, e.g. Morgan"}" value="${esc(pickedText(d) || (t ? t.name : d._typeQ || ""))}">
       <div class="ta-list" id="typeList" hidden></div>
       <div class="hint"><button type="button" class="link-btn" data-act="what" data-v="other">Can't find it? Type it yourself</button></div>
     </div>`;
@@ -174,7 +174,7 @@ function renderCoinForm() {
     ${d._isNew && !d._replaces && !d._copiedFrom ? `<div class="hint" id="blankHint">Any field can be left blank. Fill in what you know; you can add the rest later.</div>` : ""}
     ${d._replaces ? `<div class="hint" id="readdNote">Copied from your old entry: year, grade, price, photos and notes. Album spot and variety are cleared. The old entry goes to Recently deleted.</div>` : ""}
     ${d._isNew && !other && it === "coin" ? (store.mode === "demo" && typeof demoFillCard === "function" ? demoFillCard(d) : sampleApi ? photoFillButton(d) : "") : ""}
-    ${it === "bullion" ? bullionTopHtml(d) : it === "set" ? setTopHtml(d) : `${yearFirst ? yearFirstHtml(d, t) : ""}${typeBlock}
+    ${it === "bullion" ? bullionTopHtml(d) : it === "set" ? setTopHtml(d) : `${yearFirst ? typeBlock + yearFirstHtml(d, t) : typeBlock}
     ${t && t.note ? `<div class="hint">${esc(t.note)}</div>` : ""}
     <div class="grid2">
       ${yearFirst ? "" : `<label class="f"><span>Year</span><input type="number" inputmode="numeric" data-f="year" value="${esc(d.year)}" placeholder="${t ? t.start + "–" + typeLastYear(t) : "1921"}"></label>`}
@@ -195,10 +195,11 @@ function renderCoinForm() {
         <div class="hint">The ${d.service === "NGC" ? "NGC" : "PCGS"} coin number printed on the slab's label. Later it opens this exact coin in PCGS Photograde.</div>` : ""}
       <label class="switch"><span>Proof<div class="small muted">Mirror-finish coin made for collectors. Shows proof grades (PR) and the mints that struck proofs.</div></span><input type="checkbox" data-act="toggleProof" ${d._proof ? "checked" : ""}></label>
       ${!d.grade ? (quickCoinOk(d) ? `<label class="switch"><span>Circulated (not graded)<div class="small muted">An everyday coin from pocket change or a roll. No grade needed; valued at face. Fills Where from with Pocket change if it is blank.</div></span><input type="checkbox" data-act="circTick" ${d.noGrade ? "checked" : ""}></label>` : `<label class="switch"><span>Can't grade this one<div class="small muted">For common worn coins. They stop showing under Needs info.</div></span><input type="checkbox" data-fcheck="noGrade" ${d.noGrade ? "checked" : ""}></label>`) : ""}
-      <div class="grade-row">
+      <div class="grade-row${pickedText(d) && !d.grade ? " next-up" : ""}">
       <label class="f"><span>${d.gradeMode === "cert" ? "Grade on the holder" : "My estimated grade"}</span>
         <select data-f="grade" data-rerender><option value="">Choose…</option>${grades.map((g) => `<option value="${g}" ${d.grade === g ? "selected" : ""}>${gradeWord(g)}</option>`).join("")}<option value="Other" ${d.grade === "Other" ? "selected" : ""}>Other…</option></select></label>
       ${d.gradeMode === "cert" ? `<label class="plus-box"><input type="checkbox" aria-label="Plus (+) on the label" data-fcheck="plus" ${d.plus ? "checked" : ""}><b>+</b></label>` : ""}</div>
+      <div class="hint" id="useValue" ${useValueText(d) ? "" : "hidden"}>${esc(useValueText(d))}</div>
       ${d.gradeMode === "cert" ? `<div class="hint">Tick + if the label shows a plus. The value still uses the grade without it.</div>` : ""}
       <div class="hint">Not sure of the grade? Compare your coin with photos: <a id="pcgsLink" href="${esc(photoGuideUrl(d))}" target="_blank" rel="noopener">${esc(photoGuideText(d))} ↗</a></div>
       ${describedField(d)}
@@ -491,6 +492,14 @@ function bookHintText(d) {
   if (b.price != null && hasProblems(d)) return t + ". That price is for a coin without problems, so it isn't used for this one. Enter your own value (Check eBay sold helps)" + (meltEach(d) != null ? ", or melt is used." : ".");
   return b.price != null ? t + (num(d.value) == null ? ". Used as the value while Value each is empty." : "") : t;
 }
+// Under Grade: what the app will use while the Value box is empty, and where it comes from.
+function useValueText(d) {
+  if (itemOf(d) !== "coin" || (!isJunk(d) && num(d.value) != null)) return "";
+  const v = bestEach(d);
+  if (v == null) return "";
+  const s = valueSource(d);
+  return "Value: " + hvMoney(v) + " (" + (s === "book" ? bookName() : s === "face" ? "face value" : "melt") + ")";
+}
 // Link to the coin type's own PCGS Photograde page; types without a saved code open the general page.
 const photoGuideCode = (c) => (c.typeId ? pcgsCodeFor(c.typeId, c.year, c.variety) : "");
 const photoGuideText = (c) => (c.typeName && c.typeId ? "PCGS Photograde: " + c.typeName : "Compare grades on PCGS Photograde");
@@ -505,6 +514,8 @@ function refreshFormHints() {
   const bh = $("#bullionHint"); if (bh) bh.textContent = bullionHint(draft);
   const rh = $("#rollHint"); if (rh) rh.textContent = rollHint(draft);
   const mh = $("#meltHint"); if (mh) mh.textContent = meltHintText(draft);
+  const uv = $("#useValue"); if (uv) { uv.textContent = useValueText(draft); uv.hidden = !uv.textContent; }
+  const ts = $("#typeSearch"); if (ts && draft._picked && document.activeElement !== ts && !pickedText(draft)) { delete draft._picked; ts.value = (TYPE_BY_ID[draft.typeId] || {}).name || ""; const gr = $(".grade-row"); if (gr) gr.classList.remove("next-up"); } // year or mint changed by hand: the tick no longer fits
   const vf = $("#vfRow"); if (vf) vf.hidden = isJunk(draft) || (num(draft.value) == null && draft.valueFrom !== "melt" && !meltPossible(draft));
   const ch = $("#costHint"); if (ch) ch.textContent = costHintText(draft);
   const lr = $("#lotRow"); if (lr) lr.hidden = (num(draft.qty) || 1) < 2; // the lot-price switch shows once Quantity is above 1
@@ -594,7 +605,7 @@ function yearFirstHtml(d, t) {
     <div class="hint" id="yearHint" style="color:var(--bad)">${esc(yearProblem(d.typeId, d.year, "coin"))}</div>
     <div id="wornRow" ${d.year ? "hidden" : ""}>
     ${token ? `<label class="switch"><span>Never had a date<div class="small muted">A token or medal that was made without a year.</div></span><input type="checkbox" data-fcheck="_none" ${d._none ? "checked" : ""}></label>` : ""}
-    <label class="switch"><span>Unreadable / too worn<div class="small muted">No year? Tick this instead of typing one. Type the year first and the coin type list shows only coins made that year.</div></span><input type="checkbox" data-fcheck="_worn" ${d._worn ? "checked" : ""}></label>
+    <label class="switch"><span>Unreadable / too worn<div class="small muted">No year? Tick this instead of typing one. A year here also narrows the list above to coins made that year.</div></span><input type="checkbox" data-fcheck="_worn" ${d._worn ? "checked" : ""}></label>
     </div>`;
 }
 // Types made in a year (so typing 1943 first leaves the types that existed then).
@@ -625,9 +636,44 @@ function tselShow(q) {
   box.innerHTML = recent.length || shown.length ? (recent.length ? head("Recent") + recent.map(btn).join("") + (shown.length ? head("All types") : "") : "") + shown.map(btn).join("") : `<div class="hint" style="padding:10px">No coin type matches. Try fewer letters.</div>`;
   box.hidden = false;
 }
+// 166: "1885 cc mo" in the box lists the exact coins; tapping one fills type, year and mint.
+const pickedSig = (d) => [d.typeId, d.year, d.mint].join("|");
+const pickedText = (d) => (d._isNew && d._picked && d._picked.sig === pickedSig(d) ? "\u2713 " + d._picked.label : "");
+const hasYearWord = (q) => /(^|\s)(1[789]|20)\d\d(-?(p|d|s|o|cc|w))?(\s|$)/i.test(q);
+function whatRows(rs) {
+  return rs.map((r) => {
+    const f = { typeId: r.typeId, year: r.year, mint: r.mint, gradeMode: "raw", grade: "VF-20" }, mine = ownedForLookup(r);
+    return `<button type="button" data-act="whatPick" data-id="${r.typeId}" data-y="${r.year}" data-m="${esc(r.mint)}">${keyDateInfo(f) ? KEY_CHIP + " " : isSemiKey(f) ? SEMI_CHIP + " " : ""}${esc(lookupLabel(r))}<small>${esc(TYPE_BY_ID[r.typeId].name)}${mine.length ? " · " + esc(ownedLine(mine)) : ""}</small></button>`;
+  }).join("");
+}
+// Sets type, year and mint from a match. A mint the date list knows counts as picked ("No mint mark" included).
+function fillFromMatch(d, id, year, mint) {
+  const listed = (EXACT_SLOTS[id] || []).some((x) => x[0] === year);
+  d.year = String(year);
+  d._worn = false;
+  d._none = false;
+  if (mint) setMintPick(d, mint); else if (listed) setMintPick(d, "-"); else { d.mint = ""; delete d.mintOk; }
+  pickType(id);
+  d._picked = { sig: pickedSig(d), label: lookupLabel({ typeId: id, year, mint: d.mint }) };
+  renderCoinForm();
+}
+function whatPick(el) {
+  if (!draft || !draft._isNew || !TYPE_BY_ID[el.dataset.id]) return;
+  if (document.activeElement) document.activeElement.blur(); // close the keyboard
+  const sh = $("#sheet .sheet"), top = sh ? sh.scrollTop : 0;
+  fillFromMatch(draft, el.dataset.id, +el.dataset.y, el.dataset.m || "");
+  const now = $("#sheet .sheet"); if (now) now.scrollTop = top; // nothing jumps
+}
 function showTypeList(q) {
   const box = $("#typeList");
   if (!box) return;
+  if (q.startsWith("\u2713")) q = "";
+  if (draft && draft._isNew && !draft._replaces && hasYearWord(q)) {
+    const rs = lookupMatches(q);
+    box.innerHTML = rs.length ? whatRows(rs) : `<div class="hint" style="padding:10px">No US coin matches that year and name. Check the year, mint mark or spelling.</div>`;
+    box.hidden = false;
+    return;
+  }
   const { recent, rest } = typeMatches(q);
   const btn = (t) => `<button type="button" data-act="pickType" data-id="${t.id}">${esc(t.name)}<small>${esc(t.denom)} · ${t.start}–${t.end} · ${esc(t.metal)}</small></button>`;
   const head = (txt) => `<div class="ta-head">${txt}</div>`;

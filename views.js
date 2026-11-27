@@ -144,7 +144,7 @@ function viewHome() {
     noValue ? `${noValue} coin${noValue > 1 ? "s" : ""} without a value ${noValue > 1 ? "are" : "is"} counted at melt.` : ""].filter(Boolean).join(" ")}</div>` : ""}
   ${owned.length && owned.every(isInherited) ? "" : `<div class="stats">
     <div class="stat"><div class="k">Cost</div><div class="v">${money(paid, "$0.00")}</div><div class="small muted">Paid, with tax, shipping and fees</div></div>
-    <div class="stat"><div class="k">${gainOf}</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Needs a price paid and a value" : pct(gainPaid ? gain / gainPaid : null) + " · inherited not counted"}</div></div>
+    <div class="stat"><div class="k">${gainOf}</div><div class="v ${signCls(gain)}">${gain == null ? "—" : money(gain)}</div><div class="small muted">${gain == null ? "Needs cost + value" : pct(gainPaid ? gain / gainPaid : null) + " · needs cost + value · inherited not counted"}</div></div>
   </div>`}${typeof bizPlaqueHtml === "function" ? bizPlaqueHtml() : ""}`;
   if (s.showHistory !== false && levelAtLeast("collector") && typeof historyCard === "function") html += historyCard();
 

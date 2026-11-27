@@ -482,3 +482,6 @@ body.safe .win-old { color: #e0a060; }
 .win-body .win-main { width: 100%; }
 .win-body .coin-label { white-space: normal; }
 .photo-link { display: inline-flex; align-items: center; min-height: 44px; margin-left: 8px; text-decoration: none; }
+
+/* Step 35: after picking from "What do you have?", Grade is what's next. */
+.grade-row.next-up select { outline: 2px solid var(--accent); outline-offset: 1px; }

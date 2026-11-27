@@ -1,5 +1,11 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.129.0": [
+    "Add coin starts with What do you have?: type a year and coin (like 1885 CC Morgan), tap the match, and type, year and mint fill in. Grade is outlined next.",
+    "Tap a coin from the Home search, then + Add this coin.",
+    "A line under Grade shows the value that will be used while Value is empty.",
+    "Home's Gain box says what a coin needs to be counted.",
+  ],
   "0.128.0": [
     "Add and Edit coin have their own Value section under Purchase details.",
     "Home's Gain counts only coins with both a price paid and a value, and says how many.",
