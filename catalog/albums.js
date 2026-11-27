@@ -53,6 +53,7 @@ const ALBUM_DB = {
   "Dansco|8166": { name: "Kennedy Half Dollars 1964–2011, with proofs", types: ["kennedy-90", "kennedy-40", "kennedy-clad"], start: 1964, end: 2011, proofs: "all" },
   "Dansco|7175": { name: "Peace Dollars 1921–1935", types: ["peace-dollar"], start: 1921, end: 1935 },
   "Dansco|7176": { name: "Eisenhower Dollars 1971–1978", types: ["ike-clad", "ike-40"], start: 1971, end: 1978 },
+  "Dansco|7181": { name: "American Silver Eagles 1986–2021", types: ["silver-eagle"], start: 1986, end: 2021, spotVarieties: { oneMint: true } }, // one hole per year (shop listings)
   "Dansco|7178": { name: "Morgan Dollars 1878–1890", types: ["morgan-dollar"], start: 1878, end: 1890 },
   "Dansco|7179": { name: "Morgan Dollars 1891–1921", types: ["morgan-dollar"], start: 1891, end: 1921 },
   // Littleton Coin Company albums (numbers from retailer listings; "LCA" is part of the number)

@@ -6,6 +6,9 @@ const WHATS_NEW = {
     "On a proof or mint set: Break up this set makes its coins, splits the cost by value, and offers matching album spots. One Undo.",
     "You can add another blank spot after the same date.",
   ],
+  "0.124.1": [
+    "Album number Dansco 7181 (Silver Eagles 1986–2021) now fills 36 spots, one per year.",
+  ],
   "0.124.0": [
     "Select coins, then Edit one by one: change each, tap Save + next, and the next one opens.",
   ],
