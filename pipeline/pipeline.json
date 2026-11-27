@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-26 (R11 review)",
- "app": "v0.124.1",
+ "updated": "2026-11-26 (E1q + R11f merged)",
+ "app": "v0.125.1",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 59,
+  "weekly_now": 62,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2604,7 +2604,7 @@
    "model": "Opus",
    "est": "1–3",
    "time": "25–45 min",
-   "actual": "pending",
+   "actual": "~2",
    "status": "done",
    "chat": "New Opus chat",
    "when": "11-26",
@@ -2632,11 +2632,11 @@
    "model": "Opus",
    "est": "~3",
    "time": "60-75 min",
-   "actual": "",
-   "status": "next",
+   "actual": "~4 (build ~3 + R11f fixes ~1)",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "after his answers to Q1-Q3 (Questions for you)",
-   "why": "Record what really sits in a spot, and turn a proof set into album-ready coins in a few taps. New optional ticks, so merge waits for your OK.",
+   "why": "Record what really sits in a spot, and turn a proof set into album-ready coins in a few taps. New optional ticks, so merge waits for your OK. R11f (11-26): fixed R11-1 tax/shipping kept in each coin's own boxes, R11-2 break-up asks before losing work + pinned button, R11-3 hidden something-else spot; merged v0.125.1.",
    "items": [
     {
      "id": "E1-13",
@@ -2671,7 +2671,10 @@
     "Albums > Morgan album > tap an empty spot > Something else is in this spot > type Token > Save: orange ring, spot still missing.",
     "My Coins > a proof set > Break up this set > Make coins: 5 coins, cost adds up, Undo puts the set back."
    ],
-   "chats": 1
+   "chats": 2,
+   "started": "11-26 18:42",
+   "ended": "11-26 23:39",
+   "minutes": 95
   },
   {
    "n": "E1r",
@@ -2746,6 +2749,31 @@
    ],
    "try": [
     "Read the report."
+   ]
+  },
+  {
+   "n": "P12",
+   "stage": "now",
+   "name": "Planning: refill the queue",
+   "model": "Opus",
+   "est": "1–2",
+   "time": "45–60 min",
+   "actual": "",
+   "status": "next",
+   "chat": "New Opus chat",
+   "when": "now (queue is empty)",
+   "why": "The queue ran out. Pull the next steps from Later and your notes, talk them through with you, and line up more than a week of work plus small fill-ins. Optional fill-in: R11-4 (backup reminder can count one coin twice).",
+   "items": [
+    {
+     "id": "plan",
+     "size": "S",
+     "what": "Refill the queue",
+     "change": "Planning only, nothing built",
+     "affects": "Nothing until you agree"
+    }
+   ],
+   "try": [
+    "Read the new queue on this page."
    ]
   }
  ],
@@ -3448,8 +3476,15 @@
    "date": "11-26",
    "name": "R11 solo review",
    "ver": "v0.124.1",
-   "cost": "pending",
+   "cost": "~2",
    "change": "Report only: 4 findings, PR #48 waits for R11-1 (tax and shipping counted twice after a break-up)."
+  },
+  {
+   "date": "11-26",
+   "name": "E1q + R11f",
+   "ver": "v0.125.1",
+   "cost": "~4",
+   "change": "Something else in a spot, Take out asks where, Break up a set (tax and shipping stay in their own boxes), second blank spot after one date."
   }
  ],
  "modes": [
