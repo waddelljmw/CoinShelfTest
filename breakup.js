@@ -44,6 +44,23 @@ function buSplit(set) {
   let left = total;
   lines.forEach((l, i) => { const cents = i === lines.length - 1 ? left : Math.round(total * share[i]); left -= cents; l.cost = (cents / 100).toFixed(2); });
 }
+// R11-1: each line's cost is the coin's whole cost. The set's tax, shipping and fees go into each coin's own boxes
+// (shared in the same proportion as the costs), and the rest is its price. So a receipt never adds them a second time.
+function buParts(set) {
+  const cents = bu.lines.map((l) => Math.round((num(l.cost) || 0) * 100)), total = cents.reduce((x, y) => x + y, 0);
+  const big = cents.indexOf(Math.max(...cents)); // rounding pennies go to the costliest coin, so no price goes below zero
+  const out = cents.map(() => ({}));
+  const extra = cents.map(() => 0);
+  BUY_EXTRAS.forEach((k) => {
+    const v = Math.round((num(set[k]) || 0) * 100);
+    if (!v) return;
+    let left = v;
+    cents.forEach((x, i) => { const p = i === big || !total ? 0 : Math.round(v * x / total); out[i][k] = p; left -= p; });
+    out[big][k] = (out[big][k] || 0) + left;
+    out.forEach((o, i) => { extra[i] += o[k]; o[k] = o[k] ? (o[k] / 100).toFixed(2) : ""; });
+  });
+  return out.map((o, i) => { BUY_EXTRAS.forEach((k) => { if (o[k] === "") delete o[k]; }); return { ...o, paid: String(Math.max(0, cents[i] - extra[i]) / 100) }; });
+}
 const buTotalCents = () => bu.lines.reduce((s, l) => s + Math.round((num(l.cost) || 0) * 100), 0);
 // Open album spots this line's coin fits, in every album (same rules as Move to another album). A proof line looks for proof spots.
 function buSpots(set, l) {
@@ -76,16 +93,16 @@ function renderBreakUp() {
       <label class="f"><span>Goes to${spots.length ? ` <span class="small muted">(${spots.length} matching spot${spots.length === 1 ? "" : "s"})</span>` : ""}</span><select data-bu="to" data-i="${i}">${to}</select></label></div>`;
   }).join("");
   const restOpts = opt("__case", "Keep them in the set's case", bu.rest) + placeOptionsHtml(bu.rest);
-  openSheet(`<div class="sheet-head"><h2>Break up this set</h2><button class="x" data-act="closeSheet" aria-label="Close">✕</button></div>
+  openSheet(`<div class="sheet-head"><h2>Break up this set</h2><button class="x" data-act="buClose" aria-label="Close">✕</button></div><div id="buForm">
     <p class="small" style="margin-top:0"><b>${esc(labelOf(set))}</b> · cost ${money(cost / 100, "$0.00")}. Check each coin, then Make coins. Nothing is saved until then.</p>
     ${bu.lines.length ? "" : `<div class="card small">This set's coins aren't filled in for you (only sets whose contents are sure are). Add each coin below.</div>`}
     ${lines}
     ${addTypes.length ? `<label class="f"><span>+ Add a coin</span><select data-bu="add"><option value="">Pick a coin type…</option>${addTypes.map((t) => `<option value="${t.id}">${esc(t.name)}</option>`).join("")}</select></label>` : ""}
-    <div class="bu-sum ${left ? "bad" : ""}">${left ? (left > 0 ? "Left to split: " : "Over by ") + money(Math.abs(left) / 100, "$0.00") : "Cost adds up to " + money(cost / 100, "$0.00") + " ✓"}</div>
     <div class="btn-row">${bu.lines.some((l) => buSpots(set, l).length) ? `<button class="btn" data-act="buMatch">Use matching spots</button>` : ""}${bu.lines.length > 1 ? `<button class="btn" data-act="buResplit">Split by value again</button>` : ""}</div>
     <label class="f" style="margin-top:10px"><span>Coins with no spot go to:</span><select data-bu="rest">${restOpts}</select></label>
     <div class="hint">Each coin keeps the set's Where from, date, seller, receipt and Inherited or Keeping for. The set moves to Gone (Broken up) so your cost history stays. One Undo puts everything back.</div>
-    <button class="btn primary block" data-act="buGo" style="margin-top:10px" ${bu.lines.length && !left ? "" : "disabled"}>Make ${bu.lines.length} coin${bu.lines.length === 1 ? "" : "s"}</button>`, "sheet-75");
+    <div class="fill-save"><div class="bu-sum ${left ? "bad" : ""}">${left ? (left > 0 ? "Left to split: " : "Over by ") + money(Math.abs(left) / 100, "$0.00") : "Cost adds up to " + money(cost / 100, "$0.00") + " ✓"}</div>
+    <button class="btn primary block" data-act="buGo" style="margin-top:6px" ${bu.lines.length && !left ? "" : "disabled"}>Make ${bu.lines.length} coin${bu.lines.length === 1 ? "" : "s"}</button></div></div>`, "sheet-75");
 }
 // "Use matching spots": every line with one matching album gets its spot; a line that matches two albums is left for you to pick.
 function buMatch() {
@@ -120,12 +137,13 @@ function buGo() {
     put("b_" + caseBox.id, caseBox);
     rest = "b:" + caseBox.id;
   }
+  const parts = buParts(set);
   const copy = ["source", "seller", "acquired", "payMethod", "receiptNo", "purchaseId", "inhId", "keepFor", "biz"];
   const used = new Set(), moved = [];
   bu.lines.forEach((l, i) => {
     const c = buCoin(set, l);
     copy.forEach((k) => { if (set[k] != null && set[k] !== "") c[k] = JSON.parse(JSON.stringify(set[k])); });
-    Object.assign(c, { id: uid(), qty: 1, paid: String(num(l.cost) || 0), fromSet: set.id, notes: "From " + labelOf(set), createdAt: when + i, gradeMode: "raw" });
+    Object.assign(c, parts[i], { id: uid(), qty: 1, fromSet: set.id, notes: "From " + labelOf(set), createdAt: when + i, gradeMode: "raw" });
     if (l.to.startsWith("spot:")) {
       const [, aid, sid] = l.to.split(":"), a = withSlotIds(getAlbum(aid)), s = (a.slots || []).find((x) => x.id === sid);
       applyKept(c, "a:" + a.id, true); c.slotId = s.id;
@@ -158,10 +176,11 @@ function buGo() {
 }
 Object.assign(actions, {
   breakUp: (el) => openBreakUp(el.dataset.id),
-  buDel: (el) => { bu.lines.splice(+el.dataset.i, 1); renderBreakUp(); },
-  buMatch,
-  buResplit: () => { buSplit(getCoin(bu.setId)); renderBreakUp(); },
+  buDel: (el) => { bu.lines.splice(+el.dataset.i, 1); formTouched = true; renderBreakUp(); },
+  buMatch: () => { formTouched = true; buMatch(); },
+  buResplit: () => { buSplit(getCoin(bu.setId)); formTouched = true; renderBreakUp(); },
   buGo,
+  buClose: () => dismissSheet(), // R11-2: asks before throwing away what you filled in
 });
 ["breakUp", "buGo"].forEach((x) => SNAPSHOT_BLOCK.add(x));
 // The sheet's boxes: grade, cost, goes to, add a coin, where the rest go. Cost typing doesn't redraw (the keyboard stays up).

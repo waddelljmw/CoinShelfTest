@@ -167,19 +167,20 @@ function albumStats(a) {
   const pfOk = (c, s) => (s.pf ? isProofGrade(c.grade) : !(a.proofs && isProofGrade(c.grade)));
   // loose = a coin put in this very spot stays there, even a proof in a regular spot (he knows what he holds).
   const sameDate = (c, s, loose) => (s.set ? c.typeId === s.t : num(c.year) === s.y && normMint(c.mint) === s.m && (!multi || c.typeId === slotType(a, s)) && (pfOk(c, s) || (loose && !s.pf)));
+  // R11-3: a "something else" coin never fills a dated spot; if its own spot is hidden it shows under Also in this album.
   // 1) Coins added to a specific spot stay in that spot, whatever it's renamed or moved to.
   slots.forEach((s) => {
     if (!s.id) return;
-    const hit = coins.find((c) => !used.has(c.id) && c.slotId === s.id && sameDate(c, s, true));
+    const hit = coins.find((c) => !used.has(c.id) && !c.otherInSpot && c.slotId === s.id && sameDate(c, s, true));
     if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
   });
   // 2) Other coins: variety spots by matching variety, then plain spots by date.
   slots.filter((s) => s.v && !filled.has(slotKey(s))).forEach((s) => {
-    const hit = coins.find((c) => !used.has(c.id) && sameDate(c, s) && (varietyFits(c.variety, s.v) || varietyFits(c.spotVariety, s.v)));
+    const hit = coins.find((c) => !used.has(c.id) && !c.otherInSpot && sameDate(c, s) && (varietyFits(c.variety, s.v) || varietyFits(c.spotVariety, s.v)));
     if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
   });
   slots.filter((s) => !s.v && !filled.has(slotKey(s))).forEach((s) => {
-    const hit = coins.find((c) => !used.has(c.id) && sameDate(c, s) && !(c.slotId && all.some((x) => x.id === c.slotId))) || null;
+    const hit = coins.find((c) => !used.has(c.id) && !c.otherInSpot && sameDate(c, s) && !(c.slotId && all.some((x) => x.id === c.slotId))) || null;
     if (hit) { filled.set(slotKey(s), hit); used.add(hit.id); }
   });
   return {
