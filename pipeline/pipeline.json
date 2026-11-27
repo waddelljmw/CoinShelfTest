@@ -2647,7 +2647,7 @@
    "chats": 1,
    "started": "2026-11-26 18:42",
    "built": "v0.125.0",
-   "waits": "Built and tested (v0.125.0). Merge waits for your OK after you try it in ?demo."
+   "waits": "Built and tested (v0.125.0). Merge waits for your OK on PR #48 after you try it in ?demo."
   },
   {
    "n": "E1r",
