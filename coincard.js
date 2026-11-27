@@ -182,8 +182,16 @@ function lookupOpen(el) {
     <div class="small muted" style="margin:-4px 0 12px">${mt ? "Mintage " + esc(mt.text) + (mt.note ? " (" + esc(mt.note) + ")" : "") : "No mintage in the app for this one"}</div>
     ${(() => { const mine = ownedForLookup(fake); return mine.length ? `<div class="card" style="margin:0 0 10px"><b>${esc(ownedLine(mine))}</b>${mine.slice(0, 6).map((c) => `<div class="rowline" style="padding:4px 0"><button class="link-btn" style="text-align:left" data-go="coin-${esc(c.id)}">${esc(gradeText(c))}${qtyOf(c) > 1 ? " ×" + qtyOf(c) : ""}: ${esc(ownedWhere(c))} ›</button></div>`).join("")}${mine.length > 6 ? `<div class="small muted">and ${mine.length - 6} more</div>` : ""}</div>` : ""; })()}
     ${coinCardHtml(fake, { lookup: true, info: true })}
+    <button class="btn block primary" style="margin-bottom:8px" data-act="lookupAdd" data-t="${esc(fake.typeId)}" data-y="${fake.year}" data-m="${esc(fake.mint)}">+ Add this coin</button>
     ${wanted ? `<div class="hint">\u2605 Already on your want list.</div>` : `<button class="btn block btn-want" data-act="lookupWant" data-t="${esc(fake.typeId)}" data-y="${fake.year}" data-m="${esc(fake.mint)}">\u2605 Add to want list</button>`}
     <div class="btn-row"><a class="btn" style="text-align:center;text-decoration:none;color:inherit" href="${esc(ebayUrl(fake))}" target="_blank" rel="noopener">Search eBay sold \u2197</a></div>`);
+}
+// 166c: Add coin with the looked-up type, year and mint filled in.
+function lookupAdd(el) {
+  if (!TYPE_BY_ID[el.dataset.t]) return;
+  openCoinForm(null);
+  draft._what = "us";
+  fillFromMatch(draft, el.dataset.t, +el.dataset.y, el.dataset.m || "");
 }
 function lookupWant(el) {
   if (!TYPE_BY_ID[el.dataset.t]) return;
@@ -193,4 +201,4 @@ function lookupWant(el) {
   closeSheet();
   toast("Added to " + ((getWantList(DEFAULT_LIST_ID) || {}).name || "your want list") + ".");
 }
-Object.assign(actions, { lookupOpen, lookupWant, ownWhere });
+Object.assign(actions, { lookupOpen, lookupWant, lookupAdd, ownWhere });

@@ -242,7 +242,8 @@ const actions = {
   },
   // form
   gmode: (el) => { draft.gradeMode = el.dataset.v; if (draft.gradeMode === "raw" && draft.holder === "Slab") draft.holder = ""; if (draft.gradeMode === "cert" && draft.grade === "Junk") draft.grade = ""; renderCoinForm(); },
-  pickType: (el) => pickType(el.dataset.id),
+  pickType: (el) => { if (document.activeElement) document.activeElement.blur(); pickType(el.dataset.id); },
+  whatPick: (el) => whatPick(el),
   what: (el) => {
     const junk = el.dataset.v === "junk", v = junk ? "bullion" : el.dataset.v;
     draft._what = v === "roll" ? "us" : v;
@@ -345,7 +346,7 @@ function deleteAlbumNow(a, dropWants) {
   toast("Album deleted. Its coins are still in your collection.", { label: "Undo", fn: () => { put("a_" + a.id, a); inAlbum.forEach((c) => saveCoin(c)); if (dropList) saveWantList(dropList); ws.forEach(saveWant); render(); } });
 }
 const SNAPSHOT_BLOCK = new Set(("editEach pocketNew fillSpots fillGo sellLater edit editSale sell unsell refund selAsk delete restore purge confirmOk boxNew boxEdit boxDelete boxAdd boxAddNew boxHave slotMoveList slotMoveGo newAlbum editAlbum deleteAlbum editSlots addSpot spotEdit moveSpot slotWantQuick slotTakeOut swapGo delAlbumGo " +
-  "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale textSize shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd lookupWant slotUnwant missing missingQuick missQuickAdd missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
+  "fetchSpot hideSpot showSold homeTog optSec forSale forSaleOk notForSale textSize shelfStyle idStyle idRenumber idUndoRenumber shelfShow shelfMove shelfPin shelfItem shelfShowAll slotWant slotWantAdd lookupWant lookupAdd whatPick slotUnwant missing missingQuick missQuickAdd missAdd missAll wantEdit wantGot wantNew wantRemove awNew awEdit awGot awRemove wlNew wlDelete " +
   "export openImport undoImport openReport openSnapshot openBackup doBackup savePriceFile reorderAlbums sortAlbumsDate autoOrder autoOrderOn moveAlbum").split(" "));
 document.addEventListener("click", (e) => {
   const starEl = e.target.closest("[data-act=favToggle]"); // the star inside a list row must not open the coin
@@ -379,7 +380,7 @@ let spotTimer = null;
 const spotPending = {}; // metal prices typed but not saved yet
 document.addEventListener("input", (e) => {
   const el = e.target;
-  if (el.id === "typeSearch") { if (draft) draft._typeQ = el.value; showTypeList(el.value); return; } // keep what was typed even if the form redraws (e.g. after the year)
+  if (el.id === "typeSearch") { if (draft) { draft._typeQ = el.value; delete draft._picked; } showTypeList(el.value); return; } // keep what was typed even if the form redraws (e.g. after the year)
   if (el.id === "spotY") { refreshSpotHints(); return; }
   if (el.id === "homeSearch") { listState.q = el.value; listState.status = "owned"; focusCoinSearch = true; if (location.hash === "#coins") render(); else go("coins"); return; }
   if (el.dataset.list === "q") { listState.q = el.value; render(); return; }
@@ -436,7 +437,7 @@ document.addEventListener("input", (e) => {
   refreshFormHints();
 });
 document.addEventListener("input", (e) => { if (e.target.id === "albumTypeFind") albumTypeSearch(e.target, false); });
-document.addEventListener("focusin", (e) => { if (e.target.id === "typeSearch") showTypeList(e.target.value); if (e.target.classList && e.target.classList.contains("tsel-q")) tselShow(e.target); });
+document.addEventListener("focusin", (e) => { if (e.target.id === "typeSearch") { if (e.target.value.startsWith("\u2713")) e.target.select(); showTypeList(e.target.value); } if (e.target.classList && e.target.classList.contains("tsel-q")) tselShow(e.target); });
 document.addEventListener("input", (e) => { const q = e.target; if (q.classList && q.classList.contains("tsel-q")) { const h = q.parentNode.querySelector("input[type=hidden]"); if (h && h.value) { h.value = ""; h.dispatchEvent(new Event("change", { bubbles: true })); } tselShow(q); } });
 document.addEventListener("click", (e) => { document.querySelectorAll(".tsel .ta-list:not([hidden])").forEach((b) => { if (!b.parentNode.contains(e.target)) b.hidden = true; }); });
 document.addEventListener("change", (e) => {

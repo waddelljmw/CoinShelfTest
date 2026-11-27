@@ -37,7 +37,7 @@ const srv = http.createServer((q, r) => {
   await p.click("#coinForm button[type=submit]"); await p.waitForTimeout(400);
   ok("year wins over the tick", await p.evaluate(() => allCoins().some((c) => c.year === 1881 && !c.noDate)));
   // year first narrows the type list
-  await p.click("#fab"); ok("Year box comes before the type search", await p.evaluate(() => { const y = document.querySelector("[data-f=year]"), t = document.querySelector("#typeSearch"); return !!(y && t && (y.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING)); }));
+  await p.click("#fab"); ok("Step 35: the What do you have box comes before Year", await p.evaluate(() => { const y = document.querySelector("[data-f=year]"), t = document.querySelector("#typeSearch"); return !!(y && t && (t.compareDocumentPosition(y) & Node.DOCUMENT_POSITION_FOLLOWING)); }));
   await p.fill("[data-f=year]", "1925"); await p.fill("#typeSearch", "");
   await p.focus("#typeSearch"); await p.waitForTimeout(100);
   const l1925 = await p.evaluate(() => [...document.querySelectorAll("#typeList button")].map((x) => x.textContent));
