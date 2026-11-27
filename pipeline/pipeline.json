@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-27 (step 44 talk locked, 44b next)",
- "app": "v0.126.0",
+ "updated": "2026-11-27 (step 44b built)",
+ "app": "v0.127.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
   "weekly_now": 75,
@@ -2817,7 +2817,7 @@
    "est": "~1–2",
    "time": "45 min",
    "actual": "",
-   "status": "todo",
+   "status": "next",
    "chat": "New Sonnet chat",
    "when": "now",
    "why": "Small fixes from report 37 plus your 11-27 answers. No saved data changes.",
@@ -3219,11 +3219,11 @@
    "model": "Opus",
    "est": "3–4",
    "time": "90 min",
-   "actual": "",
-   "status": "next",
+   "actual": "~2 (est, reading pending)",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "when you have 5 min to OK the saved-data change",
-   "why": "Name your own value sources (Blue Book, your Red Book), see compare-only values on a coin, load up to 3 price lists and pick which fills blank coins. Main value is the only one in totals.",
+   "why": "Done 11-27 (v0.127.0): name your own value sources, Melt (follows silver) in Value from, + Compare another value, up to 3 price lists with Fill blank coins from.",
    "items": [
     {
      "id": "154",
@@ -3237,7 +3237,10 @@
     "Add coin: Value from › + Name a new source… type 'Blue Book', save a value.",
     "Same coin: + Compare another value, pick eBay sold, $20. Coin page shows it; Home total doesn't change.",
     "Value from › Melt (follows silver) on a silver coin: Value box clears, coin page shows melt."
-   ]
+   ],
+   "started": "2026-11-27 15:33",
+   "ended": "2026-11-27 15:43",
+   "minutes": 10
   },
   {
    "n": "45",
@@ -4008,6 +4011,13 @@
    "ver": "",
    "cost": "~2",
    "change": "Plan locked (reviews/41): your own named value sources, compare-only values, up to 3 price lists, Melt as a Value from choice. Build is 44b."
+  },
+  {
+   "date": "11-27",
+   "name": "Step 44b: Value sources",
+   "ver": "v0.127.0",
+   "cost": "~2",
+   "change": "Value from: your own named sources and Melt (follows silver). + Compare another value (never in totals). Coin Value: load up to 3 price lists, pick which fills blank coins."
   }
  ],
  "modes": [
