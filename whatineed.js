@@ -54,7 +54,7 @@ function winRowHtml(r) {
   </div>`;
 }
 
-const winState = { tab: "albums", q: "", f: "all", album: "", open: {} };
+const winState = { tab: "albums", q: "", f: "all", album: "", open: {}, qOpen: {} }; // qOpen: folds made while searching or on one album, so your own folds (open) are left alone
 let winFocus = false;
 function allNeedRows() { return albums().flatMap(albumNeedRows); }
 function winRowByKey(k) { return allNeedRows().find((r) => r.key === k); }
@@ -77,7 +77,7 @@ function albumsTabHtml() {
     ${pri.length ? `<h2 style="font-size:16px;margin:12px 2px 4px">★ Priority</h2><div class="list">${pri.map(winRowHtml).join("")}</div>` : ""}
     ${groups.map((g) => {
       const need = g.rows.filter((r) => r.kind === "need").length, up = g.rows.length - need;
-      const open = winState.open[g.a.id] ?? (narrowed || g.rows.length <= 8);
+      const open = narrowed ? winState.qOpen[g.a.id] ?? true : winState.open[g.a.id] ?? g.rows.length <= 8;
       return `<h2 class="fold"><button class="fold-btn" data-act="winFold" data-id="${esc(g.a.id)}" aria-expanded="${open}"><span>${esc(albumTitle(g.a))} <span class="small muted">${[need ? need + " need" : "", up ? up + " upgrade" : ""].filter(Boolean).join(" · ")}${g.a.aimFor ? " · aim " + esc(aimShort(g.a.aimFor)) : ""}</span></span><i aria-hidden="true">${open ? "▾" : "▸"}</i></button></h2>${open ? `<div class="list">${g.rows.map(winRowHtml).join("")}</div>` : ""}`;
     }).join("")}
     ${rows.length ? "" : `<div class="card empty">${albums().length ? (narrowed || winState.f !== "all" ? "Nothing matches." : "Every album spot is filled and nothing needs an upgrade.") : "Add an album and its empty spots show up here by themselves."}</div>`}
@@ -164,7 +164,7 @@ function readAlbumAim(fd, a) {
 Object.assign(actions, {
   winTab: (el) => { winState.tab = el.dataset.v; render(); },
   winF: (el) => { winState.f = el.dataset.v; render(); },
-  winFold: (el) => { const id = el.dataset.id; winState.open[id] = el.getAttribute("aria-expanded") !== "true"; render(); },
+  winFold: (el) => { const id = el.dataset.id; (winState.q.trim() || winState.album ? winState.qOpen : winState.open)[id] = el.getAttribute("aria-expanded") !== "true"; render(); },
   winCard: (el) => openWinCard(el.dataset.k),
   winPrice: (el) => openWinPrice(el.dataset.k),
   winStar: (el) => {
@@ -188,10 +188,10 @@ Object.assign(actions, {
   winOpenAlbum: (el) => { closeSheet(); go("album-" + el.dataset.id); },
 });
 document.addEventListener("input", (e) => {
-  if (e.target.id === "winQ") { winState.q = e.target.value; winFocus = true; render(); }
+  if (e.target.id === "winQ") { winState.q = e.target.value; winState.qOpen = {}; winFocus = true; render(); }
 });
 document.addEventListener("change", (e) => {
-  if (e.target.id === "winAlbum") { winState.album = e.target.value; render(); }
+  if (e.target.id === "winAlbum") { winState.album = e.target.value; winState.qOpen = {}; render(); }
 });
 document.addEventListener("submit", (e) => {
   if (e.target.id === "winPriceForm") { e.preventDefault(); saveWinPrice(e.target); }

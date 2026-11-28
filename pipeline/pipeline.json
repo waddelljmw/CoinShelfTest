@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-27 (step 35 built)",
- "app": "v0.129.0",
+ "updated": "2026-11-27 (36b + 36 built)",
+ "app": "v0.129.1",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 79,
+  "weekly_now": 80,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -2895,7 +2895,7 @@
    "model": "Sonnet",
    "est": "~1–2",
    "time": "45–60 min",
-   "actual": "reading pending",
+   "actual": "~1",
    "status": "done",
    "chat": "New Sonnet chat",
    "when": "any time",
@@ -2942,8 +2942,36 @@
     "Home search \"1964 quarter\", tap the result, tap + Add this coin."
    ],
    "started": "11-27 17:39",
-   "ended": "11-27 18:00",
-   "minutes": 21
+   "ended": "11-27 18:23",
+   "minutes": 44
+  },
+  {
+   "n": "36b",
+   "stage": "now",
+   "name": "Search opens folded albums (What I need)",
+   "model": "Sonnet",
+   "est": "~0–1",
+   "time": "15 min",
+   "actual": "reading pending",
+   "status": "done",
+   "chat": "Same chat as step 36",
+   "when": "now",
+   "why": "Bug you OK'd 11-27: a folded album stayed folded while searching, hiding the match.",
+   "items": [
+    {
+     "id": "fold-search",
+     "size": "S",
+     "what": "Search opens folds",
+     "change": "While searching or picking one album, matching albums are open; clearing puts your folds back",
+     "affects": "Display only"
+    }
+   ],
+   "try": [
+    "In ?demo=big open What I need, fold an album, search a date in it: it opens. Clear: it folds again."
+   ],
+   "started": "11-27 18:52",
+   "ended": "11-27 19:00",
+   "minutes": 8
   },
   {
    "n": "36",
@@ -2952,8 +2980,8 @@
    "model": "Sonnet",
    "est": "~0–1",
    "time": "15 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "any time",
    "why": "Many built ideas (e.g. 134, 163, 164) aren't marked done; mark them from pipeline.json so planning reads less.",
@@ -2968,7 +2996,10 @@
    ],
    "try": [
     "Nothing to try (docs only)."
-   ]
+   ],
+   "started": "11-27 18:52",
+   "ended": "11-27 19:00",
+   "minutes": 8
   },
   {
    "n": "37",
@@ -2978,7 +3009,7 @@
    "est": "~1",
    "time": "40 min",
    "actual": "",
-   "status": "todo",
+   "status": "next",
    "chat": "New Sonnet chat",
    "when": "any time",
    "why": "For silver stacks and bullion: what you paid per ounce on average. Check the fields already saved first.",
@@ -2987,7 +3018,7 @@
      "id": "135",
      "size": "M",
      "what": "Cost per ounce",
-     "change": "Shown on stacks and the melt page from cost and weight already saved",
+     "change": "On each My Stacks summary line (not the Melt table, his call 11-27): items with a price paid only, \"on N of M\"; inherited and Business left out",
      "affects": "Display only"
     }
    ],
@@ -4057,8 +4088,15 @@
    "date": "11-27",
    "name": "Step 35: Type what you have",
    "ver": "v0.129.0",
-   "cost": "reading pending",
+   "cost": "~1",
    "change": "Add coin has a What do you have? box (\"1885 cc mo\", tap the match); + Add this coin from a search result; value line under Grade; clearer Gain wording."
+  },
+  {
+   "date": "11-27",
+   "name": "Bug: search opens folded albums + step 36 IDEAS.md tidy",
+   "ver": "v0.129.1",
+   "cost": "reading pending",
+   "change": "What I need: searching opens folded albums with a match; clearing puts folds back. Built ideas marked done in IDEAS.md."
   }
  ],
  "modes": [

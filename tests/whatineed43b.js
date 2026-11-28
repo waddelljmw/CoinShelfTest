@@ -49,6 +49,16 @@ const { chromium } = require("./_compat");
   await p.fill("#winQ", "1881 s"); await p.waitForTimeout(200);
   ok("search 1881 s narrows to one row, focus kept", (await p.locator(".win-row").count()) === 1 && (await ev(() => document.activeElement && document.activeElement.id)) === "winQ");
   await p.fill("#winQ", ""); await p.waitForTimeout(150);
+  await p.click("[data-act=winFold]"); await p.waitForTimeout(150); // fold it, then search
+  await p.fill("#winQ", "1881 s"); await p.waitForTimeout(200);
+  ok("search opens a folded album with a match", (await p.locator(".win-row").count()) === 1);
+  await p.fill("#winQ", ""); await p.waitForTimeout(150);
+  ok("clearing the search puts the fold back", (await p.locator(".win-row").count()) === 0);
+  await p.selectOption("#winAlbum", "A1"); await p.waitForTimeout(150); // still folded here
+  ok("picking one album opens it even if folded", (await p.locator(".win-row").count()) > 0);
+  await p.selectOption("#winAlbum", ""); await p.waitForTimeout(150);
+  ok("back to All albums puts the fold back", (await p.locator(".win-row").count()) === 0);
+  await p.click("[data-act=winFold]"); await p.waitForTimeout(150);
   await p.click("[data-act=winF][data-v=up]"); await p.waitForTimeout(150);
   ok("Upgrade chip shows only Upgrade rows", (await p.locator(".win-tag.need").count()) === 0 && (await p.locator(".win-row").count()) === 3);
   await p.click("[data-act=winF][data-v=all]"); await p.waitForTimeout(150);
