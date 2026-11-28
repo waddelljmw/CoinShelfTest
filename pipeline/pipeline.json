@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-27 (37 built)",
+ "updated": "2026-11-27 23:20",
  "app": "v0.130.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 81,
+  "weekly_now": 82,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -3064,8 +3064,8 @@
    "model": "Opus",
    "est": "~1",
    "time": "30 min",
-   "actual": "",
-   "status": "next",
+   "actual": "~1 (reading pending)",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "any time",
    "why": "A made-up pawn-shop owner buys and logs coins at the counter on ?demo=big. Report only, tap counts.",
@@ -3080,7 +3080,11 @@
    ],
    "try": [
     "Read the report in the Reading tab."
-   ]
+   ],
+   "started": "2026-11-27 23:06",
+   "ended": "2026-11-27 23:20",
+   "minutes": 14,
+   "report": "reviews/42-pawn-shop-sim-2026-11-27.md"
   },
   {
    "n": "39",
@@ -3090,7 +3094,7 @@
    "est": "~1",
    "time": "20 min",
    "actual": "",
-   "status": "todo",
+   "status": "next",
    "chat": "New Opus chat",
    "when": "any time",
    "why": "Your call 11-27: test before building Skip. An heir with ~100 inherited coins and a busy collector work through Needs attention; count coins they can't or won't fix. Report only. If it shows a need, Skip comes back with the 4 safeguards (count on Home, Show skipped, mark on coin page, edits bring it back).",
@@ -3478,6 +3482,13 @@
  ],
  "prompt_template": "Let's start the coin work. Pipeline step {n}: {name}. Mode: {mode}. Usage: [{usage}]",
  "done": [
+  {
+   "date": "11-27",
+   "name": "38 Pawn-shop sim (Opus)",
+   "ver": "",
+   "cost": "~1",
+   "change": "Report 42: 8 findings. Never-made coins get in (search, import), a half-done receipt is lost if the app closes, the counter check misses upgrade and pay-up-to, duplicate cert numbers, spreadsheet slab text, provenance, early U.S. types. Nothing built."
+  },
   {
    "date": "11-24",
    "name": "Weekly planning (Opus)",
@@ -4680,6 +4691,11 @@
    "id": "sP12-1",
    "title": "P12 planning minutes (what we locked 11-27)",
    "file": "report-39.md"
+  },
+  {
+   "id": "s38-0",
+   "title": "Pawn-shop owner sim (8 findings)",
+   "file": "report-42.md"
   }
  ]
 }
