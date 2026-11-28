@@ -175,6 +175,20 @@ function viewHome() {
   return html;
 }
 
+// Step 37 (135): average paid per pure ounce, one figure per metal. Only items with a price paid (and a weight) are used;
+// inherited items are left out, and the caller passes no Business stock. Cost includes tax, shipping and fees.
+function costPerOzText(items) {
+  const own = items.filter((c) => !isInherited(c) && meltKey(c));
+  const metals = SPOT_METALS.filter((m) => own.some((c) => meltKey(c) === m.key));
+  return metals.map((m) => {
+    const all = own.filter((c) => meltKey(c) === m.key);
+    const used = all.filter((c) => costOf(c) > 0 && ozEach(c) > 0);
+    const oz = sum(used, (c) => ozEach(c) * qtyOf(c));
+    const name = metals.length > 1 ? m.label.toLowerCase() + " " : "";
+    return `${name}avg cost ${oz ? money(sum(used, costOf) / oz) + " per oz" : "per oz —"} (on ${sum(used, qtyOf)} of ${sum(all, qtyOf)})`;
+  }).join(" · ");
+}
+
 function viewStacks() {
   const names = stacksPresent();
   const head = `<h1>My Stacks</h1><div class="small muted" style="margin-bottom:10px">Bars, rounds and junk silver, kept apart from your coins. Each stack counts in your Home totals (switch one off with its chip on Home).</div>`;
@@ -185,8 +199,9 @@ function viewStacks() {
     const oz = sum(cs, (c) => ozEach(c) * qtyOf(c));
     const melt = cs.some((c) => meltEach(c) == null) ? null : sum(cs, (c) => meltEach(c) * qtyOf(c));
     const val = sum(cs, (c) => (bestEach(c) || 0) * qtyOf(c));
+    const avg = costPerOzText(cs);
     return `<details class="card"><summary><b>${esc(n)}</b>${hiddenStacks().includes(n) ? ` <span class="muted small">· left out of Home totals</span>` : ""}
-      <div class="small muted">${sum(cs, qtyOf)} item${sum(cs, qtyOf) === 1 ? "" : "s"} · ${oz.toFixed(3)} oz pure · melt ${money(melt)} · value ${money(val)}${bz.length ? ` · + ${sum(bz, qtyOf)} Business, counted apart` : ""}</div></summary>
+      <div class="small muted">${sum(cs, qtyOf)} item${sum(cs, qtyOf) === 1 ? "" : "s"} · ${oz.toFixed(3)} oz pure · melt ${money(melt)} · value ${money(val)}${bz.length ? ` · + ${sum(bz, qtyOf)} Business, counted apart` : ""}</div>${avg ? `<div class="small muted stack-avg">${avg}</div>` : ""}</summary>
       <div class="list" style="margin-top:8px">${cs.map((c) => coinRow(c)).join("")}</div>${bz.length ? `<div class="small muted" style="margin:10px 2px 4px"><b>Business stock</b> (not in the totals above)</div><div class="list">${bz.map((c) => coinRow(c)).join("")}</div>` : ""}</details>`;
   }).join("") + add;
 }

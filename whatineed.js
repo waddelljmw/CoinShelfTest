@@ -32,7 +32,10 @@ function albumNeedRows(a) {
   return rows;
 }
 const rowWords = (r) => (r.label + " " + albumTitle(r.a)).toLowerCase().replace(/-/g, " ");
-const rowMatches = (r, q) => q.toLowerCase().replace(/-/g, " ").split(/\s+/).filter(Boolean).every((w) => rowWords(r).split(/\s+/).some((x) => x.startsWith(w)));
+// "1878cc" reads like "1878 cc". A word that is a mint letter matches the spot's mint only (so "d" doesn't find "dime"); no mint mark counts as P.
+const MINT_LETTERS = ["p", "d", "s", "o", "c", "cc", "w"];
+const queryWords = (q) => q.toLowerCase().replace(/-/g, " ").replace(/\b(\d{4})(cc|p|d|s|o|c|w)\b/g, "$1 $2").split(/\s+/).filter(Boolean);
+const rowMatches = (r, q) => queryWords(q).every((w) => (MINT_LETTERS.includes(w) ? !r.s.set && (normMint(r.s.m).toLowerCase() || "p") === w : rowWords(r).split(/\s+/).some((x) => x.startsWith(w))));
 
 const MONTH_MS = 30.44 * 864e5;
 function oldPriceHint(w) {

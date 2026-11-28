@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-27 (36b + 36 built)",
- "app": "v0.129.1",
+ "updated": "2026-11-27 (37 built)",
+ "app": "v0.130.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 80,
+  "weekly_now": 81,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -445,7 +445,7 @@
    ],
    "started": "Wed 11-18 10:21pm",
    "ended": "Wed 11-18 10:44pm",
-   "minutes": 23,
+   "minutes": 8,
    "chats": 1
   },
   {
@@ -1270,7 +1270,7 @@
    ],
    "started": "Fri 11-20 8:23am",
    "ended": "Fri 11-20 8:46am",
-   "minutes": 23
+   "minutes": 8
   },
   {
    "n": 22,
@@ -2952,7 +2952,7 @@
    "model": "Sonnet",
    "est": "~0–1",
    "time": "15 min",
-   "actual": "reading pending",
+   "actual": "~1 (36 + 36b together)",
    "status": "done",
    "chat": "Same chat as step 36",
    "when": "now",
@@ -2980,7 +2980,7 @@
    "model": "Sonnet",
    "est": "~0–1",
    "time": "15 min",
-   "actual": "reading pending",
+   "actual": "~1 (36 + 36b together)",
    "status": "done",
    "chat": "New Sonnet chat",
    "when": "any time",
@@ -3002,14 +3002,42 @@
    "minutes": 8
   },
   {
+   "n": "37b",
+   "stage": "now",
+   "name": "Search 1878cc (What I need)",
+   "model": "Sonnet",
+   "est": "~0–1",
+   "time": "10 min",
+   "actual": "reading pending",
+   "status": "done",
+   "chat": "Same chat as step 37",
+   "when": "now",
+   "why": "Bug you OK'd 11-27: 1878cc found nothing, and a mint letter also matched words like dime.",
+   "items": [
+    {
+     "id": "mint-search",
+     "size": "S",
+     "what": "Mint search",
+     "change": "1878cc reads like 1878 cc; a mint letter matches the mint only (no mint mark = P)",
+     "affects": "Display only"
+    }
+   ],
+   "try": [
+    "In ?demo=big open What I need and search 1878cc, then 1878 cc: same results."
+   ],
+   "started": "11-27 21:42",
+   "ended": "11-27 21:50",
+   "minutes": 8
+  },
+  {
    "n": "37",
    "stage": "now",
    "name": "Average cost per ounce (idea 135)",
    "model": "Sonnet",
    "est": "~1",
    "time": "40 min",
-   "actual": "",
-   "status": "next",
+   "actual": "reading pending",
+   "status": "done",
    "chat": "New Sonnet chat",
    "when": "any time",
    "why": "For silver stacks and bullion: what you paid per ounce on average. Check the fields already saved first.",
@@ -3023,8 +3051,11 @@
     }
    ],
    "try": [
-    "Open a silver stack in ?demo=big: see average cost per ounce."
-   ]
+    "In ?demo=big open My Stacks: each stack shows avg cost per oz (on N of M)."
+   ],
+   "started": "11-27 21:42",
+   "ended": "11-27 21:50",
+   "minutes": 8
   },
   {
    "n": "38",
@@ -3034,7 +3065,7 @@
    "est": "~1",
    "time": "30 min",
    "actual": "",
-   "status": "todo",
+   "status": "next",
    "chat": "New Opus chat",
    "when": "any time",
    "why": "A made-up pawn-shop owner buys and logs coins at the counter on ?demo=big. Report only, tap counts.",
@@ -4095,8 +4126,15 @@
    "date": "11-27",
    "name": "Bug: search opens folded albums + step 36 IDEAS.md tidy",
    "ver": "v0.129.1",
-   "cost": "reading pending",
+   "cost": "~1",
    "change": "What I need: searching opens folded albums with a match; clearing puts folds back. Built ideas marked done in IDEAS.md."
+  },
+  {
+   "date": "11-27",
+   "name": "Step 37: average cost per ounce + 1878cc search",
+   "ver": "v0.130.0",
+   "cost": "reading pending",
+   "change": "My Stacks shows average cost per ounce on each stack; What I need finds 1878cc and a mint letter matches only the mint."
   }
  ],
  "modes": [
