@@ -2962,7 +2962,7 @@
      "id": "fold-search",
      "size": "S",
      "what": "Search opens folds",
-     "change": "While searching, every album with a match is open; clearing the search puts your folds back",
+     "change": "While searching or picking one album, matching albums are open; clearing puts your folds back",
      "affects": "Display only"
     }
    ],

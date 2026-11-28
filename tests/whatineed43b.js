@@ -54,6 +54,10 @@ const { chromium } = require("./_compat");
   ok("search opens a folded album with a match", (await p.locator(".win-row").count()) === 1);
   await p.fill("#winQ", ""); await p.waitForTimeout(150);
   ok("clearing the search puts the fold back", (await p.locator(".win-row").count()) === 0);
+  await p.selectOption("#winAlbum", "A1"); await p.waitForTimeout(150); // still folded here
+  ok("picking one album opens it even if folded", (await p.locator(".win-row").count()) > 0);
+  await p.selectOption("#winAlbum", ""); await p.waitForTimeout(150);
+  ok("back to All albums puts the fold back", (await p.locator(".win-row").count()) === 0);
   await p.click("[data-act=winFold]"); await p.waitForTimeout(150);
   await p.click("[data-act=winF][data-v=up]"); await p.waitForTimeout(150);
   ok("Upgrade chip shows only Upgrade rows", (await p.locator(".win-tag.need").count()) === 0 && (await p.locator(".win-row").count()) === 3);
