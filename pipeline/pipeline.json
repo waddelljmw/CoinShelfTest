@@ -3018,7 +3018,7 @@
      "id": "135",
      "size": "M",
      "what": "Cost per ounce",
-     "change": "Shown on stacks and the melt page from cost and weight already saved",
+     "change": "On each My Stacks summary line (not the Melt table, his call 11-27): items with a price paid only, \"on N of M\"; inherited and Business left out",
      "affects": "Display only"
     }
    ],
