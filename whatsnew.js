@@ -1,5 +1,9 @@
 // "What's new": a short list of plain lines per version. Fixes-only versions have no entry and show nothing.
 const WHATS_NEW = {
+  "0.130.0": [
+    "My Stacks shows your average cost per ounce on each stack (items with a price paid; inherited and Business left out).",
+    "What I need search: 1878cc works like 1878 cc, and a mint letter finds only that mint.",
+  ],
   "0.129.0": [
     "Add coin starts with What do you have?: type a year and coin (like 1885 CC Morgan), tap the match, and type, year and mint fill in. Grade is outlined next.",
     "Tap a coin from the Home search, then + Add this coin.",
