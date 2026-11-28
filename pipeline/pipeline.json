@@ -1,9 +1,9 @@
 {
- "updated": "2026-11-27 23:20",
+ "updated": "2026-11-28 00:02",
  "app": "v0.130.0",
  "week": {
   "label": "Tue 11-24 1pm → Tue 12-01 1pm",
-  "weekly_now": 82,
+  "weekly_now": 84,
   "build_cap": 85,
   "fill_cap": 95,
   "fantasy_reserve": 5,
@@ -3064,7 +3064,7 @@
    "model": "Opus",
    "est": "~1",
    "time": "30 min",
-   "actual": "~1 (reading pending)",
+   "actual": "~2",
    "status": "done",
    "chat": "New Opus chat",
    "when": "any time",
@@ -3093,8 +3093,8 @@
    "model": "Opus",
    "est": "~1",
    "time": "20 min",
-   "actual": "",
-   "status": "next",
+   "actual": "~1 (reading pending)",
+   "status": "done",
    "chat": "New Opus chat",
    "when": "any time",
    "why": "Your call 11-27: test before building Skip. An heir with ~100 inherited coins and a busy collector work through Needs attention; count coins they can't or won't fix. Report only. If it shows a need, Skip comes back with the 4 safeguards (count on Home, Show skipped, mark on coin page, edits bring it back).",
@@ -3109,7 +3109,11 @@
    ],
    "try": [
     "Read the report in the Reading tab."
-   ]
+   ],
+   "started": "2026-11-27 23:56",
+   "ended": "2026-11-28 00:02",
+   "minutes": 6,
+   "report": "reviews/43-needs-attention-skip-sim-2026-11-28.md"
   },
   {
    "n": "40",
@@ -3119,7 +3123,7 @@
    "est": "2–3",
    "time": "60 min",
    "actual": "",
-   "status": "todo",
+   "status": "next",
    "chat": "New Opus chat",
    "when": "stops for your OK before merging",
    "why": "Restoring an older backup can drop newer coins. (1) Safety copy of the phone before every restore + Undo. (2) \"Keep my newer coins and add the rest\" as the top choice (needs a \"last changed\" date per coin; deleted coins stay deleted). Saved-data change: 4-box check; merge waits for your OK.",
@@ -4146,6 +4150,13 @@
    "ver": "v0.130.0",
    "cost": "reading pending",
    "change": "My Stacks shows average cost per ounce on each stack; What I need finds 1878cc and a mint letter matches only the mint."
+  },
+  {
+   "date": "11-28",
+   "name": "Step 39: Needs attention sim (report 43)",
+   "ver": "v0.130.0",
+   "cost": "reading pending",
+   "change": "Report only: Skip not needed; missing answers are \"Don't know what I paid\" (N1) and Can't tell mint in Set for all (N2)."
   }
  ],
  "modes": [
